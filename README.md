@@ -8,11 +8,11 @@ To use these datasets as the basis for a clinically useful tool, it must be poss
 1. Develop models in a exploratory/prototyping context (e.g. using R or python), to assess the utility of the information in the dataset.
 2. Be able to translate the models into a form that can be deployed in a clinical context.
 
-The goal of this repository is to present a common code base that can be used for step 1, and also provides a route for step 2 by making a core part of the preprocessing code usable as the prototype or initial basis for a deployed tool. 
+The goal of this repository is to present a common code base that can be used for step 1, and also provides a route for step 2 by making a core part of the preprocessing code usable as the prototype or initial basis for a deployed tool. Although the repository is a calculation of the ARC-HBR score, the intention is to create a framework flexible enough for developing other models for the prediction of bleeding and ischaemic risk in patients with acute coronary syndromes.
 
 The combination of steps 1 and 2 has multiple benefits:
 * Emphasis on testing and careful documentation is present also for step 1, as it would be for the development of a deployed software product, which will improve the reliability of the data analysis.
 * If step 1 is successful, and good models are found that should ideally be deployed, then less effort is required to port the code to the deployment context.
 * If the preprocessing steps are complicated, there is assurance (due to the tests and documentation) that new code developed for the deployment context will do the same thing as the prototype code.
 
-A concrete specification for the code is contained in [Specification](`1_specification.md`). 
+A concrete specification for the code is contained in [Specification](`specification.md`). 
