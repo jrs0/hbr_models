@@ -4,4 +4,5 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-sqlx = { version = "0.6", features = [ "runtime-tokio-rustls","mssql",] }
+sqlx = { version = "0.6", features = [  "runtime-async-std-native-tls", "mssql" ] }
+async-std = { version = "1", features = [ "attributes" ] }
