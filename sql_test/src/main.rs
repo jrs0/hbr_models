@@ -8,7 +8,7 @@ async fn main() -> Result<(), sqlx::Error> {
     //  etc.
     let pool = MssqlPoolOptions::new()
         .max_connections(5)
-        .connect("mssql://@xsw").await
+        .connect("mssql://user.name@server/database").await
         .expect("Failed to connect to database");
 
     // Make a simple query to return the given parameter (use a question mark `?` instead of `$1` for MySQL)
