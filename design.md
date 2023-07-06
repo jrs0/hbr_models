@@ -36,9 +36,15 @@ Ideally, a single library should connect to the two required data sources (SQL S
 
 The Rust crate [sqlx](https://crates.io/crates/sqlx) supports both, but it does not seem possible to use data-source-name-based connection strings, or active-directory-based authentication to connect to the database. In addition, the SQL Server support was only recently added, does not support encryption, and appears to be being moved to a proprietory license (see [here](https://stackoverflow.com/questions/70032527/connecting-to-sql-server-with-sqlx)). For simplicity in Windows, an ODBC-based driver would be preferable, because it will support ODBC-style connection strings (in particular, domain source names). 
 
-Another approach is to use a framework such as. Arrow supports an ODBC connection library [arrow-odbc](https://crates.io/crates/arrow-odbc), which [supports the odbc connection sytax](https://docs.rs/arrow-odbc/latest/arrow_odbc/). SQLite support is not clear, however, Arrow itself (more specifically, [Parquet](https://parquet.apache.org/)), may be a more easily-integrated format for testing. This way, the tests can be written at the Arrow level, using either data from the SQL Server source or synthetic data in a file.
+Another approach is to use a framework such as Arrow, and convert all the (unprocessed) data sources into this format first. Arrow supports an ODBC connection library [arrow-odbc](https://crates.io/crates/arrow-odbc), which [supports the odbc connection sytax](https://docs.rs/arrow-odbc/latest/arrow_odbc/). SQLite support is not clear, however, Arrow itself (more specifically, [Parquet](https://parquet.apache.org/)), may be a more easily-integrated format for testing. This way, the tests can be written at the Arrow level, using either data from the SQL Server source or synthetic data in a file.
 
 Arrow can be used with multiple other data source, via [ConnectorX](https://docs.rs/connectorx/latest/connectorx/). ConnectorX also support SQL Server, however, it is not clear whether ODBC connection strings are supported; if they are, then ConnectorX can be used in place of `arrow-odbc`.
+
+Once an SQL Server datasource has been read into an Arrow in-memory representation using `arrow-odbc`, [this function](https://docs.rs/datafusion/latest/datafusion/execution/context/struct.SessionContext.html#method.register_arrow) from [Datafusion](https://arrow.apache.org/datafusion/) can be used to create a dataframe object, on which SQL-like queries can be performed (such as joins, filters, etc.). This can be used as the basis for an in-memory dataframe structure that is a copy of the data in the original datasource in its unpreprocessed state. At this point, both synthetic data and SQL Server data would be represented in the same way (synthetic data can come from [this function](https://docs.rs/datafusion/latest/datafusion/execution/context/struct.SessionContext.html#method.register_parquet) which reads a dataframe from Parquet), and can form the basis for a test suite that checks the preprocessing.
+
+
+
+
 
 
 
