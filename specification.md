@@ -10,13 +10,23 @@ The data source can be a single database containing multiple tables of health-ca
 
 The core data preprocessing routines convert data from the form in the data source to an internal program structure `Patient` that stores the following information about a patient:
 
-* **Demographics**: Age, gender, date of birth, 
-* **Mortality**: If not alive, date and cause of death
-* **Hospital activity**: Spells of episodes containing diagnoses and procedures
-* **Laboratory tests and results**: E.g. full blood count (haemoglobin, platelets, etc.)
-* **Prescriptions information**: What was prescribed, when it was prescribed, etc.
+* **Demographics (required)** General information about the patient. This is the only required category. Each field may be individually marked as missing.
+    * `id` (required): **
+    * `age` (optional): *integer*, non-negative
+    * `gender` (optional): *enum* male, female, other
+    * `date_of_birth` (optional): *unix timestamp* 
+* **Mortality (optional)** Information about cause/time of death, if died. Missing means data is not present in source, not that patient is alive.
+    * `alive` (required): *bool*, true if no record of death is present in the dataset.
+    * `time_of_death` (optional): *unix timestamp*
+    * `cause_of_death` (optional): *icd10*, the primary cause of death.
+* **Hospital activity (optional)** Contains the hospital episodes for a patient.
+    * `spells` (required): *array of `Spell`*
+* **Laboratory tests and results** E.g. full blood count (haemoglobin, platelets, etc.)
+    * Todo...
+* **Prescriptions information** What was prescribed, when it was prescribed, etc.
+    * Todo...
 
-In the internal structure, any piece of information may be missing. Parts of the program that use this information as a data source are free to discard structures that are missing required data.
+In the internal structure, many pieces of information may be missing. Parts of the program that use this information as a data source are free to discard structures that are missing required data.
 
 Preprocessing is necessary to bring data in the original data source into the correct format for `Patient`. For any piece of information `A` in the original data source that is converted to an item `B` in `Patient`, the following must hold:
 
