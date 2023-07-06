@@ -1,22 +1,35 @@
-use sqlx::mssql::MssqlPoolOptions;
+use arrow_odbc::{odbc_api::{Environment, ConnectionOptions}, OdbcReader};
 
-#[async_std::main]
-async fn main() -> Result<(), sqlx::Error> {
-    // Create a connection pool
-    //  for MySQL, use MySqlPoolOptions::new()
-    //  for SQLite, use SqlitePoolOptions::new()
-    //  etc.
-    let pool = MssqlPoolOptions::new()
-        .max_connections(5)
-        .connect("mssql://user.name@server/database").await
-        .expect("Failed to connect to database");
+fn main() -> Result<(), anyhow::Error> {
+    // Your application is fine if you spin up only one Environment.
+    let odbc_environment = Environment::new()?;
+     
+    // Connect with database.
+    let connection = odbc_environment.connect_with_connection_string(
+        "dsn=xsw", ConnectionOptions::default()
+    )?;
 
-    // Make a simple query to return the given parameter (use a question mark `?` instead of `$1` for MySQL)
-    // let row: (i64,) = sqlx::query_as("select top 10 * from abi.dbo.vw_apc_sem_001")
-    //     //.bind(150_i64)
-    //     .fetch_one(&pool).await?;
+    // This SQL statement does not require any arguments.
+    let parameters = ();
 
-    // assert_eq!(row.0, 150);
+    // Execute query and create result set
+    let cursor = connection
+        .execute("select top 4 * from abi.dbo.vw_apc_sem_001", parameters)?
+        .expect("SELECT statement must produce a cursor");
+
+    // Each batch shall only consist of maximum 10.000 rows.
+    let max_batch_size = 2;
+
+    // Read result set as arrow batches. Infer Arrow types automatically using the meta
+    // information of `cursor`.
+    let arrow_record_batches = OdbcReader::new(cursor, max_batch_size)?;
+
+    for batch in arrow_record_batches {
+        // ... process batch ...
+        for item in batch.iter() {
+            println!("{:?}", item);
+        }
+    }
 
     Ok(())
 }
