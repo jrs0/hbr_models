@@ -2,7 +2,7 @@
 
 This file summarises the requirements of the software in this repository, along with justification for the requirements.
 
-## Data Source
+## Underlying Data Sources
 
 The data source can be a single database containing multiple tables of health-care information about patients in any format. At least Microsoft SQL Server and SQLite must be supported.
 
@@ -16,7 +16,7 @@ The core data preprocessing routines convert data from the form in the data sour
 * **Laboratory tests and results**: E.g. full blood count (haemoglobin, platelets, etc.)
 * **Prescriptions information**: What was prescribed, when it was prescribed, etc.
 
-In the internal structure, any piece of information may be missing. Parts of the program that use this information as a data source are free to discard structures that are missing required data for their purpose.
+In the internal structure, any piece of information may be missing. Parts of the program that use this information as a data source are free to discard structures that are missing required data.
 
 Preprocessing is necessary to bring data in the original data source into the correct format for `Patient`. For any piece of information `A` in the original data source that is converted to an item `B` in `Patient`, the following must hold:
 
