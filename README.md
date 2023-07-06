@@ -18,4 +18,4 @@ The purpose of the code is to place a layer between the raw data source and the 
 
 The conversion of the raw data source into this specified format is referred to here as preprocessing. The preprocessing steps can be documented and tested, and then reused if they are appropriate in the deployed context. The strict separation of the preprocessing allows independent testing and validation of the the model/risk-score development code, and focuses the validation of a prospective deployment to whether or not sufficiently good preprocessing can be achieved that meets the data source specification.
 
-A specification for data source is contained in [Specification](`specification.md`). 
+A specification for data source is contained in [Specification](specification.md). 
