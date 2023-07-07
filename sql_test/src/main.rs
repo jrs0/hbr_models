@@ -1,4 +1,4 @@
-use arrow_odbc::{odbc_api::{Environment, ConnectionOptions}, OdbcReader};
+use arrow_odbc::{odbc_api::{Environment, ConnectionOptions}, OdbcReader, arrow::record_batch::RecordBatchReader};
 use datafusion::prelude::*;
 
 #[tokio::main]
@@ -26,19 +26,23 @@ async fn main() -> Result<(), anyhow::Error> {
     // information of `cursor`.
     let arrow_record_batches = OdbcReader::new(cursor, max_batch_size)?;
 
+    let ctx = SessionContext::new();
+
+    // Want to convert an array of RecordBatch to a single DataFrame with all
+    // the rows. This isn't the right way, but it does work.
+    let mut id = 0_u32; 
     for batch in arrow_record_batches {
-        // ... process batch ...
         let batch = batch.unwrap();
-
-        let ctx = SessionContext::new();
-        let df = ctx.read_batch(batch).expect("Error reading batch");
-        df.show().await?;
-
-        break;
+        ctx.register_batch(&format!("t{id}")[..], batch)?;
+        id += 1;
+    }
+    let mut df = ctx.table("t0").await?;
+    for n in 0..id {
+        let df_batch = ctx.table(&format!("t{n}")[..]).await?;
+        df = df.union(df_batch).unwrap();
     }
 
-
-
+    df.show().await?;
 
     Ok(())
 }
