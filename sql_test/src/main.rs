@@ -1,4 +1,5 @@
 use arrow_odbc::{odbc_api::{Environment, ConnectionOptions}, OdbcReader};
+use datafusion::prelude::*;
 
 fn main() -> Result<(), anyhow::Error> {
     // Your application is fine if you spin up only one Environment.
@@ -14,7 +15,7 @@ fn main() -> Result<(), anyhow::Error> {
 
     // Execute query and create result set
     let cursor = connection
-        .execute("select top 4 * from abi.dbo.vw_apc_sem_001", parameters)?
+        .execute("select top 4 aimtc_pseudo_nhs from abi.dbo.vw_apc_sem_001", parameters)?
         .expect("SELECT statement must produce a cursor");
 
     // Each batch shall only consist of maximum 10.000 rows.
@@ -30,6 +31,9 @@ fn main() -> Result<(), anyhow::Error> {
             println!("{:?}", item);
         }
     }
+
+    let ctx = SessionContext::new();
+
 
     Ok(())
 }
