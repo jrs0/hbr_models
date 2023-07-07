@@ -1,7 +1,8 @@
 use arrow_odbc::{odbc_api::{Environment, ConnectionOptions}, OdbcReader};
 use datafusion::prelude::*;
 
-fn main() -> Result<(), anyhow::Error> {
+#[tokio::main]
+async fn main() -> Result<(), anyhow::Error> {
     // Your application is fine if you spin up only one Environment.
     let odbc_environment = Environment::new()?;
      
@@ -27,12 +28,16 @@ fn main() -> Result<(), anyhow::Error> {
 
     for batch in arrow_record_batches {
         // ... process batch ...
-        for item in batch.iter() {
-            println!("{:?}", item);
-        }
+        let batch = batch.unwrap();
+
+        let ctx = SessionContext::new();
+        let df = ctx.read_batch(batch).expect("Error reading batch");
+        df.show().await?;
+
+        break;
     }
 
-    let ctx = SessionContext::new();
+
 
 
     Ok(())

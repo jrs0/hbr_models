@@ -2147,6 +2147,7 @@ dependencies = [
  "anyhow",
  "arrow-odbc",
  "datafusion",
+ "tokio",
 ]
 
 [[package]]

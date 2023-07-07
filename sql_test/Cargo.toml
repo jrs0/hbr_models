@@ -7,4 +7,4 @@ edition = "2021"
 anyhow = "1.0"
 arrow-odbc = "0.28"
 datafusion = "27.0"
-
+tokio = "1.0"
