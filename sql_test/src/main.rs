@@ -1,4 +1,8 @@
-use arrow_odbc::{odbc_api::{Environment, ConnectionOptions}, OdbcReader, arrow::record_batch::RecordBatchReader};
+//! Simple example demonstrating reading from an SQL Server and converting
+//! to a DataFusion DataFrame (via Arrow).
+//!
+
+use arrow_odbc::{odbc_api::{Environment, ConnectionOptions}, OdbcReader};
 use datafusion::prelude::*;
 
 #[tokio::main]
@@ -16,11 +20,11 @@ async fn main() -> Result<(), anyhow::Error> {
 
     // Execute query and create result set
     let cursor = connection
-        .execute("select top 4 aimtc_pseudo_nhs from abi.dbo.vw_apc_sem_001", parameters)?
+        .execute("select top 50 aimtc_pseudo_nhs from abi.dbo.vw_apc_sem_001", parameters)?
         .expect("SELECT statement must produce a cursor");
 
     // Each batch shall only consist of maximum 10.000 rows.
-    let max_batch_size = 2;
+    let max_batch_size = 10;
 
     // Read result set as arrow batches. Infer Arrow types automatically using the meta
     // information of `cursor`.
