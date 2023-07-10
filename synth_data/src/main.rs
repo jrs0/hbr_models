@@ -102,9 +102,10 @@ fn make_pathology_blood(rng: &mut ChaCha8Rng, num_rows: usize) -> RecordBatch {
     let mut result_upper_range = Vec::new();
     let mut brc_name = Vec::new();
 
-    for n in 0..num_rows {
+    for _ in 0..num_rows {
         subject.push(make_subject(rng));
         laboratory_department.push(None as Option<String>);
+
 
         let hb = BloodTest::new_haemoglobin(120, Gender::Female);
 
