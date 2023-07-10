@@ -1,5 +1,5 @@
 use datafusion::arrow::record_batch::RecordBatch;
-use datafusion::arrow::array::{ArrayRef, Float32Array, Int32Array};
+use datafusion::arrow::array::{ArrayRef, Float32Array, Int32Array, TimestampSecondArray};
 use datafusion::parquet::arrow::arrow_writer::ArrowWriter;
 use rand::prelude::*;
 use rand_chacha::ChaCha8Rng;
@@ -34,8 +34,9 @@ async fn main() -> Result<(), anyhow::Error> {
 
     let col_1 = Arc::new(Int32Array::from_iter([1, 2, 3])) as _;
     let col_2 = Arc::new(Float32Array::from_iter([1., 6.3, 4.])) as _;
+    let timestamp = Arc::new(TimestampSecondArray::from(vec![1, 1000, 100000])) as _;
 
-    let batch = RecordBatch::try_from_iter([("col1", col_1), ("col_2", col_2)]).unwrap();
+    let batch = RecordBatch::try_from_iter([("col1", col_1), ("col_2", col_2), ("timestamp", timestamp)]).unwrap();
 
     save_record_batch("example.parquet", batch);
 
