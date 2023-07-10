@@ -49,11 +49,11 @@ fn make_subject(rng: &mut ChaCha8Rng) -> String {
 #[derive(Debug)]
 struct BloodTest {
     /// Top-level category name (e.g. FULL BLOOD COUNT)
-    pub order_name: String,
+    pub order_name: Option<String>,
     /// Test name within order_name (e.g. haemoglobin)
-    pub test_name: String,
+    pub test_name: Option<String>,
     /// Test result, a string-encoded floating-point number of integer
-    pub test_result: String,
+    pub test_result: Option<String>,
     /// Physical unit (or None for a quantity with no unit)
     pub test_result_unit: Option<String>,
     /// Normal lower limit (None means not present or does not make sense)
