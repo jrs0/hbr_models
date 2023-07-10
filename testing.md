@@ -2,7 +2,9 @@
 
 All code that preprocesses data will be tested on synthetic data, that matches the form of the real data (both the schema and the characteristics of the data found in the columns).
 
-Synthetic data will not be stored in the repository. Instead, it will be generated using a seed. This keeps the repository itself lightweight, while enabling extensive testing both locally and in CI using potentially large testing sets.
+Synthetic data will not be stored in the repository. Instead, it will be generated using a seed. This keeps the repository itself lightweight, while enabling extensive testing both locally and in CI using potentially large testing sets. 
+
+The functions that define synthetic data are configurable, and using the same seed with different configuration will give different results. The results will also be different if the implementation of the functions changes (even if the same seed is used). As a result, a reproducable test is defined by a commit of this repository (which will include a fixed snapshot of the functions, a set of configuration arguments, and the seeds used). Test documentation will explain in detail how they are to be reproduced.
 
 Since the data is generated each time tests are run, there is no need to store the data to files. However, storing data may be helpful in order to have a hard copy of the data used for debugging purposes, or if the data generation process is long. 
 
@@ -26,7 +28,7 @@ The following sections contain specifications for example synthetic tables. Disc
 This table contains blood test results.
 
 Columns, SQL Server types, and descriptions:
-* `subject`, nvarchar(30), nullable: contains a string in the form `bristol_<NUM>`, where `<NUM>` is a four or five digit unsigned integer without leading zeros. Represents the patient id. Does not contain nulls.
+* `subject`, nvarchar(30), nullable: contains a string in the form `bristol_<NUM>`, where `<NUM>` is a positive integer not larger than 50000.
 * `laboratory_department`, nvarchar(30), nullable: always NULL in this synthetic data.
 * `order_name`, nvarchar(100), nullable: top-level test category, capitalised (e.g. "FULL BLOOD COUNT"). Does not contain nulls.
 * `test_name`, nvarchar(100), nullable: laboratory test name, lower-case (e.g. "haemoglobin"). Does not contain nulls.
