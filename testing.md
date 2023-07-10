@@ -19,3 +19,26 @@ The columns in the synthetic and real data sources have columns of the following
 
 Columns contain NULLs, which can have meanings other than missing data. Data that come with an index (for example, secondary diagnosis columns) may use a single row and multiple columns (one per index), or use multiple rows, and two columns (one to indicate the index and the second to indicate the value). 
 
+The following sections contain specifications for example synthetic tables.
+
+### Blood test results table: `pathology_blood`
+
+This table contains blood test results.
+
+Columns, SQL Server types, and descriptions:
+* `subject`, nvarchar(30): 
+* `laboratory_department`, nvarchar(30):
+* `order_name`, nvarchar(100):
+* `test_name`, nvarchar(100):
+* `test_result`, nvarchar(200):
+* `test_result_unit`, nvarchar(40):
+* `sample_collected_date_time`, datetime:
+* `result_available_date_time`, datetime:
+* `result_flag`, nvarchar(40):
+* `result_lower_range`, nvarchar(100):
+* `result_upper_range`, nvarchar(100):
+* `brc_name`, nvarchar(10):
+
+
+
+
