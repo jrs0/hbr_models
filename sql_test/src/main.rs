@@ -20,7 +20,7 @@ async fn main() -> Result<(), anyhow::Error> {
 
     // Execute query and create result set
     let cursor = connection
-        .execute("select top 50 aimtc_pseudo_nhs from abi.dbo.vw_apc_sem_001", parameters)?
+        .execute("select top 50 aimtc_pseudo_nhs,  from abi.dbo.vw_apc_sem_001", parameters)?
         .expect("SELECT statement must produce a cursor");
 
     // Each batch shall only consist of maximum 10.000 rows.
