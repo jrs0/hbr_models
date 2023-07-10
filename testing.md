@@ -25,9 +25,8 @@ The following sections contain specifications for example synthetic tables. Disc
 
 ### Blood test results table: `pathology_blood`
 
-This table contains blood test results.
+This table contains blood test results. Columns, SQL Server types, and descriptions are given below:
 
-Columns, SQL Server types, and descriptions:
 * `subject`, nvarchar(30), nullable: contains a string in the form `bristol_<NUM>`, where `<NUM>` is a positive integer not larger than 50000.
 * `laboratory_department`, nvarchar(30), nullable: always NULL in this synthetic data.
 * `order_name`, nvarchar(100), nullable: top-level test category, capitalised (e.g. "FULL BLOOD COUNT"). Does not contain nulls.
@@ -40,6 +39,19 @@ Columns, SQL Server types, and descriptions:
 * `result_lower_range`, nvarchar(100), nullable: lower normal result range. Value with the same format as `test_result`. May be null.
 * `result_upper_range`, nvarchar(100), nullable: upper normal result range. Value with the same format as `test_result`. May be null.
 * `brc_name`, nvarchar(10), nullable: name of source of test information. Always equal to "bristol". Does not contain nulls.
+
+Specific blood tests present in the synthetic table are described in the sections below.
+
+#### Haemoglobin (Hb) Tests
+
+The haemoglobin measurement contains the following information:
+
+* `order_name`: "FULL BLOOD COUNT"
+* `test_name`: "haemoglobin"
+* `test_result`: a non-negative integer (i.e. not fractional part)
+* `result_*_range`: 120 - 150 for female, 130 - 170 for male (not that gender is not specified in the table)
+* `test_result_unit`: "g/L". Note that g/dL is also a common unit for Hb count.
+
 
 
 
