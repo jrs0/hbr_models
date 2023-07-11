@@ -1,6 +1,6 @@
 # ARC-HBR from HIC Data
 
-This repository contains an implementation of the ARC-HBR (academic research consortium high bleeding risk) score using data from the health informatics collaborative (HIC) cardiovascular data.
+This repository contains an implementation of the ARC HBR (academic research consortium high bleeding risk) score using data from the health informatics collaborative (HIC) cardiovascular data. 
 
 Real-world hospital dataset are not designed with the calculation of particular clinical risk scores in mind. As a result, data required for a risk score such as ARC-HBR may not be present in the data, or data may need to be modified, combined, or otherwise preprocessed in order to obtain inputs for the score. 
 

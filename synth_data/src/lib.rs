@@ -1,3 +1,7 @@
+//! Contains random seed-controlled synthetic datasets for use in
+//! testing data preprocessing functions.
+//!
+
 use datafusion::arrow::record_batch::RecordBatch;
 use datafusion::parquet::arrow::arrow_writer::ArrowWriter;
 use datafusion::parquet::arrow::arrow_reader::ParquetRecordBatchReaderBuilder;
