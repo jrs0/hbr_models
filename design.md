@@ -30,6 +30,14 @@ For these reasons, Rust will be used to implement the preprocessing backend for 
 * R and Python prototyping environments, for model development and data analysis
 * Tauri applications, for viewing processed patient data easily and forming the basis for the example risk-score calculation application.
 
+### Programming Language Infrastructure
+
+The repository contain a library for the backend written in Rust, frontends that use the Rust library, and interfaces to the backend from R and Python. One of the advantages of the Rust cargo crate system is that git-url dependencies will look anywhere in the referenced git repository for the crate (see [the cargo documentation](https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html#specifying-dependencies-from-git-repositories)), meaning that the main Rust backend library does not need to be at the root. As a result, each application that is part of the project can occupy a folder at the top level of this repository. 
+
+R and Python both have libraries that allow interfacing to Rust crates using a `Cargo.toml`, which can reference this repository. This will mean that the dependencies for the libraries in those languages will work anywhere by provided the git url is correct (in particular, both locally and CI). Tauri (for frontends) also uses a `Cargo.toml` and will work in the same way.
+
+With all the code is in the same git repository, it is much easier to define a consistent synchronised state of all the packages, that can be guaranteed to work together at a particular commit and is more easily be signed off as tested.
+
 ## Data source connection and data processing
 
 Ideally, a single library should connect to the two required data sources (SQL Server and SQLite). Using a different library for SQLite vs. SQL Server reduces the effectiveness of the SQLlite-based testing, because a substantial part of the code could differ between the two implementations.
@@ -41,8 +49,6 @@ Another approach is to use a framework such as Arrow, and convert all the (unpro
 Arrow can be used with multiple other data source, via [ConnectorX](https://docs.rs/connectorx/latest/connectorx/). ConnectorX also support SQL Server, however, it is not clear whether ODBC connection strings are supported; if they are, then ConnectorX can be used in place of `arrow-odbc`.
 
 Once an SQL Server datasource has been read into an Arrow in-memory representation using `arrow-odbc`, [this function](https://docs.rs/datafusion/latest/datafusion/execution/context/struct.SessionContext.html#method.read_batch) from [Datafusion](https://arrow.apache.org/datafusion/) can be used to create a dataframe object, on which SQL-like queries can be performed (such as joins, filters, etc.). This can be used as the basis for an in-memory dataframe structure that is a copy of the data in the original datasource in its unpreprocessed state. At this point, both synthetic data and SQL Server data would be represented in the same way (synthetic data can come from [this function](https://docs.rs/datafusion/latest/datafusion/execution/context/struct.SessionContext.html#method.register_parquet) which reads a dataframe from Parquet), and can form the basis for a test suite that checks the preprocessing.
-
-
 
 
 
