@@ -2022,7 +2022,7 @@ dependencies = [
 [[package]]
 name = "synth_data"
 version = "0.1.0"
-source = "git+https://github.com/jrs0/hic_arc_hbr#6f3b76389a7bab283e9ebfa7ae1a07f6f68563b9"
+source = "git+https://github.com/jrs0/hic_arc_hbr#d30b5d613327a5838c9ffda8d8f827474cbde084"
 dependencies = [
  "anyhow",
  "datafusion",
@@ -2033,9 +2033,9 @@ dependencies = [
 
 [[package]]
 name = "target-lexicon"
-version = "0.12.8"
+version = "0.12.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1b1c7f239eb94671427157bd93b3694320f3668d4e1eff08c7285366fd777fac"
+checksum = "df8e77cb757a61f51b947ec4a7e3646efd825b73561db1c232a8ccb639e611a0"
 
 [[package]]
 name = "tempfile"
