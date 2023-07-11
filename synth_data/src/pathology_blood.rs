@@ -39,11 +39,11 @@ fn make_result_flag(rng: &mut ChaCha8Rng) -> Option<String> {
 #[derive(Debug)]
 struct BloodTest {
     /// Top-level category name (e.g. FULL BLOOD COUNT)
-    pub order_name: Option<String>,
+    pub order_name: String,
     /// Test name within order_name (e.g. haemoglobin)
-    pub test_name: Option<String>,
+    pub test_name: String,
     /// Test result, a string-encoded floating-point number of integer
-    pub test_result: Option<String>,
+    pub test_result: String,
     /// Physical unit (or None for a quantity with no unit)
     pub test_result_unit: Option<String>,
     /// Normal lower limit (None means not present or does not make sense)
@@ -67,9 +67,9 @@ impl BloodTest {
         let test_result_unit = Some(String::from("g/L"));
         let test_result = test_result.to_string();
         Self {
-            order_name: Some(String::from("FULL BLOOD COUNT")),
-            test_name: Some(String::from("haemoglobin")),
-            test_result: Some(test_result),
+            order_name: String::from("FULL BLOOD COUNT"),
+            test_name: String::from("haemoglobin"),
+            test_result,
             test_result_unit,
             result_lower_range,
             result_upper_range,
