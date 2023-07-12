@@ -98,18 +98,11 @@ impl SeededColumnBlock {
     }
 }
 
-
-
-
 fn into_record_batch(seeded_column_blocks: Vec<SeededColumnBlock>) -> Result<RecordBatch, ArrowError> {
     let columns = seeded_column_blocks
-
-
-
-        .iter()
-        .map(|x| x.columns)
-        .flatten()
-        .collect();
+        .into_iter()
+        .map(|x| x.columns())
+        .flatten();
     RecordBatch::try_from_iter(columns)
 }
 
