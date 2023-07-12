@@ -5,9 +5,7 @@ use datafusion::arrow::{record_batch::RecordBatch, error::ArrowError};
 
 use datafusion::arrow::array::{Array, StringArray, TimestampSecondArray};
 
-use blake2::{Blake2b512, Blake2s256, Digest};
-
-
+use blake2::{Blake2b512, Digest};
 
 enum Gender {
     Female,
@@ -149,6 +147,20 @@ fn make_subject_columns(block_id: &str, global_seed: u64, column_name: String, n
         columns: vec![(column_name, Arc::new(StringArray::from(subject)) as _)]
     }
 }
+
+/// Example function which creates a synthetic data table out of
+/// one or more seeded blocks (just one currently). The table itself
+/// also gets a block_id.
+fn make_pathology_blood_2(block_id: &str, global_seed: u64) -> RecordBatch {
+
+    let mut seeded_column_blocks = Vec::new();
+
+    let subject_block_id = format!("{block_id}subject");
+    let subjects = make_subject_columns(subject_block_id.as_ref(), global_seed,
+                            String::from("subject"), 100);
+
+    into_record_batch(seeded_column_blocks).unwrap()
+}   
 
 pub fn make_pathology_blood(rng: &mut ChaCha8Rng, num_rows: usize) -> RecordBatch {
     let mut subject = Vec::new();
