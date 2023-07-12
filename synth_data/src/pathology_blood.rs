@@ -1,9 +1,10 @@
 use std::sync::Arc;
 use rand::prelude::*;
 use rand_chacha::ChaCha8Rng;
-use datafusion::arrow::record_batch::RecordBatch;
+use datafusion::arrow::{record_batch::RecordBatch, error::ArrowError};
+use std::ops::Deref;
 
-use datafusion::arrow::array::{StringArray, TimestampSecondArray};
+use datafusion::arrow::array::{Array, StringArray, TimestampSecondArray};
 
 enum Gender {
     Female,
@@ -75,6 +76,41 @@ impl BloodTest {
             result_upper_range,
         }
     }
+}
+
+/// A set of synthetic data columns which are randomly
+/// generated from one seeded and which are considered
+/// as one logical unit.
+/// 
+/// The purpose of the block is to be the smallest unit
+/// of reproducible synthetic data. SeededColumns can 
+/// be combined together into a RecordBatch.
+/// 
+/// The data is stored in a format that can be passed
+/// easily to the RecordBatch::try_from_iter method.
+struct SeededColumnBlock {
+    columns: Vec<(String, Arc<dyn Array>)>,
+}
+
+impl SeededColumnBlock {
+    fn columns(self) -> Vec<(String, Arc<dyn Array>)> {
+        self.columns
+    }
+}
+
+
+
+
+fn into_record_batch(seeded_column_blocks: Vec<SeededColumnBlock>) -> Result<RecordBatch, ArrowError> {
+    let columns = seeded_column_blocks
+
+
+
+        .iter()
+        .map(|x| x.columns)
+        .flatten()
+        .collect();
+    RecordBatch::try_from_iter(columns)
 }
 
 pub fn make_pathology_blood(rng: &mut ChaCha8Rng, num_rows: usize) -> RecordBatch {
