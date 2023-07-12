@@ -2,11 +2,12 @@ use std::sync::Arc;
 use rand::prelude::*;
 use rand_chacha::ChaCha8Rng;
 use datafusion::arrow::{record_batch::RecordBatch, error::ArrowError};
-use std::ops::Deref;
 
 use datafusion::arrow::array::{Array, StringArray, TimestampSecondArray};
 
 use blake2::{Blake2b512, Blake2s256, Digest};
+
+
 
 enum Gender {
     Female,
@@ -113,29 +114,39 @@ fn into_record_batch(seeded_column_blocks: Vec<SeededColumnBlock>) -> Result<Rec
     RecordBatch::try_from_iter(columns)
 }
 
+/// Make a random number generator from a global seed
+/// and a string id (used to give each independent block
+/// of synthetic data a different seed). The block_id is
+/// concatenated with the global seed and the result is
+/// hashed. The resulting hash seeds the random number
+/// generator.
+fn make_rng(block_id: &str, global_seed: u64) -> ChaCha8Rng {
+    let message = format!("{block_id}{global_seed}");
+    let mut hasher = Blake2b512::new();
+    hasher.update(message);
+    let seed = hasher.finalize()[0..32].try_into()
+        .expect("Unexpectedly failed to obtain correct-length slice");
+    ChaCha8Rng::from_seed(seed)
+}
+
 /// This is an example function that makes the subject column from
 /// an id and a seed. The id should always stay the same (otherwise
 /// the data will change). The colunn name is allowed to change (this
 /// covers the case where you want to change the column name but not
 /// change the data.)
-fn make_subject_columns(block_id: &str, seed: u64, column_name: String, num_rows: usize) -> SeedableColumnBlock {
+fn make_subject_columns(block_id: &str, global_seed: u64, column_name: String, num_rows: usize) -> SeededColumnBlock {
     
     // Augment the id with the seed and hash to get the
     // seed to be used.
-    let message = format!("{block_id}{seed}");
-    let mut hasher = Blake2b512::new();
-    hasher.update(message);
-    let seed = hasher.finalize()[0..32].try_into().unwrap();
-
-    let mut rng = ChaCha8Rng::from_seed(seed);
+    let mut rng = make_rng(block_id, global_seed);
 
     let mut subject = Vec::new();
     for _ in 0..num_rows {
         subject.push(make_subject(&mut rng));
     }
 
-    SeedableColumnBlock {
-        vec![(column_name, Arc::new(StringArray::from(subject)) as _)]
+    SeededColumnBlock {
+        columns: vec![(column_name, Arc::new(StringArray::from(subject)) as _)]
     }
 }
 
