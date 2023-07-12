@@ -10,6 +10,16 @@ Since the data is generated each time tests are run, there is no need to store t
 
 This file describes the specification of the synthetic data sources that are used as part of the testing. Synthetic data sets are in the format of tables, matching the true SQL Server data format. In the program, data is loaded into an arrow record batch format from either a real SQL Server database (or other real database), or is generated synthetically. The premise of the testing is that the unit-under-test operates on the resulting record batch, so that correct processing of the synthetic record batch provides evidence for correct functioning on the non-synthetic version.
 
+## Reproducibility
+
+Although the state of the synthetic data is determined by the commit and the seed used, in practice it is important that certain changes can be made to the code without causing all the synthetic data to change (provided the same seed is used). This is unavoidable at the lowest level of data generation; however, a practical case of importance is if a single new column is added to a dataset, the rest of the data should ideally remain unchanged.
+
+To accomodate this, each block of data being generated (a list of columns) will be associated with a unique id. The global seed will be appended to this id, and the result will be cryptographically hashed to obtain the seed used to generate this block of data. Since a new random generator will be used for each such block, the following two conditions hold:
+1. Each such block will be independent. This means blocks can be formed into tables, and new blocks can be added to the table without changing the already existing blocks.
+2. Increasing the length (number of rows) in a block will not modify the preexisting rows.
+
+These two properties will ensure that tests on the synthetic data are robust in the face of adding new synthetic data.
+
 ## Synthetic Data Overview
 
 The columns in the synthetic and real data sources have columns of the following semantic types:
