@@ -87,7 +87,8 @@ impl BloodTest {
 /// be combined together into a RecordBatch.
 /// 
 /// The data is stored in a format that can be passed
-/// easily to the RecordBatch::try_from_iter method.
+/// easily to the RecordBatch::try_from_iter method 
+/// (i.e. as tuples of column name and column data).
 struct SeededColumnBlock {
     columns: Vec<(String, Arc<dyn Array>)>,
 }
@@ -98,6 +99,10 @@ impl SeededColumnBlock {
     }
 }
 
+/// Convert a list of SeededColumnBlocks (which are themselves 
+/// groups of columns) into a RecordBatch (a table). This
+/// function is used to combine the minimal reproducible and
+/// seedable units into a single synthetic table.
 fn into_record_batch(seeded_column_blocks: Vec<SeededColumnBlock>) -> Result<RecordBatch, ArrowError> {
     let columns = seeded_column_blocks
         .into_iter()
