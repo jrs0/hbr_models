@@ -20,6 +20,8 @@ To accomodate this, each block of data being generated (a list of columns) will 
 
 These two properties will ensure that tests on the synthetic data are robust in the face of adding new synthetic data.
 
+Cryptographic hashes for Rust are documented [here](https://github.com/RustCrypto/hashes#rustcrypto-hashes), which recommends BLAKE2, SHA-2 or SHA-3. BLAKE2 is used in this code.
+
 ## Synthetic Data Overview
 
 The columns in the synthetic and real data sources have columns of the following semantic types:

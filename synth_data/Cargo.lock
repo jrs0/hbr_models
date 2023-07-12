@@ -1939,6 +1939,7 @@ name = "synth_data"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "blake2",
  "datafusion",
  "rand",
  "rand_chacha",

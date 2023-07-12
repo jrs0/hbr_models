@@ -6,6 +6,8 @@ use std::ops::Deref;
 
 use datafusion::arrow::array::{Array, StringArray, TimestampSecondArray};
 
+use blake2::{Blake2b512, Blake2s256, Digest};
+
 enum Gender {
     Female,
     Male,
@@ -109,6 +111,32 @@ fn into_record_batch(seeded_column_blocks: Vec<SeededColumnBlock>) -> Result<Rec
         .map(|x| x.columns())
         .flatten();
     RecordBatch::try_from_iter(columns)
+}
+
+/// This is an example function that makes the subject column from
+/// an id and a seed. The id should always stay the same (otherwise
+/// the data will change). The colunn name is allowed to change (this
+/// covers the case where you want to change the column name but not
+/// change the data.)
+fn make_subject_columns(block_id: &str, seed: u64, column_name: String, num_rows: usize) -> SeedableColumnBlock {
+    
+    // Augment the id with the seed and hash to get the
+    // seed to be used.
+    let message = format!("{block_id}{seed}");
+    let mut hasher = Blake2b512::new();
+    hasher.update(message);
+    let seed = hasher.finalize()[0..32].try_into().unwrap();
+
+    let mut rng = ChaCha8Rng::from_seed(seed);
+
+    let mut subject = Vec::new();
+    for _ in 0..num_rows {
+        subject.push(make_subject(&mut rng));
+    }
+
+    SeedableColumnBlock {
+        vec![(column_name, Arc::new(StringArray::from(subject)) as _)]
+    }
 }
 
 pub fn make_pathology_blood(rng: &mut ChaCha8Rng, num_rows: usize) -> RecordBatch {
