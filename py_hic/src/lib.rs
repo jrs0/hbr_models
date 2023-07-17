@@ -1,5 +1,5 @@
 use pyo3::prelude::*;
-use synth_data::make_pathology_blood;
+use rust_hic::make_pathology_blood;
 use rand::prelude::*;
 use rand_chacha::ChaCha8Rng;
 
@@ -19,7 +19,7 @@ fn make_data_example() -> PyResult<()> {
 
 /// A Python module implemented in Rust.
 #[pymodule]
-fn python_hic(_py: Python, m: &PyModule) -> PyResult<()> {
+fn py_hic(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(sum_as_string, m)?)?;
     m.add_function(wrap_pyfunction!(make_data_example, m)?)?;
     Ok(())
