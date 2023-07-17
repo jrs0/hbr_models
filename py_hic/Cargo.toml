@@ -1,0 +1,15 @@
+[package]
+name = "py_hic"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "py_hic"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = "0.19.0"
+rust_hic = { git = "https://github.com/jrs0/hic_arc_hbr" }
+rand = "0.8.5"
+rand_chacha = "0.3.1"
