@@ -19,7 +19,8 @@ fn make_data_example() -> PyResult<()> {
 
 /// A Python module implemented in Rust.
 #[pymodule]
-fn py_hic(_py: Python, m: &PyModule) -> PyResult<()> {
+#[pyo3(name="_lib_name")]
+fn my_lib_name(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(sum_as_string, m)?)?;
     m.add_function(wrap_pyfunction!(make_data_example, m)?)?;
     Ok(())
