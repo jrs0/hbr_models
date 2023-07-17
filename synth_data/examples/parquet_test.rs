@@ -1,6 +1,6 @@
 use std::{fs, path::Path, sync::Arc};
 
-use parquet::{
+use datafusion::parquet::{
     file::reader::FileReader,
     file::{
         properties::WriterProperties, reader::SerializedFileReader, writer::SerializedFileWriter,

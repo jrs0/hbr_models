@@ -20,7 +20,7 @@ async fn main() -> Result<(), anyhow::Error> {
 
     // Execute query and create result set
     let cursor = connection
-        .execute("select top 50 aimtc_pseudo_nhs,  from abi.dbo.vw_apc_sem_001", parameters)?
+        .execute("select top 50 aimtc_pseudo_nhs from abi.dbo.vw_apc_sem_001", parameters)?
         .expect("SELECT statement must produce a cursor");
 
     // Each batch shall only consist of maximum 10.000 rows.
@@ -33,7 +33,8 @@ async fn main() -> Result<(), anyhow::Error> {
     let ctx = SessionContext::new();
 
     // Want to convert an array of RecordBatch to a single DataFrame with all
-    // the rows. This isn't the right way, but it does work.
+    // the rows. This isn't the right way, but it does work. An alternative might
+    // just be to only use single large record batches
     let mut id = 0_u32; 
     for batch in arrow_record_batches {
         let batch = batch.unwrap();
