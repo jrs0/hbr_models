@@ -1,4 +1,4 @@
-from .py_hic import _lib_name
+from py_hic import _lib_name
 
 def test():
    print("I am foo!")
