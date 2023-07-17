@@ -1,11 +1,7 @@
 [package]
-name = "synth_data"
+name = "rust_hic"
 version = "0.1.0"
 edition = "2021"
-
-[lib]
-name = "synth_data"
-path = "src/lib.rs"
 
 [dependencies]
 anyhow = "1.0.71"
