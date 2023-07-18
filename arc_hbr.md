@@ -36,7 +36,10 @@ Patient age at least 75 at the time of risk score calculation is considered a mi
 
 ### Oral Anticoagulant Use (Major)
 
-Anticipated use of long-term OAC is considered a major criterion. 
+Anticipated use of long-term OAC is considered a major criterion. There are two types of oral anticoagulants:
+* Vitamin K antagonists: warfarin
+* Direct oral anticoagulants: apixaban, dabigatran, edoxaban, rivaroxaban
+
 
 
 
