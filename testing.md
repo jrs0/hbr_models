@@ -59,12 +59,20 @@ Specific blood tests present in the synthetic table are described in the section
 The haemoglobin measurement contains the following information:
 
 * `order_name`: "FULL BLOOD COUNT"
-* `test_name`: "haemoglobin"
+* `test_name`: "Haemoglobin"
 * `test_result`: a non-negative integer (i.e. not fractional part)
 * `result_*_range`: 120 - 150 for female, 130 - 170 for male (not that gender is not specified in the table)
 * `test_result_unit`: "g/L". Note that g/dL is also a common unit for Hb count.
 
+#### Platelet Count
 
+The platelet count measurement contains the following information:
+
+* `order_name`: "FULL BLOOD COUNT"
+* `test_name`: "Platelets"
+* `test_result`: a non-negative integer (i.e. not fractional part)
+* `result_*_range`: 150 - 400, independent of gender
+* `test_result_unit`: "10*9/L" (* not a typo). This is a volumetric count, 10^9/L
 
 
 
