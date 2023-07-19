@@ -10,7 +10,7 @@
 use rand::prelude::*;
 use rand_chacha::ChaCha8Rng;
 use std::sync::Arc;
-use datafusion::arrow::array::{Array, StringArray, TimestampSecondArray};
+use datafusion::arrow::array::{Array, StringArray};
 use arrow_odbc::arrow::{array::GenericByteArray, datatypes::GenericStringType};
 use datafusion::arrow::{error::ArrowError, record_batch::RecordBatch};
 use blake2::{Blake2b512, Digest};

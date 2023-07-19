@@ -1,32 +1,16 @@
-use arrow_odbc::arrow::{array::GenericByteArray, datatypes::GenericStringType};
-use datafusion::arrow::{error::ArrowError, record_batch::RecordBatch};
+//! The pathology blood table contains blood test result including haemoglobin,
+//! platelet count, etc. The columns include the test name and category, the
+//! result and unit, and sample collection date and processing times.
+
+use datafusion::arrow::record_batch::RecordBatch;
 use rand::prelude::*;
 use rand_chacha::ChaCha8Rng;
 use std::sync::Arc;
 
-use datafusion::arrow::array::{Array, StringArray, TimestampSecondArray};
+use datafusion::arrow::array::{StringArray, TimestampSecondArray};
 
 use crate::seeded_column_block::{SeededColumnBlock, make_rng, make_string_column, into_record_batch};
-
-enum Gender {
-    Female,
-    Male,
-}
-
-/// Generate a patient id for the pathology_blood table (format "bristol_nnnn")
-fn make_subject(rng: &mut ChaCha8Rng) -> String {
-    let patient_id = rng.gen_range(1..=50000);
-    format! {"bristol_{patient_id}"}
-}
-
-/// Pick gender randomly (only male or female)
-fn make_gender(rng: &mut ChaCha8Rng) -> Gender {
-    if rng.gen() {
-        Gender::Female
-    } else {
-        Gender::Male
-    }
-}
+use crate::synth_data::{Gender, make_gender, make_subject};
 
 fn make_result_flag(rng: &mut ChaCha8Rng) -> Option<String> {
     if rng.gen() {
@@ -53,10 +37,6 @@ struct BloodTest {
     pub result_lower_range: Option<String>,
     /// Normal upper limit
     pub result_upper_range: Option<String>,
-}
-
-enum BloodTestType {
-    Haemoglobin,
 }
 
 impl BloodTest {

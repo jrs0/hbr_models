@@ -1,5 +1,3 @@
-use rand::prelude::*;
-use rand_chacha::ChaCha8Rng;
 use datafusion::prelude::*;
 use rust_hic::{load_record_batch, save_record_batch, make_pathology_blood};
 
