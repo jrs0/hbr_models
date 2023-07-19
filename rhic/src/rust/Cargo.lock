@@ -2038,6 +2038,7 @@ checksum = "e5ea92a5b6195c6ef2a0295ea818b312502c6fc94dde986c5553242e18fd4ce2"
 name = "rhic"
 version = "0.1.0"
 dependencies = [
+ "datafusion",
  "extendr-api",
  "rust_hic",
 ]
@@ -2045,7 +2046,7 @@ dependencies = [
 [[package]]
 name = "rust_hic"
 version = "0.1.0"
-source = "git+https://github.com/jrs0/hic_arc_hbr#f82cd9388a708bb897cf2cd659a79e73e342c77f"
+source = "git+https://github.com/jrs0/hic_arc_hbr#f1b4f6deefc644c4ce12279b03319bcb8a6a032e"
 dependencies = [
  "anyhow",
  "arrow-odbc",
@@ -2868,18 +2869,18 @@ dependencies = [
 
 [[package]]
 name = "zstd"
-version = "0.12.3+zstd.1.5.2"
+version = "0.12.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "76eea132fb024e0e13fd9c2f5d5d595d8a967aa72382ac2f9d39fcc95afd0806"
+checksum = "1a27595e173641171fc74a1232b7b1c7a7cb6e18222c11e9dfb9888fa424c53c"
 dependencies = [
  "zstd-safe",
 ]
 
 [[package]]
 name = "zstd-safe"
-version = "6.0.5+zstd.1.5.4"
+version = "6.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d56d9e60b4b1758206c238a10165fbcae3ca37b01744e394c463463f6529d23b"
+checksum = "ee98ffd0b48ee95e6c5168188e44a54550b1564d9d530ee21d5f0eaed1069581"
 dependencies = [
  "libc",
  "zstd-sys",

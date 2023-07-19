@@ -16,6 +16,9 @@ sudo apt install r-base-core
 
 # Install dependencies for the devtools package
 sudo apt install libcurl4-openssl-dev libfontconfig1-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev
+
+# Install dependencies for the Rust library
+sudo apt install unixodbc-dev
 ```
 
 To install the development version of the package, clone this repository, navigate to this directory (`rhic`), and run R. Then install the package as follows:
