@@ -55,19 +55,49 @@ impl BloodTest {
         let test_result = test_result.to_string();
         Self {
             order_name: String::from("FULL BLOOD COUNT"),
-            test_name: String::from("haemoglobin"),
+            test_name: String::from("Haemoglobin"),
             test_result,
             test_result_unit,
             result_lower_range,
             result_upper_range,
         }
     }
+
+    /// Platelet count
+    ///
+    /// The platelet count is a postive integer, which a normal range
+    /// 150 - 400. Reduced platelet count is called thrombocytopenia.
+    ///  
+    fn new_platelets(test_result: u32) -> Self {
+        let result_lower_range = Some(String::from("150"));
+        let result_upper_range = Some(String::from("400"));
+        let test_result_unit = Some(String::from("10*9/L"));
+        let test_result = test_result.to_string();
+        Self {
+            order_name: String::from("FULL BLOOD COUNT"),
+            test_name: String::from("Platelets"),
+            test_result,
+            test_result_unit,
+            result_lower_range,
+            result_upper_range,
+        }
+    }
+
 }
 
+/// Make a uniform random haemoglobin measurement in the range
+/// 0 - 19g/dL
 fn make_random_haemoglobin(rng: &mut ChaCha8Rng) -> BloodTest {
     let gender = make_gender(rng);
-    let hb_result = rng.gen_range(0..190);
-    BloodTest::new_haemoglobin(hb_result, gender)
+    let test_result = rng.gen_range(0..190);
+    BloodTest::new_haemoglobin(test_result, gender)
+}
+
+/// Make a uniform random platelet count measurement in the range
+/// 0 - 500e9/L
+fn make_random_platelets(rng: &mut ChaCha8Rng) -> BloodTest {
+    let test_result = rng.gen_range(0..500);
+    BloodTest::new_platelets(test_result)
 }
 
 /// This is an example function that makes the subject column from
@@ -110,8 +140,9 @@ fn make_blood_test_columns(block_id: &str, global_seed: u64, num_rows: usize) ->
 
     for _ in 0..num_rows {
         // Make a random blood test
-        let blood_test = match rng.gen_range(0..1) {
+        let blood_test = match rng.gen_range(0..2) {
             0 => make_random_haemoglobin(&mut rng),
+            1 => make_random_platelets(&mut rng),
             _ => panic!("Blood test index out of range"),
         };
 
