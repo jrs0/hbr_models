@@ -24,7 +24,16 @@ sudo apt install unixodbc-dev
 To install the development version of the package, clone this repository, navigate to this directory (`rhic`), and run R. Then install the package as follows:
 
 ```r
+# Install devtools if not already installed
 install.packages("devtools")
+
+# Required to generate R wrappers for rust functions
+devtools::document()
+
+# Develop (import all functions into current R session)
+devtools::load_all()
+
+# Install the package locally
 devtools::install()
 ```
 
