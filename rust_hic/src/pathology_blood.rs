@@ -1,7 +1,8 @@
-use std::sync::Arc;
+use arrow_odbc::arrow::{datatypes::GenericStringType, array::GenericByteArray};
+use datafusion::arrow::{error::ArrowError, record_batch::RecordBatch};
 use rand::prelude::*;
 use rand_chacha::ChaCha8Rng;
-use datafusion::arrow::{record_batch::RecordBatch, error::ArrowError};
+use std::sync::Arc;
 
 use datafusion::arrow::array::{Array, StringArray, TimestampSecondArray};
 
@@ -54,6 +55,10 @@ struct BloodTest {
     pub result_upper_range: Option<String>,
 }
 
+enum BloodTestType {
+    Haemoglobin,
+}
+
 impl BloodTest {
     /// Regular full-blood-count haemoglobin (not electrophoresis)
     ///
@@ -79,16 +84,22 @@ impl BloodTest {
     }
 }
 
+fn make_random_haemoglobin(rng: &mut ChaCha8Rng) -> BloodTest {
+    let gender = make_gender(rng);
+    let hb_result = rng.gen_range(0..190);
+    BloodTest::new_haemoglobin(hb_result, gender)
+}
+
 /// A set of synthetic data columns which are randomly
 /// generated from one seeded and which are considered
 /// as one logical unit.
-/// 
+///
 /// The purpose of the block is to be the smallest unit
-/// of reproducible synthetic data. SeededColumns can 
+/// of reproducible synthetic data. SeededColumns can
 /// be combined together into a RecordBatch.
-/// 
+///
 /// The data is stored in a format that can be passed
-/// easily to the RecordBatch::try_from_iter method 
+/// easily to the RecordBatch::try_from_iter method
 /// (i.e. as tuples of column name and column data).
 struct SeededColumnBlock {
     columns: Vec<(String, Arc<dyn Array>)>,
@@ -100,11 +111,13 @@ impl SeededColumnBlock {
     }
 }
 
-/// Convert a list of SeededColumnBlocks (which are themselves 
+/// Convert a list of SeededColumnBlocks (which are themselves
 /// groups of columns) into a RecordBatch (a table). This
 /// function is used to combine the minimal reproducible and
 /// seedable units into a single synthetic table.
-fn into_record_batch(seeded_column_blocks: Vec<SeededColumnBlock>) -> Result<RecordBatch, ArrowError> {
+fn into_record_batch(
+    seeded_column_blocks: Vec<SeededColumnBlock>,
+) -> Result<RecordBatch, ArrowError> {
     let columns = seeded_column_blocks
         .into_iter()
         .map(|x| x.columns())
@@ -122,9 +135,22 @@ fn make_rng(block_id: &str, global_seed: u64) -> ChaCha8Rng {
     let message = format!("{block_id}{global_seed}");
     let mut hasher = Blake2b512::new();
     hasher.update(message);
-    let seed = hasher.finalize()[0..32].try_into()
+    let seed = hasher.finalize()[0..32]
+        .try_into()
         .expect("Unexpectedly failed to obtain correct-length slice");
     ChaCha8Rng::from_seed(seed)
+}
+
+/// This is only needed to simplify creating single columns, and is generic to work
+/// with both String and Option<String>. It should really be part of the implementation
+/// of SeededColumnBlock -- also, can jsut get rid of it if the generics get too complicated.
+fn make_string_column<T>(column_name: String, column: Vec<T>) -> SeededColumnBlock
+where
+    GenericByteArray<GenericStringType<i32>>: From<Vec<T>>,
+{
+    SeededColumnBlock {
+        columns: vec![(column_name, Arc::new(StringArray::from(column)) as _)],
+    }
 }
 
 /// This is an example function that makes the subject column from
@@ -132,8 +158,12 @@ fn make_rng(block_id: &str, global_seed: u64) -> ChaCha8Rng {
 /// the data will change). The colunn name is allowed to change (this
 /// covers the case where you want to change the column name but not
 /// change the data.)
-fn make_subject_columns(block_id: &str, global_seed: u64, column_name: String, num_rows: usize) -> SeededColumnBlock {
-    
+fn make_subject_columns(
+    block_id: &str,
+    global_seed: u64,
+    column_name: String,
+    num_rows: usize,
+) -> SeededColumnBlock {
     // Augment the id with the seed and hash to get the
     // seed to be used.
     let mut rng = make_rng(block_id, global_seed);
@@ -143,26 +173,113 @@ fn make_subject_columns(block_id: &str, global_seed: u64, column_name: String, n
         subject.push(make_subject(&mut rng));
     }
 
+    make_string_column(column_name, subject)
+}
+
+/// Creates a block of columns that includes the blood test name
+/// and family, the test result, test unit, and upper and lower
+/// ranges
+fn make_blood_test_columns(
+    block_id: &str,
+    global_seed: u64,
+    num_rows: usize,
+) -> SeededColumnBlock {
+    // Augment the id with the seed and hash to get the
+    // seed to be used.
+    let mut rng = make_rng(block_id, global_seed);
+
+    let mut order_name = Vec::new();
+    let mut test_name = Vec::new();
+    let mut test_result = Vec::new();
+    let mut test_result_unit = Vec::new();
+    let mut result_lower_range = Vec::new();
+    let mut result_upper_range = Vec::new();
+
+    for _ in 0..num_rows {
+        // Make a random blood test
+        let blood_test = match rng.gen_range(0..1) {
+            0 => make_random_haemoglobin(&mut rng),
+            _ => panic!("Blood test index out of range"),
+        };
+
+        // Make the test type and results
+        order_name.push(blood_test.order_name);
+        test_name.push(blood_test.test_name);
+        test_result.push(blood_test.test_result);
+        test_result_unit.push(blood_test.test_result_unit);
+        result_lower_range.push(blood_test.result_lower_range);
+        result_upper_range.push(blood_test.result_upper_range);
+    }
+
     SeededColumnBlock {
-        columns: vec![(column_name, Arc::new(StringArray::from(subject)) as _)]
+        columns: vec![
+            (
+                String::from("order_name"),
+                Arc::new(StringArray::from(order_name)) as _,
+            ),
+            (
+                String::from("test_name"),
+                Arc::new(StringArray::from(test_name)) as _,
+            ),
+            (
+                String::from("test_result"),
+                Arc::new(StringArray::from(test_result)) as _,
+            ),
+            (
+                String::from("test_result_unit"),
+                Arc::new(StringArray::from(test_result_unit)) as _,
+            ),
+            (
+                String::from("result_lower_range"),
+                Arc::new(StringArray::from(result_lower_range)) as _,
+            ),
+            (
+                String::from("test_upper_range"),
+                Arc::new(StringArray::from(result_upper_range)) as _,
+            ),
+        ],
     }
 }
 
 /// Example function which creates a synthetic data table out of
 /// one or more seeded blocks (just one currently). The table itself
 /// also gets a block_id.
-fn make_pathology_blood_2(block_id: &str, global_seed: u64) -> RecordBatch {
-
+pub fn make_pathology_blood(block_id: &str, global_seed: u64, num_rows: usize) -> RecordBatch {
     let mut seeded_column_blocks = Vec::new();
 
+    // Make patient id column
     let subject_block_id = format!("{block_id}subject");
-    let subjects = make_subject_columns(subject_block_id.as_ref(), global_seed,
-                            String::from("subject"), 100);
+    let subjects = make_subject_columns(
+        subject_block_id.as_ref(),
+        global_seed,
+        String::from("subject"),
+        num_rows,
+    );
+    seeded_column_blocks.push(subjects);
+
+    // Lab department is always None
+    let laboratory_department = vec![None as Option<String>; num_rows];
+    let column_name = String::from("laboratory_department");
+    seeded_column_blocks.push(make_string_column(column_name, laboratory_department));
+
+    // Make the blood test columns (a block of columns including test name, result, units,
+    // and ranges)
+    let blood_test_block_id = format!("{block_id}blood_test");
+    let blood_test_columns = make_blood_test_columns(
+        blood_test_block_id.as_ref(),
+        global_seed,
+        num_rows,
+    );    
+    seeded_column_blocks.push(blood_test_columns);
+
+
 
     into_record_batch(seeded_column_blocks).unwrap()
-}   
 
-pub fn make_pathology_blood(rng: &mut ChaCha8Rng, num_rows: usize) -> RecordBatch {
+}
+
+
+pub fn make_pathology_blood_old(rng: &mut ChaCha8Rng, num_rows: usize) -> RecordBatch {
     let mut subject = Vec::new();
     let mut laboratory_department = Vec::new();
     let mut order_name = Vec::new();
