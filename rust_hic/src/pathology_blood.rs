@@ -283,9 +283,12 @@ fn make_result_flag_column(block_id: &str, global_seed: u64, column_name: String
     make_string_column(column_name, result_flag)
 }
 
-/// Example function which creates a synthetic data table out of
-/// one or more seeded blocks (just one currently). The table itself
-/// also gets a block_id.
+/// Create the blood results table. Generated data is randomly generated based on
+/// the global seed with no particular statistical characteristics (the purpose is the
+/// format of the data). Currently includes the following blood tests:
+/// 
+/// * haemoglobin
+/// * 
 pub fn make_pathology_blood(block_id: &str, global_seed: u64, num_rows: usize) -> RecordBatch {
     let mut seeded_column_blocks = Vec::new();
 
