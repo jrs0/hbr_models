@@ -83,6 +83,31 @@ impl BloodTest {
         }
     }
 
+    /// Estimated Glomerular Filtration Rate
+    ///
+    /// The eGFR is a measure of how well the kidneys are performing. The
+    /// value is an non-negative integer. However, if the result is above
+    /// 90, the data will be recored as ">90" in the table.
+    ///  
+    fn new_egfr(test_result: u32) -> Self {
+        let result_lower_range = None;
+        let result_upper_range = None;
+        let test_result_unit = Some(String::from("mL/min"));
+        let test_result = if (test_result > 90) {
+            String::from(">90")
+        } else {
+            test_result.to_string()
+        };
+        Self {
+            order_name: String::from("UREACREAT + ELECTROLYTES"),
+            test_name: String::from("eGFR/1.73m2 (CKD-EPI)"),
+            test_result,
+            test_result_unit,
+            result_lower_range,
+            result_upper_range,
+        }
+    }
+
 }
 
 /// Make a uniform random haemoglobin measurement in the range
@@ -98,6 +123,13 @@ fn make_random_haemoglobin(rng: &mut ChaCha8Rng) -> BloodTest {
 fn make_random_platelets(rng: &mut ChaCha8Rng) -> BloodTest {
     let test_result = rng.gen_range(0..500);
     BloodTest::new_platelets(test_result)
+}
+
+/// Make a uniform random eGFR in the range 0 - 150, but greater
+/// than 90 will be stored as >90
+fn make_random_egfr(rng: &mut ChaCha8Rng) -> BloodTest {
+    let test_result = rng.gen_range(0..150);
+    BloodTest::new_egfr(test_result)
 }
 
 /// This is an example function that makes the subject column from
@@ -140,9 +172,10 @@ fn make_blood_test_columns(block_id: &str, global_seed: u64, num_rows: usize) ->
 
     for _ in 0..num_rows {
         // Make a random blood test
-        let blood_test = match rng.gen_range(0..2) {
+        let blood_test = match rng.gen_range(0..3) {
             0 => make_random_haemoglobin(&mut rng),
             1 => make_random_platelets(&mut rng),
+            2 => make_random_egfr(&mut rng),
             _ => panic!("Blood test index out of range"),
         };
 
