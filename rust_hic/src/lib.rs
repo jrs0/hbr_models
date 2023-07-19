@@ -10,6 +10,7 @@ use std::fs;
 pub use pathology_blood::make_pathology_blood;
 
 mod pathology_blood;
+mod seeded_column_block;
 
 pub fn save_record_batch(filename: &str, batch: RecordBatch) {
     let file = fs::File::create(filename).unwrap();
