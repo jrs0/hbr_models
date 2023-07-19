@@ -1,4 +1,4 @@
-use arrow_odbc::arrow::{datatypes::GenericStringType, array::GenericByteArray};
+use arrow_odbc::arrow::{array::GenericByteArray, datatypes::GenericStringType};
 use datafusion::arrow::{error::ArrowError, record_batch::RecordBatch};
 use rand::prelude::*;
 use rand_chacha::ChaCha8Rng;
@@ -179,11 +179,7 @@ fn make_subject_columns(
 /// Creates a block of columns that includes the blood test name
 /// and family, the test result, test unit, and upper and lower
 /// ranges
-fn make_blood_test_columns(
-    block_id: &str,
-    global_seed: u64,
-    num_rows: usize,
-) -> SeededColumnBlock {
+fn make_blood_test_columns(block_id: &str, global_seed: u64, num_rows: usize) -> SeededColumnBlock {
     // Augment the id with the seed and hash to get the
     // seed to be used.
     let mut rng = make_rng(block_id, global_seed);
@@ -241,6 +237,52 @@ fn make_blood_test_columns(
     }
 }
 
+fn make_sample_time_columns(
+    block_id: &str,
+    global_seed: u64,
+    num_rows: usize,
+) -> SeededColumnBlock {
+    let mut rng = make_rng(block_id, global_seed);
+
+    let mut sample_collected_date_time = Vec::new();
+    let mut result_available_date_time = Vec::new();
+
+    for _ in 0..num_rows {
+        // Sample collected at any date from 1970 to roughly now, and
+        // up to 1 week processing time
+        let sample_collected_timestamp = 60 * rng.gen_range(0..28150015);
+        let processing_time = 60 * rng.gen_range(0..10080);
+        sample_collected_date_time.push(sample_collected_timestamp);
+        result_available_date_time.push(sample_collected_timestamp + processing_time);
+    }
+
+    SeededColumnBlock {
+        columns: vec![
+            (
+                String::from("sample_collected_date_time"),
+                Arc::new(TimestampSecondArray::from(sample_collected_date_time)) as _,
+            ),
+            (
+                String::from("result_available_date_time"),
+                Arc::new(TimestampSecondArray::from(result_available_date_time)) as _,
+            ),
+        ],
+    }
+}
+
+/// This column is either < or Null. Unknown interpretation.
+fn make_result_flag_column(block_id: &str, global_seed: u64, column_name: String, num_rows: usize) -> SeededColumnBlock {
+    let mut rng = make_rng(block_id, global_seed);
+
+    let mut result_flag = Vec::new();
+
+    for _ in 0..num_rows {
+        result_flag.push(make_result_flag(&mut rng));
+    }
+
+    make_string_column(column_name, result_flag)
+}
+
 /// Example function which creates a synthetic data table out of
 /// one or more seeded blocks (just one currently). The table itself
 /// also gets a block_id.
@@ -258,26 +300,37 @@ pub fn make_pathology_blood(block_id: &str, global_seed: u64, num_rows: usize) -
     seeded_column_blocks.push(subjects);
 
     // Lab department is always None
-    let laboratory_department = vec![None as Option<String>; num_rows];
+    let column = vec![None as Option<String>; num_rows];
     let column_name = String::from("laboratory_department");
-    seeded_column_blocks.push(make_string_column(column_name, laboratory_department));
+    seeded_column_blocks.push(make_string_column(column_name, column));
 
     // Make the blood test columns (a block of columns including test name, result, units,
     // and ranges)
     let blood_test_block_id = format!("{block_id}blood_test");
-    let blood_test_columns = make_blood_test_columns(
-        blood_test_block_id.as_ref(),
-        global_seed,
-        num_rows,
-    );    
+    let blood_test_columns =
+        make_blood_test_columns(blood_test_block_id.as_ref(), global_seed, num_rows);
     seeded_column_blocks.push(blood_test_columns);
 
+    // Make columns for sample collected time and processing times
+    let sample_time_block_id = format!("{block_id}sample_time");
+    let sample_time_columns =
+        make_sample_time_columns(sample_time_block_id.as_ref(), global_seed, num_rows);
+    seeded_column_blocks.push(sample_time_columns);
 
+    // Make the result flag columns
+    let result_flag_block_id = format!("{block_id}result_flag");
+    let column_name = String::from("result_flag");
+    let result_flag_column =
+        make_result_flag_column(result_flag_block_id.as_ref(), global_seed, column_name, num_rows);
+    seeded_column_blocks.push(result_flag_column);
+
+    // brc name is alwasy Bristol
+    let column = vec![String::from("bristol"); num_rows];
+    let column_name = String::from("brc_name");
+    seeded_column_blocks.push(make_string_column(column_name, column));
 
     into_record_batch(seeded_column_blocks).unwrap()
-
 }
-
 
 pub fn make_pathology_blood_old(rng: &mut ChaCha8Rng, num_rows: usize) -> RecordBatch {
     let mut subject = Vec::new();

@@ -1,13 +1,12 @@
 use rand::prelude::*;
 use rand_chacha::ChaCha8Rng;
 use datafusion::prelude::*;
-use synth_data::{load_record_batch, save_record_batch, make_pathology_blood};
+use rust_hic::{load_record_batch, save_record_batch, make_pathology_blood};
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
-    let mut rng = ChaCha8Rng::seed_from_u64(3);
 
-    let batch = make_pathology_blood(&mut rng, 20);
+    let batch = make_pathology_blood("pathology_blood", 0, 100);
 
     save_record_batch("example.parquet", batch);
 
