@@ -74,5 +74,14 @@ The platelet count measurement contains the following information:
 * `result_*_range`: 150 - 400, independent of gender
 * `test_result_unit`: "10*9/L" (* not a typo). This is a volumetric count, 10^9/L
 
+#### Estimated Glomerular Filtration Rate
+
+The eGFR is used as a general indicator of kidney function. The measurement contains the following information:
+
+* `order_name`: "UREACREAT + ELECTROLYTES"
+* `test_name`: "eGFR/1.73m2 (CKD-EPI)"
+* `test_result`: a non-negative integer <90, or the string ">90"
+* `result_*_range`: NULL - NULL
+* `test_result_unit`: "mL/min"
 
 
