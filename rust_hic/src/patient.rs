@@ -1,3 +1,5 @@
+mod spell;
+
 struct Patient {
 
 }

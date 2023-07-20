@@ -30,6 +30,8 @@ For these reasons, Rust will be used to implement the preprocessing backend for 
 * R and Python prototyping environments, for model development and data analysis
 * Tauri applications, for viewing processed patient data easily and forming the basis for the example risk-score calculation application.
 
+Alternative languages were also considered. For example, the use of Java would potentially enable the use of the open-source system [OpenEHR](https://openehr.org/) to avoid constructing an internal data storage format like the `Patient` struct (see below). However, the other requirements (interface to R and python), and the relative simplicity of the internal data being stored informed the choice for Rust. A further iteration of the project could convert the codebase to use a fully-featured system such as OpenEHR, after an initial proof-of-concept.
+
 ### Programming Language Infrastructure
 
 The repository contain a library for the backend written in Rust, frontends that use the Rust library, and interfaces to the backend from R and Python. One of the advantages of the Rust cargo crate system is that git-url dependencies will look anywhere in the referenced git repository for the crate (see [the cargo documentation](https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html#specifying-dependencies-from-git-repositories)), meaning that the main Rust backend library does not need to be at the root. As a result, each application that is part of the project can occupy a folder at the top level of this repository. 
@@ -49,6 +51,67 @@ Another approach is to use a framework such as Arrow, and convert all the (unpro
 Arrow can be used with multiple other data source, via [ConnectorX](https://docs.rs/connectorx/latest/connectorx/). ConnectorX also support SQL Server, however, it is not clear whether ODBC connection strings are supported; if they are, then ConnectorX can be used in place of `arrow-odbc`.
 
 Once an SQL Server datasource has been read into an Arrow in-memory representation using `arrow-odbc`, [this function](https://docs.rs/datafusion/latest/datafusion/execution/context/struct.SessionContext.html#method.read_batch) from [Datafusion](https://arrow.apache.org/datafusion/) can be used to create a dataframe object, on which SQL-like queries can be performed (such as joins, filters, etc.). This can be used as the basis for an in-memory dataframe structure that is a copy of the data in the original datasource in its unpreprocessed state. At this point, both synthetic data and SQL Server data would be represented in the same way (synthetic data can come from [this function](https://docs.rs/datafusion/latest/datafusion/execution/context/struct.SessionContext.html#method.register_parquet) which reads a dataframe from Parquet), and can form the basis for a test suite that checks the preprocessing.
+
+## Patient Data Model
+
+The central data structure in the Rust library (which is the core part of the codebase) is the Patient structure. The idea is to create a `struct` in Rust that contains all the information that is wanted about a patient, including demographic information, hospital activity (spells and episodes), comorbidities (either inferred from hospital episode diagnoses or taken from primary care datasets), laboratory tests and results, and prescriptions information. 
+
+Data in the Patient struct is populated from any data source (it could be an SQL Server, or APIs connected to the systems that hold the data). The key is that preprocessing steps have been performed which make a guarantee about the validity of the data, so that once it is in the Patient struct it can be trusted to be valid.
+
+It is more appropriate to store the Patient struct in a document-oriented database, such as MongoDB, because that avoids the need to design a normalised database schema independenty of designing the struct itself. Rust has tools (e.g., [the MongoDB Rust library with serde](https://www.mongodb.com/developer/languages/rust/rust-mongodb-crud-tutorial/)) that can automatically serialise the Patient struct in a format suitable for storage in a database. This could form the basis for a deployed solution, where information is pulled from multiple sources and stored locally in a database. 
+
+The data in the Patient struct is used for two purposes: processing into derived dataset (back in tabular format) for use in the higher level Rust and Python libraries, which can make use of the vast array of packages for data analysis using the data.
+
+In addition, the data can be viewed directly in a frontend (such as a Tauri application, or any other web framework that interfaces with Rust) for the purpose of viewing patient data in one place. This is useful both for analysis (to provide a interactive way to explore the data in a readable format to inform what data analysis to do) and it could also form the basis for a deployed tool that simply presents the required information to clinicians, or presents the data along with the calculation of simple scores (such as ARC-HBR).
+
+An advantage of using the same Rust backend for both purposes is that data analysis is being performed on the same data source (the Patient struct) that would be present in a deployment. This separates the design and testing of the front end (everything above the Patient struct; any GUIs showing data, or any model development) from the backend (which involves preprocessing data sources to generate the data required for the front end).
+
+If models prototyped in R or Python are found to work well, they can likely be implemented in Rust, which [also has libraries for machine learning](https://github.com/vaaaaanquish/Awesome-Rust-MachineLearning), that include basics like logistic regression, decision trees, xgboost and random forests. This makes it possible to deploy a fully-Rust-based application, which would improve the simplicity and performance of the result.
+
+In general, fields are optional in the structs below. The idea of the `Patient` struct is to gather as much information as possible, even if it is incomplete. It is up to the users of the struct to decide if a field is required, and exclude the data point as required.
+
+For datetimes, the chrono library will be used (one of the two [official](https://blessed.rs/crates) libraries), because it is compatible with MongoDB serialisation.
+
+The Patient struct needs the following fields:
+* `id` (required): this is the field that will be used as the MongoDB unique id. It is not the NHS number or trust number. It has a specific MongoDB type `ObjectId`.
+* `nhs_number` (optional, string): this field supports either the real NHS number (that could be used in a deployment), or the pseudonymised NHS number (if using a dataset like hospital episode statistics). The use of a string type provides flexibility regarding the uses of this field. It is the responsibility of the user of `Patient` to ensure that the field is in a defined and consistent format (same comment applies to trust number).
+* `trust_number` (optional, string): another patient identifier, present in the hospital. This field can be null for data analysis purposes, or present for a deployment
+* `age` (optional, u32): the age is a non-negative integer
+* `spells` (optional, vector of `Spell`): the list of known hospital spells (as in hospital episode statistics). The field is optional, even though no spells could be indicated with an empty vector, to 
+    * maintain consistency with the other fields
+    * provide the flexibility for users of `Patient` to draw a semantic distinction between `None` and empty vector (e.g. `None` could mean that no episode data is available, whereas empty could mean that episode information is available, but it contains no spells)
+* `mortality` (optional, type `Mortality`): information about whether the patient is alive. `None` means that the information is not available.
+
+The `Spells` structure contains the following fields (note no id; that is only required for `Patient` which is stored directly in the database):
+* `start` (optional, `chrono::DateTime<Utc>`): the time the hospital spell started
+* `end` (optional, `chrono::DateTime<Utc>`): the time the hospital spell ended
+* `episodes` (optional, vector of `Episode`): the list of episodes in this spell
+
+The `Episode` structure contains the following fields:
+* `start` (optional, `chrono::DateTime<Utc>`): the time the hospital spell started
+* `end` (optional, `chrono::DateTime<Utc>`): the time the hospital spell ended
+* `primary_diagnosis` (optional, `DiagnosisCode`): the primary diagnosis of the episode, ICD-10
+* `secondary_diagnoses` (optional, vector of `DiagnosisCode`): the secondary diagnoses of the episode, ICD-10 
+* `primary_procedure` (optional, `ProcedureCode`): the primary procedure of the episode, OPCS-4
+* `secondary_procedures` (optional, vector of `ProcedureCode`): the secondary procedures of the episode, OPCS-4
+
+Both the `DiagnosisCode` and the `ProcedureCode` contain a reference (an `id`, type u64) to a `ClinicalCode`, which contains three items:
+* `code` (required, string): the ICD-10 or OPCS-4 code
+* `description` (required, string): the text description of the code
+* `groups` (required, vector of strings): the list of groups which contain the code
+
+Using a reference to the code allows two codes to be compared for equality, without needing to carry around their string descriptions. In the C++ prototype code [rdb](https://github.com/jrs0/rdb), it was also found that caching the codes during code parsing improved performance significantly; that is, maintaining a map from code strings found in the database to the resulting code ID. When the content of the code is required, it can be fetched using the reference.
+
+
+
+
+
+
+
+
+
+
+
 
 
 
