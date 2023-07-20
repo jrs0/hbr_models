@@ -82,6 +82,7 @@ impl ClinicalCodeRef {
 
 /// Stores the data for all the clinical codes that have been seen by the
 /// program.
+#[derive(Debug)]
 pub struct ClinicalCodeStore {
     /// The purpose of the bidirectional map is to try to make both inserting
     /// codes and retrieving code data fast. Code insertion is the bottleneck
@@ -223,14 +224,13 @@ mod tests {
         let code_ref_1 = clinical_code_store.clinical_code_ref_from(code);
         assert_eq!(clinical_code_store.num_stored_codes(), 1);
 
-        let mut clinical_code_store = ClinicalCodeStore::new();
         let name = String::from("A00.1");
         let docs = String::from("Another description");
         let code = ClinicalCode::new(name, docs);
         let code_ref_2 = clinical_code_store.clinical_code_ref_from(code);
+
         assert_eq!(clinical_code_store.num_stored_codes(), 2);
 
-        let mut clinical_code_store = ClinicalCodeStore::new();
         let name = String::from("K34.3");
         let docs = String::from("Yet another description");
         let code = ClinicalCode::new(name, docs);
@@ -250,7 +250,7 @@ mod tests {
         assert_ne!(code_read, None);
         let code_read = code_read.unwrap();
         assert_eq!(code_read.name(), "A00.1");
-        assert_eq!(code_read.docs(), "Another descriptions");
+        assert_eq!(code_read.docs(), "Another description");
         assert_eq!(code_read.groups().len(), 0);        
 
         let code_read = clinical_code_store.clinical_code_from(code_ref_3);
