@@ -30,7 +30,7 @@ For these reasons, Rust will be used to implement the preprocessing backend for 
 * R and Python prototyping environments, for model development and data analysis
 * Tauri applications, for viewing processed patient data easily and forming the basis for the example risk-score calculation application.
 
-Alternative languages were also considered. For example, the use of Java would potentially enable the use of the open-source system [OpenEHR](https://openehr.org/) to avoid constructing an internal data storage format like the `Patient` struct (see below). However, the other requirements (interface to R and python), and the relative simplicity of the internal data being stored informed the choice for Rust. A further iteration of the project could convert the codebase to use a fully-featured system such as OpenEHR, after an initial proof-of-concept.
+Alternative languages were also considered. For example, the use of Java would potentially enable the use of the open-source system [OpenEHR](https://openehr.org/) to avoid constructing an internal data storage format like the `Patient` struct (see below). However, the other requirements (interface to R and python), the relative simplicity of the internal data being stored, and lack of developer expertise in Java, informed the choice for Rust. A further iteration of the project could convert the codebase to use a fully-featured system such as OpenEHR, after an initial proof-of-concept.
 
 ### Programming Language Infrastructure
 

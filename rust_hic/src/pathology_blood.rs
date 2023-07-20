@@ -93,7 +93,7 @@ impl BloodTest {
         let result_lower_range = None;
         let result_upper_range = None;
         let test_result_unit = Some(String::from("mL/min"));
-        let test_result = if (test_result > 90) {
+        let test_result = if test_result > 90 {
             String::from(">90")
         } else {
             test_result.to_string()
