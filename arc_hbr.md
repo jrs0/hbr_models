@@ -48,6 +48,30 @@ For blood test result, a test is relevant if it is recent, which requires a deci
 
 For anaemia codes, the same principle applies, but it is not possible to distinguish major/minor, and no average is possible. **Would anaemia codes imply at least minor for both men and women? We could also try to validate comparing to measurement.** 
 
+### Thrombocytopenia (Low Platelet Count, Major)
+
+Moderate or severe baseline thrombocytopenia (low platelet count) i, meaning count < 100e9/L, is a major criterion.
+
+Baseline means before intervention. The platelet count can be obtained from measurements from the full blood count, or from ICD-10 codes of thrombocytopenia.
+
+**Is the timescale to consider before intervention the same as Hb?**
+
+### Chronic Kidney Disease (Major/Minor)
+
+Severe or end-stage chronic kidney disease (CKD) is a major criterion; moderate CKD is a minor criterion.
+
+The stages of chronic kidney disease map to both ICD-10 codes and estimated glomerular filtration rate measurments (eGFR, from urea and electrolytes laboratory results), as follows (see [here](https://www.nhs.uk/conditions/kidney-disease/diagnosis/)):
+
+| Stage | ICD-10 | eGFR | ARC-HBR |
+|-------|--------|------|---------|
+| Stage 5, end-stage | N18.5 | eGFR < 15 ml/min | Major |
+| Stage 4, severe | N18.4 | 15 ml/min <= eGFR < 30 ml/min | Major |
+| Stage 3b, moderate | N18.3 | 30 ml/min <= eGFR < 45 ml/min | Minor |
+| Stage 3a, moderate | N18.3 | 45 ml/min <= eGFR < 60 ml/min | Minor |
+| Stage 2, mild | N18.2 | 60 ml/min <= eGFR < 90 ml/min | Major |
+| Stage 1, normal eGFR | N18.1 | eGFR > 90 ml/min | None |
+
+
 
 
 ### Age (Minor)
