@@ -3,6 +3,9 @@ use spell::Spell;
 use mongodb::bson::oid::ObjectId;
 
 mod spell;
+//mod mortality;
+//mod measurements;
+//mod prescriptions;
 
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct Patient {
@@ -13,4 +16,6 @@ pub struct Patient {
     pub age: Option<u32>,
     pub spells: Option<Vec<Spell>>,
     //pub mortality: Option<Mortality>,
+    //pub measurements: Option<MeasurementHistory>,
+    //pub prescriptions: Option<PrescriptionsHistory>,
 }

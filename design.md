@@ -91,7 +91,7 @@ The `PrescriptionsHistory` contains the following fields:
 
 The `Prescription` contains the following fields:
 * `value` (required, enum `PrescriptionValue`): the value could either be numerical or non-numerical, hence the type
-* `prescription_date` (optional, `chrono::DateTime<Utc>`): the time the presscription was made
+* `prescription_date` (optional, `chrono::DateTime<Utc>`): the time the prescription was made
 * `duration` (optional, `chrono::Duration`): the duration of the prescription
 * `data_source` (optional, enum `DataSource`): either primary care data source or secondary care data source.
 
