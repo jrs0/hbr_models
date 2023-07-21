@@ -81,6 +81,18 @@ The Patient struct needs the following fields:
     * maintain consistency with the other fields
     * provide the flexibility for users of `Patient` to draw a semantic distinction between `None` and empty vector (e.g. `None` could mean that no episode data is available, whereas empty could mean that episode information is available, but it contains no spells)
 * `mortality` (optional, type `Mortality`): information about whether the patient is alive. `None` means that the information is not available.
+* `measurements` (optional, type vector of `MeasurementHistory`): list of different measurements (laboratory test or other, e.g. haemoglobin or platelet count). Each `MeasurementHistory` is a time series of measurement results with data source, date and value, along with metadata about the time series.
+
+The `MeasurementHistory` contains the following fields:
+* `measurement_name` (required, string): the name of the measurement
+* `measurmeent_unit` (required, string): the unit for the measurement. This could be replaced with a units library, but it is simpler to use a string for now to speed up prototyping.
+* `timeseries`: (required, vector or `Measurement`): 
+
+The `Measurement` contains the following fields:
+* `value` (required, `MeasurementValue`): the value could either be numerical or non-numerical, hence the bespoke type.
+* `measurement_date` (optional, `chrono::DateTime<Utc>`): the time the measurement was performed
+* `measurement_available` (optional, `chrono::DateTime<Utc>`): the time the measurement became available to the clinician
+* `data_source` (optional, enum `DataSource`): either primary care data source or secondary care data source.
 
 The `Spells` structure contains the following fields (note no id; that is only required for `Patient` which is stored directly in the database):
 * `start` (optional, `chrono::DateTime<Utc>`): the time the hospital spell started
