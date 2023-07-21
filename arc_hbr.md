@@ -30,16 +30,41 @@ The sections below describe what constitutes major and minor criteria, and how t
 
 Many of the criteria have the property that the presence of a condition in the data implies the criterion is present, but the absence of the condition in the data does not imply the criterion is absent. For example, lack of information about intracranial haemorrhage (ICH) (in the Covid-19 period) does not imply lack of ICH *at any time* (required for the prior ICH criterion). As a result, the estimated ARC HBR score is a lower bound: a low score does not necessarily imply the patient is not at high bleeding risk. Any presentation of the calculated result should make this fact clear.
 
+### Anaemia (Low Haemoglobin, Major/Minor)
+
+Haemoglobin level < 11.0 g/dL is a major criterion (for men and women).
+
+Haemoglobin `hb` greater than 11.0 g/dL is divided into two categories:
+* Women: 11.0 g/dL <= hb < 11.9 g/dL is a minor criterion
+* Men: 11.0 g/dL <= hb < 12.9 g/dL is a minor criterion
+
+Any other haemoglobin level is not an ARC HBR criterion.
+
+Haemoglobin level varies with time, and is captured in the data as either laboratory measurements from the full blood count, or potentially as anaemia codes from ICD-10 data in hospital episode statistics.
+
+For blood test result, a test is relevant if it is recent, which requires a decision about when a test result should be taken into account. A number of different potential strategies are:
+* Any anaemia test in a fixed period (e.g. 6 months) before intervention (therapy prescription) is used for the calculation. **What period is appropriate?**
+* Some kind of average of haemoglobin level in the measurements before intervention is considered relevant. **What timescale for averaging would be appropriate?**
+
+For anaemia codes, the same principle applies, but it is not possible to distinguish major/minor, and no average is possible. **Would anaemia codes imply at least minor for both men and women? We could also try to validate comparing to measurement.** 
+
+
+
 ### Age (Minor)
 
 Patient age at least 75 at the time of risk score calculation is considered a minor criterion. Age is obtained from the demographic information of both HIC and SWD.
+
+The relevant time point for the calculation is the time of intervention (the PCI procedure, or shortly afterwords when therapy is being prescribed). Afterwords, the risk level theoretically changes (if the patient crosses the 75 boundary), although this is likely an arbitrary distinction (for example, for the duration of DAPT, the patient is likely either at risk due to age for the full period, or not at risk due to age).
+
+
+
+
 
 ### Oral Anticoagulant Use (Major)
 
 Anticipated use of long-term OAC is considered a major criterion. There are two types of oral anticoagulants:
 * Vitamin K antagonists: warfarin
 * Direct oral anticoagulants: apixaban, dabigatran, edoxaban, rivaroxaban
-
 
 
 
