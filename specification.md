@@ -21,12 +21,17 @@ The core data preprocessing routines convert data from the form in the data sour
     * `cause_of_death` (optional): *icd10*, the primary cause of death.
 * **Hospital activity (optional)** Contains the hospital episodes for a patient.
     * `spells` (required): *array of `Spell`*
-* **Laboratory tests and results** E.g. full blood count (haemoglobin, platelets, etc.)
-    * Todo...
+* **Laboratory tests and patient measurements** E.g. full blood count (haemoglobin, platelets, etc.)
+    * `measurements` (required): *array of `MeasurementHistory`*. A `MeasurementHistory` is a time series with metadata. The metadata includes the test name and test unit. The time series contains a list of values, along with a tag indicating whether the value came from a primary care or secondary care data source, the date where the measurement was taken, and a sample processing time (if applicable, for laboratory measurements). It is up to the user of `Patient` to interpret the value of the test.
 * **Prescriptions information** What was prescribed, when it was prescribed, etc.
-    * Todo...
+    * `prescriptions` (required): *array of `PrescriptionHistory`*. A `PrescriptionHistory` is a time series with metadata. The metadata includes the prescription name and prescription unit or instruction (e.g. mg/d ). The time series comprises a value (e.g. quantity of drug, normalised to agree with the prescription unit), a duration if applicable, and a tag indicating whether the data came from a primary or a secondary care data source.
 
 In the internal structure, many pieces of information may be missing. Parts of the program that use this information as a data source are free to discard structures that are missing required data.
+
+In collecting the information together into a single structure, there could be multiple data sources populating the same information (for example, eGFR results from two different databases). There is a question whether a piece of information should store its data source. The question whether to store the source should be informed by whether the data origin could matter. In order not to overcomplicate the structure, but still retain some relevant information that may inform modelling, the following process will be adopted:
+* Laboratory tests and prescriptions will store whether the data source was primary care or secondary care.
+* Spells and episodes will not store their source; they will be assumed to originate either with national hospital episode statistics or local finished consultant episodes, which will be treated as equivalent.
+* Deomgraphic information will not store the data source.
 
 Preprocessing is necessary to bring data in the original data source into the correct format for `Patient`. For any piece of information `A` in the original data source that is converted to an item `B` in `Patient`, the following must hold:
 

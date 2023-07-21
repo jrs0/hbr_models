@@ -69,7 +69,7 @@ The stages of chronic kidney disease map to both ICD-10 codes and estimated glom
 | Stage 2, mild | N18.2 | 60 ml/min <= eGFR < 90 ml/min | None |
 | Stage 1, normal eGFR | N18.1 | eGFR > 90 ml/min | None |
 
-The eGFR is a measurement result that can be tracked with time, similarly to Hb and Plt. The relevant value at the time of therapy prescription is the latest value in a fixed period before the intervention **What time scale**. The eGFR value can be tracked with time, if measurements are available.
+The eGFR value obtained during the index episode should be used for the risk calculation. **If that is not available, can a previous value be used? Would eGFR be more slowly varying over time than Hb or platelets?**.
 
 ### Age (Minor)
 
