@@ -42,11 +42,9 @@ Any other haemoglobin level is not an ARC HBR criterion.
 
 Haemoglobin level varies with time, and is captured in the data as either laboratory measurements from the full blood count, or potentially as anaemia codes from ICD-10 data in hospital episode statistics.
 
-For blood test result, a test is relevant if it is recent, which requires a decision about when a test result should be taken into account. A number of different potential strategies are:
-* Any anaemia test in a fixed period (e.g. 6 months) before intervention (therapy prescription) is used for the calculation. **What period is appropriate?**
-* Some kind of average of haemoglobin level in the measurements before intervention is considered relevant. **What timescale for averaging would be appropriate?**
+A blood test including an Hb measurement is often performed in the intervention episode, so this should be used to calculate the risk. If Hb from the index is not available, then a previous low Hb could be taken as a proxy to calculate the risk (the program should indicate that this has been done). 
 
-For anaemia codes, the same principle applies, but it is not possible to distinguish major/minor, and no average is possible. **Would anaemia codes imply at least minor for both men and women? We could also try to validate comparing to measurement.** 
+In addition to the calculation using the same-episode Hb value, prior Hb measurement could be used to improve the performance of the score. This is not part of the ARC HBR calculation, but is discussed in connection with other HBR models **TODO link to where**. Test results should not be averaged over time; instead, what is relevant is whether the measurement dips below a threshold at any time.
 
 ### Thrombocytopenia (Low Platelet Count, Major)
 
