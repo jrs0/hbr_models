@@ -84,4 +84,10 @@ The eGFR is used as a general indicator of kidney function. The measurement cont
 * `result_*_range`: NULL - NULL
 * `test_result_unit`: "mL/min"
 
+## Testing the Patient Structure
 
+The central data structure which represents the interface between the data sources and the higher level users (either data processing in R or python, or graphical presentation of the information) is the `Patient` class. This is a nested structure of many different pieces of information.
+
+There are too many configurations of the structure to test exhaustively. The tests should be informed by the various use cases for `Patient`. Tests should avoid retesting functionality that is already unit tested in lower level structures, or that simply involves writing and then directly reading the fields. Instead, the tests should focusses on interfaces to `Patient` where non-trivial processing is performed on the internal data. 
+
+**TODO list examples that need testing here**
