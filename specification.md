@@ -29,7 +29,7 @@ The core data preprocessing routines convert data from the form in the data sour
 In the internal structure, many pieces of information may be missing. Parts of the program that use this information as a data source are free to discard structures that are missing required data.
 
 In collecting the information together into a single structure, there could be multiple data sources populating the same information (for example, eGFR results from two different databases). There is a question whether a piece of information should store its data source. The question whether to store the source should be informed by whether the data origin could matter. In order not to overcomplicate the structure, but still retain some relevant information that may inform modelling, the following process will be adopted:
-* Laboratory tests and prescriptions will store whether the data source was primary care or secondary care.
+* Laboratory tests and prescriptions will store whether the data source was primary care or secondary care. This information will be stored at the time series level, in order to support easily viewing the combined time series data from all sources.
 * Spells and episodes will not store their source; they will be assumed to originate either with national hospital episode statistics or local finished consultant episodes, which will be treated as equivalent.
 * Deomgraphic information will not store the data source.
 

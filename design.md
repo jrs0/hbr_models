@@ -81,7 +81,19 @@ The Patient struct needs the following fields:
     * maintain consistency with the other fields
     * provide the flexibility for users of `Patient` to draw a semantic distinction between `None` and empty vector (e.g. `None` could mean that no episode data is available, whereas empty could mean that episode information is available, but it contains no spells)
 * `mortality` (optional, type `Mortality`): information about whether the patient is alive. `None` means that the information is not available.
-* `measurements` (optional, type vector of `MeasurementHistory`): list of different measurements (laboratory test or other, e.g. haemoglobin or platelet count). Each `MeasurementHistory` is a time series of measurement results with data source, date and value, along with metadata about the time series.
+* `measurements` (optional, vector of `MeasurementHistory`): list of different measurements (laboratory test or other, e.g. haemoglobin or platelet count). Each `MeasurementHistory` is a time series of one type of measurement result with data source, date and value, along with metadata about the time series.
+* `prescriptions` (optional, vector of `PrescriptionHistory`): list of different prescriptions (drugs or otherwise). Each `PrescriptionHistory` is a time series of one type of prescription with data source, date started, duration, and amount (if applicable), along with metadata about the time series.
+
+The `PrescriptionsHistory` contains the following fields:
+* `prescription_name` (required, string): the name of the prescription
+* `unit_or_instruction` (required, string): this field is intended to explain the meaning of the value stored in the time series. For simplicity, it is a string, to support potentially non-unit qualitative prescriptions. For units, a single consistent unit will be chosen for all values in the time series, which will be normalised to this unit. For example, the unit may be chosen to be "mg/d", and then 10 mg twice daily would be expressed as 20 in the time series. This is indistinguishable from a prescription of 20 mg per day, but the compromise will simplify the code. The key is that each drug will obtain a canonical unit.
+* `timeseries` (required, vector of `Prescription`): the actual prescription information, with amount, duration and date prescribed
+
+The `Prescription` contains the following fields:
+* `value` (required, enum `PrescriptionValue`): the value could either be numerical or non-numerical, hence the type
+* `prescription_date` (optional, `chrono::DateTime<Utc>`): the time the presscription was made
+* `duration` (optional, `chrono::Duration`): the duration of the prescription
+* `data_source` (optional, enum `DataSource`): either primary care data source or secondary care data source.
 
 The `MeasurementHistory` contains the following fields:
 * `measurement_name` (required, string): the name of the measurement
