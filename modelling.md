@@ -24,7 +24,28 @@ See [here](https://www.possiblehealth.io/clinical-decision-support-tools-are-the
 
 ## Previous Bleeding/Ischaemic Risk Prediction Work
 
-2021 Urban et al. [^1] present a trade-off model for bleeding and thrombotic risk for patients having PCI, developed for use on patients who have already been determined to be at HBR. They use (a modified form of) the Academic Research Consortium (ARC) HBR definition [^2] to define what HBR means. Their model is based on survival analysis, and the outcome (for a given patient) is a probability of bleeding (in this case BARC 3 or 5 level [^3]) and a probability of thrombosis (MI or ST). These two probabilities constitute a trade-off, which is also adjusted by mortality (which is higher for patients with thrombotic complications than bleeding complications).
+2021 Urban et al. [^1] present a trade-off model for bleeding and thrombotic risk for patients having PCI, developed for use on patients who have already been determined to be at HBR. They use (a modified form of) the Academic Research Consortium (ARC) HBR definition [^2] to define what HBR means. Their model is based on survival analysis, and the outcome (for a given patient) is a probability of bleeding (in this case BARC 3 or 5 level [^3]) and a probability of thrombosis (MI or ST). These two probabilities constitute a trade-off, which is also adjusted by mortality (which is higher for patients with thrombotic complications than bleeding complications, meaning clinicians should bias slightly towards the bleeding complication side).
+
+## High Bleeding Risk
+
+Identifying patients at high bleeding risk is fundamentally important, both for highlighting patients who require care in prescribing therapy, and for defining a cohort of interest for modelling purposes.
+
+There are two ways to obtain the bleeding risk: use a statistical model to calculate probability of bleeding; or use a consensus-based score thought (or subsequently verified) to correspond to bleeding risk.
+
+Creating a statistical model requires a carefully prepared dataset with available patient data to use as input variables and a bleeding outcome that is clinically relevant (e.g. major bleeding, BARC 3 or 5). On the other hand, a consensus-based score can be directly calculated without needing the actual bleeding outcome information in the dataset. It cannot be verified, but it may have been verified elsewhere. In addition, by its nature as a consensus score, there is more direct clinical involvement in drawing the HBR conclusion, especially if the underlying patient characteristics are presented as part of the score; the clinician could potentially take more "ownership" of the decision.
+
+This repository will focus on the ARC-HBR [^2] consensus-based definition of bleeding. This is a pragmatic result of the lack of BARC 3 and 5 major bleeding in available datasets (although it may be possible to use ICD-10 codes to approximate the major bleeding outcome). The ARC-HBR score has been validated in multiple studies, and found to correspond to major bleeding risk with moderate performance [^4].
+
+The ARC-HBR score for the purpose of this work is described [here](arc_hbr.md).
+
+
+
+
+
+
+
+
+
 
 
 [^1] [2021 Urban et al., Assessing the Risks of Bleeding vs Thrombotic Events in Patients at High Bleeding Risk After Coronary Stent ImplantationThe ARC–High Bleeding Risk Trade-off Model](https://jamanetwork.com/journals/jamacardiology/fullarticle/2774812)
@@ -32,3 +53,5 @@ See [here](https://www.possiblehealth.io/clinical-decision-support-tools-are-the
 [^2] [2019 Urban et al., Defining High Bleeding Risk in Patients Undergoing Percutaneous Coronary Intervention - A Consensus Document From the Academic Research Consortium for High Bleeding Risk](https://www.ahajournals.org/doi/10.1161/CIRCULATIONAHA.119.040167)
 
 [^3] [2011 Mehran et al., Standardized Bleeding Definitions for Cardiovascular Clinical Trials - A Consensus Report From the Bleeding Academic Research Consortium](https://www.ahajournals.org/doi/10.1161/circulationaha.110.009449)
+
+[^4] [2022 Silverio et al., Validation of the academic research consortium high bleeding risk criteria in patients undergoing percutaneous coronary intervention: A systematic review and meta-analysis of 10 studies and 67,862 patients](https://www.sciencedirect.com/science/article/abs/pii/S0167527321017848)

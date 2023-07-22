@@ -1,11 +1,13 @@
 # Academic Research Consortium High Bleeding Risk (ARC HBR)
 
-A primary purpose of this repository is attempting to calculate (or approximate) the ARC HBR risk score, defined in [2019 Urban et al.](https://pubmed.ncbi.nlm.nih.gov/31116395/). It is likely not possible to exactly calculate the exact score due to deficiencies in the data. However, having the approximate score may be useful because:
-* An automated calculation of the score (accompanied by a concise expression of the underlying data, in order to allow for additional clinical judgement) may be a clinically useful decision-support tool in its own right while prescribing blood-thinning medication following acute coronary syndromes.
+A primary purpose of this repository is attempting to calculate (or approximate) the ARC-HBR risk score [^1]. It is likely not possible to exactly calculate the exact score due to deficiencies in the data. However, having the approximate score may be useful because:
+* An automated calculation of the score (accompanied by a concise expression of the underlying data, in order to allow for clinical judgement) may be a clinically useful decision-support tool in its own right while prescribing blood-thinning medication following acute coronary syndromes.
 * The approximate calculation of the ARC-HBR score may be useful as a prognostic model for predicting bleeding risk, provided that it can be validated using appropriate bleeding data
 * The approximate calculation of the ARC-HBR score could serve as a baseline in the search for prognostic models that work better with the data available.
 
-This file outlines the ARC HBR criteria, and how it will be calculated from the data available.
+Application of the ARC-HBR score sometimes modifies the score for data availability; for example in [^2]. The modifications used in this study will be described below.
+
+This file outlines the ARC-HBR criteria, and how it will be calculated from the data available.
 
 ## Overview of Datasets
 
@@ -17,10 +19,10 @@ The following datasets are available for the calculation of the ARC-HBR score:
     * Contains secondary-care prescription information 
 * **SWD** System-wide Dataset (BNSSG ICB)
     * Spans the time-period of the HIC
-    * Includes primary care patient attributes and activity
+    * Includes primary-care patient attributes and activity
     * Is of secondary importance, due to the more fine-grained information contained in the HIC, but may fill in gaps relating to some demographic information or comorbidities.
 
-The restriction to the Covid period may have implications for the use of the score in modelling bleeding risk. However, it does not have any bearing on prototying a tool for directly calculating the score, because the form of data (the definitions of the data fields) does not depend on the presence or absence of Covid.
+The restriction to the Covid period may have implications for the use of the score in modelling bleeding risk. However, it does not have any bearing on prototyping a tool for directly calculating the score, because the form of data (the definitions of the data fields) does not depend on the presence or absence of Covid.
 
 ## ARC HBR Score Definition
 
@@ -50,15 +52,13 @@ In addition to the calculation using the same-episode Hb value, prior Hb measure
 
 Moderate or severe baseline thrombocytopenia (low platelet count) i, meaning count < 100e9/L, is a major criterion.
 
-Baseline means before intervention. The platelet count can be obtained from measurements from the full blood count, or from ICD-10 codes of thrombocytopenia.
-
-**Is the timescale to consider before intervention the same as Hb?**
+Baseline means before intervention. The platelet count can be obtained from measurements from the full blood count. This information is routinely collected in the index presentation.
 
 ### Chronic Kidney Disease (Major/Minor)
 
 Severe or end-stage chronic kidney disease (CKD) is a major criterion; moderate CKD is a minor criterion.
 
-The stages of chronic kidney disease map to both ICD-10 codes and estimated glomerular filtration rate measurments (eGFR, from urea and electrolytes laboratory results), as follows (see [here](https://www.nhs.uk/conditions/kidney-disease/diagnosis/)):
+The stages of chronic kidney disease map to both ICD-10 codes and estimated glomerular filtration rate measurements (eGFR, from urea and electrolytes laboratory results), as follows (see [here](https://www.nhs.uk/conditions/kidney-disease/diagnosis/)):
 
 | Stage | ICD-10 | eGFR | ARC-HBR |
 |-------|--------|------|---------|
@@ -69,7 +69,7 @@ The stages of chronic kidney disease map to both ICD-10 codes and estimated glom
 | Stage 2, mild | N18.2 | 60 ml/min <= eGFR < 90 ml/min | None |
 | Stage 1, normal eGFR | N18.1 | eGFR > 90 ml/min | None |
 
-The eGFR value obtained during the index episode should be used for the risk calculation. **If that is not available, can a previous value be used? Would eGFR be more slowly varying over time than Hb or platelets?**.
+The eGFR value obtained during the index episode should be used for the risk calculation. This value is also routinely collected, similarly to platelets and haemoglobin.
 
 ### Age (Minor)
 
@@ -90,3 +90,8 @@ Anticipated use of long-term OAC is considered a major criterion. There are two 
 
 
 
+
+
+[^1] [2019 Urban et al., Defining High Bleeding Risk in Patients Undergoing Percutaneous Coronary Intervention - A Consensus Document From the Academic Research Consortium for High Bleeding Risk](https://www.ahajournals.org/doi/10.1161/CIRCULATIONAHA.119.040167)
+
+[^2] [2021 Urban et al., Assessing the Risks of Bleeding vs Thrombotic Events in Patients at High Bleeding Risk After Coronary Stent ImplantationThe ARC–High Bleeding Risk Trade-off Model](https://jamanetwork.com/journals/jamacardiology/fullarticle/2774812)
