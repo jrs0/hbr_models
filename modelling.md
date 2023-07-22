@@ -24,7 +24,7 @@ See [here](https://www.possiblehealth.io/clinical-decision-support-tools-are-the
 
 ## Previous Bleeding/Ischaemic Risk Prediction Work
 
-2021 Urban et al. [^1] present a trade-off model for bleeding and thrombotic risk for patients having PCI, developed for use on patients who have already been determined to be at HBR. They use (a modified form of) the Academic Research Consortium (ARC) HBR definition [^2] to define what HBR means. Their model is based on survival analysis, and the outcome (for a given patient) is a probability of bleeding (in this case BARC 3 or 5 level [^3]) and a probability of thrombosis (MI or ST). These two probabilities constitute a trade-off, which is also adjusted by mortality (which is higher for patients with thrombotic complications than bleeding complications, meaning clinicians should bias slightly towards the bleeding complication side).
+2021 Urban et al.[^1] present a trade-off model for bleeding and thrombotic risk for patients having PCI, developed for use on patients who have already been determined to be at HBR. They use (a modified form of) the Academic Research Consortium (ARC) HBR definition[^2] to define what HBR means. Their model is based on survival analysis, and the outcome (for a given patient) is a probability of bleeding (in this case BARC 3 or 5 level[^3]) and a probability of thrombosis (MI or ST). These two probabilities constitute a trade-off, which is also adjusted by mortality (which is higher for patients with thrombotic complications than bleeding complications, meaning clinicians should bias slightly towards the bleeding complication side).
 
 ## High Bleeding Risk
 
@@ -34,7 +34,7 @@ There are two ways to obtain the bleeding risk: use a statistical model to calcu
 
 Creating a statistical model requires a carefully prepared dataset with available patient data to use as input variables and a bleeding outcome that is clinically relevant (e.g. major bleeding, BARC 3 or 5). On the other hand, a consensus-based score can be directly calculated without needing the actual bleeding outcome information in the dataset. It cannot be verified, but it may have been verified elsewhere. In addition, by its nature as a consensus score, there is more direct clinical involvement in drawing the HBR conclusion, especially if the underlying patient characteristics are presented as part of the score; the clinician could potentially take more "ownership" of the decision.
 
-This repository will focus on the ARC-HBR [^2] consensus-based definition of bleeding. This is a pragmatic result of the lack of BARC 3 and 5 major bleeding in available datasets (although it may be possible to use ICD-10 codes to approximate the major bleeding outcome). The ARC-HBR score has been validated in multiple studies, and found to correspond to major bleeding risk with moderate performance [^4].
+This repository will focus on the ARC-HBR[^2] consensus-based definition of bleeding. This is a pragmatic result of the lack of BARC 3 and 5 major bleeding in available datasets (although it may be possible to use ICD-10 codes to approximate the major bleeding outcome). The ARC-HBR score has been validated in multiple studies, and found to correspond to major bleeding risk with moderate performance[^4].
 
 The ARC-HBR score for the purpose of this work is described [here](arc_hbr.md).
 
@@ -43,6 +43,8 @@ The ARC-HBR score for the purpose of this work is described [here](arc_hbr.md).
 The clinically relevant bleeding definition is BARC 3 or 5, as used in the ARC HBR definition. However, this definition is not readily available in the datasets used here, because it requires expert judgement (which is often performed manually in studies). However, it is possible to find proxies for major bleeding. For example, in hospital episode statistics, ICD-10 codes have been found to approximate major bleeding events. Here, two groups of ICD-10 codes will be used as a stand-in for major bleeding, for model development purposes:
 
 * **Al-Ani Group**: 
+    This group has the advantage that it comes with positive predicted value (PPV) of 88%[^5] for identifying major bleeding; this means that if a code arises, then there is 88% chance it corresponds to a major bleeding event. Disadvantages include the location (Canada) and the difference in coding scheme (ICD-10CM), which means the coding practices may differ enough to modify the PPV. In addition, the major bleeding definition used in the paper is not BARC 3 or 5 (although aligns quite closely with it). In addition, the high PPV is at the expense of including potentially important codes, as noted elsewhere[^6].
+
     | Description | ICD-10CM Codes |
     |-------------|--------|
     | Subarachnoid hemorrhage |I60 |
@@ -51,7 +53,54 @@ The clinically relevant bleeding definition is BARC 3 or 5, as used in the ARC H
     | Upper gastrointestinal bleeding |  I85.0, K22.1, K22.6, K25.0, K25.2, K25.4, K25.6,K26.0, K26.2, K26.4, K26.6, K27.0, K27.2, K27.4,K27.6, K28.0, K28.2, K28.4, K28.6, K29.0, K31.80,K63.80, K92.0, K92.1, K92.2 |
     | Lower gastrointestinal bleeding |  K55.2, K51, K57, K62.5, K92.0, K92.1, K92.2 |
 
-    This group has the advantage that it comes with positive predicted value (PPV) of 88% [^5] for identifying major bleeding; this means that if a code arises, then there is 88% chance it corresponds to a major bleeding event. Disadvantages include the location (Canada) and the difference in coding scheme (ICD-10CM), which means the coding practices may differ enough to modify the PPV. 
+    This groups has been interpreted as the following set of (UK) ICD-10 codes:
+    | Description | ICD-10 |
+    |-------------|--------|
+    | TODO | TODO |
+* **CADTH Group**
+    This set of codes was used to calculate costs associated with major bleeding in connection with estimating costs resulting from DAPT duration. The group is as follows:
+    | Descriptions | ICD-10 |
+    |--------------|--------|
+    | Gastrointestinal |I850 Esophageal varices with bleeding|
+    || K250 Gastric ulcer, acute with hemorrhage| 
+    ||K252 Gastric ulcer, acute with both hemorrhage and perforation|
+    ||K254 Gastric ulcer, chronic or unspecified with hemorrhage|
+    ||K256 Gastric ulcer, chronic or unspecified with both hemorrhage and perforation|
+    ||K260 Duodenal ulcer, acute with hemorrhage|
+    ||K262 Duodenal ulcer, acute with both hemorrhage and perforation|
+    ||K264 Duodenal ulcer, chronic or unspecified with hemorrhage|
+    ||K266 Duodenal ulcer, chronic or unspecified with both hemorrhage and perforation|
+    ||K270 Peptic ulcer, acute with hemorrhage|
+    ||K272 Peptic ulcer, acute with both hemorrhage and perforation|
+    ||K274 Peptic ulcer, chronic or unspecified with hemorrhage|
+    ||K276 Peptic ulcer, chronic or unspecified with both hemorrhage and perforation|
+    ||K280 Gastrojejunal ulcer, acute with hemorrhage|
+    ||K282 Gastrojejunal ulcer, acute with both hemorrhage and perforation|
+    ||K284 Gastrojejunal ulcer, chronic or unspecified with hemorrhage|
+    ||K286 Gastrojejunal ulcer, chronic or unspecified with both hemorrhage and perforation|
+    ||K290 Acute hemorrhagic gastritis|
+    ||K625 Hemorrhage of anus and rectum|
+    ||K661 Hemoperitoneum|
+    ||K920 Hematemesis|
+    ||K921 Melena|
+    ||K922 Gastrointestinal hemorrhage, unspecified|
+    |Hematology |R58 Hemorrhage, not elsewhere classified|
+    |Intracranial (other than hemorrhagic stroke) |I629 Intracranial hemorrhage (non-traumatic), unspecified|
+    |Respiratory |R040 Epistaxis|
+    ||R041 Hemorrhage from throat|
+    ||R042 Hemoptysis|
+    ||R048 Hemorrhage form other site in respiratory passages|
+    ||R049 Hemorrhage from respiratory passages, unspecified|
+    |Urogenital|N020-029 Recurrent and persistent hematuria R310, 311, 318 Unspecified hematuria|
+
+
+
+
+* **ADAPTT Group**
+    The ADAPTT trial[^7] was conducted in the UK, and uses ICD-10 codes to identify all bleeding events (i.e. BARC 2 - 5). This 
+
+
+It is important to recognise that no group of ICD-10 codes corresponds exactly to major bleeding events. Any models developed using this outcome must interpret the results in light of this shortcoming.
 
 
 
@@ -61,12 +110,16 @@ The clinically relevant bleeding definition is BARC 3 or 5, as used in the ARC H
 
 
 
-[^1] [2021 Urban et al., Assessing the Risks of Bleeding vs Thrombotic Events in Patients at High Bleeding Risk After Coronary Stent ImplantationThe ARC–High Bleeding Risk Trade-off Model](https://jamanetwork.com/journals/jamacardiology/fullarticle/2774812)
+[^1]: [2021 Urban et al., Assessing the Risks of Bleeding vs Thrombotic Events in Patients at High Bleeding Risk After Coronary Stent ImplantationThe ARC–High Bleeding Risk Trade-off Model](https://jamanetwork.com/journals/jamacardiology/fullarticle/2774812)
 
-[^2] [2019 Urban et al., Defining High Bleeding Risk in Patients Undergoing Percutaneous Coronary Intervention - A Consensus Document From the Academic Research Consortium for High Bleeding Risk](https://www.ahajournals.org/doi/10.1161/CIRCULATIONAHA.119.040167)
+[^2]: [2019 Urban et al., Defining High Bleeding Risk in Patients Undergoing Percutaneous Coronary Intervention - A Consensus Document From the Academic Research Consortium for High Bleeding Risk](https://www.ahajournals.org/doi/10.1161/CIRCULATIONAHA.119.040167)
 
-[^3] [2011 Mehran et al., Standardized Bleeding Definitions for Cardiovascular Clinical Trials - A Consensus Report From the Bleeding Academic Research Consortium](https://www.ahajournals.org/doi/10.1161/circulationaha.110.009449)
+[^3]: [2011 Mehran et al., Standardized Bleeding Definitions for Cardiovascular Clinical Trials - A Consensus Report From the Bleeding Academic Research Consortium](https://www.ahajournals.org/doi/10.1161/circulationaha.110.009449)
 
-[^4] [2022 Silverio et al., Validation of the academic research consortium high bleeding risk criteria in patients undergoing percutaneous coronary intervention: A systematic review and meta-analysis of 10 studies and 67,862 patients](https://www.sciencedirect.com/science/article/abs/pii/S0167527321017848)
+[^4]: [2022 Silverio et al., Validation of the academic research consortium high bleeding risk criteria in patients undergoing percutaneous coronary intervention: A systematic review and meta-analysis of 10 studies and 67,862 patients](https://www.sciencedirect.com/science/article/abs/pii/S0167527321017848)
 
-[^5] [2015 Al-Ani et al., Identifying venous thromboembolism and major bleeding in emergency room discharges using administrative data](https://pubmed.ncbi.nlm.nih.gov/26553020/)
+[^5]: [2015 Al-Ani et al., Identifying venous thromboembolism and major bleeding in emergency room discharges using administrative data](https://pubmed.ncbi.nlm.nih.gov/26553020/)
+
+[^6]: [2019 Wells et al., Dual Antiplatelet Therapy Following Percutaneous Coronary Intervention: Clinical and Economic Impact of Standard Versus Extended Duration](https://www.ncbi.nlm.nih.gov/books/NBK542937/)
+
+[^7]: [2019 Pufulete et al., Comprehensive ascertainment of bleeding in patients prescribed different combinations of dual antiplatelet therapy (DAPT) and triple therapy (TT) in the UK: study protocol for three population-based cohort studies emulating ‘target trials’ (the ADAPTT Study)](https://bmjopen.bmj.com/content/9/6/e029388)
