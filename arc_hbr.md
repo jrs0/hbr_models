@@ -92,6 +92,6 @@ Anticipated use of long-term OAC is considered a major criterion. There are two 
 
 
 
-[^1] [2019 Urban et al., Defining High Bleeding Risk in Patients Undergoing Percutaneous Coronary Intervention - A Consensus Document From the Academic Research Consortium for High Bleeding Risk](https://www.ahajournals.org/doi/10.1161/CIRCULATIONAHA.119.040167)
+[^1]: [2019 Urban et al., Defining High Bleeding Risk in Patients Undergoing Percutaneous Coronary Intervention - A Consensus Document From the Academic Research Consortium for High Bleeding Risk](https://www.ahajournals.org/doi/10.1161/CIRCULATIONAHA.119.040167)
 
-[^2] [2021 Urban et al., Assessing the Risks of Bleeding vs Thrombotic Events in Patients at High Bleeding Risk After Coronary Stent ImplantationThe ARC–High Bleeding Risk Trade-off Model](https://jamanetwork.com/journals/jamacardiology/fullarticle/2774812)
+[^2]: [2021 Urban et al., Assessing the Risks of Bleeding vs Thrombotic Events in Patients at High Bleeding Risk After Coronary Stent ImplantationThe ARC–High Bleeding Risk Trade-off Model](https://jamanetwork.com/journals/jamacardiology/fullarticle/2774812)
