@@ -24,9 +24,7 @@ See [here](https://www.possiblehealth.io/clinical-decision-support-tools-are-the
 
 ## Previous Bleeding/Ischaemic Risk Prediction Work
 
-2021 Urban et al. [^1] present a trade-off model for bleeding and thrombotic risk for patients having PCI, developed for use on patients who have already been determined to be at HBR. They use (a modified form of) the Academic Research Consortium (ARC) HBR definition [^2] to define what HBR means. Their model is based on survival analysis, and the outcome is a probability of bleeding (in this case BARC 3 or 5 level [^3])
-
-
+2021 Urban et al. [^1] present a trade-off model for bleeding and thrombotic risk for patients having PCI, developed for use on patients who have already been determined to be at HBR. They use (a modified form of) the Academic Research Consortium (ARC) HBR definition [^2] to define what HBR means. Their model is based on survival analysis, and the outcome (for a given patient) is a probability of bleeding (in this case BARC 3 or 5 level [^3]) and a probability of thrombosis (MI or ST). These two probabilities constitute a trade-off, which is also adjusted by mortality (which is higher for patients with thrombotic complications than bleeding complications).
 
 
 [^1] [2021 Urban et al., Assessing the Risks of Bleeding vs Thrombotic Events in Patients at High Bleeding Risk After Coronary Stent ImplantationThe ARC–High Bleeding Risk Trade-off Model](https://jamanetwork.com/journals/jamacardiology/fullarticle/2774812)
