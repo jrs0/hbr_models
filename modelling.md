@@ -38,7 +38,20 @@ This repository will focus on the ARC-HBR [^2] consensus-based definition of ble
 
 The ARC-HBR score for the purpose of this work is described [here](arc_hbr.md).
 
+## Bleeding Outcome Definition
 
+The clinically relevant bleeding definition is BARC 3 or 5, as used in the ARC HBR definition. However, this definition is not readily available in the datasets used here, because it requires expert judgement (which is often performed manually in studies). However, it is possible to find proxies for major bleeding. For example, in hospital episode statistics, ICD-10 codes have been found to approximate major bleeding events. Here, two groups of ICD-10 codes will be used as a stand-in for major bleeding, for model development purposes:
+
+* **Al-Ani Group**: 
+    | Description | ICD-10CM Codes |
+    |-------------|--------|
+    | Subarachnoid hemorrhage |I60 |
+    | Intracranial hemorrhage |I61 |
+    | Subdural hemorrhage | I62 |
+    | Upper gastrointestinal bleeding |  I85.0, K22.1, K22.6, K25.0, K25.2, K25.4, K25.6,K26.0, K26.2, K26.4, K26.6, K27.0, K27.2, K27.4,K27.6, K28.0, K28.2, K28.4, K28.6, K29.0, K31.80,K63.80, K92.0, K92.1, K92.2 |
+    | Lower gastrointestinal bleeding |  K55.2, K51, K57, K62.5, K92.0, K92.1, K92.2 |
+
+    This group has the advantage that it comes with positive predicted value (PPV) of 88% [^5] for identifying major bleeding; this means that if a code arises, then there is 88% chance it corresponds to a major bleeding event. Disadvantages include the location (Canada) and the difference in coding scheme (ICD-10CM), which means the coding practices may differ enough to modify the PPV. 
 
 
 
@@ -55,3 +68,5 @@ The ARC-HBR score for the purpose of this work is described [here](arc_hbr.md).
 [^3] [2011 Mehran et al., Standardized Bleeding Definitions for Cardiovascular Clinical Trials - A Consensus Report From the Bleeding Academic Research Consortium](https://www.ahajournals.org/doi/10.1161/circulationaha.110.009449)
 
 [^4] [2022 Silverio et al., Validation of the academic research consortium high bleeding risk criteria in patients undergoing percutaneous coronary intervention: A systematic review and meta-analysis of 10 studies and 67,862 patients](https://www.sciencedirect.com/science/article/abs/pii/S0167527321017848)
+
+[^5] [2015 Al-Ani et al., Identifying venous thromboembolism and major bleeding in emergency room discharges using administrative data](https://pubmed.ncbi.nlm.nih.gov/26553020/)
