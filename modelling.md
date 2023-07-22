@@ -20,7 +20,7 @@ For a model to be useful, it should be deployed in a manner that is useful to cl
     * Not a medical device, if the tool simply presents information to the clinician that they could find elsewhere by themself, and the clinician still relies on their own expertise to make decisions
     * Medical device, if the tool makes calculations and/or draws conclusions and presents them, where the clinician is not able to view the underlying data or process by which the calculation was made.
 
-See [here](https://www.possiblehealth.io/clinical-decision-support-tools-are-they-medical-devices-or-not/) for a readable overview. Do not treat information in this repository as authorative. How the tool is classified depends on its intended purpose amongst other things. Any tools developed in this repository will be accompanied by an intended purpose. In addition, **all tools in this repository are for prototying purposes, and not intended for direct deployment**.
+See [here](https://www.possiblehealth.io/clinical-decision-support-tools-are-they-medical-devices-or-not/) for a readable overview. Do not treat information in this repository as authoritative. How the tool is classified depends on its intended purpose amongst other things. Any tools developed in this repository will be accompanied by an intended purpose. In addition, **all tools in this repository are for prototyping purposes, and not intended for direct deployment**.
 
 ## Previous Bleeding/Ischaemic Risk Prediction Work
 
