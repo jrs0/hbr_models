@@ -1,0 +1,88 @@
+.spell {
+    border: 1px solid red;
+    margin: 1ex;
+    padding: 1ex
+}
+
+.episode {
+    border: 1px solid green;
+    margin: 1ex;
+    padding: 1ex
+}
+
+.record {
+    border: 1px solid blue;
+    margin: 1ex;
+    padding: 1ex
+}
+
+.clinical_codes_block {
+    border: 1px solid black;
+    margin: 1ex;
+    padding: 1ex;
+    display: inline-block;
+    vertical-align: top;
+}
+
+.event_count {
+    border: 1px solid black;
+    margin: 1ex;
+    padding: 1ex
+}
+
+.side_by_side {
+    display: inline-block;
+    vertical-align: top;
+    margin: 1ex
+}
+
+.tag {
+    display:inline-block;
+    margin: 0.25ex;
+    padding: 0.2ex;
+    margin-right: 0.5ex;
+    padding-right: 0.5ex;
+}
+
+/* This is required to fix this issue:
+https://github.com/glennflanagan/react-collapsible/issues/36
+when using lazyRender (collapsible doesn't open immediately)
+*/
+.collapsible_content_inner {
+    border: 1px solid transparent;
+}
+
+.collapsible_trigger:hover {
+    background-color: gray;
+    transition: 0.2s;
+    cursor: pointer;
+}
+
+
+.patient_info {
+    margin-bottom: 0.5ex;
+}
+
+.diagnosis_group {
+    background-color: pink;
+}
+
+.procedure_group {
+    background-color: LightGreen;
+}
+
+.nstemi {
+    background-color: orange;
+}
+
+.stemi {
+    background-color: red;
+}
+
+.acs {
+    background-color: cyan;
+}
+
+.pci {
+    background-color: green;
+}
