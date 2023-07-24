@@ -42,15 +42,25 @@ With all the code is in the same git repository, it is much easier to define a c
 
 ## Data source connection and data processing
 
+The following options were considered for data source connection and processing
+
+### Option 1: Using arrow-odbc for SQL Server Connection, and Datafusion data format internally
+
 Ideally, a single library should connect to the two required data sources (SQL Server and SQLite). Using a different library for SQLite vs. SQL Server reduces the effectiveness of the SQLlite-based testing, because a substantial part of the code could differ between the two implementations.
 
-The Rust crate [sqlx](https://crates.io/crates/sqlx) supports both, but it does not seem possible to use data-source-name-based connection strings, or active-directory-based authentication to connect to the database. In addition, the SQL Server support was only recently added, does not support encryption, and appears to be being moved to a proprietory license (see [here](https://stackoverflow.com/questions/70032527/connecting-to-sql-server-with-sqlx)). For simplicity in Windows, an ODBC-based driver would be preferable, because it will support ODBC-style connection strings (in particular, domain source names). 
+The Rust crate [sqlx](https://crates.io/crates/sqlx) supports both, but it does not seem possible to use data-source-name-based connection strings, or active-directory-based authentication to connect to the database. In addition, the SQL Server support was only recently added, does not support encryption, and appears to be being moved to a proprietary license (see [here](https://stackoverflow.com/questions/70032527/connecting-to-sql-server-with-sqlx)). For simplicity in Windows, an ODBC-based driver would be preferable, because it will support ODBC-style connection strings (in particular, domain source names). 
 
 Another approach is to use a framework such as Arrow, and convert all the (unprocessed) data sources into this format first. Arrow supports an ODBC connection library [arrow-odbc](https://crates.io/crates/arrow-odbc), which [supports the odbc connection sytax](https://docs.rs/arrow-odbc/latest/arrow_odbc/). SQLite support is not clear, however, Arrow itself (more specifically, [Parquet](https://parquet.apache.org/)), may be a more easily-integrated format for testing. This way, the tests can be written at the Arrow level, using either data from the SQL Server source or synthetic data in a file.
 
 Arrow can be used with multiple other data source, via [ConnectorX](https://docs.rs/connectorx/latest/connectorx/). ConnectorX also support SQL Server, however, it is not clear whether ODBC connection strings are supported; if they are, then ConnectorX can be used in place of `arrow-odbc`.
 
 Once an SQL Server datasource has been read into an Arrow in-memory representation using `arrow-odbc`, [this function](https://docs.rs/datafusion/latest/datafusion/execution/context/struct.SessionContext.html#method.read_batch) from [Datafusion](https://arrow.apache.org/datafusion/) can be used to create a dataframe object, on which SQL-like queries can be performed (such as joins, filters, etc.). This can be used as the basis for an in-memory dataframe structure that is a copy of the data in the original datasource in its unpreprocessed state. At this point, both synthetic data and SQL Server data would be represented in the same way (synthetic data can come from [this function](https://docs.rs/datafusion/latest/datafusion/execution/context/struct.SessionContext.html#method.register_parquet) which reads a dataframe from Parquet), and can form the basis for a test suite that checks the preprocessing.
+
+### Option 2: Using Polars as the internal dataframe system, and Connectorx for SQL Server connectivity
+
+An issue with option 1 is the ad-hoc collection of libraries that might be present in the final design. For example, it might be necessary (or desirable) to use [polars](https://www.pola.rs/) as the internal dataframe implementation; in which case, both Datafusion and polars would be required. It might be better to use polars for the SQL data source connection backend instead of arrow-odbc.
+
+Since Polars is based on arrow and is already implemented in Rust, the solution is technically quite similar to option one. Using [ConnectorX](https://docs.rs/connectorx/latest/connectorx/), it [appears to be possible](https://stackoverflow.com/questions/74976963/windows-authentication-for-polars-connectorx-sql-server) to connect to SQL Server with Windows Authentication. ConnectorX can be used to convert to Arrow or Arrow2, which can then be  
 
 ## Patient Data Model
 
