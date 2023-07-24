@@ -25,7 +25,7 @@
 use serde::{Serialize, Deserialize};
 use episode::Episode;
 use chrono::Utc;
-use rand_chacha::ChaCha8RNg;
+use rand_chacha::ChaCha8Rng;
 
 mod episode;
 
