@@ -1,6 +1,5 @@
 use connectorx::prelude::*;
 use std::convert::TryFrom;
-
 fn main() {
     let mut source_conn = SourceConn::try_from("mssql://XSW-000-SP09/ABI?trusted_connection=true")
         .expect("parse conn str failed");

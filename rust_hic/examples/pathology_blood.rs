@@ -1,10 +1,14 @@
 use datafusion::prelude::*;
 use rust_hic::{load_record_batch, save_record_batch, make_pathology_blood};
+use polars::prelude::*;
+
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
 
     let batch = make_pathology_blood("pathology_blood", 0, 100);
+
+
 
     save_record_batch("example.parquet", batch);
 

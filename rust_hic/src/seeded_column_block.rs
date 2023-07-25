@@ -14,6 +14,8 @@ use datafusion::arrow::array::{Array, StringArray};
 use arrow_odbc::arrow::{array::GenericByteArray, datatypes::GenericStringType};
 use datafusion::arrow::{error::ArrowError, record_batch::RecordBatch};
 use blake2::{Blake2b512, Digest};
+use polars::series::Series;
+use polars::frame::DataFrame;
 
 /// A set of synthetic data columns which are randomly
 /// generated from one seeded and which are considered
@@ -23,31 +25,20 @@ use blake2::{Blake2b512, Digest};
 /// of reproducible synthetic data. SeededColumns can
 /// be combined together into a RecordBatch.
 ///
-/// The data is stored in a format that can be passed
-/// easily to the RecordBatch::try_from_iter method
-/// (i.e. as tuples of column name and column data).
 pub struct SeededColumnBlock {
-    pub columns: Vec<(String, Arc<dyn Array>)>,
-}
-
-impl SeededColumnBlock {
-    pub fn columns(self) -> Vec<(String, Arc<dyn Array>)> {
-        self.columns
-    }
+    pub columns: Vec<Series>,
 }
 
 /// Convert a list of SeededColumnBlocks (which are themselves
-/// groups of columns) into a RecordBatch (a table). This
-/// function is used to combine the minimal reproducible and
-/// seedable units into a single synthetic table.
-pub fn into_record_batch(
+/// groups of columns) into a Polars dataframe
+pub fn to_polars(
     seeded_column_blocks: Vec<SeededColumnBlock>,
-) -> Result<RecordBatch, ArrowError> {
+) -> DataFrame {
     let columns = seeded_column_blocks
         .into_iter()
-        .map(|x| x.columns())
+        .map(|x| x.columns)
         .flatten();
-    RecordBatch::try_from_iter(columns)
+    DataFrame::new(columns)
 }
 
 /// Make a random number generator from a global seed
