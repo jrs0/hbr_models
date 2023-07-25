@@ -134,7 +134,13 @@ mod tests {
 
     fn code_tree_example_1() -> ClinicalCodeTree{
         ClinicalCodeTree {
-            categories: vec![],
+            categories: vec![
+                Categories {
+                    name: String::from("cat1"),
+                    docs: String::from("category 1"),
+                    index: Index::new()
+                },
+            ],
             groups: HashSet::from([
                 String::from("group1"),
                 String::from("group2"),
