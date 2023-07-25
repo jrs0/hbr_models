@@ -6,5 +6,5 @@ fn main() {
         .expect("Failed to open file");
     
 
-    println!("{:?}", d);
+    
 }
