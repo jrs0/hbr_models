@@ -51,6 +51,30 @@ impl Categories {
     }
 }
 
+macro_rules! category {
+    ($name:expr, $docs:expr, $index:expr, $categories:expr) => {
+        Categories {
+            name: String::from($name),
+            docs: String::from($docs),
+            index: $index,
+            exclude: None,
+            categories: Some($categories),
+        }
+    };
+}
+
+macro_rules! leaf {
+    ($name:expr, $docs:expr, $index:expr) => {
+        Categories {
+            name: String::from($name),
+            docs: String::from($docs),
+            index: $index,
+            exclude: None,
+            categories: None,
+        }
+    };
+}
+
 /// The code definition file structure
 ///
 /// This struct maps to the contents of a code file
@@ -88,9 +112,9 @@ impl ClinicalCodeTree {
 /// Tests for the code tree
 ///
 /// The following things need checking:
-/// * whether a code file deserializes to the structure correctly
-/// * whether the struct categories are sorted correctly
-/// * whether the code tree struct serializes correctly to a file
+/// * whether a code file deserializes to the structure correctly [partially done]
+/// * whether the struct categories are sorted correctly [partially done]
+/// * whether the code tree struct serializes correctly to a file [not started]
 ///
 ///
 #[cfg(test)]
@@ -98,8 +122,40 @@ mod tests {
 
     use super::*;
 
-    fn yaml_example_1() -> &'static str {
-        r#"
+    // Reference clinical code tree structure for comparison
+    fn code_tree_example_1() -> ClinicalCodeTree {
+        ClinicalCodeTree {
+            categories: vec![
+                category!(
+                    "cat1",
+                    "category 1",
+                    Index::make_category("cat11", "cat12"),
+                    vec![
+                        leaf!("cat11", "sub cat 11", Index::make_leaf("cat11")),
+                        leaf!("cat12", "sub cat 12", Index::make_leaf("cat12")),
+                    ]
+                ),
+                category!(
+                    "cat2",
+                    "category 2",
+                    Index::make_category("cat2", "cat2"),
+                    vec![
+                        leaf!("cat21", "sub cat 21", Index::make_leaf("cat21")),
+                        leaf!("cat22", "sub cat 22", Index::make_leaf("cat22")),
+                    ]
+                ),
+            ],
+            groups: HashSet::from([
+                String::from("group1"),
+                String::from("group2"),
+                String::from("another"),
+            ]),
+        }
+    }
+
+    #[test]
+    fn deserialize_pre_sorted() {
+        let yaml =  r#"
         categories:
         - name: cat1
           docs: category 1
@@ -129,35 +185,47 @@ mod tests {
         - group1
         - group2
         - another
-        "#
-    }
+        "#;
 
-    fn code_tree_example_1() -> ClinicalCodeTree{
-        ClinicalCodeTree {
-            categories: vec![
-                Categories {
-                    name: String::from("cat1"),
-                    docs: String::from("category 1"),
-                    index: Index::new()
-                },
-            ],
-            groups: HashSet::from([
-                String::from("group1"),
-                String::from("group2"),
-                String::from("another")
-                ]),
-        }
+        let code_tree = ClinicalCodeTree::from_reader(yaml.as_bytes());
+        assert_eq!(code_tree, code_tree_example_1());
     }
 
     #[test]
-    fn deserialize_pre_sorted() {
-        let yaml = yaml_example_1();
+    fn deserialize_unsorted() {
+        let yaml =  r#"
+        categories:
+        - name: cat2
+          docs: category 2
+          index:
+          - cat2
+          - cat2
+          categories:
+          - name: cat21
+            docs: sub cat 21
+            index: cat21
+          - name: cat22
+            docs: sub cat 22
+            index: cat22
+        - name: cat1
+          docs: category 1
+          index:
+          - cat11
+          - cat12
+          categories:
+          - name: cat12
+            docs: sub cat 12
+            index: cat12
+          - name: cat11
+            docs: sub cat 11
+            index: cat11
+        groups:
+        - group1
+        - group2
+        - another
+        "#;
 
         let code_tree = ClinicalCodeTree::from_reader(yaml.as_bytes());
-        println!("{:?}", code_tree);
         assert_eq!(code_tree, code_tree_example_1());
-
     }
-
-    
 }
