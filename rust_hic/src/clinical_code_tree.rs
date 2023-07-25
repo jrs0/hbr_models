@@ -3,7 +3,10 @@
 //!
 //! The key structure is ClinicalCodeTree, which has a method
 //! to create from a byte reader (from_reader()). This can
-//! be a yaml file of yaml string.
+//! be a yaml file or yaml string. This function sorts the
+//! categories by index even if they are not sorted in the
+//! original file, meaning the parser can assume the categories
+//! are sorted.
 
 use index::Index;
 use serde::{Deserialize, Serialize};
@@ -39,10 +42,9 @@ pub struct Categories {
 }
 
 fn sort_categories_list_in_place(categories: &mut Vec<Categories>) {
-    
     // Sort the categories by the index field
     categories.sort_by(|c1, c2| c1.index.cmp(&c2.index));
-    
+
     // Also sort all sub-categories
     for category in categories.iter_mut() {
         category.sort_categories();
@@ -128,6 +130,8 @@ impl ClinicalCodeTree {
 #[cfg(test)]
 mod tests {
 
+    use std::path::PathBuf;
+
     use super::*;
 
     // Reference clinical code tree structure for comparison
@@ -163,7 +167,7 @@ mod tests {
 
     #[test]
     fn deserialize_pre_sorted() {
-        let yaml =  r#"
+        let yaml = r#"
         categories:
         - name: cat1
           docs: category 1
@@ -201,7 +205,7 @@ mod tests {
 
     #[test]
     fn deserialize_unsorted() {
-        let yaml =  r#"
+        let yaml = r#"
         categories:
         - name: cat2
           docs: category 2
@@ -235,5 +239,32 @@ mod tests {
 
         let code_tree = ClinicalCodeTree::from_reader(yaml.as_bytes());
         assert_eq!(code_tree, code_tree_example_1());
+    }
+
+    #[test]
+    fn check_icd10_example_file_loads() {
+        let mut file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        file_path.push("resources");
+        file_path.push("test");
+        file_path.push("icd10_example.yaml");
+
+        let f = std::fs::File::open(file_path).expect("Failed to open icd10 file");
+
+        // Should execute without panic
+        let code_tree = ClinicalCodeTree::from_reader(f);
+    }
+
+    #[test]
+    fn check_opcs4_example_file_loads() {
+        let mut file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        file_path.push("resources");
+        file_path.push("test");
+        file_path.push("opcs4_example.yaml");
+        println!("{}", file_path.display());
+
+        let f = std::fs::File::open(file_path).expect("Failed to open opcs4 file");
+
+        // Should execute without panic
+        let code_tree = ClinicalCodeTree::from_reader(f);
     }
 }
