@@ -2,13 +2,14 @@
 //! to a standard form.
 //! 
 
-
-struct Index {
+#[derive(Debug)]
+pub struct Index {
     start: String,
     end: End,
 }
 
-struct Category {
+#[derive(Debug)]
+pub struct Categories {
     /// The name of the code or category; e.g. A01.0
     name: String,
     /// The code description; e.g. 
@@ -19,14 +20,5 @@ struct Category {
     categories: Vec<Category>,
     /// A set of code groups that do not contain this
     /// category or any sub-category
-    exclude: HashSet<String>,
+    exclude: Option<HashSet<String>>,
 }
-
-struct TopLevelCategory {
-    /// The set of code groups present in this tree of
-    /// codes
-    groups: HashSet<String>,
-    /// The set of code categories at the top level
-    categories: Vec<Categories>,
-}
-
