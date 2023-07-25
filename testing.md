@@ -37,7 +37,7 @@ The columns in the synthetic and real data sources have columns of the following
 
 Columns contain NULLs, which can have meanings other than missing data. Data that come with an index (for example, secondary diagnosis columns) may use a single row and multiple columns (one per index), or use multiple rows, and two columns (one to indicate the index and the second to indicate the value). 
 
-The following sections contain specifications for example synthetic tables. Discrepencies between the types of columns and the semantic content (for example, a nullable column that cannot be null, and behaves as a primary key) is due to the requirement to copy as closely as possible real datasets for testing purposes. Column descriptions clarify the actual content of the column.
+The following sections contain specifications for example synthetic tables. Discrepancies between the types of columns and the semantic content (for example, a nullable column that cannot be null, and behaves as a primary key) is due to the requirement to copy as closely as possible real datasets for testing purposes. Column descriptions clarify the actual content of the column.
 
 ### Blood test results table: `pathology_blood`
 
