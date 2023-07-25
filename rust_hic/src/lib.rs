@@ -14,7 +14,7 @@ mod seeded_column_block;
 mod synth_data;
 pub mod patient;
 mod clinical_code;
-mod code_parser;
+pub mod code_parser;
 
 pub fn save_record_batch(filename: &str, batch: RecordBatch) {
     let file = fs::File::create(filename).unwrap();
