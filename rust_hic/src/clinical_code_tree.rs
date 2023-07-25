@@ -1,6 +1,9 @@
 //! Data structures for managing a tree of clinical codes
 //! and code groups
 //!
+//! The key structure is ClinicalCodeTree, which has a method
+//! to create from a byte reader (from_reader()). This can
+//! be a yaml file of yaml string.
 
 use index::Index;
 use serde::{Deserialize, Serialize};
@@ -36,6 +39,11 @@ pub struct Categories {
 }
 
 fn sort_categories_list_in_place(categories: &mut Vec<Categories>) {
+    
+    // Sort the categories by the index field
+    categories.sort_by(|c1, c2| c1.index.cmp(&c2.index));
+    
+    // Also sort all sub-categories
     for category in categories.iter_mut() {
         category.sort_categories();
     }
