@@ -110,7 +110,7 @@ Survival analysis was used in the bleeding-thrombotic trade-off model[^1], in th
 #### Dataset Definition
 
 Each row of the dataset will be a patient with an index event which is either ACS or PCI (method specified in detail below), and has the following columns:
-* **bleeding_occurred** True if a bleeding event occurred in the follow up period (i.e. any time within the range of the raw data), false if no bleeding event occurred in the follow up period. This is the status column in survival analysis.
+* **bleeding_occurred** 1 if a bleeding event occurred in the follow up period (i.e. any time within the range of the raw data), 0 if no bleeding event occurred in the follow up period. This is the status column in when using `Surv` in R.
 * **time_to_bleed**: The time between the index spell start time and the bleeding spell start time.
 * **pci_performed**: True if the index spell contained a PCI procedure. False if the index spell was ACS-only (conservatively or medically managed ACS)
 * **age_at_index**: Patient age at the start of the index spell

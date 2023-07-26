@@ -150,7 +150,7 @@ patient_subsequent_bleeding_spells <- index_spells %>%
     arrange(spell_time_difference, .by_group = TRUE) %>%
     slice_head(n = 2) %>%
     # Added the bleeding occurred flag if there is a subsequent bleed
-    mutate(bleeding_occurred = (n() == 2)) %>%
+    mutate(bleeding_occurred = if_else(n() == 2, 1, 0)) %>%
     # Add the time-to-bleed, which is either the spell time difference, or
     # the maximum dataset date if right censored
     mutate(time_to_bleed = if_else(bleeding_occurred, spell_time_difference, end_date - index_date))
