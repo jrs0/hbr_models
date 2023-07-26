@@ -14,8 +14,7 @@ use datafusion::arrow::array::{Array, StringArray};
 use arrow_odbc::arrow::{array::GenericByteArray, datatypes::GenericStringType};
 use datafusion::arrow::{error::ArrowError, record_batch::RecordBatch};
 use blake2::{Blake2b512, Digest};
-use polars::series::Series;
-use polars::frame::DataFrame;
+use polars::prelude::*;
 
 /// A set of synthetic data columns which are randomly
 /// generated from one seeded and which are considered
@@ -37,8 +36,9 @@ pub fn to_polars(
     let columns = seeded_column_blocks
         .into_iter()
         .map(|x| x.columns)
-        .flatten();
-    DataFrame::new(columns)
+        .flatten()
+        .collect();
+    DataFrame::new(columns).expect("Failed to create dataframe")
 }
 
 /// Make a random number generator from a global seed
@@ -57,16 +57,16 @@ pub fn make_rng(block_id: &str, global_seed: u64) -> ChaCha8Rng {
     ChaCha8Rng::from_seed(seed)
 }
 
-/// Utility function. This is only needed to simplify creating single
-/// columns, and is generic to work with both String and Option<String>.
-/// It should really be part of the implementation of SeededColumnBlock -- also, 
-/// can jsut get rid of it if the generics get too complicated.
-/// 
-pub fn make_string_column<T>(column_name: String, column: Vec<T>) -> SeededColumnBlock
-where
-    GenericByteArray<GenericStringType<i32>>: From<Vec<T>>,
-{
-    SeededColumnBlock {
-        columns: vec![(column_name, Arc::new(StringArray::from(column)) as _)],
-    }
-}
+// / Utility function. This is only needed to simplify creating single
+// / columns, and is generic to work with both String and Option<String>.
+// / It should really be part of the implementation of SeededColumnBlock -- also, 
+// / can jsut get rid of it if the generics get too complicated.
+// / 
+// pub fn make_string_column<T>(column_name: String, column: Vec<T>) -> SeededColumnBlock
+// where
+//     GenericByteArray<GenericStringType<i32>>: From<Vec<T>>,
+// {
+//     SeededColumnBlock {
+//         columns: vec![Series::new(column_name.as_ref(), column)],
+//     }
+// }

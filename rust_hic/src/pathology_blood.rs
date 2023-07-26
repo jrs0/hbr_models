@@ -9,8 +9,10 @@ use std::sync::Arc;
 
 use datafusion::arrow::array::{StringArray, TimestampSecondArray};
 
-use crate::seeded_column_block::{SeededColumnBlock, make_rng, make_string_column, into_record_batch};
+use crate::seeded_column_block::{SeededColumnBlock, make_rng, to_polars};
 use crate::synth_data::{Gender, make_gender, make_subject};
+
+use polars::prelude::*;
 
 fn make_result_flag(rng: &mut ChaCha8Rng) -> Option<String> {
     if rng.gen() {
@@ -152,8 +154,11 @@ fn make_subject_columns(
         subject.push(make_subject(&mut rng));
     }
 
-    make_string_column(column_name, subject)
+    SeededColumnBlock {
+        columns: vec![Series::new(column_name.as_ref(), subject)],
+    }
 }
+
 
 /// Creates a block of columns that includes the blood test name
 /// and family, the test result, test unit, and upper and lower
@@ -190,30 +195,31 @@ fn make_blood_test_columns(block_id: &str, global_seed: u64, num_rows: usize) ->
 
     SeededColumnBlock {
         columns: vec![
-            (
-                String::from("order_name"),
-                Arc::new(StringArray::from(order_name)) as _,
-            ),
-            (
-                String::from("test_name"),
-                Arc::new(StringArray::from(test_name)) as _,
-            ),
-            (
-                String::from("test_result"),
-                Arc::new(StringArray::from(test_result)) as _,
-            ),
-            (
-                String::from("test_result_unit"),
-                Arc::new(StringArray::from(test_result_unit)) as _,
-            ),
-            (
-                String::from("result_lower_range"),
-                Arc::new(StringArray::from(result_lower_range)) as _,
-            ),
-            (
-                String::from("test_upper_range"),
-                Arc::new(StringArray::from(result_upper_range)) as _,
-            ),
+            Series::new("order_name", order_name),
+            // (
+            //     String::from("order_name"),
+            //     Arc::new(StringArray::from(order_name)) as _,
+            // ),
+            // (
+            //     String::from("test_name"),
+            //     Arc::new(StringArray::from(test_name)) as _,
+            // ),
+            // (
+            //     String::from("test_result"),
+            //     Arc::new(StringArray::from(test_result)) as _,
+            // ),
+            // (
+            //     String::from("test_result_unit"),
+            //     Arc::new(StringArray::from(test_result_unit)) as _,
+            // ),
+            // (
+            //     String::from("result_lower_range"),
+            //     Arc::new(StringArray::from(result_lower_range)) as _,
+            // ),
+            // (
+            //     String::from("test_upper_range"),
+            //     Arc::new(StringArray::from(result_upper_range)) as _,
+            // ),
         ],
     }
 }
@@ -239,14 +245,14 @@ fn make_sample_time_columns(
 
     SeededColumnBlock {
         columns: vec![
-            (
-                String::from("sample_collected_date_time"),
-                Arc::new(TimestampSecondArray::from(sample_collected_date_time)) as _,
-            ),
-            (
-                String::from("result_available_date_time"),
-                Arc::new(TimestampSecondArray::from(result_available_date_time)) as _,
-            ),
+            // (
+            //     String::from("sample_collected_date_time"),
+            //     Arc::new(TimestampSecondArray::from(sample_collected_date_time)) as _,
+            // ),
+            // (
+            //     String::from("result_available_date_time"),
+            //     Arc::new(TimestampSecondArray::from(result_available_date_time)) as _,
+            // ),
         ],
     }
 }
@@ -261,7 +267,9 @@ fn make_result_flag_column(block_id: &str, global_seed: u64, column_name: String
         result_flag.push(make_result_flag(&mut rng));
     }
 
-    make_string_column(column_name, result_flag)
+    SeededColumnBlock {
+        columns: vec![Series::new(column_name.as_ref(), result_flag)],
+    }
 }
 
 /// Create the blood results table. Generated data is randomly generated based on
@@ -270,7 +278,7 @@ fn make_result_flag_column(block_id: &str, global_seed: u64, column_name: String
 /// 
 /// * haemoglobin
 /// * 
-pub fn make_pathology_blood(block_id: &str, global_seed: u64, num_rows: usize) -> RecordBatch {
+pub fn make_pathology_blood(block_id: &str, global_seed: u64, num_rows: usize) -> DataFrame {
     let mut seeded_column_blocks = Vec::new();
 
     // Make patient id column
@@ -285,8 +293,9 @@ pub fn make_pathology_blood(block_id: &str, global_seed: u64, num_rows: usize) -
 
     // Lab department is always None
     let column = vec![None as Option<String>; num_rows];
-    let column_name = String::from("laboratory_department");
-    seeded_column_blocks.push(make_string_column(column_name, column));
+    seeded_column_blocks.push(SeededColumnBlock {
+        columns: vec![Series::new("laboratory_department", column)],
+    });
 
     // Make the blood test columns (a block of columns including test name, result, units,
     // and ranges)
@@ -310,8 +319,9 @@ pub fn make_pathology_blood(block_id: &str, global_seed: u64, num_rows: usize) -
 
     // brc name is alwasy Bristol
     let column = vec![String::from("bristol"); num_rows];
-    let column_name = String::from("brc_name");
-    seeded_column_blocks.push(make_string_column(column_name, column));
+    seeded_column_blocks.push(SeededColumnBlock {
+        columns: vec![Series::new("brc_name", column)],
+    });
 
-    into_record_batch(seeded_column_blocks).unwrap()
+    to_polars(seeded_column_blocks)
 }
