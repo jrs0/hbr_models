@@ -6,6 +6,7 @@ use datafusion::arrow::record_batch::RecordBatch;
 use rand::prelude::*;
 use rand_chacha::ChaCha8Rng;
 use std::sync::Arc;
+use chrono::{TimeZone, Duration, Utc};
 
 use datafusion::arrow::array::{StringArray, TimestampSecondArray};
 
@@ -237,14 +238,16 @@ fn make_sample_time_columns(
     for _ in 0..num_rows {
         // Sample collected at any date from 1970 to roughly now, and
         // up to 1 week processing time
-        let sample_collected_timestamp = 60 * rng.gen_range(0..28150015);
-        let processing_time = 60 * rng.gen_range(0..10080);
+        let sample_collected_timestamp = Utc.timestamp_opt(60 * rng.gen_range(0..28150015));
+        let processing_time = Duration::seconds(60 * rng.gen_range(0..10080));
         sample_collected_date_time.push(sample_collected_timestamp);
         result_available_date_time.push(sample_collected_timestamp + processing_time);
     }
 
     SeededColumnBlock {
         columns: vec![
+            Series::new("sample_collected_date_time", sample_collected_date_time),
+            Series::new("result_available_date_time", result_available_date_time),
             // (
             //     String::from("sample_collected_date_time"),
             //     Arc::new(TimestampSecondArray::from(sample_collected_date_time)) as _,
