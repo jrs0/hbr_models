@@ -6,7 +6,7 @@ use datafusion::arrow::record_batch::RecordBatch;
 use rand::prelude::*;
 use rand_chacha::ChaCha8Rng;
 use std::sync::Arc;
-use chrono::{TimeZone, Duration, Utc};
+use chrono::{Duration, NaiveDateTime};
 
 use datafusion::arrow::array::{StringArray, TimestampSecondArray};
 
@@ -238,7 +238,7 @@ fn make_sample_time_columns(
     for _ in 0..num_rows {
         // Sample collected at any date from 1970 to roughly now, and
         // up to 1 week processing time
-        let sample_collected_timestamp = Utc.timestamp_opt(60 * rng.gen_range(0..28150015));
+        let sample_collected_timestamp = NaiveDateTime::from_timestamp_opt(60 * rng.gen_range(0..28150015), 0).unwrap();
         let processing_time = Duration::seconds(60 * rng.gen_range(0..10080));
         sample_collected_date_time.push(sample_collected_timestamp);
         result_available_date_time.push(sample_collected_timestamp + processing_time);
