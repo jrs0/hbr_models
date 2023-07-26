@@ -165,56 +165,79 @@ bleed_times <- index_spells %>%
     # Added the bleeding occurred flag if there is a subsequent
     # spell which is a bleed
     mutate(bleed_status = if_else(
-        (n() == 2) & (last(bleeding_count) > 0), 1, 0)) %>% 
+        (n() == 2) & (last(bleeding_count) > 0), 1, 0
+    )) %>%
     # Add the time-to-bleed, which is either the spell time difference, or
     # the maximum dataset date if right censored
     mutate(bleed_time = if_else(bleed_status == 1,
         spell_time_difference, end_date - index_date
-    )) %>% 
+    )) %>%
     # Want just one row per index event; currently there is either
-    # one (for no bleed) or two (for a bleed). =Want to keep all 
+    # one (for no bleed) or two (for a bleed). =Want to keep all
     # bleeding rows, and only index rows when there is no bleeding row.
-    ungroup() %>% 
-    filter((index_spell_id != spell_id) | bleed_status == 0) %>% 
-    # There is no use for the nhs_number or index spell id (each 
+    ungroup() %>%
+    filter((index_spell_id != spell_id) | bleed_status == 0) %>%
+    # There is no use for the nhs_number or index spell id (each
     # row is considered a separate event), or the spell_start_date
     select(index_date, bleed_status, bleed_time, age_at_index)
 
 ####### DESCRIPTIVE ANALYSIS #######
 
 # Calculate what proportion of patients with bleeding
-# events in one year. Should be around 0-5%.
-p_one_year_bleed <- bleed_times %>%
-    filter(bleed_time < lubridate::dyears(1)) %>% 
-    pull(bleed_status) %>% 
+# events in one year. Should be around 0-5%. This estimate
+# will underestimate risk due to right censoring.
+p_bleed_1y_naive <- bleed_times %>%
+    filter(bleed_time < lubridate::dyears(1)) %>%
+    pull(bleed_status) %>%
     mean()
 
-####### SURVIVAL ANALYSIS #######
+####### SURVIVAL ANALYSIS (OVERALL) #######
 
 library(survival)
 library(ggsurvfit)
+library(gtsummary)
 
 sv <- Surv(bleed_times$bleed_time, bleed_times$bleed_status)
 s1 <- survfit(Surv(bleed_time, bleed_status) ~ 1, data = bleed_times)
 
 # Plot Kaplan-Meier curves
-survfit2(Surv(bleed_time, bleed_status) ~ 1, data = bleed_times) %>% 
-  ggsurvfit() +
-  # Convert x scale to days
-  scale_x_continuous(labels = function(x) x/86400) +
-  labs(x = "Days", y = "Overall survival probability") +
-  add_confidence_interval() +
-  add_risktable()
+survfit2(Surv(bleed_time, bleed_status) ~ 1, data = bleed_times) %>%
+    ggsurvfit() +
+    # Convert x scale to days
+    scale_x_continuous(labels = function(x) x / 86400) +
+    labs(x = "Days", y = "Overall survival probability") +
+    add_confidence_interval() +
+    add_risktable()
 
 # Find the bleeding risk at one year. THis shows the survival
 # probability at one year, along with upper and lower confidence
 # intervals.
 one_year_risk <- summary(survfit(Surv(bleed_time, bleed_status) ~ 1, data = bleed_times),
-    times = 365*24*60*60)
+    times = 365 * 24 * 60 * 60
+)
 
 # Get one year risk of bleed
-p_bleed_one_year <- 1 - one_year_risk$surv
+p_bleed_1y <- 1 - one_year_risk$surv
 
 # Upper and lower CI are swapped (because they are survival)
 p_bleed_one_year_upper <- 1 - one_year_risk$lower # Lower CI, 95%
 p_bleed_one_year_lower <- 1 - one_year_risk$upper # Upper CI, 95%
+
+# Show survival in table
+survfit(Surv(bleed_time, bleed_status) ~ 1, data = bleed_times) %>%
+    tbl_survfit(
+        times = 365 * 24 * 60 * 60,
+        label_header = "**1-year survival (95% CI)**"
+    )
+
+####### SURVIVAL ANALYSIS (AGE INPUT) #######
+
+coxph(Surv(bleed_time, bleed_status) ~ age_at_index, data = bleed_times)
+
+survdiff(Surv(bleed_time, bleed_status) ~ age_at_index,
+    data = bleed_times
+)
+
+# Show the regression results as a table
+coxph(Surv(bleed_time, bleed_status) ~ age_at_index, data = bleed_times) %>% 
+  tbl_regression(exp = TRUE) 
