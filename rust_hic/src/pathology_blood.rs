@@ -2,10 +2,8 @@
 //! platelet count, etc. The columns include the test name and category, the
 //! result and unit, and sample collection date and processing times.
 
-use datafusion::arrow::record_batch::RecordBatch;
 use rand::prelude::*;
 use rand_chacha::ChaCha8Rng;
-use std::sync::Arc;
 use chrono::{Duration, NaiveDateTime};
 
 use datafusion::arrow::array::{StringArray, TimestampSecondArray};
@@ -160,7 +158,6 @@ fn make_subject_columns(
     }
 }
 
-
 /// Creates a block of columns that includes the blood test name
 /// and family, the test result, test unit, and upper and lower
 /// ranges
@@ -197,30 +194,11 @@ fn make_blood_test_columns(block_id: &str, global_seed: u64, num_rows: usize) ->
     SeededColumnBlock {
         columns: vec![
             Series::new("order_name", order_name),
-            // (
-            //     String::from("order_name"),
-            //     Arc::new(StringArray::from(order_name)) as _,
-            // ),
-            // (
-            //     String::from("test_name"),
-            //     Arc::new(StringArray::from(test_name)) as _,
-            // ),
-            // (
-            //     String::from("test_result"),
-            //     Arc::new(StringArray::from(test_result)) as _,
-            // ),
-            // (
-            //     String::from("test_result_unit"),
-            //     Arc::new(StringArray::from(test_result_unit)) as _,
-            // ),
-            // (
-            //     String::from("result_lower_range"),
-            //     Arc::new(StringArray::from(result_lower_range)) as _,
-            // ),
-            // (
-            //     String::from("test_upper_range"),
-            //     Arc::new(StringArray::from(result_upper_range)) as _,
-            // ),
+            Series::new("test_name", test_name),
+            Series::new("test_result", test_result),
+            Series::new("test_result_unit", test_result_unit),
+            Series::new("result_lower_range", result_lower_range),
+            Series::new("result_upper_range", result_upper_range),
         ],
     }
 }
@@ -248,14 +226,6 @@ fn make_sample_time_columns(
         columns: vec![
             Series::new("sample_collected_date_time", sample_collected_date_time),
             Series::new("result_available_date_time", result_available_date_time),
-            // (
-            //     String::from("sample_collected_date_time"),
-            //     Arc::new(TimestampSecondArray::from(sample_collected_date_time)) as _,
-            // ),
-            // (
-            //     String::from("result_available_date_time"),
-            //     Arc::new(TimestampSecondArray::from(result_available_date_time)) as _,
-            // ),
         ],
     }
 }
@@ -320,7 +290,7 @@ pub fn make_pathology_blood(block_id: &str, global_seed: u64, num_rows: usize) -
         make_result_flag_column(result_flag_block_id.as_ref(), global_seed, column_name, num_rows);
     seeded_column_blocks.push(result_flag_column);
 
-    // brc name is alwasy Bristol
+    // brc name is always Bristol
     let column = vec![String::from("bristol"); num_rows];
     seeded_column_blocks.push(SeededColumnBlock {
         columns: vec![Series::new("brc_name", column)],
