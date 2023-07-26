@@ -8,6 +8,12 @@ id <- dbplyr::in_catalog("abi", "dbo", "vw_apc_sem_spell_001")
 
 ####### GET THE RAW DATA #######
 
+# Date range for the data. This is necessary for computing right censoring
+# for the survival data. To be valid, make sure that the database contains data
+# for the full date range given here.
+start_date <- lubridate::ymd_hms("2020-01-01 00:00:00")
+end_date <- lubridate::ymd_hms("2021-01-01 00:00:00")
+
 # Raw spell data from the databse. This is just a spell table, so
 # episode information has been summarised into a single row.
 raw_data <- dplyr::tbl(con, id) %>%
@@ -20,7 +26,7 @@ raw_data <- dplyr::tbl(con, id) %>%
     ) %>%
     rename(nhs_number = AIMTC_Pseudo_NHS, age = AIMTC_Age, spell_start_date = AIMTC_ProviderSpell_Start_Date) %>%
     filter(!is.na(nhs_number)) %>%
-    head(100000) %>%
+    filter(spell_start_date > start_date, spell_start_date < end_date) %>%
     collect() %>%
     mutate(spell_id = row_number())
 
@@ -130,11 +136,21 @@ index_spells <- with_relevant_columns %>%
 
 ####### COMPUTE TIME TO BLEED #######
 
-patient_other_spells <- index_spells %>%
+# Want two things for survival analysis: time to next bleed if there
+# is a bleed; and maximum follow-up date for right censoring, if there is no bleed.
+
+patient_subsequent_bleeding_spells <- index_spells %>%
     # Expect many-to-many because the same patient could have multiple index events
     left_join(with_relevant_columns, by = "nhs_number", relationship = "many-to-many") %>%
-    mutate(spell_time_difference = spell_start_date - index_date) %>% 
-    # Treat each patient (and each index event -- one patient could have two index events) separately
-    group_by(nhs_number, index_spell_id) %>% 
-    # Put a flag on rows that represent a bleeding event after the index
-    mutate(subsequent_bleeding_flag = (spell_time_difference > 0) & (bleeding_count > 0))
+    mutate(spell_time_difference = spell_start_date - index_date) %>%
+    # Do all operations per patient (and per index event for patients with multiple index events)
+    group_by(nhs_number, index_spell_id) %>%
+    # Pick out just the index and first subsequent bleeding row (if there is one)
+    filter(spell_time_difference >= 0) %>%
+    arrange(spell_time_difference, .by_group = TRUE) %>%
+    slice_head(n = 2) %>%
+    # Added the bleeding occurred flag if there is a subsequent bleed
+    mutate(bleeding_occurred = (n() == 2)) %>%
+    # Add the time-to-bleed, which is either the spell time difference, or
+    # the maximum dataset date if right censored
+    mutate(time_to_bleed = if_else(bleeding_occurred, spell_time_difference, end_date - index_date))
