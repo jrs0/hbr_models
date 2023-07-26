@@ -2,11 +2,11 @@
 //! platelet count, etc. The columns include the test name and category, the
 //! result and unit, and sample collection date and processing times.
 
+use crate::seeded_column_block::{make_rng, to_polars, SeededColumnBlock};
+use crate::synth_data::{make_gender, make_subject, Gender};
+use chrono::{Duration, NaiveDateTime};
 use rand::prelude::*;
 use rand_chacha::ChaCha8Rng;
-use chrono::{Duration, NaiveDateTime};
-use crate::seeded_column_block::{SeededColumnBlock, make_rng, to_polars};
-use crate::synth_data::{Gender, make_gender, make_subject};
 
 use polars::prelude::*;
 
@@ -105,7 +105,6 @@ impl BloodTest {
             result_upper_range,
         }
     }
-
 }
 
 /// Make a uniform random haemoglobin measurement in the range
@@ -213,7 +212,8 @@ fn make_sample_time_columns(
     for _ in 0..num_rows {
         // Sample collected at any date from 1970 to roughly now, and
         // up to 1 week processing time
-        let sample_collected_timestamp = NaiveDateTime::from_timestamp_opt(60 * rng.gen_range(0..28150015), 0).unwrap();
+        let sample_collected_timestamp =
+            NaiveDateTime::from_timestamp_opt(60 * rng.gen_range(0..28150015), 0).unwrap();
         let processing_time = Duration::seconds(60 * rng.gen_range(0..10080));
         sample_collected_date_time.push(sample_collected_timestamp);
         result_available_date_time.push(sample_collected_timestamp + processing_time);
@@ -228,7 +228,12 @@ fn make_sample_time_columns(
 }
 
 /// This column is either < or Null. Unknown interpretation.
-fn make_result_flag_column(block_id: &str, global_seed: u64, column_name: String, num_rows: usize) -> SeededColumnBlock {
+fn make_result_flag_column(
+    block_id: &str,
+    global_seed: u64,
+    column_name: String,
+    num_rows: usize,
+) -> SeededColumnBlock {
     let mut rng = make_rng(block_id, global_seed);
 
     let mut result_flag = Vec::new();
@@ -245,7 +250,7 @@ fn make_result_flag_column(block_id: &str, global_seed: u64, column_name: String
 /// Create the blood results table. Generated data is randomly generated based on
 /// the global seed with no particular statistical characteristics (the purpose is the
 /// format of the data). Currently includes the following blood tests:
-/// 
+///
 /// * haemoglobin
 /// * platelet count
 /// * eGFR
@@ -284,8 +289,12 @@ pub fn make_pathology_blood(block_id: &str, global_seed: u64, num_rows: usize) -
     // Make the result flag columns
     let result_flag_block_id = format!("{block_id}result_flag");
     let column_name = String::from("result_flag");
-    let result_flag_column =
-        make_result_flag_column(result_flag_block_id.as_ref(), global_seed, column_name, num_rows);
+    let result_flag_column = make_result_flag_column(
+        result_flag_block_id.as_ref(),
+        global_seed,
+        column_name,
+        num_rows,
+    );
     seeded_column_blocks.push(result_flag_column);
 
     // brc name is always Bristol
