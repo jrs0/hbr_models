@@ -128,7 +128,7 @@ index_spells <- with_relevant_columns %>%
     filter(acs_stemi_count > 0 | acs_nstemi_count > 0 | pci_count > 0) %>%
     # Record whether the index event is PCI or conservatively managed (ACS)
     mutate(
-        pci_present = (pci_count > 0), # If false, conservatively managed
+        pci_performed = (pci_count > 0), # If false, conservatively managed
     ) %>%
     # Keep only relevant columns for index (others will be joined back on in next step)
     select(nhs_number, spell_id, pci_present, age, spell_start_date) %>%
