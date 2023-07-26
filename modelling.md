@@ -107,7 +107,13 @@ This section contains plans for different modelling approaches and descriptive a
 
 Survival analysis was used in the bleeding-thrombotic trade-off model[^1], in the HBR group. The aim of this analysis is to try to reproduce the results as closely as possible, using the definition of bleeding and ischaemia based on groups of ICD-10, and without restricting the cohort to the high-bleeding risk group. Variables that go into the model will also be drawn from groups of ICD-10 codes, corresponding to the risk factors identified in the paper[^1].
 
+#### Dataset Definition
 
+Each row of the dataset will be a patient with an index event which is either ACS or PCI (method specified in detail below), and has the following columns:
+* **bleeding_occurred** True if a bleeding event occurred in the follow up period (i.e. any time within the range of the raw data), false if no bleeding event occurred in the follow up period. This is the status column in survival analysis.
+* **time_to_bleed**: The time between the index spell start time and the bleeding spell start time.
+* **pci_performed**: True if the index spell contained a PCI procedure. False if the index spell was ACS-only (conservatively or medically managed ACS)
+* **age_at_index**: Patient age at the start of the index spell
 
 
 
