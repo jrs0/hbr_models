@@ -1,5 +1,18 @@
 # Prototype script for survival analysis on bleeding and thrombotic events
 # following PCI procedures and ACS diagnoses.
+#
+# Purpose: to use data from the HES spells table (ICD-10 diagnoses
+# and OPCS-4 procedures) to obtain time-to-bleed and time-to-ischaemia
+# for ACS and PCI patients, in order to estimate the two risks using
+# survival analysis
+#
+# Limitations: spells table is used, not episodes. Spells are obtained
+# from episodes by a summarizing process which probably drops some of
+# the codes. No attempt is made to use the structure of the episodes
+# and spells for any purpose (e.g. primary vs. secondary). Code lists
+# may not map exactly to the endpoint of interest (clinically relevant
+# bleeding and ischaemia).
+#
 
 library(tidyverse)
 
@@ -131,7 +144,7 @@ index_spells <- with_relevant_columns %>%
         pci_performed = (pci_count > 0), # If false, conservatively managed
     ) %>%
     # Keep only relevant columns for index (others will be joined back on in next step)
-    select(nhs_number, spell_id, pci_present, age, spell_start_date) %>%
+    select(nhs_number, spell_id, pci_performed, age, spell_start_date) %>%
     rename(age_at_index = age, index_date = spell_start_date, index_spell_id = spell_id)
 
 ####### COMPUTE TIME TO BLEED #######
@@ -150,7 +163,9 @@ patient_subsequent_bleeding_spells <- index_spells %>%
     arrange(spell_time_difference, .by_group = TRUE) %>%
     slice_head(n = 2) %>%
     # Added the bleeding occurred flag if there is a subsequent bleed
-    mutate(bleeding_occurred = if_else(n() == 2, 1, 0)) %>%
+    mutate(bleed_status = if_else(n() == 2, 1, 0)) %>%
     # Add the time-to-bleed, which is either the spell time difference, or
     # the maximum dataset date if right censored
-    mutate(time_to_bleed = if_else(bleeding_occurred, spell_time_difference, end_date - index_date))
+    mutate(bleed_time = if_else(bleed_status == 1,
+        spell_time_difference, end_date - index_date
+    ))
