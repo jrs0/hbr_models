@@ -168,4 +168,14 @@ patient_subsequent_bleeding_spells <- index_spells %>%
     # the maximum dataset date if right censored
     mutate(bleed_time = if_else(bleed_status == 1,
         spell_time_difference, end_date - index_date
-    ))
+    )) %>% 
+    # Want just one row per index event; currently there is either
+    # one (for no bleed) or two (for a bleed). =Want to keep all 
+    # bleeding rows, and only index rows when there is no bleeding row.
+    ungroup() %>% 
+    filter((index_spell_id != spell_id) | bleed_status == 0) %>% 
+    # There is no use for the nhs_number or index spell id (each 
+    # row is considered a separate event), or the spell_start_date
+    select(-nhs_number, -index_spell_id, -spell_start_date)
+
+####### 
