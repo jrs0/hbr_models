@@ -189,6 +189,32 @@ p_one_year_bleed <- bleed_times %>%
     pull(bleed_status) %>% 
     mean()
 
+####### SURVIVAL ANALYSIS #######
 
+library(survival)
+library(ggsurvfit)
 
+sv <- Surv(bleed_times$bleed_time, bleed_times$bleed_status)
+s1 <- survfit(Surv(bleed_time, bleed_status) ~ 1, data = bleed_times)
 
+# Plot Kaplan-Meier curves
+survfit2(Surv(bleed_time, bleed_status) ~ 1, data = bleed_times) %>% 
+  ggsurvfit() +
+  # Convert x scale to days
+  scale_x_continuous(labels = function(x) x/86400) +
+  labs(x = "Days", y = "Overall survival probability") +
+  add_confidence_interval() +
+  add_risktable()
+
+# Find the bleeding risk at one year. THis shows the survival
+# probability at one year, along with upper and lower confidence
+# intervals.
+one_year_risk <- summary(survfit(Surv(bleed_time, bleed_status) ~ 1, data = bleed_times),
+    times = 365*24*60*60)
+
+# Get one year risk of bleed
+p_bleed_one_year <- 1 - one_year_risk$surv
+
+# Upper and lower CI are swapped (because they are survival)
+p_bleed_one_year_upper <- 1 - one_year_risk$lower # Lower CI, 95%
+p_bleed_one_year_lower <- 1 - one_year_risk$upper # Upper CI, 95%
