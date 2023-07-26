@@ -152,7 +152,7 @@ index_spells <- with_relevant_columns %>%
 # Want two things for survival analysis: time to next bleed if there
 # is a bleed; and maximum follow-up date for right censoring, if there is no bleed.
 
-patient_subsequent_bleeding_spells <- index_spells %>%
+bleed_times <- index_spells %>%
     # Expect many-to-many because the same patient could have multiple index events
     left_join(with_relevant_columns, by = "nhs_number", relationship = "many-to-many") %>%
     mutate(spell_time_difference = spell_start_date - index_date) %>%
@@ -176,6 +176,17 @@ patient_subsequent_bleeding_spells <- index_spells %>%
     filter((index_spell_id != spell_id) | bleed_status == 0) %>% 
     # There is no use for the nhs_number or index spell id (each 
     # row is considered a separate event), or the spell_start_date
-    select(-nhs_number, -index_spell_id, -spell_start_date)
+    select(index_date, bleed_status, bleed_time, age_at_index)
 
-####### 
+####### DESCRIPTIVE ANALYSIS #######
+
+# Calculate what proportion of patients with bleeding
+# events in one year. Should be around 0-5%.
+p_one_year_bleed <- bleed_times %>%
+    filter(bleed_time < lubridate::dyears(1)) %>% 
+    pull(bleed_status) %>% 
+    mean()
+
+
+
+
