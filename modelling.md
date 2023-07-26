@@ -93,15 +93,19 @@ The clinically relevant bleeding definition is BARC 3 or 5, as used in the ARC H
     ||R049 Hemorrhage from respiratory passages, unspecified|
     |Urogenital|N020-029 Recurrent and persistent hematuria R310, 311, 318 Unspecified hematuria|
 
-
-
-
 * **ADAPTT Group**
     The ADAPTT trial[^7] was conducted in the UK, and uses ICD-10 codes to identify all bleeding events (i.e. BARC 2 - 5). This 
 
 
 It is important to recognise that no group of ICD-10 codes corresponds exactly to major bleeding events. Any models developed using this outcome must interpret the results in light of this shortcoming.
 
+## Modelling and Analysis
+
+This section contains plans for different modelling approaches and descriptive analysis, along with references to the scripts that implement them.
+
+### Bleeding/Ischaemia Survival Analysis using Hospital Episode Statistics
+
+Survival analysis was used in the bleeding-thrombotic trade-off model[^1], in the HBR group. The aim of this analysis is to try to reproduce the results as closely as possible, using the definition of bleeding and ischaemia based on groups of ICD-10, and without restricting the cohort to the high-bleeding risk group. Variables that go into the model will also be drawn from groups of ICD-10 codes, corresponding to the risk factors identified in the paper[^1].
 
 
 
@@ -110,7 +114,8 @@ It is important to recognise that no group of ICD-10 codes corresponds exactly t
 
 
 
-[^1]: [2021 Urban et al., Assessing the Risks of Bleeding vs Thrombotic Events in Patients at High Bleeding Risk After Coronary Stent ImplantationThe ARC–High Bleeding Risk Trade-off Model](https://jamanetwork.com/journals/jamacardiology/fullarticle/2774812)
+
+[^1]: [2021 Urban et al., Assessing the Risks of Bleeding vs Thrombotic Events in Patients at High Bleeding Risk After Coronary Stent Implantation - The ARC–High Bleeding Risk Trade-off Model](https://jamanetwork.com/journals/jamacardiology/fullarticle/2774812)
 
 [^2]: [2019 Urban et al., Defining High Bleeding Risk in Patients Undergoing Percutaneous Coronary Intervention - A Consensus Document From the Academic Research Consortium for High Bleeding Risk](https://www.ahajournals.org/doi/10.1161/CIRCULATIONAHA.119.040167)
 
