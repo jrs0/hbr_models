@@ -5,9 +5,6 @@
 use rand::prelude::*;
 use rand_chacha::ChaCha8Rng;
 use chrono::{Duration, NaiveDateTime};
-
-use datafusion::arrow::array::{StringArray, TimestampSecondArray};
-
 use crate::seeded_column_block::{SeededColumnBlock, make_rng, to_polars};
 use crate::synth_data::{Gender, make_gender, make_subject};
 
@@ -66,7 +63,7 @@ impl BloodTest {
 
     /// Platelet count
     ///
-    /// The platelet count is a postive integer, which a normal range
+    /// The platelet count is a positive integer, which a normal range
     /// 150 - 400. Reduced platelet count is called thrombocytopenia.
     ///  
     fn new_platelets(test_result: u32) -> Self {
@@ -250,7 +247,8 @@ fn make_result_flag_column(block_id: &str, global_seed: u64, column_name: String
 /// format of the data). Currently includes the following blood tests:
 /// 
 /// * haemoglobin
-/// * 
+/// * platelet count
+/// * eGFR
 pub fn make_pathology_blood(block_id: &str, global_seed: u64, num_rows: usize) -> DataFrame {
     let mut seeded_column_blocks = Vec::new();
 
