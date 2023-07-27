@@ -4,7 +4,7 @@
     windows_subsystem = "windows"
 )]
 
-use tauri_api::dialog::{select, save_file, Response};
+use tauri::api::dialog::{select, save_file, Response};
 
 use clap::Parser;
 use tauri::Manager;
