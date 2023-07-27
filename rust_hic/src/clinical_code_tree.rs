@@ -13,6 +13,8 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::io::Read;
 
+use crate::clinical_code::{ClinicalCode, ClinicalCodeRef, ClinicalCodeStore};
+
 mod index;
 
 /// The Code/Categories struct
@@ -59,6 +61,38 @@ impl Categories {
             None => (),
         };
     }
+
+    /// Get the set of excludes. Even though the key itself may be empty,
+    /// from the point of view of programming it is easier to just have
+    /// that case as an empty set.
+    fn exclude(&self) -> HashSet<String> {
+        if let Some(exclude_set) = &self.exclude {
+            exclude_set.clone()
+        } else {
+            HashSet::new()
+        }
+    }
+
+    /// Returns the vector of sub-categories.
+    fn categories(&self) -> Option<&Vec<Categories>> {
+        self.categories.as_ref()
+    }
+
+    /// Returns true if the object is a leaf node (has no
+    /// sub-categories; represents a single clinical code)
+    fn is_leaf(&self) -> bool {
+        self.categories.is_none()
+    }
+
+    /// Get the code or category name
+    pub fn name(&self) -> &String {
+        &self.name
+    }
+
+    /// Get the code or category description
+    pub fn docs(&self) -> &String {
+        &self.docs
+    }
 }
 
 macro_rules! category {
@@ -99,6 +133,40 @@ pub struct ClinicalCodeTree {
     groups: HashSet<String>,
 }
 
+fn get_codes_in_group(
+    group: &String,
+    categories: &Vec<Categories>,
+    code_store: &mut ClinicalCodeStore,
+) -> Vec<ClinicalCodeRef> {
+    let mut codes_in_group = Vec::new();
+
+    // Filter out the categories that exclude the group
+    let categories_left = categories
+        .iter()
+        .filter(|cat| !cat.exclude().contains(group)); // keep if not excluded;
+
+    // Loop over the remaining categories. For all the leaf
+    // categories, if there is no exclude for this group,
+    // include it in the results. For non-leaf categories,
+    // call this function again and append the resulting
+    for category in categories_left {
+        if category.is_leaf() && !category.exclude().contains(group) {
+            let clinical_code = ClinicalCode::from(category);
+            let clinical_code_ref = code_store.clinical_code_ref_from(clinical_code);
+            codes_in_group.push(clinical_code_ref);
+        } else {
+            let sub_categories = category
+                .categories()
+                .expect("There are always sub-categories for non-leaf");
+            let mut new_codes = get_codes_in_group(group, sub_categories, code_store);
+            codes_in_group.append(&mut new_codes);
+        }
+    }
+
+    // Return the current list of codes
+    return codes_in_group;
+}
+
 impl ClinicalCodeTree {
     /// Read a clinical code tree from a byte source
     ///
@@ -116,6 +184,23 @@ impl ClinicalCodeTree {
             serde_yaml::from_reader(reader).expect("Failed to deserialize to Categories");
         sort_categories_list_in_place(&mut tree.categories);
         tree
+    }
+
+    /// Get all the clinical codes in a particular group
+    ///
+    /// The result is either a vector of references to clinical codes
+    /// or an error string if the group does not exist in the code tree.
+    ///
+    pub fn codes_in_group(
+        &self,
+        group: &String,
+        code_store: &mut ClinicalCodeStore,
+    ) -> Result<Vec<ClinicalCodeRef>, &'static str> {
+        if !self.groups.contains(group) {
+            Err("Clinical code tree does not contain that group")
+        } else {
+            Ok(get_codes_in_group(group, &self.categories, code_store))
+        }
     }
 }
 
@@ -266,5 +351,85 @@ mod tests {
 
         // Should execute without panic
         let code_tree = ClinicalCodeTree::from_reader(f);
+    }
+
+    // Check that the correct codes are returned from the hard-coded test files.
+    #[test]
+    fn check_codes_in_group() {
+        let mut file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        file_path.push("resources");
+        file_path.push("test");
+        file_path.push("icd10_example.yaml");
+
+        let f = std::fs::File::open(file_path).expect("Failed to open icd10 file");
+
+        // Should execute without panic
+        let code_tree = ClinicalCodeTree::from_reader(f);
+
+        let mut code_store = ClinicalCodeStore::new();
+
+        // Get the ACS STEMI codes in the groups defined by the file
+        let acs_stemi_codes = code_tree
+            .codes_in_group(&format!("acs_stemi"), &mut code_store)
+            .expect("Should succeed, code is present");
+        assert_eq!(acs_stemi_codes.len(), 7);
+
+        let code_names: Vec<_> = acs_stemi_codes
+            .iter()
+            .map(|code_ref| {
+                let clinical_code = code_store
+                    .clinical_code_from(code_ref)
+                    .expect("Clinical code should be present");
+                clinical_code.name()
+            })
+            .collect();
+
+        // These are from looking at the selected items in the codes editor
+        assert_eq!(
+            code_names,
+            vec!["I21.0", "I21.1", "I21.2", "I21.3", "I22.0", "I22.1", "I22.8"]
+        );
+
+        // Codes from the atrial_fib groups
+        let atrial_fib_codes = code_tree
+            .codes_in_group(&format!("atrial_fib"), &mut code_store)
+            .expect("Should succeed, code is present");
+        assert_eq!(atrial_fib_codes.len(), 6);
+
+        let code_names: Vec<_> = atrial_fib_codes
+            .iter()
+            .map(|code_ref| {
+                let clinical_code = code_store
+                    .clinical_code_from(code_ref)
+                    .expect("Clinical code should be present");
+                clinical_code.name()
+            })
+            .collect();
+
+        // These are from looking at the selected items in the codes editor
+        assert_eq!(
+            code_names,
+            vec!["I48.0", "I48.1", "I48.2", "I48.3", "I48.4", "I48.9"]
+        );
+    }
+
+    #[test]
+    fn check_nonexistent_group_returns_error() {
+        let mut file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        file_path.push("resources");
+        file_path.push("test");
+        file_path.push("icd10_example.yaml");
+
+        let f = std::fs::File::open(file_path).expect("Failed to open icd10 file");
+
+        // Should execute without panic
+        let code_tree = ClinicalCodeTree::from_reader(f);
+
+        let mut code_store = ClinicalCodeStore::new();
+
+        // Try to read a group of codes which is not in the file
+        let unknown_group = code_tree
+            .codes_in_group(&format!("unknown_group"), &mut code_store);
+        assert!(unknown_group.is_err());
     }
 }

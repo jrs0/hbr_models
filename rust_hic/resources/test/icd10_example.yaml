@@ -4839,8 +4839,6 @@ categories:
         - C97
         name: C97-C97
       docs: Malignant neoplasms
-      exclude:
-      - acs_stemi
       index:
       - C00
       - C97
@@ -4857,8 +4855,6 @@ categories:
           index: D002
           name: D00.2
         docs: Carcinoma in situ of oral cavity, oesophagus and stomach
-        exclude:
-        - acs_stemi
         index: D00
         name: D00
       - categories:
@@ -4887,8 +4883,6 @@ categories:
           index: D019
           name: D01.9
         docs: Carcinoma in situ of other and unspecified digestive organs
-        exclude:
-        - acs_stemi
         index: D01
         name: D01
       - categories:
@@ -4908,8 +4902,6 @@ categories:
           index: D024
           name: D02.4
         docs: Carcinoma in situ of middle ear and respiratory system
-        exclude:
-        - acs_stemi
         index: D02
         name: D02
       - categories:
@@ -5035,8 +5027,6 @@ categories:
           index: D076
           name: D07.6
         docs: Carcinoma in situ of other and unspecified genital organs
-        exclude:
-        - acs_stemi
         index: D07
         name: D07
       - categories:
@@ -5059,8 +5049,6 @@ categories:
           index: D099
           name: D09.9
         docs: Carcinoma in situ of other and unspecified sites
-        exclude:
-        - acs_stemi
         index: D09
         name: D09
       docs: In situ neoplasms
@@ -5638,7 +5626,6 @@ categories:
       docs: Benign neoplasms
       exclude:
       - cancer
-      - acs_stemi
       index:
       - D10
       - D36
@@ -5925,7 +5912,6 @@ categories:
       docs: Neoplasms of uncertain or unknown behaviour
       exclude:
       - cancer
-      - acs_stemi
       index:
       - D37
       - D48
@@ -5956,6 +5942,7 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
     - other_ischaemic_heart_diseases
+    - acs_stemi
     index:
     - C00
     - D48

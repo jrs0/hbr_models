@@ -11,6 +11,8 @@
 use bimap::BiMap;
 use serde::{Deserialize, Serialize};
 
+use crate::clinical_code_tree::Categories;
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct DiagnosisCode(ClinicalCodeRef);
 
@@ -40,6 +42,11 @@ impl ClinicalCode {
             docs,
             groups: Vec::new(),
         }
+    }
+
+    /// Make a clinical code from a category/code node in a clinical code tree
+    pub fn from(category: &Categories) -> Self {
+        Self::new(category.name().clone(), category.docs().clone())
     }
 
     pub fn add_group(&mut self, group: String) {
@@ -125,7 +132,7 @@ impl ClinicalCodeStore {
     /// reference. Returns None if the reference does not correspond
     /// to any clinical code. The result is a reference, so it is
     /// up to you to clone it if you want to modify it.
-    pub fn clinical_code_from(&self, clinical_code_ref: ClinicalCodeRef) -> Option<&ClinicalCode> {
+    pub fn clinical_code_from(&self, clinical_code_ref: &ClinicalCodeRef) -> Option<&ClinicalCode> {
         self.ids_to_codes.get_by_left(&clinical_code_ref.id())
     }
 
@@ -204,7 +211,7 @@ mod tests {
         let code_ref = clinical_code_store.clinical_code_ref_from(code);
         assert_eq!(clinical_code_store.num_stored_codes(), 1);
 
-        let code_read = clinical_code_store.clinical_code_from(code_ref);
+        let code_read = clinical_code_store.clinical_code_from(&code_ref);
         assert_ne!(code_read, None);
         let code_read = code_read.unwrap();
         assert_eq!(code_read.name(), "I21.0");
@@ -239,21 +246,21 @@ mod tests {
 
         // Reads
 
-        let code_read = clinical_code_store.clinical_code_from(code_ref_1);
+        let code_read = clinical_code_store.clinical_code_from(&code_ref_1);
         assert_ne!(code_read, None);
         let code_read = code_read.unwrap();
         assert_eq!(code_read.name(), "I21.0");
         assert_eq!(code_read.docs(), "What the code means...");
         assert_eq!(code_read.groups().len(), 0);
 
-        let code_read = clinical_code_store.clinical_code_from(code_ref_2);
+        let code_read = clinical_code_store.clinical_code_from(&code_ref_2);
         assert_ne!(code_read, None);
         let code_read = code_read.unwrap();
         assert_eq!(code_read.name(), "A00.1");
         assert_eq!(code_read.docs(), "Another description");
         assert_eq!(code_read.groups().len(), 0);        
 
-        let code_read = clinical_code_store.clinical_code_from(code_ref_3);
+        let code_read = clinical_code_store.clinical_code_from(&code_ref_3);
         assert_ne!(code_read, None);
         let code_read = code_read.unwrap();
         assert_eq!(code_read.name(), "K34.3");
@@ -283,7 +290,7 @@ mod tests {
         // Check that the references are the same
         assert_eq!(code_ref_1, code_ref_2);
 
-        let code_read = clinical_code_store.clinical_code_from(code_ref_1);
+        let code_read = clinical_code_store.clinical_code_from(&code_ref_1);
         assert_ne!(code_read, None);
         let code_read = code_read.unwrap();
         assert_eq!(code_read.name(), "I21.0");
@@ -298,7 +305,7 @@ mod tests {
         // Id does not exist
         let code_ref = ClinicalCodeRef::from(32);
 
-        let code_read = clinical_code_store.clinical_code_from(code_ref);
+        let code_read = clinical_code_store.clinical_code_from(&code_ref);
         assert_eq!(code_read, None);
     }
 
