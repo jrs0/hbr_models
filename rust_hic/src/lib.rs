@@ -13,7 +13,7 @@ mod pathology_blood;
 mod seeded_column_block;
 mod synth_data;
 pub mod patient;
-mod clinical_code;
+pub mod clinical_code;
 pub mod clinical_code_tree;
 
 pub fn save_record_batch(filename: &str, batch: RecordBatch) {
