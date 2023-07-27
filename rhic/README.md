@@ -2,11 +2,28 @@
 
 This folder contains the R interface to the underlying rust library. It provides access to the data sources (from a real SQL Server), or the synthetic data for testing/development purposes
 
-## Installation on Windows
+## Development on Windows
 
-TODO: get installation/development working on windows and document steps.
+Install [rustup](https://www.rust-lang.org/tools/install) as per the instructions on Windows. You need to install a specific target for Windows and R, as follows:
 
-## Installation on Linux
+```pwoershell
+rustup target add x86_64-pc-windows-gnu
+```
+
+Install [R 4.3 or later](https://cran.r-project.org/bin/windows/base/) and [Rtools43](https://cran.r-project.org/bin/windows/Rtools/rtools43/rtools.html) (or the corresponding version for your version of R). To build the package, run (from an R console):
+
+```r
+# This will also build the Rust library
+rextendr::document()
+```
+
+If you get the error `Could not find tools necessary to compile a package`, you may need to add the path to `rtools43` to the path. Update your `.Renviron` (located at `C:\Users\your-username\.Renviron` on Windows) as follows:
+
+```
+PATH="c:/rtools43/x86_64-w64-mingw32.static.posix/bin;c:/rtools43/usr/bin;${PATH}"
+```
+
+## Development on Linux
 
 These instructions were tested on Linux Mint 21.1. Install R and other package dependencies as follows:
 
