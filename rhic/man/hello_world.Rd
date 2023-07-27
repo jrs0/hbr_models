@@ -2,10 +2,10 @@
 % Please edit documentation in R/extendr-wrappers.R
 \name{hello_world}
 \alias{hello_world}
-\title{Return string \code{"Hello world!"} to R.}
+\title{Test interface to Rust library}
 \usage{
 hello_world()
 }
 \description{
-Return string \code{"Hello world!"} to R.
+Test interface to Rust library
 }
