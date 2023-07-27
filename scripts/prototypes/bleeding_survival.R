@@ -11,7 +11,8 @@
 # the codes. No attempt is made to use the structure of the episodes
 # and spells for any purpose (e.g. primary vs. secondary). Code lists
 # may not map exactly to the endpoint of interest (clinically relevant
-# bleeding and ischaemia).
+# bleeding and ischaemia). Does not account for time delay in codes
+# becoming available in statistical analysis.
 #
 
 library(tidyverse)
@@ -27,7 +28,7 @@ id <- dbplyr::in_catalog("abi", "dbo", "vw_apc_sem_spell_001")
 start_date <- lubridate::ymd_hms("2020-01-01 00:00:00")
 end_date <- lubridate::ymd_hms("2021-01-01 00:00:00")
 
-# Raw spell data from the databse. This is just a spell table, so
+# Raw spell data from the database. This is just a spell table, so
 # episode information has been summarised into a single row.
 raw_data <- dplyr::tbl(con, id) %>%
     select(
@@ -139,13 +140,23 @@ with_relevant_columns <- with_diagnoses_and_procedures %>%
 # Get the spell id of index spells
 index_spells <- with_relevant_columns %>%
     filter(acs_stemi_count > 0 | acs_nstemi_count > 0 | pci_count > 0) %>%
-    # Record whether the index event is PCI or conservatively managed (ACS)
+    # Record whether the index event is PCI or conservatively managed (ACS).
+    # Record STEMI and NSTEMI as separate columns to account for possiblity
+    # of neither (i.e. no ACS).
     mutate(
         pci_performed = (pci_count > 0), # If false, conservatively managed
+        acs_stemi = (acs_stemi_count > 0),
+        acs_nstemi = (acs_nstemi_count > 0)
     ) %>%
     # Keep only relevant columns for index (others will be joined back on in next step)
-    select(nhs_number, spell_id, pci_performed, age, spell_start_date) %>%
-    rename(age_at_index = age, index_date = spell_start_date, index_spell_id = spell_id)
+    select(
+        nhs_number, spell_id, pci_performed, acs_stemi, acs_nstemi,
+        age, spell_start_date
+    ) %>%
+    rename(
+        age_at_index = age, index_date = spell_start_date,
+        index_spell_id = spell_id
+    )
 
 ####### COMPUTE TIME TO BLEED #######
 
@@ -179,9 +190,37 @@ bleed_times <- index_spells %>%
     filter((index_spell_id != spell_id) | bleed_status == 0) %>%
     # There is no use for the nhs_number or index spell id (each
     # row is considered a separate event), or the spell_start_date
-    select(index_date, bleed_status, bleed_time, age_at_index)
+    select(
+        index_date, bleed_status, bleed_time, age_at_index, pci_performed,
+        acs_stemi, acs_nstemi
+    )
 
 ####### DESCRIPTIVE ANALYSIS #######
+
+# Check the proportion of STEMI/NSTEMI presentation. Note that
+# not all rows
+
+# Proportion of index events with a PCI procedure
+# (expect the majority)
+p_pci_performed <- bleed_times %>%
+    pull(pci_performed) %>%
+    mean()
+
+# Calculate the proportion of index events with ACS (either
+# STEMI or NSTEMI) (expect majority)
+p_acs <- bleed_times %>%
+    mutate(acs = (acs_stemi | acs_nstemi)) %>%
+    pull(acs) %>%
+    mean()
+
+# Calculate proportion of _all_ index events that are STEMI
+# or NSTEMI (note some index events are not ACS)
+p_stemi <- bleed_times %>%
+    pull(acs_stemi) %>%
+    mean()
+p_nstemi <- bleed_times %>%
+    pull(acs_nstemi) %>%
+    mean()
 
 # Calculate what proportion of patients with bleeding
 # events in one year. Should be around 0-5%. This estimate
@@ -190,6 +229,25 @@ p_bleed_1y_naive <- bleed_times %>%
     filter(bleed_time < lubridate::dyears(1)) %>%
     pull(bleed_status) %>%
     mean()
+
+####### END OF DATA PREPROCESSING #######
+
+# At this point, expecting to have a dataframe bleed_times with the following
+# columns. (Note: if neither acs_stemi nor acs_nstemi are true, index did not
+# contain an ACS.
+#
+# General information:
+# - index_date: what was the index event start date
+# Outcomes:
+# - bleed_status: whether a bleed occurred (right-censored)
+# - bleed_time: time to bleed if occurred, or time to end_date if no bleed
+# Predictors:
+# - age_at_index:
+# - pci_performed: whether index included PCI procedures
+# - acs_stemi: If index was ACS STEMI
+# - acs_nstemi: If index was ACS NSTEMI
+#
+
 
 ####### SURVIVAL ANALYSIS (OVERALL) #######
 
@@ -209,7 +267,7 @@ survfit2(Surv(bleed_time, bleed_status) ~ 1, data = bleed_times) %>%
     add_confidence_interval() +
     add_risktable()
 
-# Find the bleeding risk at one year. THis shows the survival
+# Find the bleeding risk at one year. This shows the survival
 # probability at one year, along with upper and lower confidence
 # intervals.
 one_year_risk <- summary(survfit(Surv(bleed_time, bleed_status) ~ 1, data = bleed_times),
@@ -239,5 +297,9 @@ survdiff(Surv(bleed_time, bleed_status) ~ age_at_index,
 )
 
 # Show the regression results as a table
-coxph(Surv(bleed_time, bleed_status) ~ age_at_index, data = bleed_times) %>% 
-  tbl_regression(exp = TRUE) 
+coxph(
+    Surv(bleed_time, bleed_status) ~ age_at_index
+        + pci_performed + acs_stemi + acs_nstemi,
+    data = bleed_times
+) %>%
+    tbl_regression(exp = TRUE)
