@@ -12,7 +12,7 @@ fn hello_world() {
 /// in a codes file.
 /// @export
 #[extendr]
-fn get_codes(codes_file_path: &str, group: &str) -> Vec<String> {
+fn get_codes_in_group(codes_file_path: &str, group: &str) -> Vec<String> {
     let f = std::fs::File::open(codes_file_path).expect("Failed to open codes file");
 
     let code_tree = ClinicalCodeTree::from_reader(f);
