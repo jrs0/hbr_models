@@ -17,8 +17,11 @@ hello_world <- function() invisible(.Call(wrap__hello_world))
 
 #' Get the clinical codes in a particular code group defined
 #' in a codes file.
+#'
+#' TODO: figure out a good way to hand errors
+#' 
 #' @export
-get_codes <- function(codes_file_path, group) .Call(wrap__get_codes, codes_file_path, group)
+get_codes_in_group <- function(codes_file_path, group) .Call(wrap__get_codes_in_group, codes_file_path, group)
 
 
 # nolint end

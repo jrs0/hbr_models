@@ -10,4 +10,3 @@ name = 'rhic'
 [dependencies]
 extendr-api = '*'
 rust_hic = { git = "https://github.com/jrs0/hic_arc_hbr" }
-datafusion = "27.0.0"

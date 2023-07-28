@@ -3911,7 +3911,6 @@ dependencies = [
 name = "rhic"
 version = "0.1.0"
 dependencies = [
- "datafusion",
  "extendr-api",
  "rust_hic",
 ]
