@@ -437,6 +437,13 @@ mod tests {
         assert!(unknown_group.is_err());
     }
 
+    /// Convenience macro to make a HashSet<String> from a vector
+    /// of literals for testing. 
+    macro_rules! set_of_strings {
+        ($($x:expr),*) => (HashSet::from([$($x.to_string()),*]));
+    }
+
+    #[test]
     fn check_returned_groups_match_icd10_file() {
         let mut file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         file_path.push("resources");
@@ -448,10 +455,12 @@ mod tests {
         // Should execute without panic
         let code_tree = ClinicalCodeTree::from_reader(f);
 
-        let groups: Vec<_> = code_tree.groups();
+        // Note the order of the groups is not defined -- just
+        // the set is being checked
+        let groups = code_tree.groups().clone();
         assert_eq!(
             groups,
-            vec![
+            set_of_strings!(
                 "acs_stemi",
                 "acs_nstemi",
                 "acs_unstable_angina",
@@ -478,11 +487,7 @@ mod tests {
                 "type_2_diabetes",
                 "diabetes_unspecified",
                 "ischaemic_stroke"
-            ]
+            )
         )
     }
-
-    
-
-
 }
