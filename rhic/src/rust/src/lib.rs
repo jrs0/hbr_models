@@ -19,7 +19,7 @@ use rust_hic::{clinical_code::ClinicalCodeStore, clinical_code_tree::ClinicalCod
 /// * name: the name of the code in the group (e.g. A01.0)
 /// * docs: the description of the code 
 /// 
-/// TODO: figure out a good way to hand errors.
+/// TODO: figure out a good way to handle errors.
 /// 
 /// @export
 #[extendr]
@@ -51,7 +51,18 @@ fn rust_get_codes_in_group(codes_file_path: &str, group: &str) -> List {
     list!(name = name, docs = docs)
 }
 
-
+/// Get the code groups defined in a codes file
+/// 
+/// Returns a character vector of group names defined in
+/// the codes file. This can be used as the basis for fetching
+/// all the code groups using rust_get_codes_in_group.
+/// 
+#[extendr]
+fn rust_get_groups_in_codes_file(codes_file_path: &str) -> Vec<String> {
+    let f = std::fs::File::open(codes_file_path).expect("Failed to open codes file");
+    let code_tree = ClinicalCodeTree::from_reader(f);
+    code_tree.groups()
+}
 
 // Macro to generate exports.
 // This ensures exported functions are registered with R.

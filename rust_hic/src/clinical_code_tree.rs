@@ -202,6 +202,11 @@ impl ClinicalCodeTree {
             Ok(get_codes_in_group(group, &self.categories, code_store))
         }
     }
+
+    /// Get the list of groups defined in the clinical code tree
+    pub fn groups(&self) -> &HashSet<String> {
+        &self.groups
+    }
 }
 
 /// Tests for the code tree
@@ -428,8 +433,56 @@ mod tests {
         let mut code_store = ClinicalCodeStore::new();
 
         // Try to read a group of codes which is not in the file
-        let unknown_group = code_tree
-            .codes_in_group(&format!("unknown_group"), &mut code_store);
+        let unknown_group = code_tree.codes_in_group(&format!("unknown_group"), &mut code_store);
         assert!(unknown_group.is_err());
     }
+
+    fn check_returned_groups_match_icd10_file() {
+        let mut file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        file_path.push("resources");
+        file_path.push("test");
+        file_path.push("icd10_example.yaml");
+
+        let f = std::fs::File::open(file_path).expect("Failed to open icd10 file");
+
+        // Should execute without panic
+        let code_tree = ClinicalCodeTree::from_reader(f);
+
+        let groups: Vec<_> = code_tree.groups();
+        assert_eq!(
+            groups,
+            vec![
+                "acs_stemi",
+                "acs_nstemi",
+                "acs_unstable_angina",
+                "bleeding",
+                "chronic_ischaemia_heart_disease",
+                "other_ischaemic_heart_diseases",
+                "atrial_fib",
+                "ckd1",
+                "ckd2",
+                "ckd3",
+                "ckd4",
+                "ckd5",
+                "ckd",
+                "ckd.other",
+                "anaemia",
+                "thrombocytopenia",
+                "smoking",
+                "copd",
+                "cancer",
+                "cirrhosis",
+                "hepatic_failure",
+                "portal_hypertension",
+                "type_1_diabetes",
+                "type_2_diabetes",
+                "diabetes_unspecified",
+                "ischaemic_stroke"
+            ]
+        )
+    }
+
+    
+
+
 }
