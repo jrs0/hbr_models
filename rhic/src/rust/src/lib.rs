@@ -1,23 +1,29 @@
+//! The main Rust-language interface layer between rust_hic (the Rust crate)
+//! and rhic (the R package).
+//! 
+//! Data is typically returned to R in a base-R format like a raw list or
+//! vector. You don't want to call the functions here (anything starting with
+//! "rust_")  directly. Instead, use the functions in the R/ folder which return
+//! the same information in a more R-friendly format (such as tibble, or after
+//! any extra conversion to more usable types has been performed).
+//! 
+
 use extendr_api::prelude::*;
 use rust_hic::{clinical_code::ClinicalCodeStore, clinical_code_tree::ClinicalCodeTree};
-
-/// Test interface to Rust library
-/// @export
-#[extendr]
-fn hello_world() {
-    println!("Hello world!");
-}
 
 /// Get the clinical codes in a particular code group defined
 /// in a codes file.
 ///
-/// The result is 
+/// The result is a named list (intended as a dataframe) with the
+/// columns:
+/// * name: the name of the code in the group (e.g. A01.0)
+/// * docs: the description of the code 
 /// 
 /// TODO: figure out a good way to hand errors.
 /// 
 /// @export
 #[extendr]
-fn get_codes_in_group(codes_file_path: &str, group: &str) -> List {
+fn rust_get_codes_in_group(codes_file_path: &str, group: &str) -> List {
     let f = std::fs::File::open(codes_file_path).expect("Failed to open codes file");
 
     let code_tree = ClinicalCodeTree::from_reader(f);
@@ -45,11 +51,12 @@ fn get_codes_in_group(codes_file_path: &str, group: &str) -> List {
     list!(name = name, docs = docs)
 }
 
+
+
 // Macro to generate exports.
 // This ensures exported functions are registered with R.
 // See corresponding C code in `entrypoint.c`.
 extendr_module! {
     mod rhic;
-    fn hello_world;
-    fn get_codes_in_group;
+    fn rust_get_codes_in_group;
 }
