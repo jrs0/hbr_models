@@ -23,7 +23,7 @@ get_groups_in_codes_file <- function(codes_file_path) {
 ##'
 get_codes_in_group <- function(codes_file_path, group) {
     # This will also check if the codes file exists
-    valid_groups <- rust_get_groups_in_codes_file
+    valid_groups <- rust_get_groups_in_codes_file(codes_file_path)
 
     if (!any(group == valid_groups)) {
         stop("code group '", group, "' is not present in codes file '", codes_file_path, "'")

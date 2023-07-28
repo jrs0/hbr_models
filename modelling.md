@@ -86,7 +86,6 @@ The clinically relevant bleeding definition is BARC 3 or 5, as used in the ARC H
     | K51 | Ulcerative colitis |
     | K57 | Diverticular disease of intestine |
     | K62.5 | Haemorrhage of anus and rectum |
-    | 
 
     Inclusion/exclusion notes (to check):
     * The codes K31.80, K63.80,  were excluded because its description in ICD-10 did not appear to correspond exclusively to a definite bleeding event, and may reduce positive predictive value of the codes.
