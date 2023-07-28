@@ -38,6 +38,26 @@ This repository will focus on the ARC-HBR[^2] consensus-based definition of blee
 
 The ARC-HBR score for the purpose of this work is described [here](arc_hbr.md).
 
+## Acute Coronoary Syndrome (ACS) Inclusion Definition
+
+Patients with an ACS episode defined by the following ICD-10 codes are included in the analysis[^8]:
+
+| ICD-10 | Description | STEMI/NSTEMI |
+| I21.0 | Acute transmural myocardial infarction of anterior wall | STEMI |
+| I21.1 | Acute transmural myocardial infarction of inferior wall | STEMI |
+| I21.2 | Acute transmural myocardial infarction of other sites | STEMI |
+| I21.3 | Acute transmural myocardial infarction of unspecified site | STEMI |
+| I22.0 | Subsequent myocardial infarction of anterior wall | STEMI |
+| I22.1 | Subsequent myocardial infarction of inferior wall | STEMI |
+| I22.8 | Subsequent myocardial infarction of other sites | STEMI |
+
+The codes are labelled `acs_stemi_biobank_biobank`, `acs_nstemi_biobank` and `acs_mi_biobank`. The groups are estimated to have the following positive predictive values [^8]:
+* STEMI: 71-100%
+* NSTEMI: 90-100% (written as >90% in the report)
+* MI: 75-100%
+
+
+
 ## Bleeding Outcome Definition
 
 The clinically relevant bleeding definition is BARC 3 or 5, as used in the ARC HBR definition. However, this definition is not readily available in the datasets used here, because it requires expert judgement (which is often performed manually in studies). However, it is possible to find proxies for major bleeding. For example, in hospital episode statistics, ICD-10 codes have been found to approximate major bleeding events. Here, two groups of ICD-10 codes will be used as a stand-in for major bleeding, for model development purposes:
@@ -54,7 +74,7 @@ The clinically relevant bleeding definition is BARC 3 or 5, as used in the ARC H
     | Lower gastrointestinal bleeding |  K55.2, K51, K57, K62.5, K92.0, K92.1, K92.2 |
 
     This groups has been interpreted as the following set of (UK) ICD-10 codes:
-    | Description | ICD-10 |
+    | ICD-10 | Description |
     |-------------|--------|
     | I60 | Subarachnoid haemorrhage |
     | I61 | Intracerebral haemorrhage |
@@ -170,3 +190,5 @@ Each row of the dataset will be a patient with an index event which is either AC
 [^6]: [2019 Wells et al., Dual Antiplatelet Therapy Following Percutaneous Coronary Intervention: Clinical and Economic Impact of Standard Versus Extended Duration](https://www.ncbi.nlm.nih.gov/books/NBK542937/)
 
 [^7]: [2019 Pufulete et al., Comprehensive ascertainment of bleeding in patients prescribed different combinations of dual antiplatelet therapy (DAPT) and triple therapy (TT) in the UK: study protocol for three population-based cohort studies emulating ‘target trials’ (the ADAPTT Study)](https://bmjopen.bmj.com/content/9/6/e029388)
+
+[^8]: [2017 Schnier et al., Definitions of Acute Myocardial Infarction and Main Myocardial Infarction Pathological Types UK Biobank Phase 1 Outcomes Adjudication](https://biobank.ndph.ox.ac.uk/showcase/showcase/docs/alg_outcome_mi.pdf)

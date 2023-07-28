@@ -3038,7 +3038,7 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi
+    - acs_stemi_biobank
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -5942,7 +5942,7 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
     - other_ischaemic_heart_diseases
-    - acs_stemi
+    - acs_stemi_biobank
     index:
     - C00
     - D48
@@ -6677,7 +6677,7 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi
+    - acs_stemi_biobank
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -8095,7 +8095,7 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi
+    - acs_stemi_biobank
     - acs_nstemi
     - acs_unstable_angina
     - ischaemic_stroke
@@ -8145,7 +8145,7 @@ categories:
       - ckd.other
       - atrial_fib
       - portal_hypertension
-      - acs_stemi
+      - acs_stemi_biobank
       - acs_nstemi
       - acs_unstable_angina
       - ischaemic_stroke
@@ -8260,7 +8260,7 @@ categories:
       - ckd.other
       - atrial_fib
       - portal_hypertension
-      - acs_stemi
+      - acs_stemi_biobank
       - acs_nstemi
       - acs_unstable_angina
       - ischaemic_stroke
@@ -8340,7 +8340,7 @@ categories:
       - bleeding
       - atrial_fib
       - portal_hypertension
-      - acs_stemi
+      - acs_stemi_biobank
       - acs_nstemi
       - acs_unstable_angina
       - ischaemic_stroke
@@ -8375,7 +8375,7 @@ categories:
         docs: Angina pectoris
         exclude:
         - bleeding
-        - acs_stemi
+        - acs_stemi_biobank
         - acs_nstemi
         - chronic_ischaemia_heart_disease
         index: I20
@@ -8407,13 +8407,13 @@ categories:
           name: I21.3
         - docs: Acute subendocardial myocardial infarction
           exclude:
-          - acs_stemi
+          - acs_stemi_biobank
           - other_ischaemic_heart_diseases
           index: I214
           name: I21.4
         - docs: Acute myocardial infarction, unspecified
           exclude:
-          - acs_stemi
+          - acs_stemi_biobank
           - acs_nstemi
           index: I219
           name: I21.9
@@ -8442,7 +8442,7 @@ categories:
           name: I22.8
         - docs: Subsequent myocardial infarction of unspecified site
           exclude:
-          - acs_stemi
+          - acs_stemi_biobank
           index: I229
           name: I22.9
         docs: Subsequent myocardial infarction
@@ -8496,7 +8496,7 @@ categories:
           name: I23.8
         docs: Certain current complications following acute myocardial infarction
         exclude:
-        - acs_stemi
+        - acs_stemi_biobank
         - acs_nstemi
         - acs_unstable_angina
         - chronic_ischaemia_heart_disease
@@ -8518,7 +8518,7 @@ categories:
         docs: Other acute ischaemic heart diseases
         exclude:
         - bleeding
-        - acs_stemi
+        - acs_stemi_biobank
         - acs_nstemi
         - acs_unstable_angina
         - chronic_ischaemia_heart_disease
@@ -8555,7 +8555,7 @@ categories:
         docs: Chronic ischaemic heart disease
         exclude:
         - bleeding
-        - acs_stemi
+        - acs_stemi_biobank
         - acs_nstemi
         - acs_unstable_angina
         - other_ischaemic_heart_diseases
@@ -8623,7 +8623,7 @@ categories:
       - ckd.other
       - atrial_fib
       - portal_hypertension
-      - acs_stemi
+      - acs_stemi_biobank
       - acs_nstemi
       - acs_unstable_angina
       - ischaemic_stroke
@@ -9157,7 +9157,7 @@ categories:
       exclude:
       - ckd.other
       - portal_hypertension
-      - acs_stemi
+      - acs_stemi_biobank
       - acs_nstemi
       - acs_unstable_angina
       - ischaemic_stroke
@@ -9435,7 +9435,7 @@ categories:
       - ckd.other
       - atrial_fib
       - portal_hypertension
-      - acs_stemi
+      - acs_stemi_biobank
       - acs_nstemi
       - acs_unstable_angina
       - chronic_ischaemia_heart_disease
@@ -9639,7 +9639,7 @@ categories:
       - ckd.other
       - atrial_fib
       - portal_hypertension
-      - acs_stemi
+      - acs_stemi_biobank
       - acs_nstemi
       - acs_unstable_angina
       - ischaemic_stroke
@@ -9835,7 +9835,7 @@ categories:
       exclude:
       - ckd.other
       - atrial_fib
-      - acs_stemi
+      - acs_stemi_biobank
       - acs_nstemi
       - acs_unstable_angina
       - ischaemic_stroke
@@ -9930,7 +9930,7 @@ categories:
       exclude:
       - ckd.other
       - atrial_fib
-      - acs_stemi
+      - acs_stemi_biobank
       - acs_nstemi
       - acs_unstable_angina
       - ischaemic_stroke
@@ -11562,7 +11562,7 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi
+    - acs_stemi_biobank
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -12886,7 +12886,7 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi
+    - acs_stemi_biobank
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -14064,7 +14064,7 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi
+    - acs_stemi_biobank
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -14567,7 +14567,7 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi
+    - acs_stemi_biobank
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -15598,7 +15598,7 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi
+    - acs_stemi_biobank
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -17551,7 +17551,7 @@ categories:
     - smoking
     - copd
     - cancer
-    - acs_stemi
+    - acs_stemi_biobank
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -18890,7 +18890,7 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi
+    - acs_stemi_biobank
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -21027,7 +21027,7 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi
+    - acs_stemi_biobank
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -22941,7 +22941,7 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi
+    - acs_stemi_biobank
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -27805,7 +27805,7 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi
+    - acs_stemi_biobank
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -29456,7 +29456,7 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi
+    - acs_stemi_biobank
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -30764,7 +30764,7 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi
+    - acs_stemi_biobank
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -33091,7 +33091,7 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi
+    - acs_stemi_biobank
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -34537,7 +34537,7 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi
+    - acs_stemi_biobank
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -39516,7 +39516,7 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi
+    - acs_stemi_biobank
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -41912,7 +41912,7 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi
+    - acs_stemi_biobank
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -42101,7 +42101,7 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi
+    - acs_stemi_biobank
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -42120,7 +42120,7 @@ categories:
   - Z99
   name: ICD-10
 groups:
-- acs_stemi
+- acs_stemi_biobank
 - acs_nstemi
 - acs_unstable_angina
 - bleeding

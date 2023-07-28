@@ -3023,6 +3023,7 @@ categories:
     docs: Certain infectious and parasitic diseases
     exclude:
     - bleeding_al_ani
+    - acs_stemi_biobank
     index:
     - A00
     - B99
@@ -5888,6 +5889,7 @@ categories:
     docs: Neoplasms
     exclude:
     - bleeding_al_ani
+    - acs_stemi_biobank
     index:
     - C00
     - D48
@@ -6535,6 +6537,7 @@ categories:
     docs: Diseases of the blood and blood-forming organs and certain disorders involving the immune mechanism
     exclude:
     - bleeding_al_ani
+    - acs_stemi_biobank
     index:
     - D50
     - D89
@@ -7883,6 +7886,7 @@ categories:
     docs: Endocrine, nutritional and metabolic diseases
     exclude:
     - bleeding_al_ani
+    - acs_stemi_biobank
     index:
     - E00
     - E90
@@ -7924,6 +7928,7 @@ categories:
       docs: Acute rheumatic fever
       exclude:
       - bleeding_al_ani
+      - acs_stemi_biobank
       index:
       - I00
       - I02
@@ -8030,6 +8035,7 @@ categories:
       docs: Chronic rheumatic heart diseases
       exclude:
       - bleeding_al_ani
+      - acs_stemi_biobank
       index:
       - I05
       - I09
@@ -8096,6 +8102,7 @@ categories:
       docs: Hypertensive diseases
       exclude:
       - bleeding_al_ani
+      - acs_stemi_biobank
       index:
       - I10
       - I15
@@ -8115,6 +8122,8 @@ categories:
           index: I209
           name: I20.9
         docs: Angina pectoris
+        exclude:
+        - acs_stemi_biobank
         index: I20
         name: I20
       - categories:
@@ -8131,9 +8140,13 @@ categories:
           index: I213
           name: I21.3
         - docs: Acute subendocardial myocardial infarction
+          exclude:
+          - acs_stemi_biobank
           index: I214
           name: I21.4
         - docs: Acute myocardial infarction, unspecified
+          exclude:
+          - acs_stemi_biobank
           index: I219
           name: I21.9
         docs: Acute myocardial infarction
@@ -8150,6 +8163,8 @@ categories:
           index: I228
           name: I22.8
         - docs: Subsequent myocardial infarction of unspecified site
+          exclude:
+          - acs_stemi_biobank
           index: I229
           name: I22.9
         docs: Subsequent myocardial infarction
@@ -8181,6 +8196,8 @@ categories:
           index: I238
           name: I23.8
         docs: Certain current complications following acute myocardial infarction
+        exclude:
+        - acs_stemi_biobank
         index: I23
         name: I23
       - categories:
@@ -8197,6 +8214,8 @@ categories:
           index: I249
           name: I24.9
         docs: Other acute ischaemic heart diseases
+        exclude:
+        - acs_stemi_biobank
         index: I24
         name: I24
       - categories:
@@ -8228,6 +8247,8 @@ categories:
           index: I259
           name: I25.9
         docs: Chronic ischaemic heart disease
+        exclude:
+        - acs_stemi_biobank
         index: I25
         name: I25
       docs: Ischaemic heart diseases
@@ -8286,6 +8307,7 @@ categories:
       docs: Pulmonary heart disease and diseases of pulmonary circulation
       exclude:
       - bleeding_al_ani
+      - acs_stemi_biobank
       index:
       - I26
       - I28
@@ -8736,6 +8758,7 @@ categories:
       docs: Other forms of heart disease
       exclude:
       - bleeding_al_ani
+      - acs_stemi_biobank
       index:
       - I30
       - I52
@@ -8987,6 +9010,8 @@ categories:
         index: I69
         name: I69
       docs: Cerebrovascular diseases
+      exclude:
+      - acs_stemi_biobank
       index:
       - I60
       - I69
@@ -9183,6 +9208,7 @@ categories:
       docs: Diseases of arteries, arterioles and capillaries
       exclude:
       - bleeding_al_ani
+      - acs_stemi_biobank
       index:
       - I70
       - I79
@@ -9353,6 +9379,8 @@ categories:
         index: I89
         name: I89
       docs: Diseases of veins, lymphatic vessels and lymph nodes, not elsewhere classified
+      exclude:
+      - acs_stemi_biobank
       index:
       - I80
       - I89
@@ -9421,6 +9449,7 @@ categories:
       docs: Other and unspecified disorders of the circulatory system
       exclude:
       - bleeding_al_ani
+      - acs_stemi_biobank
       index:
       - I95
       - I99
@@ -10961,6 +10990,7 @@ categories:
     docs: Mental and behavioural disorders
     exclude:
     - bleeding_al_ani
+    - acs_stemi_biobank
     index:
     - F00
     - F99
@@ -12260,6 +12290,7 @@ categories:
     docs: Diseases of the nervous system
     exclude:
     - bleeding_al_ani
+    - acs_stemi_biobank
     index:
     - G00
     - G99
@@ -13300,6 +13331,7 @@ categories:
     docs: Diseases of the eye and adnexa
     exclude:
     - bleeding_al_ani
+    - acs_stemi_biobank
     index:
     - H00
     - H59
@@ -13759,6 +13791,7 @@ categories:
     docs: Diseases of the ear and mastoid process
     exclude:
     - bleeding_al_ani
+    - acs_stemi_biobank
     index:
     - H60
     - H95
@@ -14709,6 +14742,7 @@ categories:
     docs: Diseases of the respiratory system
     exclude:
     - bleeding_al_ani
+    - acs_stemi_biobank
     index:
     - J00
     - J99
@@ -16502,6 +16536,8 @@ categories:
       - K93
       name: K90-K93
     docs: Diseases of the digestive system
+    exclude:
+    - acs_stemi_biobank
     index:
     - K00
     - K93
@@ -17816,6 +17852,7 @@ categories:
     docs: Diseases of the skin and subcutaneous tissue
     exclude:
     - bleeding_al_ani
+    - acs_stemi_biobank
     index:
     - L00
     - L99
@@ -19885,6 +19922,7 @@ categories:
     docs: Diseases of the musculoskeletal system and connective tissue
     exclude:
     - bleeding_al_ani
+    - acs_stemi_biobank
     index:
     - M00
     - M99
@@ -21541,6 +21579,7 @@ categories:
     docs: Diseases of the genitourinary system
     exclude:
     - bleeding_al_ani
+    - acs_stemi_biobank
     index:
     - N00
     - N99
@@ -26243,6 +26282,7 @@ categories:
     docs: Injury, poisoning and certain other consequences of external causes
     exclude:
     - bleeding_al_ani
+    - acs_stemi_biobank
     index:
     - S00
     - T98
@@ -27869,6 +27909,7 @@ categories:
     docs: Pregnancy, childbirth and the puerperium
     exclude:
     - bleeding_al_ani
+    - acs_stemi_biobank
     index:
     - O00
     - O99
@@ -29152,6 +29193,7 @@ categories:
     docs: Certain conditions originating in the perinatal period
     exclude:
     - bleeding_al_ani
+    - acs_stemi_biobank
     index:
     - P00
     - P96
@@ -31427,6 +31469,7 @@ categories:
     docs: Congenital malformations, deformations and chromosomal abnormalities
     exclude:
     - bleeding_al_ani
+    - acs_stemi_biobank
     index:
     - Q00
     - Q99
@@ -32765,6 +32808,7 @@ categories:
     docs: Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified
     exclude:
     - bleeding_al_ani
+    - acs_stemi_biobank
     index:
     - R00
     - R99
@@ -37719,6 +37763,7 @@ categories:
     docs: External causes of morbidity and mortality
     exclude:
     - bleeding_al_ani
+    - acs_stemi_biobank
     index:
     - V01
     - Y98
@@ -39987,6 +40032,7 @@ categories:
     docs: Factors influencing health status and contact with health services
     exclude:
     - bleeding_al_ani
+    - acs_stemi_biobank
     index:
     - Z00
     - Z99
@@ -40151,6 +40197,7 @@ categories:
     docs: Codes for special purposes
     exclude:
     - bleeding_al_ani
+    - acs_stemi_biobank
     index:
     - U00
     - U85
@@ -40162,3 +40209,5 @@ categories:
   name: ICD-10
 groups:
 - bleeding_al_ani
+- acs_stemi_biobank
+- acs_nstemi_biobank

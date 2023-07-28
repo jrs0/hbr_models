@@ -374,12 +374,12 @@ mod tests {
         let mut code_store = ClinicalCodeStore::new();
 
         // Get the ACS STEMI codes in the groups defined by the file
-        let acs_stemi_codes = code_tree
-            .codes_in_group(&format!("acs_stemi"), &mut code_store)
+        let acs_stemi_biobank_codes = code_tree
+            .codes_in_group(&format!("acs_stemi_biobank"), &mut code_store)
             .expect("Should succeed, code is present");
-        assert_eq!(acs_stemi_codes.len(), 7);
+        assert_eq!(acs_stemi_biobank_codes.len(), 7);
 
-        let code_names: Vec<_> = acs_stemi_codes
+        let code_names: Vec<_> = acs_stemi_biobank_codes
             .iter()
             .map(|code_ref| {
                 let clinical_code = code_store
@@ -461,7 +461,7 @@ mod tests {
         assert_eq!(
             groups,
             set_of_strings!(
-                "acs_stemi",
+                "acs_stemi_biobank",
                 "acs_nstemi",
                 "acs_unstable_angina",
                 "bleeding",
