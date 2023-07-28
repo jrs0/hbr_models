@@ -14,8 +14,18 @@
 # bleeding and ischaemia). Does not account for time delay in codes
 # becoming available in statistical analysis.
 #
+# Run this script from the directory containing the script source in
+# this repository (or ensure the path to icd10.yaml and opcs4.yaml are
+# correct).
+#
 
 library(tidyverse)
+
+# Either load rhic using rextendr::document() (from the rhic/ directory)
+# or install rhic and use library(rhic). Pick one of the options from
+# below
+# library(rhic)
+rextendr::document(pkg = "../../rhic")
 
 con <- DBI::dbConnect(odbc::odbc(), "xsw", bigint = "character")
 id <- dbplyr::in_catalog("abi", "dbo", "vw_apc_sem_spell_001")
@@ -47,14 +57,8 @@ raw_data <- dplyr::tbl(con, id) %>%
 ####### DEFINE ICD-10 and OPCS-4 CODE GROUPS #######
 
 # List of ICD-10 codes that defines a bleeding event
-al_ani_bleeding_icd10 <- c(
-    "I60", "I61", "I62", "I85.0", "K22.1", "K22.6",
-    "K25.0", "K25.2", "K25.4", "K25.6", "K26.0", "K26.2",
-    "K26.4", "K26.6", "K27.0", "K27.2", "K27.4", "K27.6",
-    "K28.0", "K28.2", "K28.4", "K28.6", "K29.0", "K31.80",
-    "K63.80", "K92.0", "K92.1", "K92.2", "K55.2", "K51",
-    "K57", "K62.5", "K92.0", "K92.1", "K92.2"
-) %>%
+bleeding_al_ani <- get_codes_in_group("../codes_files/icd10.yaml", "bleeding_al_ani") %>%
+    pull(name) %>%
     str_replace("\\.", "") %>%
     tolower()
 
