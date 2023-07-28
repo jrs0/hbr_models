@@ -20,4 +20,4 @@ Install rustup according to your platforms method.
 npm install
  ```
 
-The command to develop is `cargo tauri dev`. The command to build the release version is `cargo tauri build`.
+The command to develop is `cargo tauri dev`. The command to build the release version is `cargo tauri build`. The resulting binary will be located in `src-tauri\target\release\map-editor.exe`
