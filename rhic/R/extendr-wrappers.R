@@ -19,10 +19,18 @@ NULL
 #' * name: the name of the code in the group (e.g. A01.0)
 #' * docs: the description of the code 
 #' 
-#' TODO: figure out a good way to hand errors.
+#' TODO: figure out a good way to handle errors.
 #' 
 #' @export
 rust_get_codes_in_group <- function(codes_file_path, group) .Call(wrap__rust_get_codes_in_group, codes_file_path, group)
+
+#' Get the code groups defined in a codes file
+#' 
+#' Returns a character vector of group names defined in
+#' the codes file. This can be used as the basis for fetching
+#' all the code groups using rust_get_codes_in_group.
+#' 
+rust_get_groups_in_codes_file <- function(codes_file_path) .Call(wrap__rust_get_groups_in_codes_file, codes_file_path)
 
 
 # nolint end

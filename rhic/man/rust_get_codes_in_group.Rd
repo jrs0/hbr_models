@@ -16,5 +16,5 @@ columns:
 }
 }
 \details{
-TODO: figure out a good way to hand errors.
+TODO: figure out a good way to handle errors.
 }

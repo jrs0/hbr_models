@@ -7,7 +7,7 @@
 ##' Get the list of valid group names defined in a codes file
 get_groups_in_codes_file <- function(codes_file_path) {
     if (!file.exists(codes_file_path)) {
-        stop("The codes_file_path '", codes_file_path, "' does not exist")
+        stop("The codes file '", codes_file_path, "' does not exist")
     }
     rust_get_groups_in_codes_file(codes_file_path)
 }

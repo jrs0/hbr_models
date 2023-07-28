@@ -62,7 +62,7 @@ fn rust_get_groups_in_codes_file(codes_file_path: &str) -> Vec<String> {
     let f = std::fs::File::open(codes_file_path).expect("Failed to open codes file");
     let code_tree = ClinicalCodeTree::from_reader(f);
     // get the code groups and return here
-    code_tree.groups().iter().collect()
+    code_tree.groups().iter().cloned().collect()
 }
 
 // Macro to generate exports.
@@ -71,4 +71,5 @@ fn rust_get_groups_in_codes_file(codes_file_path: &str) -> Vec<String> {
 extendr_module! {
     mod rhic;
     fn rust_get_codes_in_group;
+    fn rust_get_groups_in_codes_file;
 }
