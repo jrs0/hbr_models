@@ -42,7 +42,7 @@ The ARC-HBR score for the purpose of this work is described [here](arc_hbr.md).
 
 The clinically relevant bleeding definition is BARC 3 or 5, as used in the ARC HBR definition. However, this definition is not readily available in the datasets used here, because it requires expert judgement (which is often performed manually in studies). However, it is possible to find proxies for major bleeding. For example, in hospital episode statistics, ICD-10 codes have been found to approximate major bleeding events. Here, two groups of ICD-10 codes will be used as a stand-in for major bleeding, for model development purposes:
 
-* **Al-Ani Group**: 
+* **Al-Ani Group** `bleeding_al_ani`: 
     This group has the advantage that it comes with positive predicted value (PPV) of 88%[^5] for identifying major bleeding; this means that if a code arises, then there is 88% chance it corresponds to a major bleeding event. Disadvantages include the location (Canada) and the difference in coding scheme (ICD-10CM), which means the coding practices may differ enough to modify the PPV. In addition, the major bleeding definition used in the paper is not BARC 3 or 5 (although aligns quite closely with it). In addition, the high PPV is at the expense of including potentially important codes, as noted elsewhere[^6].
 
     | Description | ICD-10CM Codes |
@@ -56,7 +56,44 @@ The clinically relevant bleeding definition is BARC 3 or 5, as used in the ARC H
     This groups has been interpreted as the following set of (UK) ICD-10 codes:
     | Description | ICD-10 |
     |-------------|--------|
-    | TODO | TODO |
+    | I60 | Subarachnoid haemorrhage |
+    | I61 | Intracerebral haemorrhage |
+    | I62 | Other nontraumatic intracranial haemorrhage |
+    | I85.0 | Oesophageal varices with bleeding |
+    | K22.1 | Ulcer of oesophagus |
+    | K22.6 | Gastro-oesophageal laceration-haemorrhage syndrome |
+    | K25.0 | Gastric ulcer : acute with haemorrhage |
+    | K25.2 | Gastric ulcer : acute with both haemorrhage and perforation |
+    | K25.4 | Gastric ulcer : chronic or unspecified with haemorrhage |
+    | K25.6 | Gastric ulcer : chronic or unspecified with both haemorrhage and perforation |
+    | K26.0 | Duodenal ulcer : acute with haemorrhage |
+    | K26.2 | Duodenal ulcer : acute with both haemorrhage and perforation |
+    | K26.4 | Duodenal ulcer : chronic or unspecified with haemorrhage |
+    | K26.6 | Duodenal ulcer : chronic or unspecified with both haemorrhage and perforation |
+    | K27.0 | Peptic ulcer, site unspecified : acute with haemorrhage |
+    | K27.2 | Peptic ulcer, site unspecified : acute with both haemorrhage and perforation |
+    | K27.4 | Peptic ulcer, site unspecified : chronic or unspecified with haemorrhage |
+    | K27.6 | Peptic ulcer, site unspecified : chronic or unspecified with both haemorrhage and perforation |
+    | K28.0 | Gastrojejunal ulcer : acute with haemorrhage |
+    | K28.2 | Gastrojejunal ulcer : acute with both haemorrhage and perforation |
+    | K28.4 | Gastrojejunal ulcer : chronic or unspecified with haemorrhage |
+    | K28.6 | Gastrojejunal ulcer : chronic or unspecified with both haemorrhage and perforation |
+    | K29.0 | Acute haemorrhagic gastritis |
+    | K92.0 | Haematemesis |
+    | K92.1 | Melaena |
+    | K92.2 | Gastrointestinal haemorrhage, unspecified |
+    | K55.2 | Angiodysplasia of colon |
+    | K51 | Ulcerative colitis |
+    | K57 | Diverticular disease of intestine |
+    | K62.5 | Haemorrhage of anus and rectum |
+    | 
+
+    Inclusion/exclusion notes (to check):
+    * The codes K31.80, K63.80,  were excluded because its description in ICD-10 did not appear to correspond exclusively to a definite bleeding event, and may reduce positive predictive value of the codes.
+    * Keeping ulcerative colitis (K51), even though it is not directly a bleeding condition, as it was presumably determined to often occur with bleeding
+    * Keeping diverticular disease of intestine (K57), even though it is not directly a bleeding condition, as it was presumably determined to often occur with bleeding
+    * Note: K92.0, K92.1 and K92.2 occurred twice in the original list (applicable to both lower and upper gastrointestinal bleeding). Included only once in the derived list.
+
 * **CADTH Group**
     This set of codes was used to calculate costs associated with major bleeding in connection with estimating costs resulting from DAPT duration. The group is as follows:
     | Descriptions | ICD-10 |

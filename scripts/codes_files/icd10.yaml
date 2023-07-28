@@ -3021,6 +3021,8 @@ categories:
       - B99
       name: B99-B99
     docs: Certain infectious and parasitic diseases
+    exclude:
+    - bleeding_al_ani
     index:
     - A00
     - B99
@@ -5884,6 +5886,8 @@ categories:
       - D48
       name: D37-D48
     docs: Neoplasms
+    exclude:
+    - bleeding_al_ani
     index:
     - C00
     - D48
@@ -6529,6 +6533,8 @@ categories:
       - D89
       name: D80-D89
     docs: Diseases of the blood and blood-forming organs and certain disorders involving the immune mechanism
+    exclude:
+    - bleeding_al_ani
     index:
     - D50
     - D89
@@ -7875,6 +7881,8 @@ categories:
       - E90
       name: E70-E90
     docs: Endocrine, nutritional and metabolic diseases
+    exclude:
+    - bleeding_al_ani
     index:
     - E00
     - E90
@@ -7914,6 +7922,8 @@ categories:
         index: I02
         name: I02
       docs: Acute rheumatic fever
+      exclude:
+      - bleeding_al_ani
       index:
       - I00
       - I02
@@ -8018,6 +8028,8 @@ categories:
         index: I09
         name: I09
       docs: Chronic rheumatic heart diseases
+      exclude:
+      - bleeding_al_ani
       index:
       - I05
       - I09
@@ -8082,6 +8094,8 @@ categories:
         index: I15
         name: I15
       docs: Hypertensive diseases
+      exclude:
+      - bleeding_al_ani
       index:
       - I10
       - I15
@@ -8217,6 +8231,8 @@ categories:
         index: I25
         name: I25
       docs: Ischaemic heart diseases
+      exclude:
+      - bleeding_al_ani
       index:
       - I20
       - I25
@@ -8268,6 +8284,8 @@ categories:
         index: I28
         name: I28
       docs: Pulmonary heart disease and diseases of pulmonary circulation
+      exclude:
+      - bleeding_al_ani
       index:
       - I26
       - I28
@@ -8716,6 +8734,8 @@ categories:
         index: I52
         name: I52
       docs: Other forms of heart disease
+      exclude:
+      - bleeding_al_ani
       index:
       - I30
       - I52
@@ -8828,9 +8848,13 @@ categories:
           index: I639
           name: I63.9
         docs: Cerebral infarction
+        exclude:
+        - bleeding_al_ani
         index: I63
         name: I63
       - docs: Stroke, not specified as haemorrhage or infarction
+        exclude:
+        - bleeding_al_ani
         index: I64
         name: I64
       - categories:
@@ -8853,6 +8877,8 @@ categories:
           index: I659
           name: I65.9
         docs: Occlusion and stenosis of precerebral arteries, not resulting in cerebral infarction
+        exclude:
+        - bleeding_al_ani
         index: I65
         name: I65
       - categories:
@@ -8878,6 +8904,8 @@ categories:
           index: I669
           name: I66.9
         docs: Occlusion and stenosis of cerebral arteries, not resulting in cerebral infarction
+        exclude:
+        - bleeding_al_ani
         index: I66
         name: I66
       - categories:
@@ -8912,6 +8940,8 @@ categories:
           index: I679
           name: I67.9
         docs: Other cerebrovascular diseases
+        exclude:
+        - bleeding_al_ani
         index: I67
         name: I67
       - categories:
@@ -8928,6 +8958,8 @@ categories:
           index: I688
           name: I68.8
         docs: Cerebrovascular disorders in diseases classified elsewhere
+        exclude:
+        - bleeding_al_ani
         index: I68
         name: I68
       - categories:
@@ -8950,6 +8982,8 @@ categories:
           index: I698
           name: I69.8
         docs: Sequelae of cerebrovascular disease
+        exclude:
+        - bleeding_al_ani
         index: I69
         name: I69
       docs: Cerebrovascular diseases
@@ -9147,6 +9181,8 @@ categories:
         index: I79
         name: I79
       docs: Diseases of arteries, arterioles and capillaries
+      exclude:
+      - bleeding_al_ani
       index:
       - I70
       - I79
@@ -9172,9 +9208,13 @@ categories:
           index: I809
           name: I80.9
         docs: Phlebitis and thrombophlebitis
+        exclude:
+        - bleeding_al_ani
         index: I80
         name: I80
       - docs: Portal vein thrombosis
+        exclude:
+        - bleeding_al_ani
         index: I81
         name: I81
       - categories:
@@ -9197,6 +9237,8 @@ categories:
           index: I829
           name: I82.9
         docs: Other venous embolism and thrombosis
+        exclude:
+        - bleeding_al_ani
         index: I82
         name: I82
       - categories:
@@ -9213,6 +9255,8 @@ categories:
           index: I839
           name: I83.9
         docs: Varicose veins of lower extremities
+        exclude:
+        - bleeding_al_ani
         index: I83
         name: I83
       - categories:
@@ -9220,6 +9264,8 @@ categories:
           index: I850
           name: I85.0
         - docs: Oesophageal varices without bleeding
+          exclude:
+          - bleeding_al_ani
           index: I859
           name: I85.9
         docs: Oesophageal varices
@@ -9245,6 +9291,8 @@ categories:
           index: I868
           name: I86.8
         docs: Varicose veins of other sites
+        exclude:
+        - bleeding_al_ani
         index: I86
         name: I86
       - categories:
@@ -9264,6 +9312,8 @@ categories:
           index: I879
           name: I87.9
         docs: Other disorders of veins
+        exclude:
+        - bleeding_al_ani
         index: I87
         name: I87
       - categories:
@@ -9280,6 +9330,8 @@ categories:
           index: I889
           name: I88.9
         docs: Nonspecific lymphadenitis
+        exclude:
+        - bleeding_al_ani
         index: I88
         name: I88
       - categories:
@@ -9296,6 +9348,8 @@ categories:
           index: I899
           name: I89.9
         docs: Other noninfective disorders of lymphatic vessels and lymph nodes
+        exclude:
+        - bleeding_al_ani
         index: I89
         name: I89
       docs: Diseases of veins, lymphatic vessels and lymph nodes, not elsewhere classified
@@ -9365,6 +9419,8 @@ categories:
         index: I99
         name: I99
       docs: Other and unspecified disorders of the circulatory system
+      exclude:
+      - bleeding_al_ani
       index:
       - I95
       - I99
@@ -10903,6 +10959,8 @@ categories:
       - F99
       name: F99-F99
     docs: Mental and behavioural disorders
+    exclude:
+    - bleeding_al_ani
     index:
     - F00
     - F99
@@ -12200,6 +12258,8 @@ categories:
       - G99
       name: G90-G99
     docs: Diseases of the nervous system
+    exclude:
+    - bleeding_al_ani
     index:
     - G00
     - G99
@@ -13238,6 +13298,8 @@ categories:
       - H59
       name: H55-H59
     docs: Diseases of the eye and adnexa
+    exclude:
+    - bleeding_al_ani
     index:
     - H00
     - H59
@@ -13695,6 +13757,8 @@ categories:
       - H95
       name: H90-H95
     docs: Diseases of the ear and mastoid process
+    exclude:
+    - bleeding_al_ani
     index:
     - H60
     - H95
@@ -14643,6 +14707,8 @@ categories:
       - J99
       name: J95-J99
     docs: Diseases of the respiratory system
+    exclude:
+    - bleeding_al_ani
     index:
     - J00
     - J99
@@ -15037,12 +15103,16 @@ categories:
         index: K14
         name: K14
       docs: Diseases of oral cavity, salivary glands and jaws
+      exclude:
+      - bleeding_al_ani
       index:
       - K00
       - K14
       name: K00-K14
     - categories:
       - docs: Oesophagitis
+        exclude:
+        - bleeding_al_ani
         index: K20
         name: K20
       - categories:
@@ -15053,37 +15123,55 @@ categories:
           index: K219
           name: K21.9
         docs: Gastro-oesophageal reflux disease
+        exclude:
+        - bleeding_al_ani
         index: K21
         name: K21
       - categories:
         - docs: Achalasia of cardia
+          exclude:
+          - bleeding_al_ani
           index: K220
           name: K22.0
         - docs: Ulcer of oesophagus
           index: K221
           name: K22.1
         - docs: Oesophageal obstruction
+          exclude:
+          - bleeding_al_ani
           index: K222
           name: K22.2
         - docs: Perforation of oesophagus
+          exclude:
+          - bleeding_al_ani
           index: K223
           name: K22.3
         - docs: Dyskinesia of oesophagus
+          exclude:
+          - bleeding_al_ani
           index: K224
           name: K22.4
         - docs: Diverticulum of oesophagus, acquired
+          exclude:
+          - bleeding_al_ani
           index: K225
           name: K22.5
         - docs: Gastro-oesophageal laceration-haemorrhage syndrome
           index: K226
           name: K22.6
         - docs: Barrett oesophagus
+          exclude:
+          - bleeding_al_ani
           index: K227
           name: K22.7
         - docs: Other specified diseases of oesophagus
+          exclude:
+          - bleeding_al_ani
           index: K228
           name: K22.8
         - docs: Disease of oesophagus, unspecified
+          exclude:
+          - bleeding_al_ani
           index: K229
           name: K22.9
         docs: Other diseases of oesophagus
@@ -15100,6 +15188,8 @@ categories:
           index: K238
           name: K23.8
         docs: Disorders of oesophagus in diseases classified elsewhere
+        exclude:
+        - bleeding_al_ani
         index: K23
         name: K23
       - categories:
@@ -15107,27 +15197,37 @@ categories:
           index: K250
           name: K25.0
         - docs: 'Gastric ulcer : acute with perforation'
+          exclude:
+          - bleeding_al_ani
           index: K251
           name: K25.1
         - docs: 'Gastric ulcer : acute with both haemorrhage and perforation'
           index: K252
           name: K25.2
         - docs: 'Gastric ulcer : acute without haemorrhage or perforation'
+          exclude:
+          - bleeding_al_ani
           index: K253
           name: K25.3
         - docs: 'Gastric ulcer : chronic or unspecified with haemorrhage'
           index: K254
           name: K25.4
         - docs: 'Gastric ulcer : chronic or unspecified with perforation'
+          exclude:
+          - bleeding_al_ani
           index: K255
           name: K25.5
         - docs: 'Gastric ulcer : chronic or unspecified with both haemorrhage and perforation'
           index: K256
           name: K25.6
         - docs: 'Gastric ulcer : chronic without haemorrhage or perforation'
+          exclude:
+          - bleeding_al_ani
           index: K257
           name: K25.7
         - docs: 'Gastric ulcer : unspecified as acute or chronic, without haemorrhage or perforation'
+          exclude:
+          - bleeding_al_ani
           index: K259
           name: K25.9
         docs: Gastric ulcer
@@ -15138,27 +15238,37 @@ categories:
           index: K260
           name: K26.0
         - docs: 'Duodenal ulcer : acute with perforation'
+          exclude:
+          - bleeding_al_ani
           index: K261
           name: K26.1
         - docs: 'Duodenal ulcer : acute with both haemorrhage and perforation'
           index: K262
           name: K26.2
         - docs: 'Duodenal ulcer : acute without haemorrhage or perforation'
+          exclude:
+          - bleeding_al_ani
           index: K263
           name: K26.3
         - docs: 'Duodenal ulcer : chronic or unspecified with haemorrhage'
           index: K264
           name: K26.4
         - docs: 'Duodenal ulcer : chronic or unspecified with perforation'
+          exclude:
+          - bleeding_al_ani
           index: K265
           name: K26.5
         - docs: 'Duodenal ulcer : chronic or unspecified with both haemorrhage and perforation'
           index: K266
           name: K26.6
         - docs: 'Duodenal ulcer : chronic without haemorrhage or perforation'
+          exclude:
+          - bleeding_al_ani
           index: K267
           name: K26.7
         - docs: 'Duodenal ulcer : unspecified as acute or chronic, without haemorrhage or perforation'
+          exclude:
+          - bleeding_al_ani
           index: K269
           name: K26.9
         docs: Duodenal ulcer
@@ -15169,27 +15279,37 @@ categories:
           index: K270
           name: K27.0
         - docs: 'Peptic ulcer, site unspecified : acute with perforation'
+          exclude:
+          - bleeding_al_ani
           index: K271
           name: K27.1
         - docs: 'Peptic ulcer, site unspecified : acute with both haemorrhage and perforation'
           index: K272
           name: K27.2
         - docs: 'Peptic ulcer, site unspecified : acute without haemorrhage or perforation'
+          exclude:
+          - bleeding_al_ani
           index: K273
           name: K27.3
         - docs: 'Peptic ulcer, site unspecified : chronic or unspecified with haemorrhage'
           index: K274
           name: K27.4
         - docs: 'Peptic ulcer, site unspecified : chronic or unspecified with perforation'
+          exclude:
+          - bleeding_al_ani
           index: K275
           name: K27.5
         - docs: 'Peptic ulcer, site unspecified : chronic or unspecified with both haemorrhage and perforation'
           index: K276
           name: K27.6
         - docs: 'Peptic ulcer, site unspecified : chronic without haemorrhage or perforation'
+          exclude:
+          - bleeding_al_ani
           index: K277
           name: K27.7
         - docs: 'Peptic ulcer, site unspecified : unspecified as acute or chronic, without haemorrhage or perforation'
+          exclude:
+          - bleeding_al_ani
           index: K279
           name: K27.9
         docs: Peptic ulcer, site unspecified
@@ -15200,27 +15320,37 @@ categories:
           index: K280
           name: K28.0
         - docs: 'Gastrojejunal ulcer : acute with perforation'
+          exclude:
+          - bleeding_al_ani
           index: K281
           name: K28.1
         - docs: 'Gastrojejunal ulcer : acute with both haemorrhage and perforation'
           index: K282
           name: K28.2
         - docs: 'Gastrojejunal ulcer : acute without haemorrhage or perforation'
+          exclude:
+          - bleeding_al_ani
           index: K283
           name: K28.3
         - docs: 'Gastrojejunal ulcer : chronic or unspecified with haemorrhage'
           index: K284
           name: K28.4
         - docs: 'Gastrojejunal ulcer : chronic or unspecified with perforation'
+          exclude:
+          - bleeding_al_ani
           index: K285
           name: K28.5
         - docs: 'Gastrojejunal ulcer : chronic or unspecified with both haemorrhage and perforation'
           index: K286
           name: K28.6
         - docs: 'Gastrojejunal ulcer : chronic without haemorrhage or perforation'
+          exclude:
+          - bleeding_al_ani
           index: K287
           name: K28.7
         - docs: 'Gastrojejunal ulcer : unspecified as acute or chronic, without haemorrhage or perforation'
+          exclude:
+          - bleeding_al_ani
           index: K289
           name: K28.9
         docs: Gastrojejunal ulcer
@@ -15231,36 +15361,56 @@ categories:
           index: K290
           name: K29.0
         - docs: Other acute gastritis
+          exclude:
+          - bleeding_al_ani
           index: K291
           name: K29.1
         - docs: Alcoholic gastritis
+          exclude:
+          - bleeding_al_ani
           index: K292
           name: K29.2
         - docs: Chronic superficial gastritis
+          exclude:
+          - bleeding_al_ani
           index: K293
           name: K29.3
         - docs: Chronic atrophic gastritis
+          exclude:
+          - bleeding_al_ani
           index: K294
           name: K29.4
         - docs: Chronic gastritis, unspecified
+          exclude:
+          - bleeding_al_ani
           index: K295
           name: K29.5
         - docs: Other gastritis
+          exclude:
+          - bleeding_al_ani
           index: K296
           name: K29.6
         - docs: Gastritis, unspecified
+          exclude:
+          - bleeding_al_ani
           index: K297
           name: K29.7
         - docs: Duodenitis
+          exclude:
+          - bleeding_al_ani
           index: K298
           name: K29.8
         - docs: Gastroduodenitis, unspecified
+          exclude:
+          - bleeding_al_ani
           index: K299
           name: K29.9
         docs: Gastritis and duodenitis
         index: K29
         name: K29
       - docs: Functional dyspepsia
+        exclude:
+        - bleeding_al_ani
         index: K30
         name: K30
       - categories:
@@ -15295,6 +15445,8 @@ categories:
           index: K319
           name: K31.9
         docs: Other diseases of stomach and duodenum
+        exclude:
+        - bleeding_al_ani
         index: K31
         name: K31
       docs: Diseases of oesophagus, stomach and duodenum
@@ -15345,6 +15497,8 @@ categories:
         index: K38
         name: K38
       docs: Diseases of appendix
+      exclude:
+      - bleeding_al_ani
       index:
       - K35
       - K38
@@ -15478,6 +15632,8 @@ categories:
         index: K46
         name: K46
       docs: Hernia
+      exclude:
+      - bleeding_al_ani
       index:
       - K40
       - K46
@@ -15497,6 +15653,8 @@ categories:
           index: K509
           name: K50.9
         docs: Crohn disease [regional enteritis]
+        exclude:
+        - bleeding_al_ani
         index: K50
         name: K50
       - categories:
@@ -15544,6 +15702,8 @@ categories:
           index: K529
           name: K52.9
         docs: Other noninfective gastroenteritis and colitis
+        exclude:
+        - bleeding_al_ani
         index: K52
         name: K52
       docs: Noninfective enteritis and colitis
@@ -15554,18 +15714,26 @@ categories:
     - categories:
       - categories:
         - docs: Acute vascular disorders of intestine
+          exclude:
+          - bleeding_al_ani
           index: K550
           name: K55.0
         - docs: Chronic vascular disorders of intestine
+          exclude:
+          - bleeding_al_ani
           index: K551
           name: K55.1
         - docs: Angiodysplasia of colon
           index: K552
           name: K55.2
         - docs: Other vascular disorders of intestine
+          exclude:
+          - bleeding_al_ani
           index: K558
           name: K55.8
         - docs: Vascular disorder of intestine, unspecified
+          exclude:
+          - bleeding_al_ani
           index: K559
           name: K55.9
         docs: Vascular disorders of intestine
@@ -15597,6 +15765,8 @@ categories:
           index: K567
           name: K56.7
         docs: Paralytic ileus and intestinal obstruction without hernia
+        exclude:
+        - bleeding_al_ani
         index: K56
         name: K56
       - categories:
@@ -15635,6 +15805,8 @@ categories:
           index: K589
           name: K58.9
         docs: Irritable bowel syndrome
+        exclude:
+        - bleeding_al_ani
         index: K58
         name: K58
       - categories:
@@ -15660,6 +15832,8 @@ categories:
           index: K599
           name: K59.9
         docs: Other functional intestinal disorders
+        exclude:
+        - bleeding_al_ani
         index: K59
         name: K59
       - categories:
@@ -15682,6 +15856,8 @@ categories:
           index: K605
           name: K60.5
         docs: Fissure and fistula of anal and rectal regions
+        exclude:
+        - bleeding_al_ani
         index: K60
         name: K60
       - categories:
@@ -15701,37 +15877,57 @@ categories:
           index: K614
           name: K61.4
         docs: Abscess of anal and rectal regions
+        exclude:
+        - bleeding_al_ani
         index: K61
         name: K61
       - categories:
         - docs: Anal polyp
+          exclude:
+          - bleeding_al_ani
           index: K620
           name: K62.0
         - docs: Rectal polyp
+          exclude:
+          - bleeding_al_ani
           index: K621
           name: K62.1
         - docs: Anal prolapse
+          exclude:
+          - bleeding_al_ani
           index: K622
           name: K62.2
         - docs: Rectal prolapse
+          exclude:
+          - bleeding_al_ani
           index: K623
           name: K62.3
         - docs: Stenosis of anus and rectum
+          exclude:
+          - bleeding_al_ani
           index: K624
           name: K62.4
         - docs: Haemorrhage of anus and rectum
           index: K625
           name: K62.5
         - docs: Ulcer of anus and rectum
+          exclude:
+          - bleeding_al_ani
           index: K626
           name: K62.6
         - docs: Radiation proctitis
+          exclude:
+          - bleeding_al_ani
           index: K627
           name: K62.7
         - docs: Other specified diseases of anus and rectum
+          exclude:
+          - bleeding_al_ani
           index: K628
           name: K62.8
         - docs: Disease of anus and rectum, unspecified
+          exclude:
+          - bleeding_al_ani
           index: K629
           name: K62.9
         docs: Other diseases of anus and rectum
@@ -15763,6 +15959,8 @@ categories:
           index: K639
           name: K63.9
         docs: Other diseases of intestine
+        exclude:
+        - bleeding_al_ani
         index: K63
         name: K63
       - categories:
@@ -15791,6 +15989,8 @@ categories:
           index: K649
           name: K64.9
         docs: Haemorrhoids and perianal venous thrombosis
+        exclude:
+        - bleeding_al_ani
         index: K64
         name: K64
       docs: Other diseases of intestines
@@ -15848,6 +16048,8 @@ categories:
         index: K67
         name: K67
       docs: Diseases of peritoneum
+      exclude:
+      - bleeding_al_ani
       index:
       - K65
       - K67
@@ -16036,6 +16238,8 @@ categories:
         index: K77
         name: K77
       docs: Diseases of liver
+      exclude:
+      - bleeding_al_ani
       index:
       - K70
       - K77
@@ -16190,6 +16394,8 @@ categories:
         index: K87
         name: K87
       docs: Disorders of gallbladder, biliary tract and pancreas
+      exclude:
+      - bleeding_al_ani
       index:
       - K80
       - K87
@@ -16218,6 +16424,8 @@ categories:
           index: K909
           name: K90.9
         docs: Intestinal malabsorption
+        exclude:
+        - bleeding_al_ani
         index: K90
         name: K90
       - categories:
@@ -16246,6 +16454,8 @@ categories:
           index: K919
           name: K91.9
         docs: Postprocedural disorders of digestive system, not elsewhere classified
+        exclude:
+        - bleeding_al_ani
         index: K91
         name: K91
       - categories:
@@ -16259,9 +16469,13 @@ categories:
           index: K922
           name: K92.2
         - docs: Other specified diseases of digestive system
+          exclude:
+          - bleeding_al_ani
           index: K928
           name: K92.8
         - docs: Disease of digestive system, unspecified
+          exclude:
+          - bleeding_al_ani
           index: K929
           name: K92.9
         docs: Other diseases of digestive system
@@ -16278,6 +16492,8 @@ categories:
           index: K938
           name: K93.8
         docs: Disorders of other digestive organs in diseases classified elsewhere
+        exclude:
+        - bleeding_al_ani
         index: K93
         name: K93
       docs: Other diseases of the digestive system
@@ -17598,6 +17814,8 @@ categories:
       - L99
       name: L80-L99
     docs: Diseases of the skin and subcutaneous tissue
+    exclude:
+    - bleeding_al_ani
     index:
     - L00
     - L99
@@ -19665,6 +19883,8 @@ categories:
       - M99
       name: M95-M99
     docs: Diseases of the musculoskeletal system and connective tissue
+    exclude:
+    - bleeding_al_ani
     index:
     - M00
     - M99
@@ -21319,6 +21539,8 @@ categories:
       - N99
       name: N99-N99
     docs: Diseases of the genitourinary system
+    exclude:
+    - bleeding_al_ani
     index:
     - N00
     - N99
@@ -26019,6 +26241,8 @@ categories:
       - T98
       name: T90-T98
     docs: Injury, poisoning and certain other consequences of external causes
+    exclude:
+    - bleeding_al_ani
     index:
     - S00
     - T98
@@ -27643,6 +27867,8 @@ categories:
       - O99
       name: O94-O99
     docs: Pregnancy, childbirth and the puerperium
+    exclude:
+    - bleeding_al_ani
     index:
     - O00
     - O99
@@ -28924,6 +29150,8 @@ categories:
       - P96
       name: P90-P96
     docs: Certain conditions originating in the perinatal period
+    exclude:
+    - bleeding_al_ani
     index:
     - P00
     - P96
@@ -31197,6 +31425,8 @@ categories:
       - Q99
       name: Q90-Q99
     docs: Congenital malformations, deformations and chromosomal abnormalities
+    exclude:
+    - bleeding_al_ani
     index:
     - Q00
     - Q99
@@ -32533,6 +32763,8 @@ categories:
       - R99
       name: R95-R99
     docs: Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified
+    exclude:
+    - bleeding_al_ani
     index:
     - R00
     - R99
@@ -37485,6 +37717,8 @@ categories:
       - Y98
       name: Y90-Y98
     docs: External causes of morbidity and mortality
+    exclude:
+    - bleeding_al_ani
     index:
     - V01
     - Y98
@@ -39751,6 +39985,8 @@ categories:
       - Z99
       name: Z80-Z99
     docs: Factors influencing health status and contact with health services
+    exclude:
+    - bleeding_al_ani
     index:
     - Z00
     - Z99
@@ -39913,6 +40149,8 @@ categories:
       - U85
       name: U82-U85
     docs: Codes for special purposes
+    exclude:
+    - bleeding_al_ani
     index:
     - U00
     - U85
@@ -39922,4 +40160,5 @@ categories:
   - A00
   - Z99
   name: ICD-10
-groups: []
+groups:
+- bleeding_al_ani
