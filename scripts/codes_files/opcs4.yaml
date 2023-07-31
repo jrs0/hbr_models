@@ -1802,6 +1802,8 @@ categories:
       - A849
       name: A84
     docs: Nervous System
+    exclude:
+    - pci
     index:
     - A01
     - A84
@@ -2627,6 +2629,8 @@ categories:
       - B459
       name: B45
     docs: Endocrine System and Breast
+    exclude:
+    - pci
     index:
     - B01
     - B45
@@ -4568,6 +4572,8 @@ categories:
       - C919
       name: C91
     docs: Eye
+    exclude:
+    - pci
     index:
     - C01
     - C91
@@ -5099,6 +5105,8 @@ categories:
       - D289
       name: D28
     docs: Ear
+    exclude:
+    - pci
     index:
     - D01
     - D28
@@ -6782,6 +6790,8 @@ categories:
       - E989
       name: E98
     docs: Respiratory Tract
+    exclude:
+    - pci
     index:
     - E01
     - E98
@@ -8015,6 +8025,8 @@ categories:
       - F679
       name: F67
     docs: Mouth
+    exclude:
+    - pci
     index:
     - F01
     - F67
@@ -9842,6 +9854,8 @@ categories:
       - G829
       name: G82
     docs: Upper Digestive System
+    exclude:
+    - pci
     index:
     - G01
     - G82
@@ -11414,6 +11428,8 @@ categories:
       - H739
       name: H73
     docs: Lower Digestive System
+    exclude:
+    - pci
     index:
     - H01
     - H73
@@ -13046,6 +13062,8 @@ categories:
       - J779
       name: J77
     docs: Other Abdominal Organs, Principally Digestive
+    exclude:
+    - pci
     index:
     - J01
     - J77
@@ -13065,6 +13083,8 @@ categories:
         index: K019
         name: K01.9
       docs: Transplantation of heart and lung
+      exclude:
+      - pci
       index:
       - K011
       - K019
@@ -13095,6 +13115,8 @@ categories:
         index: K029
         name: K02.9
       docs: Other transplantation of heart
+      exclude:
+      - pci
       index:
       - K021
       - K029
@@ -13125,6 +13147,8 @@ categories:
         index: K049
         name: K04.9
       docs: Repair of tetralogy of Fallot
+      exclude:
+      - pci
       index:
       - K041
       - K049
@@ -13143,6 +13167,8 @@ categories:
         index: K059
         name: K05.9
       docs: Atrial inversion operations for transposition of great arteries
+      exclude:
+      - pci
       index:
       - K051
       - K059
@@ -13167,6 +13193,8 @@ categories:
         index: K069
         name: K06.9
       docs: Other repair of transposition of great arteries
+      exclude:
+      - pci
       index:
       - K061
       - K069
@@ -13188,6 +13216,8 @@ categories:
         index: K079
         name: K07.9
       docs: Correction of total anomalous pulmonary venous connection
+      exclude:
+      - pci
       index:
       - K071
       - K079
@@ -13212,6 +13242,8 @@ categories:
         index: K089
         name: K08.9
       docs: Repair of double outlet ventricle
+      exclude:
+      - pci
       index:
       - K081
       - K089
@@ -13242,6 +13274,8 @@ categories:
         index: K099
         name: K09.9
       docs: Repair of defect of atrioventricular septum
+      exclude:
+      - pci
       index:
       - K091
       - K099
@@ -13269,6 +13303,8 @@ categories:
         index: K109
         name: K10.9
       docs: Repair of defect of interatrial septum
+      exclude:
+      - pci
       index:
       - K101
       - K109
@@ -13302,6 +13338,8 @@ categories:
         index: K119
         name: K11.9
       docs: Repair of defect of interventricular septum
+      exclude:
+      - pci
       index:
       - K111
       - K119
@@ -13329,6 +13367,8 @@ categories:
         index: K129
         name: K12.9
       docs: Repair of defect of unspecified septum of heart
+      exclude:
+      - pci
       index:
       - K121
       - K129
@@ -13356,6 +13396,8 @@ categories:
         index: K139
         name: K13.9
       docs: Transluminal repair of defect of septum
+      exclude:
+      - pci
       index:
       - K131
       - K139
@@ -13383,6 +13425,8 @@ categories:
         index: K149
         name: K14.9
       docs: Other open operations on septum of heart
+      exclude:
+      - pci
       index:
       - K141
       - K149
@@ -13401,6 +13445,8 @@ categories:
         index: K159
         name: K15.9
       docs: Closed operations on septum of heart
+      exclude:
+      - pci
       index:
       - K151
       - K159
@@ -13431,6 +13477,8 @@ categories:
         index: K169
         name: K16.9
       docs: Other therapeutic transluminal operations on septum of heart
+      exclude:
+      - pci
       index:
       - K161
       - K169
@@ -13464,6 +13512,8 @@ categories:
         index: K179
         name: K17.9
       docs: Repair of univentricular heart
+      exclude:
+      - pci
       index:
       - K171
       - K179
@@ -13497,6 +13547,8 @@ categories:
         index: K189
         name: K18.9
       docs: Creation of valved cardiac conduit
+      exclude:
+      - pci
       index:
       - K181
       - K189
@@ -13527,6 +13579,8 @@ categories:
         index: K199
         name: K19.9
       docs: Creation of other cardiac conduit
+      exclude:
+      - pci
       index:
       - K191
       - K199
@@ -13551,6 +13605,8 @@ categories:
         index: K209
         name: K20.9
       docs: Refashioning of atrium
+      exclude:
+      - pci
       index:
       - K201
       - K209
@@ -13572,6 +13628,8 @@ categories:
         index: K229
         name: K22.9
       docs: Other operations on wall of atrium
+      exclude:
+      - pci
       index:
       - K221
       - K229
@@ -13602,6 +13660,8 @@ categories:
         index: K239
         name: K23.9
       docs: Other operations of wall of heart
+      exclude:
+      - pci
       index:
       - K231
       - K239
@@ -13635,6 +13695,8 @@ categories:
         index: K249
         name: K24.9
       docs: Other operations on ventricles of heart
+      exclude:
+      - pci
       index:
       - K241
       - K249
@@ -13662,6 +13724,8 @@ categories:
         index: K259
         name: K25.9
       docs: Plastic repair of mitral valve
+      exclude:
+      - pci
       index:
       - K251
       - K259
@@ -13689,6 +13753,8 @@ categories:
         index: K269
         name: K26.9
       docs: Plastic repair of aortic valve
+      exclude:
+      - pci
       index:
       - K261
       - K269
@@ -13719,6 +13785,8 @@ categories:
         index: K279
         name: K27.9
       docs: Plastic repair of tricuspid valve
+      exclude:
+      - pci
       index:
       - K271
       - K279
@@ -13746,6 +13814,8 @@ categories:
         index: K289
         name: K28.9
       docs: Plastic repair of pulmonary valve
+      exclude:
+      - pci
       index:
       - K281
       - K289
@@ -13779,6 +13849,8 @@ categories:
         index: K299
         name: K29.9
       docs: Plastic repair of unspecified valve of heart
+      exclude:
+      - pci
       index:
       - K291
       - K299
@@ -13806,6 +13878,8 @@ categories:
         index: K309
         name: K30.9
       docs: Revision of plastic repair of valve of heart
+      exclude:
+      - pci
       index:
       - K301
       - K309
@@ -13833,6 +13907,8 @@ categories:
         index: K319
         name: K31.9
       docs: Open incision of valve of heart
+      exclude:
+      - pci
       index:
       - K311
       - K319
@@ -13857,6 +13933,8 @@ categories:
         index: K329
         name: K32.9
       docs: Closed incision of valve of heart
+      exclude:
+      - pci
       index:
       - K321
       - K329
@@ -13887,6 +13965,8 @@ categories:
         index: K339
         name: K33.9
       docs: Operations on aortic root
+      exclude:
+      - pci
       index:
       - K331
       - K339
@@ -13917,6 +13997,8 @@ categories:
         index: K349
         name: K34.9
       docs: Other open operations on valve of heart
+      exclude:
+      - pci
       index:
       - K341
       - K349
@@ -13950,6 +14032,8 @@ categories:
         index: K359
         name: K35.9
       docs: Therapeutic transluminal operations on valve of heart
+      exclude:
+      - pci
       index:
       - K351
       - K359
@@ -13968,6 +14052,8 @@ categories:
         index: K369
         name: K36.9
       docs: Excision of valve of heart
+      exclude:
+      - pci
       index:
       - K361
       - K369
@@ -13998,6 +14084,8 @@ categories:
         index: K379
         name: K37.9
       docs: Removal of obstruction from structure adjacent to valve of heart
+      exclude:
+      - pci
       index:
       - K371
       - K379
@@ -14028,6 +14116,8 @@ categories:
         index: K389
         name: K38.9
       docs: Other operations on structure adjacent to valve of heart
+      exclude:
+      - pci
       index:
       - K381
       - K389
@@ -14052,6 +14142,8 @@ categories:
         index: K409
         name: K40.9
       docs: Saphenous vein graft replacement of coronary artery
+      exclude:
+      - pci
       index:
       - K401
       - K409
@@ -14076,6 +14168,8 @@ categories:
         index: K419
         name: K41.9
       docs: Other autograft replacement of coronary artery
+      exclude:
+      - pci
       index:
       - K411
       - K419
@@ -14100,6 +14194,8 @@ categories:
         index: K429
         name: K42.9
       docs: Allograft replacement of coronary artery
+      exclude:
+      - pci
       index:
       - K421
       - K429
@@ -14124,6 +14220,8 @@ categories:
         index: K439
         name: K43.9
       docs: Prosthetic replacement of coronary artery
+      exclude:
+      - pci
       index:
       - K431
       - K439
@@ -14142,6 +14240,8 @@ categories:
         index: K449
         name: K44.9
       docs: Other replacement of coronary artery
+      exclude:
+      - pci
       index:
       - K441
       - K449
@@ -14172,6 +14272,8 @@ categories:
         index: K459
         name: K45.9
       docs: Connection of thoracic artery to coronary artery
+      exclude:
+      - pci
       index:
       - K451
       - K459
@@ -14199,6 +14301,8 @@ categories:
         index: K469
         name: K46.9
       docs: Other bypass of coronary artery
+      exclude:
+      - pci
       index:
       - K461
       - K469
@@ -14226,6 +14330,8 @@ categories:
         index: K479
         name: K47.9
       docs: Repair of coronary artery
+      exclude:
+      - pci
       index:
       - K471
       - K479
@@ -14250,6 +14356,8 @@ categories:
         index: K489
         name: K48.9
       docs: Other open operations on coronary artery
+      exclude:
+      - pci
       index:
       - K481
       - K489
@@ -14316,6 +14424,8 @@ categories:
         index: K519
         name: K51.9
       docs: Diagnostic transluminal operations on coronary artery
+      exclude:
+      - pci
       index:
       - K511
       - K519
@@ -14346,6 +14456,8 @@ categories:
         index: K529
         name: K52.9
       docs: Open operations on conducting system of heart
+      exclude:
+      - pci
       index:
       - K521
       - K529
@@ -14364,6 +14476,8 @@ categories:
         index: K539
         name: K53.9
       docs: Other incision of heart
+      exclude:
+      - pci
       index:
       - K531
       - K539
@@ -14382,6 +14496,8 @@ categories:
         index: K549
         name: K54.9
       docs: Open heart assist operations
+      exclude:
+      - pci
       index:
       - K541
       - K549
@@ -14412,6 +14528,8 @@ categories:
         index: K559
         name: K55.9
       docs: Other open operations on heart
+      exclude:
+      - pci
       index:
       - K551
       - K559
@@ -14436,6 +14554,8 @@ categories:
         index: K569
         name: K56.9
       docs: Transluminal heart assist operations
+      exclude:
+      - pci
       index:
       - K561
       - K569
@@ -14469,6 +14589,8 @@ categories:
         index: K579
         name: K57.9
       docs: Other therapeutic transluminal operations on heart
+      exclude:
+      - pci
       index:
       - K571
       - K579
@@ -14499,6 +14621,8 @@ categories:
         index: K589
         name: K58.9
       docs: Diagnostic transluminal operations on heart
+      exclude:
+      - pci
       index:
       - K581
       - K589
@@ -14532,6 +14656,8 @@ categories:
         index: K599
         name: K59.9
       docs: Cardioverter defibrillator introduced through the vein
+      exclude:
+      - pci
       index:
       - K591
       - K599
@@ -14565,6 +14691,8 @@ categories:
         index: K609
         name: K60.9
       docs: Cardiac pacemaker system introduced through vein
+      exclude:
+      - pci
       index:
       - K601
       - K609
@@ -14598,6 +14726,8 @@ categories:
         index: K619
         name: K61.9
       docs: Other cardiac pacemaker system
+      exclude:
+      - pci
       index:
       - K611
       - K619
@@ -14628,6 +14758,8 @@ categories:
         index: K629
         name: K62.9
       docs: Therapeutic transluminal operations on heart
+      exclude:
+      - pci
       index:
       - K621
       - K629
@@ -14658,6 +14790,8 @@ categories:
         index: K639
         name: K63.9
       docs: Contrast radiology of heart
+      exclude:
+      - pci
       index:
       - K631
       - K639
@@ -14673,6 +14807,8 @@ categories:
         index: K649
         name: K64.9
       docs: Percutaneous operations on heart
+      exclude:
+      - pci
       index:
       - K641
       - K649
@@ -14697,6 +14833,8 @@ categories:
         index: K659
         name: K65.9
       docs: Catheterisation of heart
+      exclude:
+      - pci
       index:
       - K651
       - K659
@@ -14712,6 +14850,8 @@ categories:
         index: K669
         name: K66.9
       docs: Other operations on heart
+      exclude:
+      - pci
       index:
       - K661
       - K669
@@ -14727,6 +14867,8 @@ categories:
         index: K679
         name: K67.9
       docs: Excision of pericardium
+      exclude:
+      - pci
       index:
       - K671
       - K679
@@ -14745,6 +14887,8 @@ categories:
         index: K689
         name: K68.9
       docs: Drainage of pericardium
+      exclude:
+      - pci
       index:
       - K681
       - K689
@@ -14763,6 +14907,8 @@ categories:
         index: K699
         name: K69.9
       docs: Incision of pericardium
+      exclude:
+      - pci
       index:
       - K691
       - K699
@@ -14787,6 +14933,8 @@ categories:
         index: K719
         name: K71.9
       docs: Other operations on pericardium
+      exclude:
+      - pci
       index:
       - K711
       - K719
@@ -14811,6 +14959,8 @@ categories:
         index: K729
         name: K72.9
       docs: Other cardioverter defibrillator
+      exclude:
+      - pci
       index:
       - K721
       - K729
@@ -14832,6 +14982,8 @@ categories:
         index: K739
         name: K73.9
       docs: Other cardiac pacemaker system introduced through vein
+      exclude:
+      - pci
       index:
       - K731
       - K739
@@ -14853,6 +15005,8 @@ categories:
         index: K749
         name: K74.9
       docs: Cardiac pacemaker system
+      exclude:
+      - pci
       index:
       - K741
       - K749
@@ -14892,6 +15046,8 @@ categories:
         index: K769
         name: K76.9
       docs: Transluminal operations on cardiac conduit
+      exclude:
+      - pci
       index:
       - K761
       - K769
@@ -14907,6 +15063,8 @@ categories:
         index: K779
         name: K77.9
       docs: Transluminal drainage of pericardium
+      exclude:
+      - pci
       index:
       - K771
       - K779
@@ -14922,6 +15080,8 @@ categories:
         index: K789
         name: K78.9
       docs: Transluminal operations on internal mammary artery side branch
+      exclude:
+      - pci
       index:
       - K781
       - K789
@@ -17210,6 +17370,8 @@ categories:
       - L999
       name: L99
     docs: Arteries and Veins
+    exclude:
+    - pci
     index:
     - L01
     - L99
@@ -19094,6 +19256,8 @@ categories:
       - M869
       name: M86
     docs: Urinary
+    exclude:
+    - pci
     index:
     - M01
     - M86
@@ -19718,6 +19882,8 @@ categories:
       - N359
       name: N35
     docs: Male Genital Organs
+    exclude:
+    - pci
     index:
     - N01
     - N35
@@ -20393,6 +20559,8 @@ categories:
       - P329
       name: P32
     docs: Lower Female Genital Tract
+    exclude:
+    - pci
     index:
     - P01
     - P32
@@ -21572,6 +21740,8 @@ categories:
       - Q589
       name: Q58
     docs: Upper Female Genital Tract
+    exclude:
+    - pci
     index:
     - Q01
     - Q58
@@ -22266,6 +22436,8 @@ categories:
       - R439
       name: R43
     docs: Female Genital Tract Associated with Pregnancy, Childbirth and the Puerperium
+    exclude:
+    - pci
     index:
     - R01
     - R43
@@ -23838,6 +24010,8 @@ categories:
       - S709
       name: S70
     docs: Skin
+    exclude:
+    - pci
     index:
     - S01
     - S70
@@ -25866,6 +26040,8 @@ categories:
       - T989
       name: T98
     docs: Soft Tissue
+    exclude:
+    - pci
     index:
     - T01
     - T98
@@ -26937,6 +27113,8 @@ categories:
       - U549
       name: U54
     docs: Diagnostic Imaging, Testing and Rehabilitation
+    exclude:
+    - pci
     index:
     - U01
     - U54
@@ -28611,6 +28789,8 @@ categories:
       - V709
       name: V70
     docs: Bones and Joints of Skull and Spine
+    exclude:
+    - pci
     index:
     - V01
     - V70
@@ -31269,6 +31449,8 @@ categories:
       - W999
       name: W99
     docs: Other Bones and Joints
+    exclude:
+    - pci
     index:
     - W01
     - W99
@@ -33216,6 +33398,8 @@ categories:
       - X989
       name: X98
     docs: Miscellaneous Operations
+    exclude:
+    - pci
     index:
     - X01
     - X98
@@ -35454,6 +35638,8 @@ categories:
       - Y999
       name: Y99
     docs: Subsidiary Classification of Methods of Operation
+    exclude:
+    - pci
     index:
     - Y01
     - Y99
@@ -38343,6 +38529,8 @@ categories:
       - Z999
       name: Z99
     docs: Subsidiary Classification of Sites of Operation
+    exclude:
+    - pci
     index:
     - Z01
     - Z99

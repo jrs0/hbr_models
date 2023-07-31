@@ -54,13 +54,21 @@ raw_data <- dplyr::tbl(con, id) %>%
     collect() %>%
     mutate(spell_id = row_number())
 
+# For joining NHS number by spell id later on
+nhs_numbers <- raw_data %>%
+    select(spell_id, nhs_number)
+
+# For joining spell information by spell id later
+spell_data <- raw_data %>%
+    select(spell_id, age, spell_start_date)
+
 ####### DEFINE ICD-10 and OPCS-4 CODE GROUPS #######
 
 ##' Get all the codes in a code group, with the dot removed
 ##' and converted to all-lowercase, ready for matching with
 ##' codes in columns
 codes_for_matching <- function(codes_file_path, group) {
-    get_codes_in_group("../codes_files/icd10.yaml", "bleeding_al_ani") %>%
+    get_codes_in_group(codes_file_path, group) %>%
         pull(name) %>%
         str_replace("\\.", "") %>%
         tolower()
@@ -71,99 +79,95 @@ bleeding_al_ani <- codes_for_matching(
     "../codes_files/icd10.yaml",
     "bleeding_al_ani"
 )
+mi_schnier <- codes_for_matching(
+    "../codes_files/icd10.yaml",
+    "mi_schnier"
+)
 mi_stemi_schnier <- codes_for_matching(
     "../codes_files/icd10.yaml",
     "mi_stemi_schnier"
 )
-mi_nstemi_schnier <- get_codes_in_group(
+mi_nstemi_schnier <- codes_for_matching(
     "../codes_files/icd10.yaml",
     "mi_nstemi_schnier"
 )
 
 # List of OPCS-4 codes identifying PCI procedures
-pci <- get_codes_in_group(
-    "../codes_files/icd10.yaml",
-    "mi_stemi_schnier"
+pci <- codes_for_matching(
+    "../codes_files/opcs4.yaml",
+    "pci"
 )
 
 ####### COUNT UP OCCURRENCES OF CODE GROUPS IN EACH SPELL #######
 
-# The goal is to merge all of the diagnoses into a single column
-with_diagnoses <- raw_data %>%
+# The goal is to merge all of the diagnoses into a single column.
+# values_drop_na is used to prevent diagnosis columns containing NULL
+# becoming rows. There aren't too many of these, because most are the
+# empty string instead. These are filtered out next. Once all the codes
+# are in one column, the result is summarised by counting up how many
+# of the codes fall into each clinical code group (each count is added
+# as a new column)
+code_group_counts_by_spell_ids <- raw_data %>%
     pivot_longer(
-        matches("Diagnosis") & !contains("Date") & !contains("Scheme"),
-        names_to = "diagnosis_position", values_to = "icd10_code"
+        (matches("Diagnosis") & !contains("Date") & !contains("Scheme")) |
+            (matches("^(Primary)?Procedure") & !contains("Date") & !contains("Scheme")),
+        names_to = "clinical_code_type", values_to = "clinical_code",
+        values_drop_na = TRUE
     ) %>%
-    # Convert the ICD10 codes to lower case, remove dot, and remove whitespace
-    mutate(icd10_code = icd10_code %>% str_replace_all("(\\.| )", "") %>% tolower()) %>%
-    # Add a flag indicating whether a code is in a group
-    mutate(
-        bleeding_flag = icd10_code %in% al_ani_bleeding_icd10,
-        acs_stemi_schnier_flag = icd10_code %in% acs_stemi_schnier_icd10,
-        acs_nstemi_flag = icd10_code %in% acs_nstemi_icd10,
-    ) %>%
-    # Group up by spell and add up the flags, then ungroup
+    filter(clinical_code != "") %>%
+    # Now that all the ICD-10 and OPCS-4 codes are in one long column, replace the
+    # original diagnosis and procedure column names with a marker indicating diagnosis
+    # or procedure
+    mutate(clinical_code_type = if_else(
+        str_detect(clinical_code_type, "iagnosis"),
+        "diagnosis",
+        "procedure"
+    )) %>%
+    # Remove the dot from the codes and convert to lower case to compare with the code
+    # lists
+    mutate(clinical_code = clinical_code %>% str_replace_all("(\\.| )", "") %>% tolower()) %>%
+    # Group into spells (which also groups by nhs_number, assuming spell_id is unique even
+    # between patients), and count the number of diagnosis and procedure codes in each group
     group_by(spell_id) %>%
-    mutate(
-        bleeding_count = sum(bleeding_flag),
-        acs_stemi_schnier_count = sum(acs_stemi_schnier_flag),
-        acs_nstemi_count = sum(acs_nstemi_flag),
+    summarise(
+        bleeding_al_ani_count = sum(clinical_code %in% bleeding_al_ani &
+            clinical_code_type == "diagnosis"),
+        mi_schnier_count = sum(clinical_code %in% mi_schnier &
+            clinical_code_type == "diagnosis"),
+        mi_stemi_schnier_count = sum(clinical_code %in% mi_stemi_schnier &
+            clinical_code_type == "diagnosis"),
+        mi_nstemi_schnier_count = sum(clinical_code %in% mi_nstemi_schnier &
+            clinical_code_type == "diagnosis"),
+        pci_count = sum(clinical_code %in% pci &
+            clinical_code_type == "procedure"),
     ) %>%
-    # Drop the flag columns and icd10 code, and pick just the first
-    # row of each group (any row will do, they all have the same counts)
-    select(-matches("flag"), -icd10_code) %>%
-    slice_head(n = 1)
-
-# Now do the same for procedures
-with_diagnoses_and_procedures <- with_diagnoses %>%
-    pivot_longer(
-        matches("^(Primary)?Procedure") & !contains("Date") & !contains("Scheme"),
-        names_to = "procedure_position", values_to = "opcs4_code"
-    ) %>%
-    # Convert the OPCS-4 codes to lower case, remove dot, and remove whitespace
-    mutate(opcs4_code = opcs4_code %>% str_replace_all("(\\.| )", "") %>% tolower()) %>%
-    # Add a flag indicating whether a code is in a group
-    mutate(
-        pci_flag = opcs4_code %in% pci_opcs4,
-    ) %>%
-    # Group up by spell and add up the flags, then ungroup
-    group_by(spell_id) %>%
-    mutate(
-        pci_count = sum(pci_flag),
-    ) %>%
-    # Drop the flag columns and icd10 code, and pick just the first
-    # row of each group (any row will do, they all have the same counts)
-    select(-matches("flag"), -opcs4_code) %>%
-    slice_head(n = 1)
-
-# Only keep the count columns, drop all raw diagnoses and procedures
-with_relevant_columns <- with_diagnoses_and_procedures %>%
-    select(-matches("(rocedure|iagnosis)"))
+    # Add the nhs_number back on for joining later
+    left_join(nhs_numbers, by = "spell_id")
 
 ####### GET THE INDEX EVENTS (ACS OR PCI SPELL) #######
 
 # Note that the spell start date is used as the index date.
 
 # Get the spell id of index spells
-index_spells <- with_relevant_columns %>%
-    filter(acs_stemi_schnier_count > 0 | acs_nstemi_count > 0 | pci_count > 0) %>%
+index_spells <- code_group_counts_by_spell_ids %>%
+    filter(mi_schnier_count > 0 | pci_count > 0) %>%
     # Record whether the index event is PCI or conservatively managed (ACS).
-    # Record STEMI and NSTEMI as separate columns to account for possiblity
+    # Record STEMI and NSTEMI as separate columns to account for possibility
     # of neither (i.e. no ACS).
     mutate(
         pci_performed = (pci_count > 0), # If false, conservatively managed
-        acs_stemi_schnier = (acs_stemi_schnier_count > 0),
-        acs_nstemi = (acs_nstemi_count > 0)
+        stemi = (mi_stemi_schnier_count > 0),
+        nstemi = (mi_nstemi_schnier_count > 0)
     ) %>%
-    # Keep only relevant columns for index (others will be joined back on in next step)
-    select(
-        nhs_number, spell_id, pci_performed, acs_stemi_schnier, acs_nstemi,
-        age, spell_start_date
-    ) %>%
+    # Join on the index spell data and rename to refer to index
+    left_join(spell_data, by = "spell_id") %>%
     rename(
-        age_at_index = age, index_date = spell_start_date,
-        index_spell_id = spell_id
-    )
+        index_spell_id = spell_id,
+        index_date = spell_start_date,
+        age_at_index = age
+    ) %>%
+    # Drop unnecessary count columns (will be joined back later)
+    select(-matches("count"))
 
 ####### COMPUTE TIME TO BLEED #######
 
@@ -172,8 +176,11 @@ index_spells <- with_relevant_columns %>%
 
 bleed_times <- index_spells %>%
     # Expect many-to-many because the same patient could have multiple index events
-    left_join(with_relevant_columns, by = "nhs_number", relationship = "many-to-many") %>%
-    mutate(spell_time_difference = spell_start_date - index_date) %>%
+    left_join(code_group_counts_by_spell_ids, by = "nhs_number", relationship = "many-to-many") %>%
+    # Join on the spell data
+    left_join(spell_data, by = "spell_id") %>%
+    mutate(spell_time_difference = spell_start_date - index_date)
+
     # Do all operations per patient (and per index event for patients with multiple index events)
     group_by(nhs_number, index_spell_id) %>%
     # Pick out just the index and first subsequent bleeding row (if there is one)

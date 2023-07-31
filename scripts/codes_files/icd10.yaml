@@ -3025,7 +3025,7 @@ categories:
     - bleeding_al_ani
     - mi_stemi_schnier
     - mi_nstemi_schnier
-    - acs_mi_schnier
+    - mi_schnier
     index:
     - A00
     - B99
@@ -5893,7 +5893,7 @@ categories:
     - bleeding_al_ani
     - mi_stemi_schnier
     - mi_nstemi_schnier
-    - acs_mi_schnier
+    - mi_schnier
     index:
     - C00
     - D48
@@ -6543,7 +6543,7 @@ categories:
     - bleeding_al_ani
     - mi_stemi_schnier
     - mi_nstemi_schnier
-    - acs_mi_schnier
+    - mi_schnier
     index:
     - D50
     - D89
@@ -7894,7 +7894,7 @@ categories:
     - bleeding_al_ani
     - mi_stemi_schnier
     - mi_nstemi_schnier
-    - acs_mi_schnier
+    - mi_schnier
     index:
     - E00
     - E90
@@ -7938,7 +7938,7 @@ categories:
       - bleeding_al_ani
       - mi_stemi_schnier
       - mi_nstemi_schnier
-      - acs_mi_schnier
+      - mi_schnier
       index:
       - I00
       - I02
@@ -8047,7 +8047,7 @@ categories:
       - bleeding_al_ani
       - mi_stemi_schnier
       - mi_nstemi_schnier
-      - acs_mi_schnier
+      - mi_schnier
       index:
       - I05
       - I09
@@ -8116,7 +8116,7 @@ categories:
       - bleeding_al_ani
       - mi_stemi_schnier
       - mi_nstemi_schnier
-      - acs_mi_schnier
+      - mi_schnier
       index:
       - I10
       - I15
@@ -8139,7 +8139,7 @@ categories:
         exclude:
         - mi_stemi_schnier
         - mi_nstemi_schnier
-        - acs_mi_schnier
+        - mi_schnier
         index: I20
         name: I20
       - categories:
@@ -8234,7 +8234,7 @@ categories:
       - categories:
         - docs: Coronary thrombosis not resulting in myocardial infarction
           exclude:
-          - acs_mi_schnier
+          - mi_schnier
           index: I240
           name: I24.0
         - docs: Dressler syndrome
@@ -8242,12 +8242,12 @@ categories:
           name: I24.1
         - docs: Other forms of acute ischaemic heart disease
           exclude:
-          - acs_mi_schnier
+          - mi_schnier
           index: I248
           name: I24.8
         - docs: Acute ischaemic heart disease, unspecified
           exclude:
-          - acs_mi_schnier
+          - mi_schnier
           index: I249
           name: I24.9
         docs: Other acute ischaemic heart diseases
@@ -8259,12 +8259,12 @@ categories:
       - categories:
         - docs: Atherosclerotic cardiovascular disease, so described
           exclude:
-          - acs_mi_schnier
+          - mi_schnier
           index: I250
           name: I25.0
         - docs: Atherosclerotic heart disease
           exclude:
-          - acs_mi_schnier
+          - mi_schnier
           index: I251
           name: I25.1
         - docs: Old myocardial infarction
@@ -8272,32 +8272,32 @@ categories:
           name: I25.2
         - docs: Aneurysm of heart
           exclude:
-          - acs_mi_schnier
+          - mi_schnier
           index: I253
           name: I25.3
         - docs: Coronary artery aneurysm and dissection
           exclude:
-          - acs_mi_schnier
+          - mi_schnier
           index: I254
           name: I25.4
         - docs: Ischaemic cardiomyopathy
           exclude:
-          - acs_mi_schnier
+          - mi_schnier
           index: I255
           name: I25.5
         - docs: Silent myocardial ischaemia
           exclude:
-          - acs_mi_schnier
+          - mi_schnier
           index: I256
           name: I25.6
         - docs: Other forms of chronic ischaemic heart disease
           exclude:
-          - acs_mi_schnier
+          - mi_schnier
           index: I258
           name: I25.8
         - docs: Chronic ischaemic heart disease, unspecified
           exclude:
-          - acs_mi_schnier
+          - mi_schnier
           index: I259
           name: I25.9
         docs: Chronic ischaemic heart disease
@@ -8364,7 +8364,7 @@ categories:
       - bleeding_al_ani
       - mi_stemi_schnier
       - mi_nstemi_schnier
-      - acs_mi_schnier
+      - mi_schnier
       index:
       - I26
       - I28
@@ -8817,7 +8817,7 @@ categories:
       - bleeding_al_ani
       - mi_stemi_schnier
       - mi_nstemi_schnier
-      - acs_mi_schnier
+      - mi_schnier
       index:
       - I30
       - I52
@@ -9072,7 +9072,7 @@ categories:
       exclude:
       - mi_stemi_schnier
       - mi_nstemi_schnier
-      - acs_mi_schnier
+      - mi_schnier
       index:
       - I60
       - I69
@@ -9271,7 +9271,7 @@ categories:
       - bleeding_al_ani
       - mi_stemi_schnier
       - mi_nstemi_schnier
-      - acs_mi_schnier
+      - mi_schnier
       index:
       - I70
       - I79
@@ -9445,7 +9445,7 @@ categories:
       exclude:
       - mi_stemi_schnier
       - mi_nstemi_schnier
-      - acs_mi_schnier
+      - mi_schnier
       index:
       - I80
       - I89
@@ -9516,7 +9516,7 @@ categories:
       - bleeding_al_ani
       - mi_stemi_schnier
       - mi_nstemi_schnier
-      - acs_mi_schnier
+      - mi_schnier
       index:
       - I95
       - I99
@@ -11059,7 +11059,7 @@ categories:
     - bleeding_al_ani
     - mi_stemi_schnier
     - mi_nstemi_schnier
-    - acs_mi_schnier
+    - mi_schnier
     index:
     - F00
     - F99
@@ -12361,7 +12361,7 @@ categories:
     - bleeding_al_ani
     - mi_stemi_schnier
     - mi_nstemi_schnier
-    - acs_mi_schnier
+    - mi_schnier
     index:
     - G00
     - G99
@@ -13404,7 +13404,7 @@ categories:
     - bleeding_al_ani
     - mi_stemi_schnier
     - mi_nstemi_schnier
-    - acs_mi_schnier
+    - mi_schnier
     index:
     - H00
     - H59
@@ -13866,7 +13866,7 @@ categories:
     - bleeding_al_ani
     - mi_stemi_schnier
     - mi_nstemi_schnier
-    - acs_mi_schnier
+    - mi_schnier
     index:
     - H60
     - H95
@@ -14819,7 +14819,7 @@ categories:
     - bleeding_al_ani
     - mi_stemi_schnier
     - mi_nstemi_schnier
-    - acs_mi_schnier
+    - mi_schnier
     index:
     - J00
     - J99
@@ -16616,7 +16616,7 @@ categories:
     exclude:
     - mi_stemi_schnier
     - mi_nstemi_schnier
-    - acs_mi_schnier
+    - mi_schnier
     index:
     - K00
     - K93
@@ -17933,7 +17933,7 @@ categories:
     - bleeding_al_ani
     - mi_stemi_schnier
     - mi_nstemi_schnier
-    - acs_mi_schnier
+    - mi_schnier
     index:
     - L00
     - L99
@@ -20005,7 +20005,7 @@ categories:
     - bleeding_al_ani
     - mi_stemi_schnier
     - mi_nstemi_schnier
-    - acs_mi_schnier
+    - mi_schnier
     index:
     - M00
     - M99
@@ -21664,7 +21664,7 @@ categories:
     - bleeding_al_ani
     - mi_stemi_schnier
     - mi_nstemi_schnier
-    - acs_mi_schnier
+    - mi_schnier
     index:
     - N00
     - N99
@@ -26369,7 +26369,7 @@ categories:
     - bleeding_al_ani
     - mi_stemi_schnier
     - mi_nstemi_schnier
-    - acs_mi_schnier
+    - mi_schnier
     index:
     - S00
     - T98
@@ -27998,7 +27998,7 @@ categories:
     - bleeding_al_ani
     - mi_stemi_schnier
     - mi_nstemi_schnier
-    - acs_mi_schnier
+    - mi_schnier
     index:
     - O00
     - O99
@@ -29284,7 +29284,7 @@ categories:
     - bleeding_al_ani
     - mi_stemi_schnier
     - mi_nstemi_schnier
-    - acs_mi_schnier
+    - mi_schnier
     index:
     - P00
     - P96
@@ -31562,7 +31562,7 @@ categories:
     - bleeding_al_ani
     - mi_stemi_schnier
     - mi_nstemi_schnier
-    - acs_mi_schnier
+    - mi_schnier
     index:
     - Q00
     - Q99
@@ -32903,7 +32903,7 @@ categories:
     - bleeding_al_ani
     - mi_stemi_schnier
     - mi_nstemi_schnier
-    - acs_mi_schnier
+    - mi_schnier
     index:
     - R00
     - R99
@@ -37860,7 +37860,7 @@ categories:
     - bleeding_al_ani
     - mi_stemi_schnier
     - mi_nstemi_schnier
-    - acs_mi_schnier
+    - mi_schnier
     index:
     - V01
     - Y98
@@ -40131,7 +40131,7 @@ categories:
     - bleeding_al_ani
     - mi_stemi_schnier
     - mi_nstemi_schnier
-    - acs_mi_schnier
+    - mi_schnier
     index:
     - Z00
     - Z99
@@ -40298,7 +40298,7 @@ categories:
     - bleeding_al_ani
     - mi_stemi_schnier
     - mi_nstemi_schnier
-    - acs_mi_schnier
+    - mi_schnier
     index:
     - U00
     - U85
@@ -40312,4 +40312,4 @@ groups:
 - bleeding_al_ani
 - mi_stemi_schnier
 - mi_nstemi_schnier
-- acs_mi_schnier
+- mi_schnier
