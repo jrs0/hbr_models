@@ -169,22 +169,56 @@ index_spells <- code_group_counts_by_spell_ids %>%
     # Drop unnecessary count columns (will be joined back later)
     select(-matches("count"))
 
-####### COMPUTE TIME TO BLEED #######
+####### COMPUTE COUNT OF PREVIOUS DIAGNOSES AND PROCEDURES #######
+
+# This table contains the total number of each diagnosis and procedure
+# group in a period before the index event. This could be the previous
+# 12 months, excluding the month before the index event (to account for
+# lack of coding data in that period)
+max_period_before <- lubridate::dyears(1)
+min_period_before <- lubridate::dmonths(1)
+counts_before_index <- index_spells %>%
+    # For each index event, join all other spells that the patient had.
+    # Expect many-to-many because the same patient could have multiple index events.
+    left_join(code_group_counts_by_spell_ids, by = "nhs_number", relationship = "many-to-many") %>%
+    # Join on the spell data
+    left_join(spell_data, by = "spell_id") %>%
+    mutate(spell_time_before = index_date - spell_start_date) %>%
+    # Add a mask to only include the spells in a particular window before the
+    # index event (up to one year before, excluding the month before the index event
+    # when data will not be available).
+    mutate(spell_valid_window = if_else(
+        spell_time_before > min_period_before &
+            spell_time_before <= max_period_before,
+        0,
+        1
+    )) %>%
+    # Do all operations per patient (and per index event for patients with multiple index events)
+    group_by(index_spell_id) %>%
+    # Sum up the counts in the valid window. By multipling the count by the valid flag (0 or 1),
+    # it is only included if it came from a spell in the valid window.
+    summarise(
+        bleeding_al_ani_count_before = sum(bleeding_al_ani_count * spell_valid_window),
+        mi_schnier_count_before = sum(mi_schnier_count * spell_valid_window),
+        mi_stemi_schnier_count_before = sum(mi_stemi_schnier_count * spell_valid_window),
+        mi_nstemi_schnier_count_before = sum(mi_nstemi_schnier_count * spell_valid_window),
+        pci_count_before = sum(pci_count * spell_valid_window),
+    )
+
+
+####### COMPUTE TIME TO FIRST BLEED #######
 
 # Want two things for survival analysis: time to next bleed if there
 # is a bleed; and maximum follow-up date for right censoring, if there is no bleed.
 
-bleed_times <- index_spells %>%
-    # Expect many-to-many because the same patient could have multiple index events
-    left_join(code_group_counts_by_spell_ids, by = "nhs_number", relationship = "many-to-many") %>%
-    # Join on the spell data
-    left_join(spell_data, by = "spell_id") %>%
-    mutate(spell_time_difference = spell_start_date - index_date)
 
-    # Do all operations per patient (and per index event for patients with multiple index events)
-    group_by(nhs_number, index_spell_id) %>%
-    # Pick out just the index and first subsequent bleeding row (if there is one)
-    filter(spell_time_difference >= 0) %>%
+
+
+
+
+
+# Pick out the spells before the index event
+filter(spell_time_difference < 0) %>%
     arrange(spell_time_difference, .by_group = TRUE) %>%
     slice_head(n = 2) %>%
     # Added the bleeding occurred flag if there is a subsequent
