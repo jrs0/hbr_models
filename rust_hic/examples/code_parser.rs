@@ -10,8 +10,8 @@ fn main() {
     let mut code_store = ClinicalCodeStore::new();
 
     // Get the ACS STEMI codes in the groups defined by the file
-    let acs_stemi_biobank_codes = code_tree
-        .codes_in_group(&format!("acs_stemi_biobank"), &mut code_store)
+    let acs_stemi_schnier_codes = code_tree
+        .codes_in_group(&format!("acs_stemi_schnier"), &mut code_store)
         .expect("Should succeed, code is present");
 
     

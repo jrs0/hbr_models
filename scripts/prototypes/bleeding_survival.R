@@ -63,7 +63,7 @@ bleeding_al_ani <- get_codes_in_group("../codes_files/icd10.yaml", "bleeding_al_
     tolower()
 
 # List of ICD-10 codes identifying ACS events
-acs_stemi_biobank_icd10 <- c(
+acs_stemi_schnier_icd10 <- c(
     "I21.0", "I21.1", "I21.2", "I21.3", "I22.0", "I22.1", "I22.8"
 ) %>%
     str_replace("\\.", "") %>%
@@ -96,14 +96,14 @@ with_diagnoses <- raw_data %>%
     # Add a flag indicating whether a code is in a group
     mutate(
         bleeding_flag = icd10_code %in% al_ani_bleeding_icd10,
-        acs_stemi_biobank_flag = icd10_code %in% acs_stemi_biobank_icd10,
+        acs_stemi_schnier_flag = icd10_code %in% acs_stemi_schnier_icd10,
         acs_nstemi_flag = icd10_code %in% acs_nstemi_icd10,
     ) %>%
     # Group up by spell and add up the flags, then ungroup
     group_by(spell_id) %>%
     mutate(
         bleeding_count = sum(bleeding_flag),
-        acs_stemi_biobank_count = sum(acs_stemi_biobank_flag),
+        acs_stemi_schnier_count = sum(acs_stemi_schnier_flag),
         acs_nstemi_count = sum(acs_nstemi_flag),
     ) %>%
     # Drop the flag columns and icd10 code, and pick just the first
@@ -143,18 +143,18 @@ with_relevant_columns <- with_diagnoses_and_procedures %>%
 
 # Get the spell id of index spells
 index_spells <- with_relevant_columns %>%
-    filter(acs_stemi_biobank_count > 0 | acs_nstemi_count > 0 | pci_count > 0) %>%
+    filter(acs_stemi_schnier_count > 0 | acs_nstemi_count > 0 | pci_count > 0) %>%
     # Record whether the index event is PCI or conservatively managed (ACS).
     # Record STEMI and NSTEMI as separate columns to account for possiblity
     # of neither (i.e. no ACS).
     mutate(
         pci_performed = (pci_count > 0), # If false, conservatively managed
-        acs_stemi_biobank = (acs_stemi_biobank_count > 0),
+        acs_stemi_schnier = (acs_stemi_schnier_count > 0),
         acs_nstemi = (acs_nstemi_count > 0)
     ) %>%
     # Keep only relevant columns for index (others will be joined back on in next step)
     select(
-        nhs_number, spell_id, pci_performed, acs_stemi_biobank, acs_nstemi,
+        nhs_number, spell_id, pci_performed, acs_stemi_schnier, acs_nstemi,
         age, spell_start_date
     ) %>%
     rename(
@@ -196,7 +196,7 @@ bleed_times <- index_spells %>%
     # row is considered a separate event), or the spell_start_date
     select(
         index_date, bleed_status, bleed_time, age_at_index, pci_performed,
-        acs_stemi_biobank, acs_nstemi
+        acs_stemi_schnier, acs_nstemi
     )
 
 ####### DESCRIPTIVE ANALYSIS #######
@@ -213,14 +213,14 @@ p_pci_performed <- bleed_times %>%
 # Calculate the proportion of index events with ACS (either
 # STEMI or NSTEMI) (expect majority)
 p_acs <- bleed_times %>%
-    mutate(acs = (acs_stemi_biobank | acs_nstemi)) %>%
+    mutate(acs = (acs_stemi_schnier | acs_nstemi)) %>%
     pull(acs) %>%
     mean()
 
 # Calculate proportion of _all_ index events that are STEMI
 # or NSTEMI (note some index events are not ACS)
 p_stemi <- bleed_times %>%
-    pull(acs_stemi_biobank) %>%
+    pull(acs_stemi_schnier) %>%
     mean()
 p_nstemi <- bleed_times %>%
     pull(acs_nstemi) %>%
@@ -237,7 +237,7 @@ p_bleed_1y_naive <- bleed_times %>%
 ####### END OF DATA PREPROCESSING #######
 
 # At this point, expecting to have a dataframe bleed_times with the following
-# columns. (Note: if neither acs_stemi_biobank nor acs_nstemi are true, index did not
+# columns. (Note: if neither acs_stemi_schnier nor acs_nstemi are true, index did not
 # contain an ACS.
 #
 # General information:
@@ -248,7 +248,7 @@ p_bleed_1y_naive <- bleed_times %>%
 # Predictors:
 # - age_at_index:
 # - pci_performed: whether index included PCI procedures
-# - acs_stemi_biobank: If index was ACS STEMI
+# - acs_stemi_schnier: If index was ACS STEMI
 # - acs_nstemi: If index was ACS NSTEMI
 #
 
@@ -303,7 +303,7 @@ survdiff(Surv(bleed_time, bleed_status) ~ age_at_index,
 # Show the regression results as a table
 coxph(
     Surv(bleed_time, bleed_status) ~ age_at_index
-        + pci_performed + acs_stemi_biobank + acs_nstemi,
+        + pci_performed + acs_stemi_schnier + acs_nstemi,
     data = bleed_times
 ) %>%
     tbl_regression(exp = TRUE)

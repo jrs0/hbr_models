@@ -40,7 +40,7 @@ The ARC-HBR score for the purpose of this work is described [here](arc_hbr.md).
 
 ## Acute Coronoary Syndrome (ACS) Inclusion Definition
 
-Patients with an ACS episode defined by the following ICD-10 codes are included in the analysis[^8]:
+Patients with a myocardial infarction (MI) defined by the following ICD-10 codes are included in the analysis[^8]:
 
 | ICD-10 | Description | STEMI/NSTEMI |
 | I21.0 | Acute transmural myocardial infarction of anterior wall | STEMI |
@@ -50,13 +50,20 @@ Patients with an ACS episode defined by the following ICD-10 codes are included 
 | I22.0 | Subsequent myocardial infarction of anterior wall | STEMI |
 | I22.1 | Subsequent myocardial infarction of inferior wall | STEMI |
 | I22.8 | Subsequent myocardial infarction of other sites | STEMI |
+| I21.4 | Acute subendocardial myocardial infarction | NSTEMI |
+| I21.9 | Acute myocardial infarction, unspecified | NSTEMI |
+| I22.9 | Subsequent myocardial infarction of unspecified site | NSTEMI |
+| I23.* | Certain current complications following acute myocardial infarction | |
+| I24.1 | Dressler syndrome | |
+| I25.2 | Old myocardial infarction | |
 
-The codes are labelled `acs_stemi_biobank_biobank`, `acs_nstemi_biobank` and `acs_mi_biobank`. The groups are estimated to have the following positive predictive values [^8]:
+The STEMI and NSTEMI codes are labelled `acs_stemi_schnier`, `acs_nstemi_schnier`, and the full code set is labelled `acs_mi_schnier`. The groups are estimated to have the following positive predictive values [^8]:
 * STEMI: 71-100%
 * NSTEMI: 90-100% (written as >90% in the report)
 * MI: 75-100%
 
-
+Inclusion/exclusion notes (to check):
+* The code I24.1 was included, even though it does not appear to correspond directly to an MI.
 
 ## Bleeding Outcome Definition
 
@@ -191,4 +198,4 @@ Each row of the dataset will be a patient with an index event which is either AC
 
 [^7]: [2019 Pufulete et al., Comprehensive ascertainment of bleeding in patients prescribed different combinations of dual antiplatelet therapy (DAPT) and triple therapy (TT) in the UK: study protocol for three population-based cohort studies emulating ‘target trials’ (the ADAPTT Study)](https://bmjopen.bmj.com/content/9/6/e029388)
 
-[^8]: [2017 Schnier et al., Definitions of Acute Myocardial Infarction and Main Myocardial Infarction Pathological Types UK Biobank Phase 1 Outcomes Adjudication](https://biobank.ndph.ox.ac.uk/showcase/showcase/docs/alg_outcome_mi.pdf)
+[^8]: [2017 Schnier et al., Definitions of Acute Myocardial Infarction and Main Myocardial Infarction Pathological Types UK schnier Phase 1 Outcomes Adjudication](https://schnier.ndph.ox.ac.uk/showcase/showcase/docs/alg_outcome_mi.pdf)
