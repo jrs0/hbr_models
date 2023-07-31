@@ -212,25 +212,28 @@ counts_before_index <- index_spells %>%
 # is a bleed; and maximum follow-up date for right censoring, if there is no bleed.
 max_period_after <- lubridate::dyears(1) # limit outcome to 12 months after (for binary classification)
 min_period_after <- lubridate::dhours(72) # Potentially exclude following 72 hours
-time_to_outcome <- index_spells %>%
+
+# Table of just the index spells which have a subsequent bleed in the
+# window defined above. This is generic -- the only bit that depends on the
+# column is the filter and summarise part
+index_spells_with_subsequent_bleed <- index_spells %>%
     # For each index event, join all other spells that the patient had.
     # Expect many-to-many because the same patient could have multiple index events.
     left_join(code_group_counts_by_spell_ids, by = "nhs_number", relationship = "many-to-many") %>%
     # Join on the spell data
     left_join(spell_data, by = "spell_id") %>%
     mutate(spell_time_after = spell_start_date - index_date) %>%
-    mutate(spell_valid_mask = if_else(
-        spell_time_after > min_period_after &
-            spell_time_after <= max_period_after,
-        0,
-        1
-    )) %>%
+    # Remove any spells that fall outside the window, and keep only the bleeding spells.
+    # Note you could have an issue with >- when min_period == 0
+    filter(
+        spell_time_after >= min_period_after,
+        spell_time_after < max_period_after,
+        bleeding_al_ani_count > 0,
+    ) %>%
     # Do all operations per patient (and per index event for patients with multiple index events)
     group_by(index_spell_id) %>%
-    # Compute binary outcome at max follow up period (max_period_after)
     summarise(
-        bleeding_al_ani_12m = any((bleeding_al_ani_count * spell_valid_mask) > 0),
-        mi_schnier_12m = any((mi_schnier_count * spell_valid_mask) > 0)
+        bleed_time = min(spell_time_after)
     )
 
 
