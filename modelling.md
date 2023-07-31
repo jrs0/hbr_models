@@ -65,6 +65,17 @@ The STEMI and NSTEMI codes are labelled `acs_stemi_schnier`, `acs_nstemi_schnier
 Inclusion/exclusion notes (to check):
 * The code I24.1 was included, even though it does not appear to correspond directly to an MI.
 
+## Percutaneous Coronary Intervention (PCI) Procedures Definition
+
+The following OPCS-4 codes were used to identify PCI procedures:
+
+| OPCS-4 | Description |
+| K49.*  | Transluminal balloon angioplasty of coronary artery |
+| K50.*  | Other therapeutic transluminal operations on coronary artery |
+| K75.*  | Percutaneous transluminal balloon angioplasty and insertion of stent into coronary artery |
+
+This group is called `pci` in the codes file.
+
 ## Bleeding Outcome Definition
 
 The clinically relevant bleeding definition is BARC 3 or 5, as used in the ARC HBR definition. However, this definition is not readily available in the datasets used here, because it requires expert judgement (which is often performed manually in studies). However, it is possible to find proxies for major bleeding. For example, in hospital episode statistics, ICD-10 codes have been found to approximate major bleeding events. Here, two groups of ICD-10 codes will be used as a stand-in for major bleeding, for model development purposes:

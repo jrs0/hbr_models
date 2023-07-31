@@ -3023,8 +3023,8 @@ categories:
     docs: Certain infectious and parasitic diseases
     exclude:
     - bleeding_al_ani
-    - acs_stemi_schnier
-    - acs_nstemi_schnier
+    - mi_stemi_schnier
+    - mi_nstemi_schnier
     - acs_mi_schnier
     index:
     - A00
@@ -5891,8 +5891,8 @@ categories:
     docs: Neoplasms
     exclude:
     - bleeding_al_ani
-    - acs_stemi_schnier
-    - acs_nstemi_schnier
+    - mi_stemi_schnier
+    - mi_nstemi_schnier
     - acs_mi_schnier
     index:
     - C00
@@ -6541,8 +6541,8 @@ categories:
     docs: Diseases of the blood and blood-forming organs and certain disorders involving the immune mechanism
     exclude:
     - bleeding_al_ani
-    - acs_stemi_schnier
-    - acs_nstemi_schnier
+    - mi_stemi_schnier
+    - mi_nstemi_schnier
     - acs_mi_schnier
     index:
     - D50
@@ -7892,8 +7892,8 @@ categories:
     docs: Endocrine, nutritional and metabolic diseases
     exclude:
     - bleeding_al_ani
-    - acs_stemi_schnier
-    - acs_nstemi_schnier
+    - mi_stemi_schnier
+    - mi_nstemi_schnier
     - acs_mi_schnier
     index:
     - E00
@@ -7936,8 +7936,8 @@ categories:
       docs: Acute rheumatic fever
       exclude:
       - bleeding_al_ani
-      - acs_stemi_schnier
-      - acs_nstemi_schnier
+      - mi_stemi_schnier
+      - mi_nstemi_schnier
       - acs_mi_schnier
       index:
       - I00
@@ -8045,8 +8045,8 @@ categories:
       docs: Chronic rheumatic heart diseases
       exclude:
       - bleeding_al_ani
-      - acs_stemi_schnier
-      - acs_nstemi_schnier
+      - mi_stemi_schnier
+      - mi_nstemi_schnier
       - acs_mi_schnier
       index:
       - I05
@@ -8114,8 +8114,8 @@ categories:
       docs: Hypertensive diseases
       exclude:
       - bleeding_al_ani
-      - acs_stemi_schnier
-      - acs_nstemi_schnier
+      - mi_stemi_schnier
+      - mi_nstemi_schnier
       - acs_mi_schnier
       index:
       - I10
@@ -8137,40 +8137,40 @@ categories:
           name: I20.9
         docs: Angina pectoris
         exclude:
-        - acs_stemi_schnier
-        - acs_nstemi_schnier
+        - mi_stemi_schnier
+        - mi_nstemi_schnier
         - acs_mi_schnier
         index: I20
         name: I20
       - categories:
         - docs: Acute transmural myocardial infarction of anterior wall
           exclude:
-          - acs_nstemi_schnier
+          - mi_nstemi_schnier
           index: I210
           name: I21.0
         - docs: Acute transmural myocardial infarction of inferior wall
           exclude:
-          - acs_nstemi_schnier
+          - mi_nstemi_schnier
           index: I211
           name: I21.1
         - docs: Acute transmural myocardial infarction of other sites
           exclude:
-          - acs_nstemi_schnier
+          - mi_nstemi_schnier
           index: I212
           name: I21.2
         - docs: Acute transmural myocardial infarction of unspecified site
           exclude:
-          - acs_nstemi_schnier
+          - mi_nstemi_schnier
           index: I213
           name: I21.3
         - docs: Acute subendocardial myocardial infarction
           exclude:
-          - acs_stemi_schnier
+          - mi_stemi_schnier
           index: I214
           name: I21.4
         - docs: Acute myocardial infarction, unspecified
           exclude:
-          - acs_stemi_schnier
+          - mi_stemi_schnier
           index: I219
           name: I21.9
         docs: Acute myocardial infarction
@@ -8179,22 +8179,22 @@ categories:
       - categories:
         - docs: Subsequent myocardial infarction of anterior wall
           exclude:
-          - acs_nstemi_schnier
+          - mi_nstemi_schnier
           index: I220
           name: I22.0
         - docs: Subsequent myocardial infarction of inferior wall
           exclude:
-          - acs_nstemi_schnier
+          - mi_nstemi_schnier
           index: I221
           name: I22.1
         - docs: Subsequent myocardial infarction of other sites
           exclude:
-          - acs_nstemi_schnier
+          - mi_nstemi_schnier
           index: I228
           name: I22.8
         - docs: Subsequent myocardial infarction of unspecified site
           exclude:
-          - acs_stemi_schnier
+          - mi_stemi_schnier
           index: I229
           name: I22.9
         docs: Subsequent myocardial infarction
@@ -8227,8 +8227,8 @@ categories:
           name: I23.8
         docs: Certain current complications following acute myocardial infarction
         exclude:
-        - acs_stemi_schnier
-        - acs_nstemi_schnier
+        - mi_stemi_schnier
+        - mi_nstemi_schnier
         index: I23
         name: I23
       - categories:
@@ -8252,8 +8252,8 @@ categories:
           name: I24.9
         docs: Other acute ischaemic heart diseases
         exclude:
-        - acs_stemi_schnier
-        - acs_nstemi_schnier
+        - mi_stemi_schnier
+        - mi_nstemi_schnier
         index: I24
         name: I24
       - categories:
@@ -8302,8 +8302,8 @@ categories:
           name: I25.9
         docs: Chronic ischaemic heart disease
         exclude:
-        - acs_stemi_schnier
-        - acs_nstemi_schnier
+        - mi_stemi_schnier
+        - mi_nstemi_schnier
         index: I25
         name: I25
       docs: Ischaemic heart diseases
@@ -8362,8 +8362,8 @@ categories:
       docs: Pulmonary heart disease and diseases of pulmonary circulation
       exclude:
       - bleeding_al_ani
-      - acs_stemi_schnier
-      - acs_nstemi_schnier
+      - mi_stemi_schnier
+      - mi_nstemi_schnier
       - acs_mi_schnier
       index:
       - I26
@@ -8815,8 +8815,8 @@ categories:
       docs: Other forms of heart disease
       exclude:
       - bleeding_al_ani
-      - acs_stemi_schnier
-      - acs_nstemi_schnier
+      - mi_stemi_schnier
+      - mi_nstemi_schnier
       - acs_mi_schnier
       index:
       - I30
@@ -9070,8 +9070,8 @@ categories:
         name: I69
       docs: Cerebrovascular diseases
       exclude:
-      - acs_stemi_schnier
-      - acs_nstemi_schnier
+      - mi_stemi_schnier
+      - mi_nstemi_schnier
       - acs_mi_schnier
       index:
       - I60
@@ -9269,8 +9269,8 @@ categories:
       docs: Diseases of arteries, arterioles and capillaries
       exclude:
       - bleeding_al_ani
-      - acs_stemi_schnier
-      - acs_nstemi_schnier
+      - mi_stemi_schnier
+      - mi_nstemi_schnier
       - acs_mi_schnier
       index:
       - I70
@@ -9443,8 +9443,8 @@ categories:
         name: I89
       docs: Diseases of veins, lymphatic vessels and lymph nodes, not elsewhere classified
       exclude:
-      - acs_stemi_schnier
-      - acs_nstemi_schnier
+      - mi_stemi_schnier
+      - mi_nstemi_schnier
       - acs_mi_schnier
       index:
       - I80
@@ -9514,8 +9514,8 @@ categories:
       docs: Other and unspecified disorders of the circulatory system
       exclude:
       - bleeding_al_ani
-      - acs_stemi_schnier
-      - acs_nstemi_schnier
+      - mi_stemi_schnier
+      - mi_nstemi_schnier
       - acs_mi_schnier
       index:
       - I95
@@ -11057,8 +11057,8 @@ categories:
     docs: Mental and behavioural disorders
     exclude:
     - bleeding_al_ani
-    - acs_stemi_schnier
-    - acs_nstemi_schnier
+    - mi_stemi_schnier
+    - mi_nstemi_schnier
     - acs_mi_schnier
     index:
     - F00
@@ -12359,8 +12359,8 @@ categories:
     docs: Diseases of the nervous system
     exclude:
     - bleeding_al_ani
-    - acs_stemi_schnier
-    - acs_nstemi_schnier
+    - mi_stemi_schnier
+    - mi_nstemi_schnier
     - acs_mi_schnier
     index:
     - G00
@@ -13402,8 +13402,8 @@ categories:
     docs: Diseases of the eye and adnexa
     exclude:
     - bleeding_al_ani
-    - acs_stemi_schnier
-    - acs_nstemi_schnier
+    - mi_stemi_schnier
+    - mi_nstemi_schnier
     - acs_mi_schnier
     index:
     - H00
@@ -13864,8 +13864,8 @@ categories:
     docs: Diseases of the ear and mastoid process
     exclude:
     - bleeding_al_ani
-    - acs_stemi_schnier
-    - acs_nstemi_schnier
+    - mi_stemi_schnier
+    - mi_nstemi_schnier
     - acs_mi_schnier
     index:
     - H60
@@ -14817,8 +14817,8 @@ categories:
     docs: Diseases of the respiratory system
     exclude:
     - bleeding_al_ani
-    - acs_stemi_schnier
-    - acs_nstemi_schnier
+    - mi_stemi_schnier
+    - mi_nstemi_schnier
     - acs_mi_schnier
     index:
     - J00
@@ -16614,8 +16614,8 @@ categories:
       name: K90-K93
     docs: Diseases of the digestive system
     exclude:
-    - acs_stemi_schnier
-    - acs_nstemi_schnier
+    - mi_stemi_schnier
+    - mi_nstemi_schnier
     - acs_mi_schnier
     index:
     - K00
@@ -17931,8 +17931,8 @@ categories:
     docs: Diseases of the skin and subcutaneous tissue
     exclude:
     - bleeding_al_ani
-    - acs_stemi_schnier
-    - acs_nstemi_schnier
+    - mi_stemi_schnier
+    - mi_nstemi_schnier
     - acs_mi_schnier
     index:
     - L00
@@ -20003,8 +20003,8 @@ categories:
     docs: Diseases of the musculoskeletal system and connective tissue
     exclude:
     - bleeding_al_ani
-    - acs_stemi_schnier
-    - acs_nstemi_schnier
+    - mi_stemi_schnier
+    - mi_nstemi_schnier
     - acs_mi_schnier
     index:
     - M00
@@ -21662,8 +21662,8 @@ categories:
     docs: Diseases of the genitourinary system
     exclude:
     - bleeding_al_ani
-    - acs_stemi_schnier
-    - acs_nstemi_schnier
+    - mi_stemi_schnier
+    - mi_nstemi_schnier
     - acs_mi_schnier
     index:
     - N00
@@ -26367,8 +26367,8 @@ categories:
     docs: Injury, poisoning and certain other consequences of external causes
     exclude:
     - bleeding_al_ani
-    - acs_stemi_schnier
-    - acs_nstemi_schnier
+    - mi_stemi_schnier
+    - mi_nstemi_schnier
     - acs_mi_schnier
     index:
     - S00
@@ -27996,8 +27996,8 @@ categories:
     docs: Pregnancy, childbirth and the puerperium
     exclude:
     - bleeding_al_ani
-    - acs_stemi_schnier
-    - acs_nstemi_schnier
+    - mi_stemi_schnier
+    - mi_nstemi_schnier
     - acs_mi_schnier
     index:
     - O00
@@ -29282,8 +29282,8 @@ categories:
     docs: Certain conditions originating in the perinatal period
     exclude:
     - bleeding_al_ani
-    - acs_stemi_schnier
-    - acs_nstemi_schnier
+    - mi_stemi_schnier
+    - mi_nstemi_schnier
     - acs_mi_schnier
     index:
     - P00
@@ -31560,8 +31560,8 @@ categories:
     docs: Congenital malformations, deformations and chromosomal abnormalities
     exclude:
     - bleeding_al_ani
-    - acs_stemi_schnier
-    - acs_nstemi_schnier
+    - mi_stemi_schnier
+    - mi_nstemi_schnier
     - acs_mi_schnier
     index:
     - Q00
@@ -32901,8 +32901,8 @@ categories:
     docs: Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified
     exclude:
     - bleeding_al_ani
-    - acs_stemi_schnier
-    - acs_nstemi_schnier
+    - mi_stemi_schnier
+    - mi_nstemi_schnier
     - acs_mi_schnier
     index:
     - R00
@@ -37858,8 +37858,8 @@ categories:
     docs: External causes of morbidity and mortality
     exclude:
     - bleeding_al_ani
-    - acs_stemi_schnier
-    - acs_nstemi_schnier
+    - mi_stemi_schnier
+    - mi_nstemi_schnier
     - acs_mi_schnier
     index:
     - V01
@@ -40129,8 +40129,8 @@ categories:
     docs: Factors influencing health status and contact with health services
     exclude:
     - bleeding_al_ani
-    - acs_stemi_schnier
-    - acs_nstemi_schnier
+    - mi_stemi_schnier
+    - mi_nstemi_schnier
     - acs_mi_schnier
     index:
     - Z00
@@ -40296,8 +40296,8 @@ categories:
     docs: Codes for special purposes
     exclude:
     - bleeding_al_ani
-    - acs_stemi_schnier
-    - acs_nstemi_schnier
+    - mi_stemi_schnier
+    - mi_nstemi_schnier
     - acs_mi_schnier
     index:
     - U00
@@ -40310,6 +40310,6 @@ categories:
   name: ICD-10
 groups:
 - bleeding_al_ani
-- acs_stemi_schnier
-- acs_nstemi_schnier
+- mi_stemi_schnier
+- mi_nstemi_schnier
 - acs_mi_schnier

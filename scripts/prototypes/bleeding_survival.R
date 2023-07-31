@@ -56,32 +56,35 @@ raw_data <- dplyr::tbl(con, id) %>%
 
 ####### DEFINE ICD-10 and OPCS-4 CODE GROUPS #######
 
-# List of ICD-10 codes that defines a bleeding event
-bleeding_al_ani <- get_codes_in_group("../codes_files/icd10.yaml", "bleeding_al_ani") %>%
-    pull(name) %>%
-    str_replace("\\.", "") %>%
-    tolower()
+##' Get all the codes in a code group, with the dot removed
+##' and converted to all-lowercase, ready for matching with
+##' codes in columns
+codes_for_matching <- function(codes_file_path, group) {
+    get_codes_in_group("../codes_files/icd10.yaml", "bleeding_al_ani") %>%
+        pull(name) %>%
+        str_replace("\\.", "") %>%
+        tolower()
+}
 
-# List of ICD-10 codes identifying ACS events
-acs_stemi_schnier_icd10 <- c(
-    "I21.0", "I21.1", "I21.2", "I21.3", "I22.0", "I22.1", "I22.8"
-) %>%
-    str_replace("\\.", "") %>%
-    tolower()
-acs_nstemi_icd10 <- c(
-    "I21.4", "I22.9"
-) %>%
-    str_replace("\\.", "") %>%
-    tolower()
+# Diagnosis groups
+bleeding_al_ani <- codes_for_matching(
+    "../codes_files/icd10.yaml",
+    "bleeding_al_ani"
+)
+mi_stemi_schnier <- codes_for_matching(
+    "../codes_files/icd10.yaml",
+    "mi_stemi_schnier"
+)
+mi_nstemi_schnier <- get_codes_in_group(
+    "../codes_files/icd10.yaml",
+    "mi_nstemi_schnier"
+)
 
 # List of OPCS-4 codes identifying PCI procedures
-pci_opcs4 <- c(
-    "K49.1", "K49.2", "K49.3", "K49.4", "K49.8", "K49.9",
-    "K50.1", "K50.2", "K50.3", "K50.4", "K50.8", "K50.9",
-    "K75.1", "K75.2", "K75.3", "K75.4", "K75.8", "K75.9"
-) %>%
-    str_replace("\\.", "") %>%
-    tolower()
+pci <- get_codes_in_group(
+    "../codes_files/icd10.yaml",
+    "mi_stemi_schnier"
+)
 
 ####### COUNT UP OCCURRENCES OF CODE GROUPS IN EACH SPELL #######
 
