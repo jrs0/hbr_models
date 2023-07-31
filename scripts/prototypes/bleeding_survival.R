@@ -270,32 +270,10 @@ index_spells_no_subsequent_bleed <- index_spell_data %>%
 index_spells_bleeding_survival <- index_spells_no_subsequent_bleed %>%
     bind_rows(index_spells_with_subsequent_bleed)
 
-
-# Pick out the spells before the index event
-filter(spell_time_difference < 0) %>%
-    arrange(spell_time_difference, .by_group = TRUE) %>%
-    slice_head(n = 2) %>%
-    # Added the bleeding occurred flag if there is a subsequent
-    # spell which is a bleed
-    mutate(bleed_status = if_else(
-        (n() == 2) & (last(bleeding_count) > 0), 1, 0
-    )) %>%
-    # Add the time-to-bleed, which is either the spell time difference, or
-    # the maximum dataset date if right censored
-    mutate(bleed_time = if_else(bleed_status == 1,
-        spell_time_difference, end_date - index_date
-    )) %>%
-    # Want just one row per index event; currently there is either
-    # one (for no bleed) or two (for a bleed). =Want to keep all
-    # bleeding rows, and only index rows when there is no bleeding row.
-    ungroup() %>%
-    filter((index_spell_id != spell_id) | bleed_status == 0) %>%
-    # There is no use for the nhs_number or index spell id (each
-    # row is considered a separate event), or the spell_start_date
-    select(
-        index_date, bleed_status, bleed_time, age_at_index, pci_performed,
-        acs_stemi_schnier, acs_nstemi
-    )
+# Finally, join all the index data to form the dataset
+dataset <- index_spell_data %>%
+    left_join(index_spells_bleeding_survival, by = "spell_id") %>%
+    left_join(counts_before_index, by = "spell_id")
 
 ####### DESCRIPTIVE ANALYSIS #######
 
