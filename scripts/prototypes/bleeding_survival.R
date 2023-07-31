@@ -178,21 +178,23 @@ index_spells_with_nhs_number <- index_spell_data %>%
     left_join(nhs_numbers, by = "spell_id")
 
 code_group_counts_with_nhs_number <- code_group_counts %>%
-    left_join(nhs_numbers, by = "spell_id")
+    left_join(nhs_numbers, by = "spell_id") %>%
+    # Rename the spell id here to distinguish the index spell
+    # id (which is always called spell_id) from the other spells
+    # before and after the index
+    rename(other_spell_id = spell_id)
 
 # All spells for each patient, with the time difference between
 # the spell and the index spell
 spells_relative_to_index <- index_spells_with_nhs_number %>%
-    # Will need to distinguish the index spell id later
-    rename(index_spell_id = spell_id) %>%
     # For each index event, join all other spells that the patient had.
     # Expect many-to-many because the same patient could have multiple index events.
     left_join(code_group_counts_with_nhs_number, by = "nhs_number", relationship = "many-to-many") %>%
-    # Join on the spell data
-    left_join(spell_data, by = "spell_id") %>%
+    # Join on the spell data to the other spells
+    left_join(spell_data, by = c("other_spell_id"="spell_id")) %>%
+    # Positive time difference for after, negative for before
     mutate(spell_time_difference = spell_start_date - index_date)
     
-
 # This table contains the total number of each diagnosis and procedure
 # group in a period before the index event. This could be the previous
 # 12 months, excluding the month before the index event (to account for
@@ -203,7 +205,8 @@ min_period_before <- lubridate::dmonths(1) # Exclude month before index (not cod
 counts_before_index <- spells_relative_to_index %>%
     # Add a mask to only include the spells in a particular window before the
     # index event (up to one year before, excluding the month before the index event
-    # when data will not be available).
+    # when data will not be available). Need to negate the time difference because 
+    # spells before the index have negative time.
     mutate(spell_valid_mask = if_else(
         (-spell_time_difference) > min_period_before &
             (-spell_time_difference) <= max_period_before,
@@ -211,7 +214,7 @@ counts_before_index <- spells_relative_to_index %>%
         1
     )) %>%
     # Do all operations per patient (and per index event for patients with multiple index events)
-    group_by(index_spell_id) %>%
+    group_by(spell_id) %>%
     # Sum up the counts in the valid window. By multipling the count by the valid flag (0 or 1),
     # it is only included if it came from a spell in the valid window.
     summarise(
@@ -242,15 +245,12 @@ index_spells_with_subsequent_bleed <- spells_relative_to_index %>%
         spell_time_difference < max_period_after,
         bleeding_al_ani_count > 0,
     ) %>%
-    transmute(
-        spell_id = index_spell_id,
-        bleeding_time = spell_time_difference,
-    ) %>%
     # This will include a row for all subsequent bleeds.
     # Pick only the first
     group_by(spell_id) %>%
-    filter(
-        bleeding_time == min(bleeding_time),
+    transmute(
+        spell_id,
+        bleeding_time = min(spell_time_difference),
         bleeding_status = 1,
     )
 
