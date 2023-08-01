@@ -39,6 +39,6 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
-Install maturin using `pip install maturin`. For developing, run `maturin develop` in the `py_hic` folder.
+Install maturin using `pip install maturin[patchelf]` (the `patchelf` feature prevents warnings about setting `rpath`). For developing, run `maturin develop` in the `py_hic` folder.
 
 
