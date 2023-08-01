@@ -257,9 +257,11 @@ index_with_subsequent_bleed <- spell_time_differences %>%
         spell_time_difference < max_period_after,
         bleeding_al_ani_count > 0,
     ) %>%
+    # Group by the index event and pick the first bleeding event
     group_by(spell_id) %>%
-    transmute(
-        spell_id,
+    summarise(
+        # Note comment above -- might accidentally include
+        # the index (to fix)
         bleeding_time = min(spell_time_difference),
         bleeding_status = 1,
     )
