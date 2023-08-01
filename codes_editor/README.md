@@ -11,7 +11,11 @@ sudo apt install libgtk-3-dev libsoup-gnome2.4-dev libjavascriptcoregtk-4.0-dev 
 
 ## Rust Dependencies
 
-Install rustup according to your platforms method.
+Install rustup according to the [instructions](https://www.rust-lang.org/tools/install) for Linux. Install the Tauri client according to the [documentation](https://tauri.app/v1/guides/getting-started/setup/next-js) using:
+
+```bash
+cargo install tauri-cli
+```
 
 ## Node Dependencies
 
