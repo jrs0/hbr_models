@@ -1,6 +1,6 @@
 # R Library
 
-This folder contains the R interface to the underlying rust library. It provides access to the data sources (from a real SQL Server), or the synthetic data for testing/development purposes
+This folder contains the R interface to the underlying Rust library. It provides access to the data sources (from a real SQL Server), or the synthetic data for testing/development purposes.
 
 ## Development on Windows
 
