@@ -3,7 +3,6 @@
 ##
 ##
 
-
 ##' Get the list of valid group names defined in a codes file
 get_groups_in_codes_file <- function(codes_file_path) {
     if (!file.exists(codes_file_path)) {
