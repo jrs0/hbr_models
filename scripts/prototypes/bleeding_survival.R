@@ -162,7 +162,8 @@ index_spell_info <- index_spells %>%
         spell_id,
         pci_performed = (pci_count > 0), # If false, conservatively managed
         stemi = (mi_stemi_schnier_count > 0),
-        nstemi = (mi_nstemi_schnier_count > 0)
+        nstemi = (mi_nstemi_schnier_count > 0),
+        mi = (mi_schnier_count > 0)
     ) %>%
     left_join(spell_data, by = "spell_id") %>%
     rename(
@@ -283,8 +284,8 @@ index_bleeding_survival <- index_no_subsequent_bleed %>%
     bind_rows(index_with_subsequent_bleed)
 
 # Finally, join all the index data to form the dataset
-dataset <- index_spell_data %>%
-    left_join(index_spells_bleeding_survival, by = "spell_id") %>%
+dataset <- index_spell_info %>%
+    left_join(index_bleeding_survival, by = "spell_id") %>%
     left_join(counts_before_index, by = "spell_id")
 
 ####### DESCRIPTIVE ANALYSIS #######
@@ -294,32 +295,31 @@ dataset <- index_spell_data %>%
 
 # Proportion of index events with a PCI procedure
 # (expect the majority)
-p_pci_performed <- bleed_times %>%
+p_pci_performed <- dataset %>%
     pull(pci_performed) %>%
     mean()
 
 # Calculate the proportion of index events with ACS (either
 # STEMI or NSTEMI) (expect majority)
-p_acs <- bleed_times %>%
-    mutate(acs = (acs_stemi_schnier | acs_nstemi)) %>%
-    pull(acs) %>%
+p_mi <- dataset %>%
+    pull(mi) %>%
     mean()
 
 # Calculate proportion of _all_ index events that are STEMI
 # or NSTEMI (note some index events are not ACS)
-p_stemi <- bleed_times %>%
-    pull(acs_stemi_schnier) %>%
+p_stemi <- dataset %>%
+    pull(stemi) %>%
     mean()
-p_nstemi <- bleed_times %>%
-    pull(acs_nstemi) %>%
+p_nstemi <- dataset %>%
+    pull(nstemi) %>%
     mean()
 
-# Calculate what proportion of patients with bleeding
+# Calculate the proportion of patients with bleeding
 # events in one year. Should be around 0-5%. This estimate
 # will underestimate risk due to right censoring.
-p_bleed_1y_naive <- bleed_times %>%
-    filter(bleed_time < lubridate::dyears(1)) %>%
-    pull(bleed_status) %>%
+p_bleed_1y_naive <- dataset %>%
+    filter(bleeding_time < lubridate::dyears(1)) %>%
+    pull(bleeding_status) %>%
     mean()
 
 ####### END OF DATA PREPROCESSING #######
@@ -347,11 +347,11 @@ library(survival)
 library(ggsurvfit)
 library(gtsummary)
 
-sv <- Surv(bleed_times$bleed_time, bleed_times$bleed_status)
-s1 <- survfit(Surv(bleed_time, bleed_status) ~ 1, data = bleed_times)
+sv <- Surv(dataset$bleeding_time, dataset$bleeding_status)
+s1 <- survfit(Surv(bleeding_time, bleeding_status) ~ 1, data = dataset)
 
 # Plot Kaplan-Meier curves
-survfit2(Surv(bleed_time, bleed_status) ~ 1, data = bleed_times) %>%
+survfit2(Surv(bleeding_time, bleeding_status) ~ 1, data = dataset) %>%
     ggsurvfit() +
     # Convert x scale to days
     scale_x_continuous(labels = function(x) x / 86400) +
@@ -362,7 +362,7 @@ survfit2(Surv(bleed_time, bleed_status) ~ 1, data = bleed_times) %>%
 # Find the bleeding risk at one year. This shows the survival
 # probability at one year, along with upper and lower confidence
 # intervals.
-one_year_risk <- summary(survfit(Surv(bleed_time, bleed_status) ~ 1, data = bleed_times),
+one_year_risk <- summary(survfit(Surv(bleeding_time, bleeding_status) ~ 1, data = dataset),
     times = 365 * 24 * 60 * 60
 )
 
@@ -374,7 +374,7 @@ p_bleed_one_year_upper <- 1 - one_year_risk$lower # Lower CI, 95%
 p_bleed_one_year_lower <- 1 - one_year_risk$upper # Upper CI, 95%
 
 # Show survival in table
-survfit(Surv(bleed_time, bleed_status) ~ 1, data = bleed_times) %>%
+survfit(Surv(bleeding_time, bleeding_status) ~ 1, data = dataset) %>%
     tbl_survfit(
         times = 365 * 24 * 60 * 60,
         label_header = "**1-year survival (95% CI)**"
@@ -382,16 +382,16 @@ survfit(Surv(bleed_time, bleed_status) ~ 1, data = bleed_times) %>%
 
 ####### SURVIVAL ANALYSIS (AGE INPUT) #######
 
-coxph(Surv(bleed_time, bleed_status) ~ age_at_index, data = bleed_times)
+coxph(Surv(bleeding_time, bleeding_status) ~ age_at_index, data = dataset)
 
-survdiff(Surv(bleed_time, bleed_status) ~ age_at_index,
-    data = bleed_times
+survdiff(Surv(bleeding_time, bleeding_status) ~ age_at_index,
+    data = dataset
 )
 
 # Show the regression results as a table
 coxph(
-    Surv(bleed_time, bleed_status) ~ age_at_index
-        + pci_performed + acs_stemi_schnier + acs_nstemi,
-    data = bleed_times
+    Surv(bleeding_time, bleeding_status) ~ age_at_index
+        + pci_performed + stemi + nstemi,
+    data = dataset
 ) %>%
     tbl_regression(exp = TRUE)
