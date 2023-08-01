@@ -34,7 +34,8 @@ id <- dbplyr::in_catalog("abi", "dbo", "vw_apc_sem_spell_001")
 
 # Date range for the data. This is necessary for computing right censoring
 # for the survival data. To be valid, make sure that the database contains data
-# for the full date range given here.
+# for the full date range given here -- the end date is used as the follow up
+# time for right censoring.
 start_date <- lubridate::ymd_hms("2020-01-01 00:00:00")
 end_date <- lubridate::ymd_hms("2021-01-01 00:00:00")
 
@@ -151,25 +152,24 @@ index_spells <- code_group_counts %>%
     filter(mi_schnier_count > 0 | pci_count > 0) %>%
     select(spell_id)
 
-# Derive data about the index spell from the counts
-index_spell_data <- index_spells %>%
-    left_join(code_group_counts, by="spell_id") %>%    
+# Derive data about the index spell from the counts and spell data
+index_spell_info <- index_spells %>%
+    left_join(code_group_counts, by = "spell_id") %>%
     # Record whether the index event is PCI or conservatively managed (ACS).
     # Record STEMI and NSTEMI as separate columns to account for possibility
     # of neither (i.e. no ACS).
-    mutate(
+    transmute(
+        spell_id,
         pci_performed = (pci_count > 0), # If false, conservatively managed
         stemi = (mi_stemi_schnier_count > 0),
         nstemi = (mi_nstemi_schnier_count > 0)
     ) %>%
-    # Join on the index spell data and rename to refer to index
     left_join(spell_data, by = "spell_id") %>%
     rename(
-        index_date = spell_start_date,
-        age_at_index = age
-    ) %>%
-    # Drop unnecessary count columns (will be joined back later)
-    select(-matches("count"))
+        age_at_index = age,
+        index_date = spell_start_date
+    )
+
 
 ####### COMPUTE COUNT OF PREVIOUS DIAGNOSES AND PROCEDURES #######
 
@@ -186,15 +186,24 @@ code_group_counts_with_nhs_number <- code_group_counts %>%
 
 # All spells for each patient, with the time difference between
 # the spell and the index spell
-spells_relative_to_index <- index_spells_with_nhs_number %>%
+spell_time_differences <- index_spells_with_nhs_number %>%
     # For each index event, join all other spells that the patient had.
     # Expect many-to-many because the same patient could have multiple index events.
-    left_join(code_group_counts_with_nhs_number, by = "nhs_number", relationship = "many-to-many") %>%
+    left_join(
+        code_group_counts_with_nhs_number,
+        by = "nhs_number", relationship = "many-to-many"
+    ) %>%
     # Join on the spell data to the other spells
-    left_join(spell_data, by = c("other_spell_id"="spell_id")) %>%
+    left_join(spell_data, by = c("other_spell_id" = "spell_id")) %>%
+    # Join on index spell information
+    left_join(index_spell_info, by = "spell_id") %>%
     # Positive time difference for after, negative for before
-    mutate(spell_time_difference = spell_start_date - index_date)
-    
+    transmute(
+        spell_id,
+        other_spell_id,
+        spell_time_difference = spell_start_date - index_date
+    )
+
 # This table contains the total number of each diagnosis and procedure
 # group in a period before the index event. This could be the previous
 # 12 months, excluding the month before the index event (to account for
@@ -205,7 +214,7 @@ min_period_before <- lubridate::dmonths(1) # Exclude month before index (not cod
 counts_before_index <- spells_relative_to_index %>%
     # Add a mask to only include the spells in a particular window before the
     # index event (up to one year before, excluding the month before the index event
-    # when data will not be available). Need to negate the time difference because 
+    # when data will not be available). Need to negate the time difference because
     # spells before the index have negative time.
     mutate(spell_valid_mask = if_else(
         (-spell_time_difference) > min_period_before &
@@ -213,6 +222,8 @@ counts_before_index <- spells_relative_to_index %>%
         0,
         1
     )) %>%
+    # Join the count information
+    left_join(code_group_counts, by=c("other_spell_id"="spell_id")) %>%
     # Do all operations per patient (and per index event for patients with multiple index events)
     group_by(spell_id) %>%
     # Sum up the counts in the valid window. By multipling the count by the valid flag (0 or 1),
@@ -224,7 +235,6 @@ counts_before_index <- spells_relative_to_index %>%
         mi_nstemi_schnier_count_before = sum(mi_nstemi_schnier_count * spell_valid_mask),
         pci_count_before = sum(pci_count * spell_valid_mask),
     )
-
 
 ####### COMPUTE TIME TO FIRST BLEED AND FIRST MI #######
 
