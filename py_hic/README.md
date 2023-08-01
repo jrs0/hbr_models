@@ -17,3 +17,9 @@ maturin develop
 ```
 
 If you find that you get Rust build errors after changing Python environment (or version), run `cargo clean` from the same directory and try again.
+
+To use the library, run (for example):
+
+```python
+from py_hic.clinical_codes import get_codes_in_group
+```
