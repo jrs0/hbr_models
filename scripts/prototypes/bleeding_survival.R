@@ -184,8 +184,9 @@ code_group_counts_with_nhs_number <- code_group_counts %>%
     # before and after the index
     rename(other_spell_id = spell_id)
 
-# All spells for each patient, with the time difference between
-# the spell and the index spell
+# Contains the index spell (spell_id), the patient's other
+# spells (other_spell_id), and the duration from index to
+# other spell (negative if the other spell is before the index).
 spell_time_differences <- index_spells_with_nhs_number %>%
     # For each index event, join all other spells that the patient had.
     # Expect many-to-many because the same patient could have multiple index events.
@@ -246,17 +247,16 @@ min_period_after <- lubridate::dhours(72) # Potentially exclude following 72 hou
 # Table of just the index spells which have a subsequent bleed in the
 # window defined above. This is generic -- the only bit that depends on the
 # column is the filter and summarise part.
-index_spells_with_subsequent_bleed <- spells_relative_to_index %>%
-    # Add a mask to only include the spells in a particular window before the
-    # index event (up to one year before, excluding the month before the index event
-    # when data will not be available).
+index_with_subsequent_bleed <- spell_time_differences %>%
+    # Join the count data for each subsequent spell (other spell)
+    left_join(code_group_counts, by=c("other_spell_id"="spell_id")) %>%
+    # Only keep other spells where the bleeding count is non-zero
+    # and the spell occurred in the correct window after the index
     filter(
         spell_time_difference >= min_period_after,
         spell_time_difference < max_period_after,
         bleeding_al_ani_count > 0,
     ) %>%
-    # This will include a row for all subsequent bleeds.
-    # Pick only the first
     group_by(spell_id) %>%
     transmute(
         spell_id,
@@ -267,8 +267,8 @@ index_spells_with_subsequent_bleed <- spells_relative_to_index %>%
 # Now get all the index spells where there was no subsequent bleed,
 # and record the right censoring time based on the end date of the
 # raw dataset
-index_spells_no_subsequent_bleed <- index_spell_data %>%
-    filter(!(spell_id %in% (index_spells_with_subsequent_bleed$spell_id))) %>%
+index_no_subsequent_bleed <- index_spell_info %>%
+    filter(!(spell_id %in% (index_with_subsequent_bleed$spell_id))) %>%
     transmute(
         spell_id,
         bleeding_time = end_date - index_date, # Right-censored
@@ -277,8 +277,8 @@ index_spells_no_subsequent_bleed <- index_spell_data %>%
 
 # Join together the bleed/no-bleed rows to get all the bleeding
 # survival data
-index_spells_bleeding_survival <- index_spells_no_subsequent_bleed %>%
-    bind_rows(index_spells_with_subsequent_bleed)
+index_bleeding_survival <- index_no_subsequent_bleed %>%
+    bind_rows(index_with_subsequent_bleed)
 
 # Finally, join all the index data to form the dataset
 dataset <- index_spell_data %>%
