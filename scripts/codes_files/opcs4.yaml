@@ -1804,6 +1804,7 @@ categories:
     docs: Nervous System
     exclude:
     - pci
+    - packed_red_cells_transfusion
     index:
     - A01
     - A84
@@ -2631,6 +2632,7 @@ categories:
     docs: Endocrine System and Breast
     exclude:
     - pci
+    - packed_red_cells_transfusion
     index:
     - B01
     - B45
@@ -4574,6 +4576,7 @@ categories:
     docs: Eye
     exclude:
     - pci
+    - packed_red_cells_transfusion
     index:
     - C01
     - C91
@@ -5107,6 +5110,7 @@ categories:
     docs: Ear
     exclude:
     - pci
+    - packed_red_cells_transfusion
     index:
     - D01
     - D28
@@ -6792,6 +6796,7 @@ categories:
     docs: Respiratory Tract
     exclude:
     - pci
+    - packed_red_cells_transfusion
     index:
     - E01
     - E98
@@ -8027,6 +8032,7 @@ categories:
     docs: Mouth
     exclude:
     - pci
+    - packed_red_cells_transfusion
     index:
     - F01
     - F67
@@ -9856,6 +9862,7 @@ categories:
     docs: Upper Digestive System
     exclude:
     - pci
+    - packed_red_cells_transfusion
     index:
     - G01
     - G82
@@ -11430,6 +11437,7 @@ categories:
     docs: Lower Digestive System
     exclude:
     - pci
+    - packed_red_cells_transfusion
     index:
     - H01
     - H73
@@ -13064,6 +13072,7 @@ categories:
     docs: Other Abdominal Organs, Principally Digestive
     exclude:
     - pci
+    - packed_red_cells_transfusion
     index:
     - J01
     - J77
@@ -15087,6 +15096,8 @@ categories:
       - K789
       name: K78
     docs: Heart
+    exclude:
+    - packed_red_cells_transfusion
     index:
     - K01
     - K78
@@ -17372,6 +17383,7 @@ categories:
     docs: Arteries and Veins
     exclude:
     - pci
+    - packed_red_cells_transfusion
     index:
     - L01
     - L99
@@ -19258,6 +19270,7 @@ categories:
     docs: Urinary
     exclude:
     - pci
+    - packed_red_cells_transfusion
     index:
     - M01
     - M86
@@ -19884,6 +19897,7 @@ categories:
     docs: Male Genital Organs
     exclude:
     - pci
+    - packed_red_cells_transfusion
     index:
     - N01
     - N35
@@ -20561,6 +20575,7 @@ categories:
     docs: Lower Female Genital Tract
     exclude:
     - pci
+    - packed_red_cells_transfusion
     index:
     - P01
     - P32
@@ -21742,6 +21757,7 @@ categories:
     docs: Upper Female Genital Tract
     exclude:
     - pci
+    - packed_red_cells_transfusion
     index:
     - Q01
     - Q58
@@ -22438,6 +22454,7 @@ categories:
     docs: Female Genital Tract Associated with Pregnancy, Childbirth and the Puerperium
     exclude:
     - pci
+    - packed_red_cells_transfusion
     index:
     - R01
     - R43
@@ -24012,6 +24029,7 @@ categories:
     docs: Skin
     exclude:
     - pci
+    - packed_red_cells_transfusion
     index:
     - S01
     - S70
@@ -26042,6 +26060,7 @@ categories:
     docs: Soft Tissue
     exclude:
     - pci
+    - packed_red_cells_transfusion
     index:
     - T01
     - T98
@@ -27115,6 +27134,7 @@ categories:
     docs: Diagnostic Imaging, Testing and Rehabilitation
     exclude:
     - pci
+    - packed_red_cells_transfusion
     index:
     - U01
     - U54
@@ -28791,6 +28811,7 @@ categories:
     docs: Bones and Joints of Skull and Spine
     exclude:
     - pci
+    - packed_red_cells_transfusion
     index:
     - V01
     - V70
@@ -31451,6 +31472,7 @@ categories:
     docs: Other Bones and Joints
     exclude:
     - pci
+    - packed_red_cells_transfusion
     index:
     - W01
     - W99
@@ -31479,6 +31501,8 @@ categories:
         index: X019
         name: X01.9
       docs: Replantation of upper limb
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X011
       - X019
@@ -31500,6 +31524,8 @@ categories:
         index: X029
         name: X02.9
       docs: Replantation of lower limb
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X021
       - X029
@@ -31518,6 +31544,8 @@ categories:
         index: X039
         name: X03.9
       docs: Replantation of other organ
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X031
       - X039
@@ -31533,6 +31561,8 @@ categories:
         index: X049
         name: X04.9
       docs: Transplantation between systems
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X041
       - X049
@@ -31554,6 +31584,8 @@ categories:
         index: X059
         name: X05.9
       docs: Implantation of prosthesis for limb
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X051
       - X059
@@ -31581,6 +31613,8 @@ categories:
         index: X079
         name: X07.9
       docs: Amputation of arm
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X071
       - X079
@@ -31605,6 +31639,8 @@ categories:
         index: X089
         name: X08.9
       docs: Amputation of hand
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X081
       - X089
@@ -31632,6 +31668,8 @@ categories:
         index: X099
         name: X09.9
       docs: Amputation of leg
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X091
       - X099
@@ -31656,6 +31694,8 @@ categories:
         index: X109
         name: X10.9
       docs: Amputation of foot
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X101
       - X109
@@ -31674,6 +31714,8 @@ categories:
         index: X119
         name: X11.9
       docs: Amputation of toe
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X111
       - X119
@@ -31701,6 +31743,8 @@ categories:
         index: X129
         name: X12.9
       docs: Operations on amputation stump
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X121
       - X129
@@ -31725,6 +31769,8 @@ categories:
         index: X149
         name: X14.9
       docs: Clearance of pelvis
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X141
       - X149
@@ -31749,6 +31795,8 @@ categories:
         index: X159
         name: X15.9
       docs: Operations for sexual transformation
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X151
       - X159
@@ -31779,6 +31827,8 @@ categories:
         index: X169
         name: X16.9
       docs: Operations for disorders of sex development
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X161
       - X169
@@ -31794,6 +31844,8 @@ categories:
         index: X179
         name: X17.9
       docs: Separation of conjoined twins
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X171
       - X179
@@ -31812,6 +31864,8 @@ categories:
         index: X199
         name: X19.9
       docs: Correction of congenital deformity of shoulder or upper arm
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X191
       - X199
@@ -31839,6 +31893,8 @@ categories:
         index: X209
         name: X20.9
       docs: Correction of congenital deformity of forearm
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X201
       - X209
@@ -31872,6 +31928,8 @@ categories:
         index: X219
         name: X21.9
       docs: Correction of congenital deformity of hand
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X211
       - X219
@@ -31902,6 +31960,8 @@ categories:
         index: X229
         name: X22.9
       docs: Correction of congenital deformity of hip
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X221
       - X229
@@ -31932,6 +31992,8 @@ categories:
         index: X239
         name: X23.9
       docs: Correction of congenital deformity of leg
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X231
       - X239
@@ -31956,6 +32018,8 @@ categories:
         index: X249
         name: X24.9
       docs: Primary correction of congenital deformity of foot
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X241
       - X249
@@ -31980,6 +32044,8 @@ categories:
         index: X259
         name: X25.9
       docs: Other correction of congenital deformity of foot
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X251
       - X259
@@ -32007,6 +32073,8 @@ categories:
         index: X279
         name: X27.9
       docs: Correction of minor congenital deformity of foot
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X271
       - X279
@@ -32025,6 +32093,8 @@ categories:
         index: X289
         name: X28.9
       docs: Intermittent infusion of therapeutic substance
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X281
       - X289
@@ -32046,6 +32116,8 @@ categories:
         index: X299
         name: X29.9
       docs: Continuous Infusion of therapeutic substance
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X291
       - X299
@@ -32076,6 +32148,8 @@ categories:
         index: X309
         name: X30.9
       docs: Injection of therapeutic substance
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X301
       - X309
@@ -32097,6 +32171,8 @@ categories:
         index: X319
         name: X31.9
       docs: Injection of radiocontrast material
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X311
       - X319
@@ -32130,36 +32206,54 @@ categories:
         index: X329
         name: X32.9
       docs: Exchange blood transfusion
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X321
       - X329
       name: X32
     - categories:
       - docs: Intra-arterial blood transfusion
+        exclude:
+        - packed_red_cells_transfusion
         index: X331
         name: X33.1
       - docs: Intravenous blood transfusion of packed cells
         index: X332
         name: X33.2
       - docs: Intravenous blood transfusion of platelets
+        exclude:
+        - packed_red_cells_transfusion
         index: X333
         name: X33.3
       - docs: Autologous peripheral blood stem cell transplant
+        exclude:
+        - packed_red_cells_transfusion
         index: X334
         name: X33.4
       - docs: Syngeneic peripheral blood stem cell transplant
+        exclude:
+        - packed_red_cells_transfusion
         index: X335
         name: X33.5
       - docs: Allogeneic peripheral blood stem cell transplant
+        exclude:
+        - packed_red_cells_transfusion
         index: X336
         name: X33.6
       - docs: Autologous transfusion of red blood cells
+        exclude:
+        - packed_red_cells_transfusion
         index: X337
         name: X33.7
       - docs: Other specified other blood transfusion
+        exclude:
+        - packed_red_cells_transfusion
         index: X338
         name: X33.8
       - docs: Unspecified other blood transfusion
+        exclude:
+        - packed_red_cells_transfusion
         index: X339
         name: X33.9
       docs: Other blood transfusion
@@ -32187,6 +32281,8 @@ categories:
         index: X349
         name: X34.9
       docs: Other intravenous transfusion
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X341
       - X349
@@ -32214,6 +32310,8 @@ categories:
         index: X359
         name: X35.9
       docs: Other intravenous injection
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X351
       - X359
@@ -32238,6 +32336,8 @@ categories:
         index: X369
         name: X36.9
       docs: Blood withdrawal
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X361
       - X369
@@ -32268,6 +32368,8 @@ categories:
         index: X379
         name: X37.9
       docs: Intramuscular injection
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X371
       - X379
@@ -32301,6 +32403,8 @@ categories:
         index: X389
         name: X38.9
       docs: Subcutaneous injection
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X381
       - X389
@@ -32331,6 +32435,8 @@ categories:
         index: X399
         name: X39.9
       docs: Other route of administration of therapeutic substance
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X391
       - X399
@@ -32364,6 +32470,8 @@ categories:
         index: X409
         name: X40.9
       docs: Compensation for renal failure
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X401
       - X409
@@ -32382,6 +32490,8 @@ categories:
         index: X419
         name: X41.9
       docs: Placement of ambulatory apparatus for compensation for renal failure
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X411
       - X419
@@ -32397,6 +32507,8 @@ categories:
         index: X429
         name: X42.9
       docs: Placement of other apparatus for compensation for renal failure
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X421
       - X429
@@ -32412,6 +32524,8 @@ categories:
         index: X439
         name: X43.9
       docs: Compensation for liver failure
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X431
       - X439
@@ -32436,6 +32550,8 @@ categories:
         index: X449
         name: X44.9
       docs: Administration of vaccine
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X441
       - X449
@@ -32457,6 +32573,8 @@ categories:
         index: X459
         name: X45.9
       docs: Donation of organ
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X451
       - X459
@@ -32475,6 +32593,8 @@ categories:
         index: X469
         name: X46.9
       docs: Donation of other tissue
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X461
       - X469
@@ -32490,6 +32610,8 @@ categories:
         index: X479
         name: X47.9
       docs: Other exchange blood transfusion
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X471
       - X479
@@ -32511,6 +32633,8 @@ categories:
         index: X489
         name: X48.9
       docs: Immobilisation using plaster cast
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X481
       - X489
@@ -32544,6 +32668,8 @@ categories:
         index: X499
         name: X49.9
       docs: Other external support of limb
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X491
       - X499
@@ -32571,6 +32697,8 @@ categories:
         index: X509
         name: X50.9
       docs: External resuscitation
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X501
       - X509
@@ -32589,6 +32717,8 @@ categories:
         index: X519
         name: X51.9
       docs: Change of body temperature
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X511
       - X519
@@ -32607,6 +32737,8 @@ categories:
         index: X529
         name: X52.9
       docs: Oxygen therapy
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X521
       - X529
@@ -32628,6 +32760,8 @@ categories:
         index: X539
         name: X53.9
       docs: Extirpation of unspecified organ
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X531
       - X539
@@ -32649,6 +32783,8 @@ categories:
         index: X559
         name: X55.9
       docs: Other operations on unspecified organ
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X551
       - X559
@@ -32670,6 +32806,8 @@ categories:
         index: X569
         name: X56.9
       docs: Intubation of trachea
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X561
       - X569
@@ -32685,6 +32823,8 @@ categories:
         index: X589
         name: X58.9
       docs: Artificial support for body system
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X581
       - X589
@@ -32700,6 +32840,8 @@ categories:
         index: X599
         name: X59.9
       docs: Anaesthetic without surgery
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X591
       - X599
@@ -32724,6 +32866,8 @@ categories:
         index: X609
         name: X60.9
       docs: Rehabilitation assessment
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X601
       - X609
@@ -32748,6 +32892,8 @@ categories:
         index: X619
         name: X61.9
       docs: Complementary therapy
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X611
       - X619
@@ -32769,14 +32915,20 @@ categories:
         index: X629
         name: X62.9
       docs: Assessment
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X621
       - X629
       name: X62
     - docs: Category retired - refer to introduction
+      exclude:
+      - packed_red_cells_transfusion
       index: X63
       name: X63
     - docs: Category retired - refer to introduction
+      exclude:
+      - packed_red_cells_transfusion
       index: X64
       name: X64
     - categories:
@@ -32808,6 +32960,8 @@ categories:
         index: X659
         name: X65.9
       docs: Radiotherapy delivery
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X651
       - X659
@@ -32826,6 +32980,8 @@ categories:
         index: X669
         name: X66.9
       docs: Cognitive behavioural therapy
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X661
       - X669
@@ -32859,6 +33015,8 @@ categories:
         index: X679
         name: X67.9
       docs: Preparation for external beam radiotherapy
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X671
       - X679
@@ -32880,6 +33038,8 @@ categories:
         index: X689
         name: X68.9
       docs: Preparation for brachytherapy
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X681
       - X689
@@ -32898,6 +33058,8 @@ categories:
         index: X699
         name: X69.9
       docs: Other radiotherapy
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X691
       - X699
@@ -32925,6 +33087,8 @@ categories:
         index: X709
         name: X70.9
       docs: Procurement of drugs for chemotherapy for neoplasm in Bands 1-5
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X701
       - X709
@@ -32952,6 +33116,8 @@ categories:
         index: X719
         name: X71.9
       docs: Procurement of drugs for chemotherapy for neoplasm in Bands 6-10
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X711
       - X719
@@ -32976,6 +33142,8 @@ categories:
         index: X729
         name: X72.9
       docs: Delivery of chemotherapy for neoplasm
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X721
       - X729
@@ -32991,6 +33159,8 @@ categories:
         index: X739
         name: X73.9
       docs: Delivery of oral chemotherapy for neoplasm
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X731
       - X739
@@ -33009,6 +33179,8 @@ categories:
         index: X749
         name: X74.9
       docs: Other chemotherapy drugs
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X741
       - X749
@@ -33021,6 +33193,8 @@ categories:
         index: X819
         name: X81.9
       docs: High cost gastrointestinal drugs
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X818
       - X819
@@ -33045,6 +33219,8 @@ categories:
         index: X829
         name: X82.9
       docs: High cost hypertension drugs
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X821
       - X829
@@ -33066,6 +33242,8 @@ categories:
         index: X839
         name: X83.9
       docs: High cost other cardiovascular drugs
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X831
       - X839
@@ -33087,6 +33265,8 @@ categories:
         index: X849
         name: X84.9
       docs: High cost respiratory drugs
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X841
       - X849
@@ -33117,6 +33297,8 @@ categories:
         index: X859
         name: X85.9
       docs: High cost neurology drugs
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X851
       - X859
@@ -33150,6 +33332,8 @@ categories:
         index: X869
         name: X86.9
       docs: High cost anti-infective drugs
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X861
       - X869
@@ -33174,6 +33358,8 @@ categories:
         index: X879
         name: X87.9
       docs: High cost endocrinology drugs
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X871
       - X879
@@ -33186,6 +33372,8 @@ categories:
         index: X889
         name: X88.9
       docs: High cost reproductive and urinary tract drugs
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X888
       - X889
@@ -33213,6 +33401,8 @@ categories:
         index: X899
         name: X89.9
       docs: High cost immunosuppressant drugs
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X891
       - X899
@@ -33246,6 +33436,8 @@ categories:
         index: X909
         name: X90.9
       docs: High cost haematology and nutrition drugs
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X901
       - X909
@@ -33270,6 +33462,8 @@ categories:
         index: X919
         name: X91.9
       docs: High cost metabolic drugs
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X911
       - X919
@@ -33294,6 +33488,8 @@ categories:
         index: X929
         name: X92.9
       docs: High cost musculoskeletal drugs
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X921
       - X929
@@ -33315,6 +33511,8 @@ categories:
         index: X939
         name: X93.9
       docs: High cost ophthalmology drugs
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X931
       - X939
@@ -33327,6 +33525,8 @@ categories:
         index: X949
         name: X94.9
       docs: High cost ear, nose and throat drugs
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X948
       - X949
@@ -33345,6 +33545,8 @@ categories:
         index: X959
         name: X95.9
       docs: High cost dermatology drugs
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X951
       - X959
@@ -33366,6 +33568,8 @@ categories:
         index: X969
         name: X96.9
       docs: High cost immunology drugs
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X961
       - X969
@@ -33378,6 +33582,8 @@ categories:
         index: X979
         name: X97.9
       docs: High cost anaesthesia drugs
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X978
       - X979
@@ -33393,6 +33599,8 @@ categories:
         index: X989
         name: X98.9
       docs: Other high cost drugs
+      exclude:
+      - packed_red_cells_transfusion
       index:
       - X981
       - X989
@@ -35640,6 +35848,7 @@ categories:
     docs: Subsidiary Classification of Methods of Operation
     exclude:
     - pci
+    - packed_red_cells_transfusion
     index:
     - Y01
     - Y99
@@ -38531,6 +38740,7 @@ categories:
     docs: Subsidiary Classification of Sites of Operation
     exclude:
     - pci
+    - packed_red_cells_transfusion
     index:
     - Z01
     - Z99
@@ -38542,3 +38752,4 @@ categories:
   name: OPCS-4
 groups:
 - pci
+- packed_red_cells_transfusion
