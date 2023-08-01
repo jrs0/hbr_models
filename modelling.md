@@ -127,9 +127,11 @@ The clinically relevant bleeding definition is BARC 3 or 5, as used in the ARC H
 
     Inclusion/exclusion notes (to check):
     * The codes K31.80, K63.80,  were excluded because its description in ICD-10 did not appear to correspond exclusively to a definite bleeding event, and may reduce positive predictive value of the codes.
-    * Keeping ulcerative colitis (K51), even though it is not directly a bleeding condition, as it was presumably determined to often occur with bleeding
+    * Keeping ulcerative colitis (K51), even though it is not directly a bleeding condition, as it was presumably determined to often occur with bleeding, but only in an acute flare. Consider removing this code to make the group correspond more closely to bleeding.
     * Keeping diverticular disease of intestine (K57), even though it is not directly a bleeding condition, as it was presumably determined to often occur with bleeding
     * Note: K92.0, K92.1 and K92.2 occurred twice in the original list (applicable to both lower and upper gastrointestinal bleeding). Included only once in the derived list.
+    * Codes that do not correspond directly to an acute bleed: K22.1, K55.2, K51, K57 -- often the conditions could cause catastrophic bleeding if on OAC or blood thinners, but the codes do not definitely imply a bleed.
+    * Could consider including epistaxis RR04.0, although would not often result in a 3-5 g/dL drop in Hb (and does not therefore necessary fall into BARC 3). 
 
 * **CADTH Group**
     This set of codes was used to calculate costs associated with major bleeding in connection with estimating costs resulting from DAPT duration. The group is as follows:

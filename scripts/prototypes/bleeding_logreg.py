@@ -59,11 +59,11 @@ query = '''select top 1000000 AIMTC_Pseudo_NHS as nhs_number,AIMTC_Age as age_at
     ,procedure22nd_opcs as secondary_procedure_20
     ,procedure23rd_opcs as secondary_procedure_21
     ,procedure24th_opcs as secondary_procedure_22
-    from abi.dbo.vw_apc_sem_001 where datalength(AIMTC_Pseudo_NHS) > 0 and datalength(pbrspellid) > 0
-    order by nhs_number, spell_id
+    from abi.dbo.vw_apc_sem_001
+    where AIMTC_ProviderSpell_Start_Date between '2020-01-01' and '2021-01-01'  
     '''
 
-result = pl.read_database(query=query, connection=connection_uri)
+raw_data = pl.read_database(query=query, connection=connection_uri)
 
 s = pl.Series("a", [1, 2, 3, 4, 5])
 print(s)
