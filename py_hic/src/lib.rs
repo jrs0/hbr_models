@@ -3,6 +3,8 @@
 
 use pyo3::prelude::*;
 use rust_hic::{clinical_code::ClinicalCodeStore, clinical_code_tree::ClinicalCodeTree};
+use std::collections::HashMap;
+
 
 /// Get the clinical codes in a particular code group defined
 /// in a codes file.
@@ -16,7 +18,7 @@ use rust_hic::{clinical_code::ClinicalCodeStore, clinical_code_tree::ClinicalCod
 /// 
 /// @export
 #[pyfunction]
-fn rust_get_codes_in_group(codes_file_path: &str, group: &str) -> List {
+fn rust_get_codes_in_group(codes_file_path: &str, group: &str) -> HashMap<String, Vec<String>> {
     let f = std::fs::File::open(codes_file_path).expect("Failed to open codes file");
 
     let code_tree = ClinicalCodeTree::from_reader(f);
@@ -36,12 +38,10 @@ fn rust_get_codes_in_group(codes_file_path: &str, group: &str) -> List {
         docs.push(clinical_code.docs().clone());
     }
 
-    // Don't be fooled here -- interpret this as
-    // a dictionary or map defined like
-    // {"name": name, "docs": docs}; in R, the
-    // lvalues are strings, but they are "unquoted"
-    // (they are not variables).
-    list!(name = name, docs = docs)
+    let mut code_list = HashMap::new();
+    code_list.insert(format!("name"), name);
+    code_list.insert(format!("docs"), docs);
+    code_list
 }
 
 /// Get the code groups defined in a codes file
