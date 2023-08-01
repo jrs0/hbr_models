@@ -425,6 +425,10 @@ export default function Home() {
 	save_file(file_path)
     }
 
+    function refreshPage() {
+	window.location.reload(false);
+    }
+    
     function get_groups() {
 	if (top_level_category.groups.length != 0) {
 	    return top_level_category.groups
@@ -515,21 +519,25 @@ export default function Home() {
 	return <div>
 	    <h1>Code Group Editor</h1>
 	    <p className={styles.info}>Load a codes file to define groups of codes</p>
-	    <div>
+	    <div className={styles.groups}>
 		<span className={styles.button}
 				onClick={load_file}>Load file</span>
 	    </div>
 	</div>
     } else {
 	return <div>
-	    <h1>Code Group Editor</h1>
-	    <p className={styles.info}>Use the groups selector to pick a group, and then use the checkboxes to include or exclude categories or codes from the group. When you are finished, save the resulting groups to a file.</p>
-	    <div>
+	    <h1>Editing Code Groups</h1>
+	    <div className={styles.groups}>
 		<span className={styles.button}
 				onClick={save_current_file}>Save</span>
 		<span className={styles.button}
 				onClick={save_file_as}>Save as</span>
+		<span className={styles.button} onClick={refreshPage}>Close</span>
 	    </div>
+	    <div className={styles.groups}>
+		<b>Current file: {current_file_path}</b>
+	    </div>
+	    <p className={styles.info}>Use the groups selector to pick a group, and then use the checkboxes to include or exclude categories or codes from the group. When you are finished, save the resulting groups to a file.</p>
 	    <div className={styles.groups}>
 		<div>
 		    Specify comma-separated phrases to search code names and descriptions. Input strings are case insensitive, and can include spaces, but only matches for the whole string are highlighted. Codes are highlighted on matching any of the search strings, and categories are highlighted if they contain a highlighted code anywhere.
@@ -537,7 +545,9 @@ export default function Home() {
 		<label htmlFor="search">Search: </label>
 		<input autoComplete="off" id="search" type="text" onChange={handleSearchTermChange} />
 	    </div>
-	    <b>{counts.total_highlighted}</b> highlighted by search, with <b>{counts.included_highlighted}</b> of these included in <b>{group}</b> group
+	    <div className={styles.groups}>
+		<b>{counts.total_highlighted}</b> highlighted by search, with <b>{counts.included_highlighted}</b> of these included in <b>{group}</b> group
+	    </div>
 	    <div>
 	    </div>
 	    <div className={styles.groups}>
