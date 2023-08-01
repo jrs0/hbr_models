@@ -23,3 +23,22 @@ To use the library, run (for example):
 ```python
 from py_hic.clinical_codes import get_codes_in_group
 ```
+
+## Development on Linux
+
+Install rustup according to the [instructions](https://www.rust-lang.org/tools/install) for Linux. Install python dependencies as follows:
+
+```bash
+sudo apt install python3 python3-venv unixodbc-dev
+```
+
+Create a virtual environment using, and activate it:
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+Install maturin using `pip install maturin`. For developing, run `maturin develop` in the `py_hic` folder.
+
+

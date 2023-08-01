@@ -3,4 +3,5 @@ target/
 *.parquet
 
 .venv
+venv
 *~
