@@ -1,22 +1,33 @@
 library(tidyverse)
 library(tidymodels)
+library(corrr)
+library(vip)
 
 setwd("scripts/prototypes")
 
 source("save_datasets.R")
 
-dataset <- load_dataset("hes_spells_dataset") %>%
+raw_data <- load_dataset("hes_spells_dataset") %>%
+    # Drop variables that are not used here
+    select(-idx_date, -matches("(time|status)"))
+
+# Check correlations with bleeding outcome
+raw_data %>%
+    correlate() %>%
+    focus(outcome_12m_bleeding_al_ani) %>%
+    arrange(desc(outcome_12m_bleeding_al_ani))
+
+# Process the dataset for modelling
+dataset <- raw_data %>%
     mutate(across(where(is.character), as.factor)) %>%
     mutate(across(where(is.logical), as.factor)) %>%
-    # Drop variables that are not used here
-    select(-idx_date, -matches("(time|status)")) %>%
     # These are defects in the dataset -- should be fixed
     # at source
     drop_na() %>%
     mutate(outcome_12m_bleeding_al_ani = factor(outcome_12m_bleeding_al_ani,
         levels = c("1", "0")))
 
-
+# Check proportion of bleeding outcome
 dataset %>%
     count(outcome_12m_bleeding_al_ani) %>%
     mutate(prop = n / sum(n))
@@ -90,3 +101,30 @@ lr_auc <-
   mutate(model = "Logistic Regression")
 
 autoplot(lr_auc)
+
+####### GET THE BEST MODEL BY ROC AUC #######
+
+lr_best <- lr_res %>%
+    select_best("roc_auc")
+
+final_workflow <- lr_workflow %>%
+    finalize_workflow(lr_best)
+
+final_fit <- final_workflow %>%
+    last_fit(splits)
+
+# Show the final accuracy and AUC (and other metrics)
+final_fit %>%
+    collect_metrics()
+
+final_model_spec <- final_fit %>%
+    extract_fit_parsnip()
+
+# Show the importance of the predictors
+final_model_spec %>%
+    vip(num_features = 20)
+
+# Get the actual model -- maybe gets the coefficients?
+final_model <- final_fit %>%
+    extract_fit_engine() %>%
+    coef()
