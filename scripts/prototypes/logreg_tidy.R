@@ -24,7 +24,9 @@ dataset <- raw_data %>%
     # at source
     mutate(outcome_12m_bleeding_al_ani = factor(outcome_12m_bleeding_al_ani,
         levels = c("1", "0")
-    ))
+    )) %>%
+    # Drop NA for now (only in the age column it looks like)
+    drop_na()
 
 # Check proportion of bleeding outcome
 dataset %>%
@@ -58,93 +60,9 @@ fit <- workflow %>%
 fit %>% extract_fit_parsnip() %>%
     tidy()
 
+aug <- augment(fit, dataset_test)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Grid of penalties to try
-lr_reg_grid <- tibble(penalty = 10^seq(-4, -1, length.out = 30))
-
-lr_res <-
-    lr_workflow %>%
-    tune_grid(val_set,
-        grid = lr_reg_grid,
-        control = control_grid(save_pred = TRUE),
-        metrics = metric_set(roc_auc)
-    )
-
-lr_plot <-
-    lr_res %>%
-    collect_metrics() %>%
-    ggplot(aes(x = penalty, y = mean)) +
-    geom_point() +
-    geom_line() +
-    ylab("Area under the ROC Curve") +
-    scale_x_log10(labels = scales::label_number())
-
-lr_plot
-
-top_models <-
-    lr_res %>%
-    show_best("roc_auc", n = 15) %>%
-    arrange(penalty)
-top_models
-
-lr_best <-
-    lr_res %>%
-    collect_metrics() %>%
-    arrange(penalty) %>%
-    slice(12)
-lr_best
-
-lr_auc <-
-    lr_res %>%
-    collect_predictions(parameters = lr_best) %>%
-    roc_curve(outcome_12m_bleeding_al_ani, .pred_1) %>%
-    mutate(model = "Logistic Regression")
-
-autoplot(lr_auc)
-
-####### GET THE BEST MODEL BY ROC AUC #######
-
-lr_best <- lr_res %>%
-    select_best("roc_auc")
-
-final_workflow <- lr_workflow %>%
-    finalize_workflow(lr_best)
-
-final_fit <- final_workflow %>%
-    last_fit(splits)
-
-# Show the final accuracy and AUC (and other metrics)
-final_fit %>%
-    collect_metrics()
-
-final_model_spec <- final_fit %>%
-    extract_fit_parsnip()
-
-# Show the importance of the predictors
-final_model_spec %>%
-    vip(num_features = 20)
-
-# Get the actual model -- maybe gets the coefficients?
-final_model <- final_fit %>%
-    extract_fit_engine() %>%
-    coef()
+# Plot ROC curve
+aug %>% 
+  roc_curve(truth = outcome_12m_bleeding_al_ani, .pred_1) %>% 
+  autoplot()
