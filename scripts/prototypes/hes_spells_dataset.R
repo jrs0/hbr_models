@@ -6,6 +6,9 @@
 ##'
 ##' Index event information:
 ##'
+##' An index event is defined as having a PCI procedure or an MI
+##' diagnosis code (mi_schnier, see below).
+##'
 ##' - idx_date: the date of the index event
 ##' - idx_age: the patient age at the index event
 ##' - idx_gender: the patient gender at the index event
@@ -13,26 +16,26 @@
 ##' - idx_mi: did the index include an MI?
 ##' - idx_stemi: did the index include an MI that was STEMI?
 ##' - idx_nstemi: did the index include an MI that was NSTEMI?
-##' 
+##'
 ##' Prior diagnoses and procedures:
 ##'
-##' - <code_group>_count_before: how many ICD-10 or OPCS-4 codes 
+##' - <code_group>_count_before: how many ICD-10 or OPCS-4 codes
 ##'      occurred in the window [12 months before to 1 month before]
 ##'      the index event. The 1 month limit simulates lack of
 ##'      availability for one month due to the coding process
-##' 
+##'
 ##' Outcomes:
 ##'
 ##' - outcome_time_<name>: the time to the outcome <name>, or right
 ##'      censored using the end date range of the database
-##' - outcome_status_<name>: 1 if the outcome event was observed to 
+##' - outcome_status_<name>: 1 if the outcome event was observed to
 ##'      occur, 0 if right-censored
 ##' - outcome_12m_<name>: 1 if the event was observed to occur in the
 ##'      12 montsh following the index event
 ##'
 ##' The following outcomes (<name>) are included:
 ##'
-##' - bleeding_al_ani: a group of ICD-10 bleeding codes based on a 
+##' - bleeding_al_ani: a group of ICD-10 bleeding codes based on a
 ##'      set reported to have 88% PPV for identifying major bleeding in
 ##'      2015 Al-Ani et al., Identifying venous thromboembolism and major
 ##'      bleeding in emergency room discharge using administrative data
@@ -41,8 +44,10 @@
 ##'      thromboembolism and major bleeding in emergency room discharges
 ##'      using administrative data, estimated to have a PPV >75% for MI
 ##'      as defined in that document.
-##'      
-##' 
+##'
+##' The script should be run from this folder (set the working directory
+##' to scripts/prototypes). The resulting dataset is saved in the folder
+##' scripts/prototypes/datasets as an rds file "hes_spells_dataset.rds"
 
 library(tidyverse)
 source("preprocessing.R")
@@ -280,25 +285,53 @@ counts_before_index <- spell_time_differences %>%
 index_with_subsequent_bleed <- spell_time_differences %>%
     # Join the count data for each subsequent spell (other spell)
     left_join(code_group_counts, by = c("other_spell_id" = "spell_id")) %>%
-    find_subsequent_outcome(index_spell_info, "bleeding_al_ani") %>%
+    find_subsequent_outcome(index_spell_info, "bleeding_al_ani", end_date) %>%
     add_12m_outcome("bleeding_al_ani")
-    
+
 index_with_subsequent_ischaemia <- spell_time_differences %>%
     # Join the count data for each subsequent spell (other spell)
     left_join(code_group_counts, by = c("other_spell_id" = "spell_id")) %>%
-    find_subsequent_outcome(index_spell_info, "mi_schnier") %>%
+    find_subsequent_outcome(index_spell_info, "mi_schnier", end_date) %>%
     add_12m_outcome("mi_schnier")
 
 # Finally, join all the index data to form the dataset
-dataset <- index_spell_info %>%
+hes_spells_dataset <- index_spell_info %>%
     left_join(index_with_subsequent_bleed, by = "spell_id") %>%
     left_join(index_with_subsequent_ischaemia, by = "spell_id") %>%
-    left_join(counts_before_index, by = "spell_id")
+    left_join(counts_before_index, by = "spell_id") %>%
+    transmute(
+        # Index information
+        idx_date = index_date,
+        idx_age = age,
+        idx_gender = gender,
+        idx_pci_performed = pci_performed,
+        idx_mi = mi,
+        idx_stemi = stemi,
+        idx_nstemi = nstemi,
+        # Counts of previous codes
+        bleeding_al_ani_count_before,
+        mi_schnier_count_before,
+        mi_stemi_schnier_count_before,
+        mi_nstemi_schnier_count_before,
+        pci_count_before,
+        # Outcomes
+        outcome_time_bleeding_al_ani = bleeding_al_ani_time,
+        outcome_status_bleeding_al_ani = bleeding_al_ani_status,
+        outcome_12m_bleeding_al_ani = bleeding_al_ani_12m,
+        outcome_time_mi_schnier = mi_schnier_time,
+        outcome_status_mi_schnier = mi_schnier_status,
+        outcome_12m_mi_schnier = mi_schnier_12m,
+    )
+
+# Write the dataset to a file
+datasets_dir <- "datasets" # No trailing /
+if (!fs::dir_exists(datasets_dir)) {
+    message("Creating missing ", datasets_dir, " for storing dataset")
+    fs::dir_create(datasets_dir)
+}
+saveRDS(hes_spells_dataset, paste0(datasets_dir, "/hes_spells_dataset.rds"))
 
 ####### DESCRIPTIVE ANALYSIS #######
-
-# Check the proportion of STEMI/NSTEMI presentation. Note that
-# not all rows
 
 # Proportion of index events with a PCI procedure
 # (expect the majority)
