@@ -181,7 +181,6 @@ index_spell_info <- index_spells %>%
         index_date = spell_start_date
     )
 
-
 ####### COMPUTE COUNT OF PREVIOUS DIAGNOSES AND PROCEDURES #######
 
 # Join nhs number onto the index spells and the code_group_counts
@@ -330,10 +329,17 @@ index_with_subsequent_bleed <- spell_time_differences %>%
     left_join(code_group_counts, by = c("other_spell_id" = "spell_id")) %>%
     find_subsequent_outcome(index_spell_info, "bleeding_al_ani") %>%
     add_12m_outcome("bleeding_al_ani")
+    
+index_with_subsequent_ischaemia <- spell_time_differences %>%
+    # Join the count data for each subsequent spell (other spell)
+    left_join(code_group_counts, by = c("other_spell_id" = "spell_id")) %>%
+    find_subsequent_outcome(index_spell_info, "mi_schnier") %>%
+    add_12m_outcome("mi_schnier")
 
 # Finally, join all the index data to form the dataset
 dataset <- index_spell_info %>%
-    left_join(index_bleeding_survival, by = "spell_id") %>%
+    left_join(index_with_subsequent_bleed, by = "spell_id") %>%
+    left_join(index_with_subsequent_ischaemia, by = "spell_id") %>%
     left_join(counts_before_index, by = "spell_id")
 
 ####### DESCRIPTIVE ANALYSIS #######
