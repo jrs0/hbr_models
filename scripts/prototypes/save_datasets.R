@@ -25,7 +25,7 @@ save_dataset <- function(dataset, name) {
 
     # Make the file suffix out of the current git
     # commit hash and the current time
-    suffix <- paste(current_commit(), timestamp_now(), sep="_")
+    suffix <- paste(current_commit(), timestamp_now(), sep = "_")
     full_filename <- paste0(datasets_dir, "/", name, "_", suffix, ".rds")
 
     if (!fs::dir_exists(datasets_dir)) {
@@ -39,22 +39,26 @@ save_dataset <- function(dataset, name) {
 ##'
 ##' The filename is used to search for files of the
 ##' form datasets/filename_commit_timestamp.rds. If
-##' multiple files match the filename, then the one 
+##' multiple files match the filename, then the one
 ##' with the latest timestamp is chosen.
 load_dataset <- function(name) {
-    
     # Write the dataset to a file
     datasets_dir <- "datasets" # No trailing /
     if (!fs::dir_exists(datasets_dir)) {
         stop("Missing folder", datasets_dir, ". Check your working directory")
     }
 
+    # Pattern to match name part and file extension
+    pattern <- paste0("(\\.rds|", name, "_)")
+
     latest_filename <- tibble::tibble(file = list.files(datasets_dir)) %>%
-        mutate(no_extension = str_replace(file, ".rds", "")) %>%
-        separate_wider_delim(no_extension, 
-        delim = "_", 
-        names = c("name", "commit", "timestamp")) %>%
-        filter(name == !!name) %>%
+        # First, filter by the filename and then drop the filename
+        filter(str_detect(file, name)) %>%
+        mutate(commit_and_timestamp = str_replace(file, pattern, "")) %>%
+        separate_wider_delim(commit_and_timestamp,
+            delim = "_",
+            names = c("commit", "timestamp")
+        ) %>%
         arrange(desc(timestamp)) %>%
         head(1) %>%
         pull(file)
