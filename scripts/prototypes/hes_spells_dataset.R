@@ -51,6 +51,7 @@
 
 library(tidyverse)
 source("preprocessing.R")
+source("save_datasets.R")
 
 # Either load rhic using rextendr::document() (from the rhic/ directory)
 # or install rhic and use library(rhic). Pick one of the options from
@@ -323,13 +324,8 @@ hes_spells_dataset <- index_spell_info %>%
         outcome_12m_mi_schnier = mi_schnier_12m,
     )
 
-# Write the dataset to a file
-datasets_dir <- "datasets" # No trailing /
-if (!fs::dir_exists(datasets_dir)) {
-    message("Creating missing ", datasets_dir, " for storing dataset")
-    fs::dir_create(datasets_dir)
-}
-saveRDS(hes_spells_dataset, paste0(datasets_dir, "/hes_spells_dataset.rds"))
+
+save_dataset(hes_spells_dataset, "hes_spells_dataset")
 
 ####### DESCRIPTIVE ANALYSIS #######
 
