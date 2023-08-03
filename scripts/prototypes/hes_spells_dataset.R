@@ -68,7 +68,7 @@ id <- dbplyr::in_catalog("abi", "dbo", "vw_apc_sem_spell_001")
 # for the survival data. To be valid, make sure that the database contains data
 # for the full date range given here -- the end date is used as the follow up
 # time for right censoring.
-start_date <- lubridate::ymd_hms("2020-01-01 00:00:00")
+start_date <- lubridate::ymd_hms("2015-01-01 00:00:00")
 end_date <- lubridate::ymd_hms("2021-01-01 00:00:00")
 
 # Raw spell data from the database. This is just a spell table, so
@@ -323,7 +323,6 @@ hes_spells_dataset <- index_spell_info %>%
         outcome_status_mi_schnier = mi_schnier_status,
         outcome_12m_mi_schnier = mi_schnier_12m,
     )
-
 
 save_dataset(hes_spells_dataset, "hes_spells_dataset")
 
