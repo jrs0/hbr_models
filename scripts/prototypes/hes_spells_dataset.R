@@ -49,6 +49,11 @@
 ##' to scripts/prototypes). The resulting dataset is saved in the folder
 ##' scripts/prototypes/datasets as an rds file "hes_spells_dataset.rds"
 
+start_time <- Sys.time()
+
+# Set the working directory here
+setwd("scripts/prototypes")
+
 library(tidyverse)
 source("preprocessing.R")
 source("save_datasets.R")
@@ -68,8 +73,8 @@ id <- dbplyr::in_catalog("abi", "dbo", "vw_apc_sem_spell_001")
 # for the survival data. To be valid, make sure that the database contains data
 # for the full date range given here -- the end date is used as the follow up
 # time for right censoring.
-start_date <- lubridate::ymd_hms("2015-01-01 00:00:00")
-end_date <- lubridate::ymd_hms("2021-01-01 00:00:00")
+start_date <- lubridate::ymd_hms("2000-01-01 00:00:00")
+end_date <- lubridate::ymd_hms("2023-01-01 00:00:00")
 
 # Raw spell data from the database. This is just a spell table, so
 # episode information has been summarised into a single row.
@@ -326,32 +331,37 @@ hes_spells_dataset <- index_spell_info %>%
 
 save_dataset(hes_spells_dataset, "hes_spells_dataset")
 
+end_time <- Sys.time()
+
+# Calculate the script running time
+end_time - start_time
+
 ####### DESCRIPTIVE ANALYSIS #######
 
 # Proportion of index events with a PCI procedure
 # (expect the majority)
-p_pci_performed <- dataset %>%
-    pull(pci_performed) %>%
+p_pci_performed <- hes_spells_dataset %>%
+    pull(idx_pci_performed) %>%
     mean()
 
 # Calculate the proportion of index events with ACS (either
 # STEMI or NSTEMI) (expect majority)
-p_mi <- dataset %>%
-    pull(mi) %>%
+p_mi <- hes_spells_dataset %>%
+    pull(idx_mi) %>%
     mean()
 
 # Calculate proportion of _all_ index events that are STEMI
 # or NSTEMI (note some index events are not ACS)
-p_stemi <- dataset %>%
-    pull(stemi) %>%
+p_stemi <- hes_spells_dataset %>%
+    pull(idx_stemi) %>%
     mean()
-p_nstemi <- dataset %>%
-    pull(nstemi) %>%
+p_nstemi <- hes_spells_dataset %>%
+    pull(idx_nstemi) %>%
     mean()
 
 # Calculate the proportion of patients with bleeding
 # events in one year. Should be around 0-5%. This estimate
 # will underestimate risk due to right censoring.
-p_bleed_1y_naive <- dataset %>%
-    pull(bleeding_al_ani_12m) %>%
+p_bleed_1y_naive <- hes_spells_dataset %>%
+    pull(outcome_12m_bleeding_al_ani) %>%
     mean()
