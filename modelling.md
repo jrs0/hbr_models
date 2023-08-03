@@ -57,7 +57,7 @@ Patients with a myocardial infarction (MI) defined by the following ICD-10 codes
 | I24.1 | Dressler syndrome | |
 | I25.2 | Old myocardial infarction | |
 
-The STEMI and NSTEMI codes are labelled `acs_stemi_schnier`, `acs_nstemi_schnier`, and the full code set is labelled `acs_mi_schnier`. The groups are estimated to have the following positive predictive values [^8]:
+The STEMI and NSTEMI codes are labelled `mi_stemi_schnier`, `mi_nstemi_schnier`, and the full code set is labelled `mi_schnier`. The groups are estimated to have the following positive predictive values [^8]:
 * STEMI: 71-100%
 * NSTEMI: 90-100% (written as >90% in the report)
 * MI: 75-100%
