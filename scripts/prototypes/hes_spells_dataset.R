@@ -104,6 +104,18 @@ raw_data <- dplyr::tbl(con, id) %>%
     filter(spell_start_date > start_date, spell_start_date < end_date) %>%
     collect()
 
+# Found that the database contains duplicate spell IDs, and rows
+# where the spell ID is the empty string. Remove all these rows
+dedup_ids <- raw_data %>%
+    group_by(spell_id) %>%
+    filter(
+        spell_id != "", # No empty IDs
+        n() == 1 # IDs must be unique
+    ) %>%
+    ungroup()
+
+## checked up to here ------------------------------------------------------------
+
 # For joining NHS number by spell id later on
 nhs_numbers <- raw_data %>%
     select(spell_id, nhs_number)
