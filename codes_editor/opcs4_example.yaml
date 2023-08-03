@@ -1803,7 +1803,6 @@ categories:
       name: A84
     docs: Nervous System
     exclude:
-    - pci
     - cabg
     - blood_transfusion
     index:
@@ -2632,9 +2631,9 @@ categories:
       name: B45
     docs: Endocrine System and Breast
     exclude:
-    - pci
     - cabg
     - blood_transfusion
+    - pci
     index:
     - B01
     - B45
@@ -4577,7 +4576,6 @@ categories:
       name: C91
     docs: Eye
     exclude:
-    - pci
     - cabg
     - blood_transfusion
     index:
@@ -19350,7 +19348,6 @@ categories:
       name: M86
     docs: Urinary
     exclude:
-    - pci
     - cabg
     - blood_transfusion
     index:
@@ -19978,7 +19975,6 @@ categories:
       name: N35
     docs: Male Genital Organs
     exclude:
-    - pci
     - cabg
     - blood_transfusion
     index:
@@ -20657,7 +20653,6 @@ categories:
       name: P32
     docs: Lower Female Genital Tract
     exclude:
-    - pci
     - cabg
     - blood_transfusion
     index:
@@ -21840,7 +21835,6 @@ categories:
       name: Q58
     docs: Upper Female Genital Tract
     exclude:
-    - pci
     - cabg
     - blood_transfusion
     index:
@@ -22538,7 +22532,6 @@ categories:
       name: R43
     docs: Female Genital Tract Associated with Pregnancy, Childbirth and the Puerperium
     exclude:
-    - pci
     - cabg
     - blood_transfusion
     index:
@@ -27221,7 +27214,6 @@ categories:
       name: U54
     docs: Diagnostic Imaging, Testing and Rehabilitation
     exclude:
-    - pci
     - cabg
     - blood_transfusion
     index:
@@ -31561,7 +31553,6 @@ categories:
       name: W99
     docs: Other Bones and Joints
     exclude:
-    - pci
     - cabg
     - blood_transfusion
     index:
