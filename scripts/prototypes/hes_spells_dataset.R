@@ -75,13 +75,17 @@ id <- dbplyr::in_catalog("abi", "dbo", "vw_apc_sem_spell_001")
 # for the survival data. To be valid, make sure that the database contains data
 # for the full date range given here -- the end date is used as the follow up
 # time for right censoring.
-start_date <- lubridate::ymd_hms("2013-01-01 00:00:00")
+start_date <- lubridate::ymd_hms("2020-01-01 00:00:00")
+# Go careful with the end date -- data must be present in the
+# dataset up the the end date (for right censoring). Should really
+# compute right censor date from last seen date in the data
 end_date <- lubridate::ymd_hms("2023-01-01 00:00:00")
 
 # Raw spell data from the database. This is just a spell table, so
 # episode information has been summarised into a single row.
 raw_data <- dplyr::tbl(con, id) %>%
     select(
+        PBRspellID,
         AIMTC_Pseudo_NHS,
         AIMTC_Age,
         AIMTC_ProviderSpell_Start_Date,
@@ -90,6 +94,7 @@ raw_data <- dplyr::tbl(con, id) %>%
         matches("Diagnosis") & !contains("Date") & !contains("Scheme")
     ) %>%
     rename(
+        spell_id = PBRspellID,
         nhs_number = AIMTC_Pseudo_NHS,
         age = AIMTC_Age,
         gender = Sex,
@@ -97,8 +102,7 @@ raw_data <- dplyr::tbl(con, id) %>%
     ) %>%
     filter(!is.na(nhs_number)) %>%
     filter(spell_start_date > start_date, spell_start_date < end_date) %>%
-    collect() %>%
-    mutate(spell_id = row_number())
+    collect()
 
 # For joining NHS number by spell id later on
 nhs_numbers <- raw_data %>%
