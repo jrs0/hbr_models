@@ -11,8 +11,7 @@
 # the codes. No attempt is made to use the structure of the episodes
 # and spells for any purpose (e.g. primary vs. secondary). Code lists
 # may not map exactly to the endpoint of interest (clinically relevant
-# bleeding and ischaemia). Does not account for time delay in codes
-# becoming available in statistical analysis.
+# bleeding and ischaemia).
 #
 # Run this script from the directory containing the script source in
 # this repository (or ensure the path to icd10.yaml and opcs4.yaml are
@@ -46,10 +45,16 @@ raw_data <- dplyr::tbl(con, id) %>%
         AIMTC_Pseudo_NHS,
         AIMTC_Age,
         AIMTC_ProviderSpell_Start_Date,
+        Sex,
         matches("^(Primary)?Procedure") & !contains("Date") & !contains("Scheme"),
         matches("Diagnosis") & !contains("Date") & !contains("Scheme")
     ) %>%
-    rename(nhs_number = AIMTC_Pseudo_NHS, age = AIMTC_Age, spell_start_date = AIMTC_ProviderSpell_Start_Date) %>%
+    rename(
+        nhs_number = AIMTC_Pseudo_NHS,
+        age = AIMTC_Age,
+        gender = Sex,
+        spell_start_date = AIMTC_ProviderSpell_Start_Date
+    ) %>%
     filter(!is.na(nhs_number)) %>%
     filter(spell_start_date > start_date, spell_start_date < end_date) %>%
     collect() %>%
@@ -61,7 +66,13 @@ nhs_numbers <- raw_data %>%
 
 # For joining spell information by spell id later
 spell_data <- raw_data %>%
-    select(spell_id, age, spell_start_date)
+    select(spell_id, age, gender, spell_start_date) %>%
+    mutate(gender = case_when(
+        gender == 0 ~ "unknown",
+        gender == 1 ~ "male",
+        gender == 2 ~ "female",
+        gender == 9 ~ NA_character_,
+    ))
 
 ####### DEFINE ICD-10 and OPCS-4 CODE GROUPS #######
 
@@ -167,7 +178,6 @@ index_spell_info <- index_spells %>%
     ) %>%
     left_join(spell_data, by = "spell_id") %>%
     rename(
-        age_at_index = age,
         index_date = spell_start_date
     )
 
@@ -175,7 +185,7 @@ index_spell_info <- index_spells %>%
 ####### COMPUTE COUNT OF PREVIOUS DIAGNOSES AND PROCEDURES #######
 
 # Join nhs number onto the index spells and the code_group_counts
-index_spells_with_nhs_number <- index_spell_data %>%
+index_spells_with_nhs_number <- index_spell_info %>%
     left_join(nhs_numbers, by = "spell_id")
 
 code_group_counts_with_nhs_number <- code_group_counts %>%
@@ -197,8 +207,6 @@ spell_time_differences <- index_spells_with_nhs_number %>%
     ) %>%
     # Join on the spell data to the other spells
     left_join(spell_data, by = c("other_spell_id" = "spell_id")) %>%
-    # Join on index spell information
-    left_join(index_spell_info, by = "spell_id") %>%
     # Positive time difference for after, negative for before
     transmute(
         spell_id,
@@ -213,7 +221,7 @@ spell_time_differences <- index_spells_with_nhs_number %>%
 max_period_before <- lubridate::dyears(1) # Limit count to previous 12 months
 min_period_before <- lubridate::dmonths(1) # Exclude month before index (not coded yet)
 
-counts_before_index <- spells_relative_to_index %>%
+counts_before_index <- spell_time_differences %>%
     # Add a mask to only include the spells in a particular window before the
     # index event (up to one year before, excluding the month before the index event
     # when data will not be available). Need to negate the time difference because
@@ -225,7 +233,7 @@ counts_before_index <- spells_relative_to_index %>%
         1
     )) %>%
     # Join the count information
-    left_join(code_group_counts, by=c("other_spell_id"="spell_id")) %>%
+    left_join(code_group_counts, by = c("other_spell_id" = "spell_id")) %>%
     # Do all operations per patient (and per index event for patients with multiple index events)
     group_by(spell_id) %>%
     # Sum up the counts in the valid window. By multipling the count by the valid flag (0 or 1),
@@ -250,7 +258,7 @@ min_period_after <- lubridate::dhours(72) # Potentially exclude following 72 hou
 # column is the filter and summarise part.
 index_with_subsequent_bleed <- spell_time_differences %>%
     # Join the count data for each subsequent spell (other spell)
-    left_join(code_group_counts, by=c("other_spell_id"="spell_id")) %>%
+    left_join(code_group_counts, by = c("other_spell_id" = "spell_id")) %>%
     # Only keep other spells where the bleeding count is non-zero
     # and the spell occurred in the correct window after the index
     filter(
