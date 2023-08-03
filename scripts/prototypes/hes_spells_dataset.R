@@ -157,6 +157,8 @@ pci <- codes_for_matching(
 # are in one column, the result is summarised by counting up how many
 # of the codes fall into each clinical code group (each count is added
 # as a new column)
+#
+# Code crashes in this block due to out of memory
 code_group_counts <- raw_data %>%
     pivot_longer(
         (matches("Diagnosis") & !contains("Date") & !contains("Scheme")) |
