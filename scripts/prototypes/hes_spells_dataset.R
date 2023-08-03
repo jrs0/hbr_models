@@ -1,5 +1,7 @@
 ##' Download and process the HES spells database into a dataset
 ##'
+##' !!! Note: this script is not yet working
+##'
 ##' In the dataset, each row is a spell, with diagnoses and procedures
 ##' summarised (in some way) from the underlying episodes. This script
 ##' uses the data to produce a dataframe with the following columns:
