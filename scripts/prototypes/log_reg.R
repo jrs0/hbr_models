@@ -13,7 +13,8 @@ dataset <- load_dataset("hes_spells_dataset") %>%
     # These are defects in the dataset -- should be fixed
     # at source
     drop_na() %>%
-    mutate(outcome_12m_bleeding_al_ani = as.factor(outcome_12m_bleeding_al_ani))
+    mutate(outcome_12m_bleeding_al_ani = factor(outcome_12m_bleeding_al_ani,
+        levels = c("1", "0")))
 
 
 dataset %>%
@@ -84,11 +85,8 @@ lr_best
 
 lr_auc <- 
   lr_res %>% 
-  collect_predictions(parameters = lr_best)
-  
-  
-   %>% 
-  roc_curve(outcome_12m_bleeding_al_ani, .pred_outcome_12m_bleeding_al_ani) %>% 
+  collect_predictions(parameters = lr_best) %>% 
+  roc_curve(outcome_12m_bleeding_al_ani, .pred_1) %>% 
   mutate(model = "Logistic Regression")
 
 autoplot(lr_auc)
