@@ -55,6 +55,24 @@ fn sort_categories_list_in_place(categories: &mut Vec<Categories>) {
     }
 }
 
+/// Pick a sub-category at random. Panics if there are no
+/// sub-categories (do not call on leaf nodes). Returns
+/// error if there are no sub-categories (input vector is
+/// length zero)
+fn pick_subcategory_uniform_random<'a>(
+    categories: &'a Vec<Categories>,
+    rng: &mut ChaCha8Rng,
+) -> Result<&'a Categories, &'static str> {
+    if categories.len() == 0 {
+        Err("No categories to pick from")
+    } else {
+        let choice = categories
+            .choose(rng)
+            .expect("Should be Some, categories list is not empty");
+        Ok(&choice)
+    }
+}
+
 impl Categories {
     /// Get a random clinical code from one of the (leaf)
     /// sub-categories of this category.  
@@ -62,12 +80,12 @@ impl Categories {
         if self.is_leaf() {
             ClinicalCode::from(self)
         } else {
-            let random_subcategory = self
+            let sub_categories = self
                 .categories()
-                .expect("Non-leaf node will have sub-categories")
-                .choose(rng)
-                .expect("Should be Some, sub-categories list is not empty");
-            random_subcategory.random_clinical_code(rng)
+                .expect("Non-leaf node will have sub-categories");
+            let choice = pick_subcategory_uniform_random(sub_categories, rng)
+                .expect("Subcategory list is non-empty, so should not fail");
+            choice.random_clinical_code(rng)
         }
     }
 
@@ -188,12 +206,19 @@ impl ClinicalCodeTree {
         rng: &mut ChaCha8Rng,
         code_store: &mut ClinicalCodeStore,
     ) -> ClinicalCodeRef {
-        let clinical_code = self
-            .categories
-            .choose(rng)
+        let clinical_code = pick_subcategory_uniform_random(&self.categories, rng)
             .expect("Should be Some, Categories list should not be empty")
             .random_clinical_code(rng);
         code_store.clinical_code_ref_from(clinical_code)
+    }
+
+    pub fn random_clinical_code_from_group(
+        &self,
+        rng: &mut ChaCha8Rng,
+        code_store: &mut ClinicalCodeStore,
+        group: &String,
+    ) -> Result<ClinicalCodeRef, &'static str> {
+        // implement me please
     }
 
     /// Get all the clinical codes in a particular group
@@ -246,7 +271,7 @@ mod tests {
             }
         };
     }
-    
+
     // Helper macro to generate a clinical code
     macro_rules! leaf {
         ($name:expr, $docs:expr, $index:expr) => {
@@ -259,7 +284,6 @@ mod tests {
             }
         };
     }
-    
 
     // Reference clinical code tree structure for comparison
     fn code_tree_example_1() -> ClinicalCodeTree {
@@ -493,8 +517,6 @@ mod tests {
         let code_tree = ClinicalCodeTree::from_reader(f);
 
         let mut code_store = ClinicalCodeStore::new();
-        
-               
     }
 
     #[test]

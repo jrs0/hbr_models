@@ -29,8 +29,6 @@ pub struct ClinicalCode {
     name: String,
     /// The descriptions of the code
     docs: String,
-    // The groups that contain this code
-    //groups: Vec<String>,
 }
 
 impl ClinicalCode {
@@ -51,10 +49,6 @@ impl ClinicalCode {
         clinical_code
     }
 
-    // pub fn add_group(&mut self, group: String) {
-    //     self.groups.push(group);
-    // }
-
     pub fn name(&self) -> &String {
         &self.name
     }
@@ -63,9 +57,6 @@ impl ClinicalCode {
         &self.docs
     }
 
-    // pub fn groups(&self) -> &Vec<String> {
-    //     &self.groups
-    // }
 }
 
 /// An opaque reference to a clinincal code, which can be used to obtain information
@@ -185,30 +176,7 @@ mod tests {
 
         assert_eq!(code.name(), "I21.0");
         assert_eq!(code.docs(), "What the code means...");
-        // The code should not be in any groups
-        //assert_eq!(code.groups().len(), 0);
     }
-
-    /// Check that a code can be added to one or more groups
-    //#[test]
-    // fn test_adding_multiple_groups_to_code() {
-    //     let name = String::from("I21.0");
-    //     let docs = String::from("What the code means...");
-    //     let mut code = ClinicalCode::new(name, docs);
-    //     let group = String::from("a_group");
-    //     code.add_group(group);
-
-    //     // Check that the first group was added
-    //     assert_eq!(code.groups().len(), 1);
-    //     assert_eq!(code.groups()[0], "a_group");
-
-    //     // Add another group and check
-    //     let group = String::from("group_2");
-    //     code.add_group(group);
-    //     assert_eq!(code.groups().len(), 2);
-    //     assert_eq!(code.groups()[0], "a_group");
-    //     assert_eq!(code.groups()[1], "group_2");
-    // }
 
     #[test]
     fn test_code_store_initially_empty() {
@@ -266,21 +234,18 @@ mod tests {
         let code_read = code_read.unwrap();
         assert_eq!(code_read.name(), "I21.0");
         assert_eq!(code_read.docs(), "What the code means...");
-        //assert_eq!(code_read.groups().len(), 0);
 
         let code_read = clinical_code_store.clinical_code_from(&code_ref_2);
         assert_ne!(code_read, None);
         let code_read = code_read.unwrap();
         assert_eq!(code_read.name(), "A00.1");
-        assert_eq!(code_read.docs(), "Another description");
-        //assert_eq!(code_read.groups().len(), 0);        
+        assert_eq!(code_read.docs(), "Another description");      
 
         let code_read = clinical_code_store.clinical_code_from(&code_ref_3);
         assert_ne!(code_read, None);
         let code_read = code_read.unwrap();
         assert_eq!(code_read.name(), "K34.3");
         assert_eq!(code_read.docs(), "Yet another description");
-        //assert_eq!(code_read.groups().len(), 0);
     }
 
 
@@ -310,7 +275,6 @@ mod tests {
         let code_read = code_read.unwrap();
         assert_eq!(code_read.name(), "I21.0");
         assert_eq!(code_read.docs(), "What the code means...");
-        //assert_eq!(code_read.groups().len(), 0);
     }
 
     #[test]
