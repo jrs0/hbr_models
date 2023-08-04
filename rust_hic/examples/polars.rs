@@ -67,5 +67,5 @@ fn main() {
     println!("Time taken to fetch HES data is: {:?}", duration);
 
     let df = destination.polars().expect("Should have worked");
-    mssql://XSW-000-SP09/ABI?trusted_connection=true    println!("{df}");
+    println!("{df}");
 }
