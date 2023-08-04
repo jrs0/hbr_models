@@ -93,6 +93,21 @@ macro_rules! printcode {
         
     }
 }
+
+/// Simple wrapper to convert a code reference to a clinical code
+/// and get its name
+#[macro_export]
+macro_rules! name {
+    ($code_ref:expr, $code_store:expr) => {
+        if let Some(clinical_code) = $code_store.clinical_code_from(&$code_ref) {
+            clinical_code.name()
+        } else {
+            panic!("No clinical code corresponding to reference");
+        }
+        
+    }
+}
+
 /// Stores the data for all the clinical codes that have been seen by the
 /// program.
 #[derive(Debug)]

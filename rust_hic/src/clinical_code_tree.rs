@@ -212,13 +212,26 @@ impl ClinicalCodeTree {
         code_store.clinical_code_ref_from(clinical_code)
     }
 
+    /// Pick an element uniformly at random from the specified
+    /// code group
+    /// 
+    /// Returns an error if the code group is undefined, or if
+    /// the code group is empty. 
     pub fn random_clinical_code_from_group(
         &self,
         rng: &mut ChaCha8Rng,
         code_store: &mut ClinicalCodeStore,
         group: &String,
     ) -> Result<ClinicalCodeRef, &'static str> {
-        // implement me please
+        if let Ok(codes_in_group) = self.codes_in_group(group, code_store) {
+            if let Some(code) = codes_in_group.choose(rng) {
+                Ok(code)
+            } else {
+                Err("Code group is empty")
+            }
+        } else {
+            Err("Error occurred fetching codes in group")
+        }
     }
 
     /// Get all the clinical codes in a particular group
@@ -256,6 +269,8 @@ impl ClinicalCodeTree {
 mod tests {
 
     use std::path::PathBuf;
+
+    use crate::{seeded_rng::make_rng, name};
 
     use super::*;
 
@@ -565,5 +580,33 @@ mod tests {
                 "ischaemic_stroke"
             )
         )
+    }
+
+    #[test]
+    fn check_randomly_chosen_code_is_in_group() {
+        let mut file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        file_path.push("resources");
+        file_path.push("test");
+        file_path.push("icd10_example.yaml");
+
+        let f = std::fs::File::open(file_path).expect("Failed to open icd10 file");
+
+        // Should execute without panic
+        let code_tree = ClinicalCodeTree::from_reader(f);
+
+        let mut code_store = ClinicalCodeStore::new();
+        
+        // atrial_fib code group
+        let codes_in_group = vec!["I48.0", "I48.1", "I48.2", "I48.3", "I48.4", "I48.9"];
+        
+        // Generate 100 random codes and check they are all
+        // in the group
+        let mut rng = make_rng(222, "clinical_code_test_id");
+        for _ in 0..100 {
+            let random_code = code_tree.random_clinical_code_from_group(
+                &mut rng, &mut code_store, &format!("atrial_fib"));
+
+            assert!(codes_in_group.contains(name!(random_code, code_store).as_ref()))
+        }
     }
 }
