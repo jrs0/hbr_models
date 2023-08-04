@@ -481,6 +481,23 @@ mod tests {
     }
 
     #[test]
+    fn test_clinical_code_from_category() {
+        let mut file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        file_path.push("resources");
+        file_path.push("test");
+        file_path.push("icd10_example.yaml");
+
+        let f = std::fs::File::open(file_path).expect("Failed to open icd10 file");
+
+        // Should execute without panic
+        let code_tree = ClinicalCodeTree::from_reader(f);
+
+        let mut code_store = ClinicalCodeStore::new();
+        
+               
+    }
+
+    #[test]
     fn check_returned_groups_match_icd10_file() {
         let mut file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         file_path.push("resources");
