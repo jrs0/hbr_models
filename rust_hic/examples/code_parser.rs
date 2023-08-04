@@ -14,9 +14,11 @@ fn main() {
     let mut code_store = ClinicalCodeStore::new();
 
     // Get the ACS STEMI codes in the groups defined by the file
-    let acs_stemi_schnier_codes = code_tree
+    code_tree
         .codes_in_group(&format!("acs_stemi_schnier"), &mut code_store)
-        .expect("Should succeed, code is present");
+        .expect("Should succeed, code is present")
+        .iter()
+        .for_each(|code_ref| printcode!(code_ref, code_store));
 
     // Get a few random clinical codes from the code tree
     let mut rng = make_rng(123, "code_gen_id");

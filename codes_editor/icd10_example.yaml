@@ -3047,6 +3047,7 @@ categories:
     - chronic_ischaemia_heart_disease
     - other_ischaemic_heart_diseases
     - bleeding
+    - acs_stemi_schnier
     index:
     - A00
     - B99
@@ -5941,6 +5942,7 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
     - other_ischaemic_heart_diseases
+    - acs_stemi_schnier
     index:
     - C00
     - D48
@@ -6683,6 +6685,7 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
     - other_ischaemic_heart_diseases
+    - acs_stemi_schnier
     index:
     - D50
     - D89
@@ -8097,6 +8100,7 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
     - other_ischaemic_heart_diseases
+    - acs_stemi_schnier
     index:
     - E00
     - E90
@@ -8146,6 +8150,7 @@ categories:
       - ischaemic_stroke
       - chronic_ischaemia_heart_disease
       - other_ischaemic_heart_diseases
+      - acs_stemi_schnier
       index:
       - I00
       - I02
@@ -8260,6 +8265,7 @@ categories:
       - ischaemic_stroke
       - chronic_ischaemia_heart_disease
       - other_ischaemic_heart_diseases
+      - acs_stemi_schnier
       index:
       - I05
       - I09
@@ -8339,6 +8345,7 @@ categories:
       - ischaemic_stroke
       - chronic_ischaemia_heart_disease
       - other_ischaemic_heart_diseases
+      - acs_stemi_schnier
       index:
       - I10
       - I15
@@ -8370,6 +8377,7 @@ categories:
         - bleeding
         - acs_nstemi
         - chronic_ischaemia_heart_disease
+        - acs_stemi_schnier
         index: I20
         name: I20
       - categories:
@@ -8400,11 +8408,13 @@ categories:
         - docs: Acute subendocardial myocardial infarction
           exclude:
           - other_ischaemic_heart_diseases
+          - acs_stemi_schnier
           index: I214
           name: I21.4
         - docs: Acute myocardial infarction, unspecified
           exclude:
           - acs_nstemi
+          - acs_stemi_schnier
           index: I219
           name: I21.9
         docs: Acute myocardial infarction
@@ -8439,6 +8449,7 @@ categories:
         - acs_unstable_angina
         - chronic_ischaemia_heart_disease
         - other_ischaemic_heart_diseases
+        - acs_stemi_schnier
         index: I22
         name: I22
       - categories:
@@ -8487,6 +8498,7 @@ categories:
         - acs_nstemi
         - acs_unstable_angina
         - chronic_ischaemia_heart_disease
+        - acs_stemi_schnier
         index: I23
         name: I23
       - categories:
@@ -8508,6 +8520,7 @@ categories:
         - acs_nstemi
         - acs_unstable_angina
         - chronic_ischaemia_heart_disease
+        - acs_stemi_schnier
         index: I24
         name: I24
       - categories:
@@ -8544,6 +8557,7 @@ categories:
         - acs_nstemi
         - acs_unstable_angina
         - other_ischaemic_heart_diseases
+        - acs_stemi_schnier
         index: I25
         name: I25
       docs: Ischaemic heart diseases
@@ -8613,6 +8627,7 @@ categories:
       - ischaemic_stroke
       - chronic_ischaemia_heart_disease
       - other_ischaemic_heart_diseases
+      - acs_stemi_schnier
       index:
       - I26
       - I28
@@ -9146,6 +9161,7 @@ categories:
       - ischaemic_stroke
       - chronic_ischaemia_heart_disease
       - other_ischaemic_heart_diseases
+      - acs_stemi_schnier
       index:
       - I30
       - I52
@@ -9422,6 +9438,7 @@ categories:
       - acs_unstable_angina
       - chronic_ischaemia_heart_disease
       - other_ischaemic_heart_diseases
+      - acs_stemi_schnier
       index:
       - I60
       - I69
@@ -9626,6 +9643,7 @@ categories:
       - ischaemic_stroke
       - chronic_ischaemia_heart_disease
       - other_ischaemic_heart_diseases
+      - acs_stemi_schnier
       index:
       - I70
       - I79
@@ -9821,6 +9839,7 @@ categories:
       - ischaemic_stroke
       - chronic_ischaemia_heart_disease
       - other_ischaemic_heart_diseases
+      - acs_stemi_schnier
       index:
       - I80
       - I89
@@ -9915,6 +9934,7 @@ categories:
       - ischaemic_stroke
       - chronic_ischaemia_heart_disease
       - other_ischaemic_heart_diseases
+      - acs_stemi_schnier
       index:
       - I95
       - I99
@@ -11549,6 +11569,7 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
     - other_ischaemic_heart_diseases
+    - acs_stemi_schnier
     index:
     - F00
     - F99
@@ -12872,6 +12893,7 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
     - other_ischaemic_heart_diseases
+    - acs_stemi_schnier
     index:
     - G00
     - G99
@@ -14049,6 +14071,7 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
     - other_ischaemic_heart_diseases
+    - acs_stemi_schnier
     index:
     - H00
     - H59
@@ -14551,6 +14574,7 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
     - other_ischaemic_heart_diseases
+    - acs_stemi_schnier
     index:
     - H60
     - H95
@@ -15581,6 +15605,7 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
     - other_ischaemic_heart_diseases
+    - acs_stemi_schnier
     index:
     - J00
     - J99
@@ -17533,6 +17558,7 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
     - other_ischaemic_heart_diseases
+    - acs_stemi_schnier
     index:
     - K00
     - K93
@@ -18871,6 +18897,7 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
     - other_ischaemic_heart_diseases
+    - acs_stemi_schnier
     index:
     - L00
     - L99
@@ -21007,6 +21034,7 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
     - other_ischaemic_heart_diseases
+    - acs_stemi_schnier
     index:
     - M00
     - M99
@@ -22920,6 +22948,7 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
     - other_ischaemic_heart_diseases
+    - acs_stemi_schnier
     index:
     - N00
     - N99
@@ -27783,6 +27812,7 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
     - other_ischaemic_heart_diseases
+    - acs_stemi_schnier
     index:
     - S00
     - T98
@@ -29433,6 +29463,7 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
     - other_ischaemic_heart_diseases
+    - acs_stemi_schnier
     index:
     - O00
     - O99
@@ -30740,6 +30771,7 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
     - other_ischaemic_heart_diseases
+    - acs_stemi_schnier
     index:
     - P00
     - P96
@@ -33066,6 +33098,7 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
     - other_ischaemic_heart_diseases
+    - acs_stemi_schnier
     index:
     - Q00
     - Q99
@@ -34511,6 +34544,7 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
     - other_ischaemic_heart_diseases
+    - acs_stemi_schnier
     index:
     - R00
     - R99
@@ -39489,6 +39523,7 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
     - other_ischaemic_heart_diseases
+    - acs_stemi_schnier
     index:
     - V01
     - Y98
@@ -41884,6 +41919,7 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
     - other_ischaemic_heart_diseases
+    - acs_stemi_schnier
     index:
     - Z00
     - Z99
@@ -42072,6 +42108,7 @@ categories:
     - ischaemic_stroke
     - chronic_ischaemia_heart_disease
     - other_ischaemic_heart_diseases
+    - acs_stemi_schnier
     index:
     - U00
     - U85
