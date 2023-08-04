@@ -87,6 +87,19 @@ impl ClinicalCodeRef {
     }
 }
 
+/// Simple wrapper to convert a code reference to a clinical code
+/// and print it.
+#[macro_export]
+macro_rules! printcode {
+    ($code_ref:expr, $code_store:expr) => {
+        if let Some(clinical_code) = $code_store.clinical_code_from(&$code_ref) {
+            println!("{:?}", clinical_code);
+        } else {
+            println!("No clinical code corresponding to reference");
+        }
+        
+    }
+}
 /// Stores the data for all the clinical codes that have been seen by the
 /// program.
 #[derive(Debug)]
