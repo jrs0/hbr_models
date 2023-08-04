@@ -480,7 +480,7 @@ export default function Home() {
 						return
 					}
 					// If you get here, then the state is valid
-					setCurrentFilePath(selected[0])
+					setCurrentFilePath(selected as string)
 					setTopLevelCategory(res)
 				})
 		}

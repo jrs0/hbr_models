@@ -3038,7 +3038,6 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi_schnier
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -4839,8 +4838,6 @@ categories:
         - C97
         name: C97-C97
       docs: Malignant neoplasms
-      exclude:
-      - acs_stemi_schnier
       index:
       - C00
       - C97
@@ -4857,8 +4854,6 @@ categories:
           index: D002
           name: D00.2
         docs: Carcinoma in situ of oral cavity, oesophagus and stomach
-        exclude:
-        - acs_stemi_schnier
         index: D00
         name: D00
       - categories:
@@ -4887,8 +4882,6 @@ categories:
           index: D019
           name: D01.9
         docs: Carcinoma in situ of other and unspecified digestive organs
-        exclude:
-        - acs_stemi_schnier
         index: D01
         name: D01
       - categories:
@@ -4908,8 +4901,6 @@ categories:
           index: D024
           name: D02.4
         docs: Carcinoma in situ of middle ear and respiratory system
-        exclude:
-        - acs_stemi_schnier
         index: D02
         name: D02
       - categories:
@@ -5035,8 +5026,6 @@ categories:
           index: D076
           name: D07.6
         docs: Carcinoma in situ of other and unspecified genital organs
-        exclude:
-        - acs_stemi_schnier
         index: D07
         name: D07
       - categories:
@@ -5059,8 +5048,6 @@ categories:
           index: D099
           name: D09.9
         docs: Carcinoma in situ of other and unspecified sites
-        exclude:
-        - acs_stemi_schnier
         index: D09
         name: D09
       docs: In situ neoplasms
@@ -5638,7 +5625,6 @@ categories:
       docs: Benign neoplasms
       exclude:
       - cancer
-      - acs_stemi_schnier
       index:
       - D10
       - D36
@@ -5925,7 +5911,6 @@ categories:
       docs: Neoplasms of uncertain or unknown behaviour
       exclude:
       - cancer
-      - acs_stemi_schnier
       index:
       - D37
       - D48
@@ -6690,7 +6675,6 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi_schnier
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -8108,7 +8092,6 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi_schnier
     - acs_nstemi
     - acs_unstable_angina
     - ischaemic_stroke
@@ -8158,7 +8141,6 @@ categories:
       - ckd.other
       - atrial_fib
       - portal_hypertension
-      - acs_stemi_schnier
       - acs_nstemi
       - acs_unstable_angina
       - ischaemic_stroke
@@ -8273,7 +8255,6 @@ categories:
       - ckd.other
       - atrial_fib
       - portal_hypertension
-      - acs_stemi_schnier
       - acs_nstemi
       - acs_unstable_angina
       - ischaemic_stroke
@@ -8353,7 +8334,6 @@ categories:
       - bleeding
       - atrial_fib
       - portal_hypertension
-      - acs_stemi_schnier
       - acs_nstemi
       - acs_unstable_angina
       - ischaemic_stroke
@@ -8388,7 +8368,6 @@ categories:
         docs: Angina pectoris
         exclude:
         - bleeding
-        - acs_stemi_schnier
         - acs_nstemi
         - chronic_ischaemia_heart_disease
         index: I20
@@ -8420,13 +8399,11 @@ categories:
           name: I21.3
         - docs: Acute subendocardial myocardial infarction
           exclude:
-          - acs_stemi_schnier
           - other_ischaemic_heart_diseases
           index: I214
           name: I21.4
         - docs: Acute myocardial infarction, unspecified
           exclude:
-          - acs_stemi_schnier
           - acs_nstemi
           index: I219
           name: I21.9
@@ -8454,8 +8431,6 @@ categories:
           index: I228
           name: I22.8
         - docs: Subsequent myocardial infarction of unspecified site
-          exclude:
-          - acs_stemi_schnier
           index: I229
           name: I22.9
         docs: Subsequent myocardial infarction
@@ -8509,7 +8484,6 @@ categories:
           name: I23.8
         docs: Certain current complications following acute myocardial infarction
         exclude:
-        - acs_stemi_schnier
         - acs_nstemi
         - acs_unstable_angina
         - chronic_ischaemia_heart_disease
@@ -8531,7 +8505,6 @@ categories:
         docs: Other acute ischaemic heart diseases
         exclude:
         - bleeding
-        - acs_stemi_schnier
         - acs_nstemi
         - acs_unstable_angina
         - chronic_ischaemia_heart_disease
@@ -8568,7 +8541,6 @@ categories:
         docs: Chronic ischaemic heart disease
         exclude:
         - bleeding
-        - acs_stemi_schnier
         - acs_nstemi
         - acs_unstable_angina
         - other_ischaemic_heart_diseases
@@ -8636,7 +8608,6 @@ categories:
       - ckd.other
       - atrial_fib
       - portal_hypertension
-      - acs_stemi_schnier
       - acs_nstemi
       - acs_unstable_angina
       - ischaemic_stroke
@@ -9170,7 +9141,6 @@ categories:
       exclude:
       - ckd.other
       - portal_hypertension
-      - acs_stemi_schnier
       - acs_nstemi
       - acs_unstable_angina
       - ischaemic_stroke
@@ -9448,7 +9418,6 @@ categories:
       - ckd.other
       - atrial_fib
       - portal_hypertension
-      - acs_stemi_schnier
       - acs_nstemi
       - acs_unstable_angina
       - chronic_ischaemia_heart_disease
@@ -9652,7 +9621,6 @@ categories:
       - ckd.other
       - atrial_fib
       - portal_hypertension
-      - acs_stemi_schnier
       - acs_nstemi
       - acs_unstable_angina
       - ischaemic_stroke
@@ -9848,7 +9816,6 @@ categories:
       exclude:
       - ckd.other
       - atrial_fib
-      - acs_stemi_schnier
       - acs_nstemi
       - acs_unstable_angina
       - ischaemic_stroke
@@ -9943,7 +9910,6 @@ categories:
       exclude:
       - ckd.other
       - atrial_fib
-      - acs_stemi_schnier
       - acs_nstemi
       - acs_unstable_angina
       - ischaemic_stroke
@@ -11575,7 +11541,6 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi_schnier
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -12899,7 +12864,6 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi_schnier
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -14077,7 +14041,6 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi_schnier
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -14580,7 +14543,6 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi_schnier
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -15611,7 +15573,6 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi_schnier
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -17564,7 +17525,6 @@ categories:
     - smoking
     - copd
     - cancer
-    - acs_stemi_schnier
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -18903,7 +18863,6 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi_schnier
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -21040,7 +20999,6 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi_schnier
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -22954,7 +22912,6 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi_schnier
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -27818,7 +27775,6 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi_schnier
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -29469,7 +29425,6 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi_schnier
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -30777,7 +30732,6 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi_schnier
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -33104,7 +33058,6 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi_schnier
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -34550,7 +34503,6 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi_schnier
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -39529,7 +39481,6 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi_schnier
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -41925,7 +41876,6 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi_schnier
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
@@ -42114,7 +42064,6 @@ categories:
     - cirrhosis
     - hepatic_failure
     - portal_hypertension
-    - acs_stemi_schnier
     - acs_nstemi
     - acs_unstable_angina
     - type_1_diabetes
