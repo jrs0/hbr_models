@@ -6,7 +6,7 @@
 		"distDir": "../out"
 	},
 	"package": {
-		"productName": "map-editor",
+		"productName": "codes-editor",
 		"version": "0.1.0"
 	},
 	"tauri": {

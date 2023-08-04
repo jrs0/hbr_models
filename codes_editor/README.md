@@ -24,4 +24,4 @@ cargo install tauri-cli
 npm install
  ```
 
-The command to develop is `cargo tauri dev`. The command to build the release version is `cargo tauri build`. The resulting binary will be located in `src-tauri\target\release\map-editor.exe`
+The command to develop is `cargo tauri dev`. The command to build the release version is `cargo tauri build`. The resulting binary will be located in `src-tauri\target\release\codes-editor.exe`
