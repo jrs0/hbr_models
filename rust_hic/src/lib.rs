@@ -15,7 +15,7 @@ mod synth_data;
 pub mod patient;
 pub mod clinical_code;
 pub mod clinical_code_tree;
-mod seeded_rng;
+pub mod seeded_rng;
 
 pub fn save_record_batch(filename: &str, batch: RecordBatch) {
     let file = fs::File::create(filename).unwrap();

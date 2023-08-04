@@ -15,7 +15,7 @@ fn main() {
         .expect("Should succeed, code is present");
 
     // Get a few random clinical codes from the code tree
-    let rng = make_rng(123, "code_gen_id");
+    let mut rng = make_rng(123, "code_gen_id");
     let code1 = code_tree.random_clinical_code(&mut rng, &mut code_store);
-    println!("{code1}");
+    println!("{:?}", code_store.clinical_code_from(&code1));
 }

@@ -111,30 +111,6 @@ impl Categories {
     }
 }
 
-macro_rules! category {
-    ($name:expr, $docs:expr, $index:expr, $categories:expr) => {
-        Categories {
-            name: String::from($name),
-            docs: String::from($docs),
-            index: $index,
-            exclude: None,
-            categories: Some($categories),
-        }
-    };
-}
-
-macro_rules! leaf {
-    ($name:expr, $docs:expr, $index:expr) => {
-        Categories {
-            name: String::from($name),
-            docs: String::from($docs),
-            index: $index,
-            exclude: None,
-            categories: None,
-        }
-    };
-}
-
 /// The code definition file structure
 ///
 /// This struct maps to the contents of a code file
@@ -257,6 +233,33 @@ mod tests {
     use std::path::PathBuf;
 
     use super::*;
+
+    // Helper macros to generate a category
+    macro_rules! category {
+        ($name:expr, $docs:expr, $index:expr, $categories:expr) => {
+            Categories {
+                name: String::from($name),
+                docs: String::from($docs),
+                index: $index,
+                exclude: None,
+                categories: Some($categories),
+            }
+        };
+    }
+    
+    // Helper macro to generate a clinical code
+    macro_rules! leaf {
+        ($name:expr, $docs:expr, $index:expr) => {
+            Categories {
+                name: String::from($name),
+                docs: String::from($docs),
+                index: $index,
+                exclude: None,
+                categories: None,
+            }
+        };
+    }
+    
 
     // Reference clinical code tree structure for comparison
     fn code_tree_example_1() -> ClinicalCodeTree {

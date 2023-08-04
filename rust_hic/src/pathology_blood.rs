@@ -143,7 +143,7 @@ fn make_subject_columns(
 ) -> SeededColumnBlock {
     // Augment the id with the seed and hash to get the
     // seed to be used.
-    let mut rng = make_rng(block_id, global_seed);
+    let mut rng = make_rng(global_seed, block_id);
 
     let mut subject = Vec::new();
     for _ in 0..num_rows {
@@ -161,7 +161,7 @@ fn make_subject_columns(
 fn make_blood_test_columns(block_id: &str, global_seed: u64, num_rows: usize) -> SeededColumnBlock {
     // Augment the id with the seed and hash to get the
     // seed to be used.
-    let mut rng = make_rng(block_id, global_seed);
+    let mut rng = make_rng(global_seed, block_id);
 
     let mut order_name = Vec::new();
     let mut test_name = Vec::new();
@@ -205,7 +205,7 @@ fn make_sample_time_columns(
     global_seed: u64,
     num_rows: usize,
 ) -> SeededColumnBlock {
-    let mut rng = make_rng(block_id, global_seed);
+    let mut rng = make_rng(global_seed, block_id);
 
     let mut sample_collected_date_time = Vec::new();
     let mut result_available_date_time = Vec::new();
@@ -235,7 +235,7 @@ fn make_result_flag_column(
     column_name: String,
     num_rows: usize,
 ) -> SeededColumnBlock {
-    let mut rng = make_rng(block_id, global_seed);
+    let mut rng = make_rng(global_seed, block_id);
 
     let mut result_flag = Vec::new();
 
