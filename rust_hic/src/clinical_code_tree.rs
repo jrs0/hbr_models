@@ -9,6 +9,8 @@
 //! are sorted.
 
 use index::Index;
+use rand::seq::SliceRandom;
+use rand_chacha::ChaCha8Rng;
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::io::Read;
@@ -54,6 +56,21 @@ fn sort_categories_list_in_place(categories: &mut Vec<Categories>) {
 }
 
 impl Categories {
+    /// Get a random clinical code from one of the (leaf)
+    /// sub-categories of this category.  
+    fn random_clinical_code(&self, rng: &mut ChaCha8Rng) -> ClinicalCode {
+        if self.is_leaf() {
+            ClinicalCode::from(self)
+        } else {
+            let random_subcategory = self
+                .categories()
+                .expect("Non-leaf node will have sub-categories")
+                .choose(rng)
+                .expect("Should be Some, sub-categories list is not empty");
+            random_subcategory.random_clinical_code(rng)
+        }
+    }
+
     /// Sort the categories recursively in place
     fn sort_categories(&mut self) {
         match &mut self.categories {
@@ -63,8 +80,7 @@ impl Categories {
     }
 
     /// Get the set of excludes. Even though the key itself may be empty,
-    /// from the point of view of programming it is easier to just have
-    /// that case as an empty set.
+    /// it is easier to just have that case as an empty set.
     fn exclude(&self) -> HashSet<String> {
         if let Some(exclude_set) = &self.exclude {
             exclude_set.clone()
@@ -184,6 +200,24 @@ impl ClinicalCodeTree {
             serde_yaml::from_reader(reader).expect("Failed to deserialize to Categories");
         sort_categories_list_in_place(&mut tree.categories);
         tree
+    }
+
+    /// Generate a clinical code at random from the tree of codes
+    ///
+    /// Always returns a clinical code (i.e. a leaf), never a category.
+    /// The random element is picked by choosing from the sub-categories
+    /// uniformly at random until a code is reached.
+    pub fn random_clinical_code(
+        &self,
+        rng: &mut ChaCha8Rng,
+        code_store: &mut ClinicalCodeStore,
+    ) -> ClinicalCodeRef {
+        let clinical_code = self
+            .categories
+            .choose(rng)
+            .expect("Should be Some, Categories list should not be empty")
+            .random_clinical_code(rng);
+        code_store.clinical_code_ref_from(clinical_code)
     }
 
     /// Get all the clinical codes in a particular group
@@ -438,7 +472,7 @@ mod tests {
     }
 
     /// Convenience macro to make a HashSet<String> from a vector
-    /// of literals for testing. 
+    /// of literals for testing.
     macro_rules! set_of_strings {
         ($($x:expr),*) => (HashSet::from([$($x.to_string()),*]));
     }

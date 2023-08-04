@@ -62,7 +62,7 @@ An issue with option 1 is the ad-hoc collection of libraries that might be prese
 
 Since Polars is based on arrow and is already implemented in Rust, the solution is technically quite similar to option one. Using [ConnectorX](https://docs.rs/connectorx/latest/connectorx/), it [appears to be possible](https://stackoverflow.com/questions/74976963/windows-authentication-for-polars-connectorx-sql-server) to connect to SQL Server with Windows Authentication. ConnectorX can be used to convert to Arrow2 (the library underlying Polars), which can be converted [into a polars dataframe](https://stackoverflow.com/questions/76677834/im-using-polars-with-connectorx-why-do-i-get-dataframe-type-error). One of the advantages of ConnectorX is the query speed, due to automatically dividing up the query and parallelizing it, which should make large databases fetches faster.
 
-Polars has both an [R](https://github.com/pola-rs/r-polars) using rextendr, and a Python interface. The intention is not to use Polars in these languages; instead, the methods used in these interfaces proves that there exists a method to serve up dataframes in those langauges.
+Polars has both an [R](https://github.com/pola-rs/r-polars) using rextendr, and a Python interface. The intention is not to use Polars in these languages; instead, the methods used in these interfaces proves that there exists a method to serve up dataframes in those languages.
 
 ## Patient Data Model
 
@@ -136,7 +136,7 @@ Both the `DiagnosisCode` and the `ProcedureCode` contain a reference (an `id`, t
 * `description` (required, string): the text description of the code
 * `groups` (required, vector of strings): the list of groups which contain the code
 
-Using a reference to the code allows two codes to be compared for equality, without needing to carry around their string descriptions. In the C++ prototype code [rdb](https://github.com/jrs0/rdb), it was also found that caching the codes during code parsing improved performance significantly; that is, maintaining a map from code strings found in the database to the resulting code ID. When the content of the code is required, it can be fetched using the reference.
+Using a reference to the code allows two codes to be compared for equality, without needing to carry around their string descriptions. In the C++ prototype code [rdb](https://github.com/jrs0/rdb), it was also found that caching the codes during code parsing improved performance significantly; that is, maintaining a map from code strings found in the database to the resulting code ID. When the content of the code is required, it can be fetched using the reference. It will be possible to serialize and deserialize the patient struct using the full strings in the serialized version by using [this method](https://stackoverflow.com/questions/63306229/how-to-pass-options-to-rusts-serde-that-can-be-accessed-in-deserializedeseria).
 
 
 

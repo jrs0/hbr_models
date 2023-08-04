@@ -2,7 +2,8 @@
 //! platelet count, etc. The columns include the test name and category, the
 //! result and unit, and sample collection date and processing times.
 
-use crate::seeded_column_block::{make_rng, to_polars, SeededColumnBlock};
+use crate::seeded_column_block::{to_polars, SeededColumnBlock};
+use crate::seeded_rng::make_rng;
 use crate::synth_data::{make_gender, make_subject, Gender};
 use chrono::{Duration, NaiveDateTime};
 use rand::prelude::*;
