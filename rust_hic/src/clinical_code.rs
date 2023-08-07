@@ -60,9 +60,11 @@ impl ClinicalCode {
 }
 
 /// An opaque reference to a clinincal code, which can be used to obtain information
-/// about the code from a ClinicalCodeStore. Using a type instead of a raw u64 to make
-/// it clear what it is for
-#[derive(PartialEq, Eq, Serialize, Deserialize, Debug)]
+/// about the code from a ClinicalCodeStore. 
+/// 
+/// Using a type instead of a raw u64 to make it clear what it is for. The struct is
+/// supposed to be cheap to copy -- avoid adding to it.
+#[derive(Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub struct ClinicalCodeRef {
     id: u64,
 }
