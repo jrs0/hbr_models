@@ -61,6 +61,7 @@ fn main() {
     // }
 
     let df_reduced = df
+    .lazy()
         .select([
             "subject",
             "order_name",
@@ -70,8 +71,8 @@ fn main() {
             "sample_collected_date_time",
             "result_available_date_time",
         ])
-        .unwrap()
-        .into_struct("test");
+        .collect()
+        .unwrap();
 
-    println!("{:#?}", df_reduced);
+    println!("{}", df_reduced);
 }

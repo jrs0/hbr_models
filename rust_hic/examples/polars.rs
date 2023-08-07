@@ -54,8 +54,8 @@ fn main() {
     ,procedure22nd_opcs as secondary_procedure_20
     ,procedure23rd_opcs as secondary_procedure_21
     ,procedure24th_opcs as secondary_procedure_22
-    from abi.dbo.vw_apc_sem_001 where datalength(AIMTC_Pseudo_NHS) > 0 and datalength(pbrspellid) > 0
-    order by nhs_number, spell_id"#;
+    from abi.dbo.vw_apc_sem_001 where datalength(AIMTC_Pseudo_NHS) > 0 and datalength(pbrspellid) > 0"#;
+    //order by nhs_number, spell_id"#;
 
     let start = Instant::now();
     let mut source_conn = SourceConn::try_from("mssql://XSW-000-SP09/ABI?trusted_connection=true")
@@ -66,6 +66,13 @@ fn main() {
     let duration = start.elapsed();
     println!("Time taken to fetch HES data is: {:?}", duration);
 
-    let df = destination.polars().expect("Should have worked");
+    let start = Instant::now();
+    let df = destination
+        .polars()
+        .expect("Should have worked")
+        .sort(["nhs_number", "spell_id"], false)
+        .expect("Sort should have worked");
     println!("{df}");
+    let duration = start.elapsed();
+    println!("Time taken for polars processing: {:?}", duration);
 }
