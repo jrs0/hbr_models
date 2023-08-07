@@ -15,7 +15,7 @@ pub enum MeasurementValue {
     Real(f64),
     String(String),
 }
-
+bson::serde_with
 #[serde_with::serde_as]
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Measurement {

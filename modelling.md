@@ -138,7 +138,7 @@ The clinically relevant bleeding definition is BARC 3 or 5, as used in the ARC H
 * **CADTH Group**
     This set of codes was used to calculate costs associated with major bleeding in connection with estimating costs resulting from DAPT duration. The group is as follows:
     | Category | ICD-10 | Description |
-    |--------------|--------|
+    |--------------|--------|---------|
     | Gastrointestinal |I85.0 |Esophageal varices with bleeding|
     || K25.0 | Gastric ulcer, acute with hemorrhage| 
     ||K25.2 | Gastric ulcer, acute with both hemorrhage and perforation|
