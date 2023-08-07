@@ -29,6 +29,7 @@ pub struct Measurement {
     measurement_date: Option<chrono::DateTime<Utc>>,
     /// When the measurement was made available, if the result
     /// required a test that takes time to perform
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     #[serde_as(as = "Option<bson::DateTime>")]
     measurement_available: Option<chrono::DateTime<Utc>>,
     /// Whether the measurement came from a primary or secondary

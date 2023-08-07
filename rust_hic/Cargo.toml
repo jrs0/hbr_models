@@ -19,4 +19,4 @@ connectorx = { version = "0.3", features = ["src_mssql", "dst_arrow2"] }
 polars = "0.31"
 serde = { version = "^1.0", default-features = false, features = [ "derive" ] }
 serde_yaml = "0.9"
-serde_with = "3.2"
+serde_with = "1.0"

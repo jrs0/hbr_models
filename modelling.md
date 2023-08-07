@@ -176,7 +176,14 @@ The clinically relevant bleeding definition is BARC 3 or 5, as used in the ARC H
     * The codes in the original list R31.0, R31.1, R31.8 were interpreted as the single code R31. 
 
 * **ADAPTT Group**
-    The ADAPTT trial[^7] was conducted in the UK, and uses ICD-10 codes to identify all bleeding events (i.e. BARC 2 - 5). This 
+    The ADAPTT trial[^7] was conducted in the UK, and uses ICD-10 codes to identify all bleeding events (i.e. BARC 2 - 5). The list of codes is provided below:
+    | Category | ICD-10 | Description |
+    |--------------|--------|----------|
+    | Gastrointestinal |I85.0 |Esophageal varices with bleeding|
+    || K25.0 | Gastric ulcer, acute with hemorrhage| 
+    ||K25.2 | Gastric ulcer, acute with both hemorrhage and perforation|
+    ||K25.4 | Gastric ulcer, chronic or unspecified with hemorrha
+
 
 
 It is important to recognise that no group of ICD-10 codes corresponds exactly to major bleeding events. Any models developed using this outcome must interpret the results in light of this shortcoming.
