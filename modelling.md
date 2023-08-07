@@ -43,6 +43,7 @@ The ARC-HBR score for the purpose of this work is described [here](arc_hbr.md).
 Patients with a myocardial infarction (MI) defined by the following ICD-10 codes are included in the analysis[^8]:
 
 | ICD-10 | Description | STEMI/NSTEMI |
+|--------|-------------|--------------|
 | I21.0 | Acute transmural myocardial infarction of anterior wall | STEMI |
 | I21.1 | Acute transmural myocardial infarction of inferior wall | STEMI |
 | I21.2 | Acute transmural myocardial infarction of other sites | STEMI |
@@ -70,6 +71,7 @@ Inclusion/exclusion notes (to check):
 The following OPCS-4 codes were used to identify PCI procedures:
 
 | OPCS-4 | Description |
+|--------|-------------|
 | K49.*  | Transluminal balloon angioplasty of coronary artery |
 | K50.*  | Other therapeutic transluminal operations on coronary artery |
 | K75.*  | Percutaneous transluminal balloon angioplasty and insertion of stent into coronary artery |
