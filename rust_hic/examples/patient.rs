@@ -2,7 +2,6 @@
 //!
 use std::collections::HashMap;
 
-use itertools::izip;
 use polars::prelude::*;
 use rust_hic::{
     make_pathology_blood, patient::Patient, preprocess::measurement_from_pathology_blood,
@@ -37,27 +36,42 @@ fn main() {
     let df = make_pathology_blood("pathology_blood", 0, 100);
 
     // Get the columns of interest
-    let subject = get_utf8_column(&df, "subject").into_iter();
-    let order_name = get_utf8_column(&df, "order_name").into_iter();
-    let test_name = get_utf8_column(&df, "test_name").into_iter();
-    let sample_collected = df
-        .column("sample_collected_date_time")
-        .expect("Column should be present");
-    let result_available = df
-        .column("result_available_date_time")
-        .expect("Column should be present");
-    let result = get_utf8_column(&df, "test_result").into_iter();
-    let unit = get_utf8_column(&df, "test_result_unit").into_iter();
+    // let subject = get_utf8_column(&df, "subject").into_iter();
+    // let order_name = get_utf8_column(&df, "order_name").into_iter();
+    // let test_name = get_utf8_column(&df, "test_name").into_iter();
+    // let sample_collected = df
+    //     .column("sample_collected_date_time")
+    //     .expect("Column should be present");
+    // let result_available = df
+    //     .column("result_available_date_time")
+    //     .expect("Column should be present");
+    // let result = get_utf8_column(&df, "test_result").into_iter();
+    // let unit = get_utf8_column(&df, "test_result_unit").into_iter();
 
-    // This feels like the wrong thing to do
-    for  {
-        let measurement = measurement_from_pathology_blood(
-            order_name,
-            test_name,
-            format!("sample_collected[n]"),
-            format!("result_available[n]"),
-            result,
-            unit,
-        );
-    }
+    // This feels like the wrong thing to
+    // for  {
+    //     let measurement = measurement_from_pathology_blood(
+    //         order_name,
+    //         test_name,
+    //         format!("sample_collected[n]"),
+    //         format!("result_available[n]"),
+    //         result,
+    //         unit,
+    //     );
+    // }
+
+    let df_reduced = df
+        .select([
+            "subject",
+            "order_name",
+            "test_name",
+            "test_result",
+            "test_result_unit",
+            "sample_collected_date_time",
+            "result_available_date_time",
+        ])
+        .unwrap()
+        .into_struct("test");
+
+    println!("{:#?}", df_reduced);
 }

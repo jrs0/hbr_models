@@ -3786,7 +3786,6 @@ dependencies = [
  "chrono",
  "connectorx",
  "datafusion",
- "itertools 0.11.0",
  "mongodb",
  "polars 0.31.1",
  "rand 0.8.5",
