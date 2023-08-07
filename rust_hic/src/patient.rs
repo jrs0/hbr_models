@@ -6,7 +6,7 @@ use self::measurements::MeasurementHistory;
 
 mod spell;
 //mod mortality;
-mod measurements;
+pub mod measurements;
 //mod prescriptions;
 
 #[derive(Serialize, Deserialize, Debug, Default)]

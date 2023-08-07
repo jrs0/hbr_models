@@ -76,7 +76,7 @@ The platelet count measurement contains the following information:
 * `test_name`: "Platelets"
 * `test_result`: a non-negative integer (i.e. not fractional part)
 * `result_*_range`: 150 - 400, independent of gender
-* `test_result_unit`: "10*9/L" (* not a typo). This is a volumetric count, 10^9/L
+* `test_result_unit`: "10\*9/L" (\* not a typo). This is a volumetric count, 10^9/L
 
 #### Estimated Glomerular Filtration Rate
 
