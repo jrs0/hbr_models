@@ -3026,6 +3026,7 @@ categories:
     - mi_stemi_schnier
     - mi_nstemi_schnier
     - mi_schnier
+    - bleeding_cadth
     index:
     - A00
     - B99
@@ -5894,6 +5895,7 @@ categories:
     - mi_stemi_schnier
     - mi_nstemi_schnier
     - mi_schnier
+    - bleeding_cadth
     index:
     - C00
     - D48
@@ -6544,6 +6546,7 @@ categories:
     - mi_stemi_schnier
     - mi_nstemi_schnier
     - mi_schnier
+    - bleeding_cadth
     index:
     - D50
     - D89
@@ -7895,6 +7898,7 @@ categories:
     - mi_stemi_schnier
     - mi_nstemi_schnier
     - mi_schnier
+    - bleeding_cadth
     index:
     - E00
     - E90
@@ -7939,6 +7943,7 @@ categories:
       - mi_stemi_schnier
       - mi_nstemi_schnier
       - mi_schnier
+      - bleeding_cadth
       index:
       - I00
       - I02
@@ -8048,6 +8053,7 @@ categories:
       - mi_stemi_schnier
       - mi_nstemi_schnier
       - mi_schnier
+      - bleeding_cadth
       index:
       - I05
       - I09
@@ -8117,6 +8123,7 @@ categories:
       - mi_stemi_schnier
       - mi_nstemi_schnier
       - mi_schnier
+      - bleeding_cadth
       index:
       - I10
       - I15
@@ -8309,6 +8316,7 @@ categories:
       docs: Ischaemic heart diseases
       exclude:
       - bleeding_al_ani
+      - bleeding_cadth
       index:
       - I20
       - I25
@@ -8365,6 +8373,7 @@ categories:
       - mi_stemi_schnier
       - mi_nstemi_schnier
       - mi_schnier
+      - bleeding_cadth
       index:
       - I26
       - I28
@@ -8818,6 +8827,7 @@ categories:
       - mi_stemi_schnier
       - mi_nstemi_schnier
       - mi_schnier
+      - bleeding_cadth
       index:
       - I30
       - I52
@@ -8855,6 +8865,8 @@ categories:
           index: I609
           name: I60.9
         docs: Subarachnoid haemorrhage
+        exclude:
+        - bleeding_cadth
         index: I60
         name: I60
       - categories:
@@ -8886,13 +8898,19 @@ categories:
           index: I619
           name: I61.9
         docs: Intracerebral haemorrhage
+        exclude:
+        - bleeding_cadth
         index: I61
         name: I61
       - categories:
         - docs: Subdural haemorrhage (acute)(nontraumatic)
+          exclude:
+          - bleeding_cadth
           index: I620
           name: I62.0
         - docs: Nontraumatic extradural haemorrhage
+          exclude:
+          - bleeding_cadth
           index: I621
           name: I62.1
         - docs: Intracranial haemorrhage (nontraumatic), unspecified
@@ -8932,11 +8950,13 @@ categories:
         docs: Cerebral infarction
         exclude:
         - bleeding_al_ani
+        - bleeding_cadth
         index: I63
         name: I63
       - docs: Stroke, not specified as haemorrhage or infarction
         exclude:
         - bleeding_al_ani
+        - bleeding_cadth
         index: I64
         name: I64
       - categories:
@@ -8961,6 +8981,7 @@ categories:
         docs: Occlusion and stenosis of precerebral arteries, not resulting in cerebral infarction
         exclude:
         - bleeding_al_ani
+        - bleeding_cadth
         index: I65
         name: I65
       - categories:
@@ -8988,6 +9009,7 @@ categories:
         docs: Occlusion and stenosis of cerebral arteries, not resulting in cerebral infarction
         exclude:
         - bleeding_al_ani
+        - bleeding_cadth
         index: I66
         name: I66
       - categories:
@@ -9024,6 +9046,7 @@ categories:
         docs: Other cerebrovascular diseases
         exclude:
         - bleeding_al_ani
+        - bleeding_cadth
         index: I67
         name: I67
       - categories:
@@ -9042,6 +9065,7 @@ categories:
         docs: Cerebrovascular disorders in diseases classified elsewhere
         exclude:
         - bleeding_al_ani
+        - bleeding_cadth
         index: I68
         name: I68
       - categories:
@@ -9066,6 +9090,7 @@ categories:
         docs: Sequelae of cerebrovascular disease
         exclude:
         - bleeding_al_ani
+        - bleeding_cadth
         index: I69
         name: I69
       docs: Cerebrovascular diseases
@@ -9272,6 +9297,7 @@ categories:
       - mi_stemi_schnier
       - mi_nstemi_schnier
       - mi_schnier
+      - bleeding_cadth
       index:
       - I70
       - I79
@@ -9299,11 +9325,13 @@ categories:
         docs: Phlebitis and thrombophlebitis
         exclude:
         - bleeding_al_ani
+        - bleeding_cadth
         index: I80
         name: I80
       - docs: Portal vein thrombosis
         exclude:
         - bleeding_al_ani
+        - bleeding_cadth
         index: I81
         name: I81
       - categories:
@@ -9328,6 +9356,7 @@ categories:
         docs: Other venous embolism and thrombosis
         exclude:
         - bleeding_al_ani
+        - bleeding_cadth
         index: I82
         name: I82
       - categories:
@@ -9346,6 +9375,7 @@ categories:
         docs: Varicose veins of lower extremities
         exclude:
         - bleeding_al_ani
+        - bleeding_cadth
         index: I83
         name: I83
       - categories:
@@ -9355,6 +9385,7 @@ categories:
         - docs: Oesophageal varices without bleeding
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: I859
           name: I85.9
         docs: Oesophageal varices
@@ -9382,6 +9413,7 @@ categories:
         docs: Varicose veins of other sites
         exclude:
         - bleeding_al_ani
+        - bleeding_cadth
         index: I86
         name: I86
       - categories:
@@ -9403,6 +9435,7 @@ categories:
         docs: Other disorders of veins
         exclude:
         - bleeding_al_ani
+        - bleeding_cadth
         index: I87
         name: I87
       - categories:
@@ -9421,6 +9454,7 @@ categories:
         docs: Nonspecific lymphadenitis
         exclude:
         - bleeding_al_ani
+        - bleeding_cadth
         index: I88
         name: I88
       - categories:
@@ -9439,6 +9473,7 @@ categories:
         docs: Other noninfective disorders of lymphatic vessels and lymph nodes
         exclude:
         - bleeding_al_ani
+        - bleeding_cadth
         index: I89
         name: I89
       docs: Diseases of veins, lymphatic vessels and lymph nodes, not elsewhere classified
@@ -9517,6 +9552,7 @@ categories:
       - mi_stemi_schnier
       - mi_nstemi_schnier
       - mi_schnier
+      - bleeding_cadth
       index:
       - I95
       - I99
@@ -11060,6 +11096,7 @@ categories:
     - mi_stemi_schnier
     - mi_nstemi_schnier
     - mi_schnier
+    - bleeding_cadth
     index:
     - F00
     - F99
@@ -12362,6 +12399,7 @@ categories:
     - mi_stemi_schnier
     - mi_nstemi_schnier
     - mi_schnier
+    - bleeding_cadth
     index:
     - G00
     - G99
@@ -13405,6 +13443,7 @@ categories:
     - mi_stemi_schnier
     - mi_nstemi_schnier
     - mi_schnier
+    - bleeding_cadth
     index:
     - H00
     - H59
@@ -13867,6 +13906,7 @@ categories:
     - mi_stemi_schnier
     - mi_nstemi_schnier
     - mi_schnier
+    - bleeding_cadth
     index:
     - H60
     - H95
@@ -14820,6 +14860,7 @@ categories:
     - mi_stemi_schnier
     - mi_nstemi_schnier
     - mi_schnier
+    - bleeding_cadth
     index:
     - J00
     - J99
@@ -15216,6 +15257,7 @@ categories:
       docs: Diseases of oral cavity, salivary glands and jaws
       exclude:
       - bleeding_al_ani
+      - bleeding_cadth
       index:
       - K00
       - K14
@@ -15224,6 +15266,7 @@ categories:
       - docs: Oesophagitis
         exclude:
         - bleeding_al_ani
+        - bleeding_cadth
         index: K20
         name: K20
       - categories:
@@ -15236,6 +15279,7 @@ categories:
         docs: Gastro-oesophageal reflux disease
         exclude:
         - bleeding_al_ani
+        - bleeding_cadth
         index: K21
         name: K21
       - categories:
@@ -15286,6 +15330,8 @@ categories:
           index: K229
           name: K22.9
         docs: Other diseases of oesophagus
+        exclude:
+        - bleeding_cadth
         index: K22
         name: K22
       - categories:
@@ -15301,6 +15347,7 @@ categories:
         docs: Disorders of oesophagus in diseases classified elsewhere
         exclude:
         - bleeding_al_ani
+        - bleeding_cadth
         index: K23
         name: K23
       - categories:
@@ -15310,6 +15357,7 @@ categories:
         - docs: 'Gastric ulcer : acute with perforation'
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K251
           name: K25.1
         - docs: 'Gastric ulcer : acute with both haemorrhage and perforation'
@@ -15318,6 +15366,7 @@ categories:
         - docs: 'Gastric ulcer : acute without haemorrhage or perforation'
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K253
           name: K25.3
         - docs: 'Gastric ulcer : chronic or unspecified with haemorrhage'
@@ -15326,6 +15375,7 @@ categories:
         - docs: 'Gastric ulcer : chronic or unspecified with perforation'
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K255
           name: K25.5
         - docs: 'Gastric ulcer : chronic or unspecified with both haemorrhage and perforation'
@@ -15334,11 +15384,13 @@ categories:
         - docs: 'Gastric ulcer : chronic without haemorrhage or perforation'
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K257
           name: K25.7
         - docs: 'Gastric ulcer : unspecified as acute or chronic, without haemorrhage or perforation'
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K259
           name: K25.9
         docs: Gastric ulcer
@@ -15351,6 +15403,7 @@ categories:
         - docs: 'Duodenal ulcer : acute with perforation'
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K261
           name: K26.1
         - docs: 'Duodenal ulcer : acute with both haemorrhage and perforation'
@@ -15359,6 +15412,7 @@ categories:
         - docs: 'Duodenal ulcer : acute without haemorrhage or perforation'
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K263
           name: K26.3
         - docs: 'Duodenal ulcer : chronic or unspecified with haemorrhage'
@@ -15367,6 +15421,7 @@ categories:
         - docs: 'Duodenal ulcer : chronic or unspecified with perforation'
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K265
           name: K26.5
         - docs: 'Duodenal ulcer : chronic or unspecified with both haemorrhage and perforation'
@@ -15375,11 +15430,13 @@ categories:
         - docs: 'Duodenal ulcer : chronic without haemorrhage or perforation'
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K267
           name: K26.7
         - docs: 'Duodenal ulcer : unspecified as acute or chronic, without haemorrhage or perforation'
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K269
           name: K26.9
         docs: Duodenal ulcer
@@ -15392,6 +15449,7 @@ categories:
         - docs: 'Peptic ulcer, site unspecified : acute with perforation'
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K271
           name: K27.1
         - docs: 'Peptic ulcer, site unspecified : acute with both haemorrhage and perforation'
@@ -15400,6 +15458,7 @@ categories:
         - docs: 'Peptic ulcer, site unspecified : acute without haemorrhage or perforation'
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K273
           name: K27.3
         - docs: 'Peptic ulcer, site unspecified : chronic or unspecified with haemorrhage'
@@ -15408,6 +15467,7 @@ categories:
         - docs: 'Peptic ulcer, site unspecified : chronic or unspecified with perforation'
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K275
           name: K27.5
         - docs: 'Peptic ulcer, site unspecified : chronic or unspecified with both haemorrhage and perforation'
@@ -15416,11 +15476,13 @@ categories:
         - docs: 'Peptic ulcer, site unspecified : chronic without haemorrhage or perforation'
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K277
           name: K27.7
         - docs: 'Peptic ulcer, site unspecified : unspecified as acute or chronic, without haemorrhage or perforation'
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K279
           name: K27.9
         docs: Peptic ulcer, site unspecified
@@ -15433,6 +15495,7 @@ categories:
         - docs: 'Gastrojejunal ulcer : acute with perforation'
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K281
           name: K28.1
         - docs: 'Gastrojejunal ulcer : acute with both haemorrhage and perforation'
@@ -15441,6 +15504,7 @@ categories:
         - docs: 'Gastrojejunal ulcer : acute without haemorrhage or perforation'
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K283
           name: K28.3
         - docs: 'Gastrojejunal ulcer : chronic or unspecified with haemorrhage'
@@ -15449,6 +15513,7 @@ categories:
         - docs: 'Gastrojejunal ulcer : chronic or unspecified with perforation'
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K285
           name: K28.5
         - docs: 'Gastrojejunal ulcer : chronic or unspecified with both haemorrhage and perforation'
@@ -15457,11 +15522,13 @@ categories:
         - docs: 'Gastrojejunal ulcer : chronic without haemorrhage or perforation'
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K287
           name: K28.7
         - docs: 'Gastrojejunal ulcer : unspecified as acute or chronic, without haemorrhage or perforation'
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K289
           name: K28.9
         docs: Gastrojejunal ulcer
@@ -15474,46 +15541,55 @@ categories:
         - docs: Other acute gastritis
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K291
           name: K29.1
         - docs: Alcoholic gastritis
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K292
           name: K29.2
         - docs: Chronic superficial gastritis
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K293
           name: K29.3
         - docs: Chronic atrophic gastritis
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K294
           name: K29.4
         - docs: Chronic gastritis, unspecified
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K295
           name: K29.5
         - docs: Other gastritis
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K296
           name: K29.6
         - docs: Gastritis, unspecified
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K297
           name: K29.7
         - docs: Duodenitis
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K298
           name: K29.8
         - docs: Gastroduodenitis, unspecified
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K299
           name: K29.9
         docs: Gastritis and duodenitis
@@ -15522,6 +15598,7 @@ categories:
       - docs: Functional dyspepsia
         exclude:
         - bleeding_al_ani
+        - bleeding_cadth
         index: K30
         name: K30
       - categories:
@@ -15558,6 +15635,7 @@ categories:
         docs: Other diseases of stomach and duodenum
         exclude:
         - bleeding_al_ani
+        - bleeding_cadth
         index: K31
         name: K31
       docs: Diseases of oesophagus, stomach and duodenum
@@ -15610,6 +15688,7 @@ categories:
       docs: Diseases of appendix
       exclude:
       - bleeding_al_ani
+      - bleeding_cadth
       index:
       - K35
       - K38
@@ -15745,6 +15824,7 @@ categories:
       docs: Hernia
       exclude:
       - bleeding_al_ani
+      - bleeding_cadth
       index:
       - K40
       - K46
@@ -15818,6 +15898,8 @@ categories:
         index: K52
         name: K52
       docs: Noninfective enteritis and colitis
+      exclude:
+      - bleeding_cadth
       index:
       - K50
       - K52
@@ -15848,6 +15930,8 @@ categories:
           index: K559
           name: K55.9
         docs: Vascular disorders of intestine
+        exclude:
+        - bleeding_cadth
         index: K55
         name: K55
       - categories:
@@ -15878,6 +15962,7 @@ categories:
         docs: Paralytic ileus and intestinal obstruction without hernia
         exclude:
         - bleeding_al_ani
+        - bleeding_cadth
         index: K56
         name: K56
       - categories:
@@ -15906,6 +15991,8 @@ categories:
           index: K579
           name: K57.9
         docs: Diverticular disease of intestine
+        exclude:
+        - bleeding_cadth
         index: K57
         name: K57
       - categories:
@@ -15918,6 +16005,7 @@ categories:
         docs: Irritable bowel syndrome
         exclude:
         - bleeding_al_ani
+        - bleeding_cadth
         index: K58
         name: K58
       - categories:
@@ -15945,6 +16033,7 @@ categories:
         docs: Other functional intestinal disorders
         exclude:
         - bleeding_al_ani
+        - bleeding_cadth
         index: K59
         name: K59
       - categories:
@@ -15969,6 +16058,7 @@ categories:
         docs: Fissure and fistula of anal and rectal regions
         exclude:
         - bleeding_al_ani
+        - bleeding_cadth
         index: K60
         name: K60
       - categories:
@@ -15990,32 +16080,38 @@ categories:
         docs: Abscess of anal and rectal regions
         exclude:
         - bleeding_al_ani
+        - bleeding_cadth
         index: K61
         name: K61
       - categories:
         - docs: Anal polyp
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K620
           name: K62.0
         - docs: Rectal polyp
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K621
           name: K62.1
         - docs: Anal prolapse
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K622
           name: K62.2
         - docs: Rectal prolapse
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K623
           name: K62.3
         - docs: Stenosis of anus and rectum
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K624
           name: K62.4
         - docs: Haemorrhage of anus and rectum
@@ -16024,21 +16120,25 @@ categories:
         - docs: Ulcer of anus and rectum
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K626
           name: K62.6
         - docs: Radiation proctitis
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K627
           name: K62.7
         - docs: Other specified diseases of anus and rectum
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K628
           name: K62.8
         - docs: Disease of anus and rectum, unspecified
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K629
           name: K62.9
         docs: Other diseases of anus and rectum
@@ -16072,6 +16172,7 @@ categories:
         docs: Other diseases of intestine
         exclude:
         - bleeding_al_ani
+        - bleeding_cadth
         index: K63
         name: K63
       - categories:
@@ -16102,6 +16203,7 @@ categories:
         docs: Haemorrhoids and perianal venous thrombosis
         exclude:
         - bleeding_al_ani
+        - bleeding_cadth
         index: K64
         name: K64
       docs: Other diseases of intestines
@@ -16121,19 +16223,27 @@ categories:
           index: K659
           name: K65.9
         docs: Peritonitis
+        exclude:
+        - bleeding_cadth
         index: K65
         name: K65
       - categories:
         - docs: Peritoneal adhesions
+          exclude:
+          - bleeding_cadth
           index: K660
           name: K66.0
         - docs: Haemoperitoneum
           index: K661
           name: K66.1
         - docs: Other specified disorders of peritoneum
+          exclude:
+          - bleeding_cadth
           index: K668
           name: K66.8
         - docs: Disorder of peritoneum, unspecified
+          exclude:
+          - bleeding_cadth
           index: K669
           name: K66.9
         docs: Other disorders of peritoneum
@@ -16156,6 +16266,8 @@ categories:
           index: K678
           name: K67.8
         docs: Disorders of peritoneum in infectious diseases classified elsewhere
+        exclude:
+        - bleeding_cadth
         index: K67
         name: K67
       docs: Diseases of peritoneum
@@ -16351,6 +16463,7 @@ categories:
       docs: Diseases of liver
       exclude:
       - bleeding_al_ani
+      - bleeding_cadth
       index:
       - K70
       - K77
@@ -16507,6 +16620,7 @@ categories:
       docs: Disorders of gallbladder, biliary tract and pancreas
       exclude:
       - bleeding_al_ani
+      - bleeding_cadth
       index:
       - K80
       - K87
@@ -16537,6 +16651,7 @@ categories:
         docs: Intestinal malabsorption
         exclude:
         - bleeding_al_ani
+        - bleeding_cadth
         index: K90
         name: K90
       - categories:
@@ -16567,6 +16682,7 @@ categories:
         docs: Postprocedural disorders of digestive system, not elsewhere classified
         exclude:
         - bleeding_al_ani
+        - bleeding_cadth
         index: K91
         name: K91
       - categories:
@@ -16582,11 +16698,13 @@ categories:
         - docs: Other specified diseases of digestive system
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K928
           name: K92.8
         - docs: Disease of digestive system, unspecified
           exclude:
           - bleeding_al_ani
+          - bleeding_cadth
           index: K929
           name: K92.9
         docs: Other diseases of digestive system
@@ -16605,6 +16723,7 @@ categories:
         docs: Disorders of other digestive organs in diseases classified elsewhere
         exclude:
         - bleeding_al_ani
+        - bleeding_cadth
         index: K93
         name: K93
       docs: Other diseases of the digestive system
@@ -17934,6 +18053,7 @@ categories:
     - mi_stemi_schnier
     - mi_nstemi_schnier
     - mi_schnier
+    - bleeding_cadth
     index:
     - L00
     - L99
@@ -20006,6 +20126,7 @@ categories:
     - mi_stemi_schnier
     - mi_nstemi_schnier
     - mi_schnier
+    - bleeding_cadth
     index:
     - M00
     - M99
@@ -20044,6 +20165,8 @@ categories:
           index: N009
           name: N00.9
         docs: Acute nephritic syndrome
+        exclude:
+        - bleeding_cadth
         index: N00
         name: N00
       - categories:
@@ -20078,6 +20201,8 @@ categories:
           index: N019
           name: N01.9
         docs: Rapidly progressive nephritic syndrome
+        exclude:
+        - bleeding_cadth
         index: N01
         name: N01
       - categories:
@@ -20146,6 +20271,8 @@ categories:
           index: N039
           name: N03.9
         docs: Chronic nephritic syndrome
+        exclude:
+        - bleeding_cadth
         index: N03
         name: N03
       - categories:
@@ -20180,6 +20307,8 @@ categories:
           index: N049
           name: N04.9
         docs: Nephrotic syndrome
+        exclude:
+        - bleeding_cadth
         index: N04
         name: N04
       - categories:
@@ -20214,6 +20343,8 @@ categories:
           index: N059
           name: N05.9
         docs: Unspecified nephritic syndrome
+        exclude:
+        - bleeding_cadth
         index: N05
         name: N05
       - categories:
@@ -20248,6 +20379,8 @@ categories:
           index: N069
           name: N06.9
         docs: Isolated proteinuria with specified morphological lesion
+        exclude:
+        - bleeding_cadth
         index: N06
         name: N06
       - categories:
@@ -20282,6 +20415,8 @@ categories:
           index: N079
           name: N07.9
         docs: Hereditary nephropathy, not elsewhere classified
+        exclude:
+        - bleeding_cadth
         index: N07
         name: N07
       - categories:
@@ -20307,6 +20442,8 @@ categories:
           index: N088
           name: N08.8
         docs: Glomerular disorders in diseases classified elsewhere
+        exclude:
+        - bleeding_cadth
         index: N08
         name: N08
       docs: Glomerular diseases
@@ -20432,6 +20569,8 @@ categories:
         index: N16
         name: N16
       docs: Renal tubulo-interstitial diseases
+      exclude:
+      - bleeding_cadth
       index:
       - N10
       - N16
@@ -20482,6 +20621,8 @@ categories:
         index: N19
         name: N19
       docs: Renal failure
+      exclude:
+      - bleeding_cadth
       index:
       - N17
       - N19
@@ -20533,6 +20674,8 @@ categories:
         index: N23
         name: N23
       docs: Urolithiasis
+      exclude:
+      - bleeding_cadth
       index:
       - N20
       - N23
@@ -20600,6 +20743,8 @@ categories:
         index: N29
         name: N29
       docs: Other disorders of kidney and ureter
+      exclude:
+      - bleeding_cadth
       index:
       - N25
       - N29
@@ -20774,6 +20919,8 @@ categories:
         index: N39
         name: N39
       docs: Other diseases of urinary system
+      exclude:
+      - bleeding_cadth
       index:
       - N30
       - N39
@@ -20947,6 +21094,8 @@ categories:
         index: N51
         name: N51
       docs: Diseases of male genital organs
+      exclude:
+      - bleeding_cadth
       index:
       - N40
       - N51
@@ -21015,6 +21164,8 @@ categories:
         index: N64
         name: N64
       docs: Disorders of breast
+      exclude:
+      - bleeding_cadth
       index:
       - N60
       - N64
@@ -21160,6 +21311,8 @@ categories:
         index: N77
         name: N77
       docs: Inflammatory diseases of female pelvic organs
+      exclude:
+      - bleeding_cadth
       index:
       - N70
       - N77
@@ -21621,6 +21774,8 @@ categories:
         index: N98
         name: N98
       docs: Noninflammatory disorders of female genital tract
+      exclude:
+      - bleeding_cadth
       index:
       - N80
       - N98
@@ -21655,6 +21810,8 @@ categories:
         index: N99
         name: N99
       docs: Other disorders of the genitourinary system
+      exclude:
+      - bleeding_cadth
       index:
       - N99
       - N99
@@ -26370,6 +26527,7 @@ categories:
     - mi_stemi_schnier
     - mi_nstemi_schnier
     - mi_schnier
+    - bleeding_cadth
     index:
     - S00
     - T98
@@ -27999,6 +28157,7 @@ categories:
     - mi_stemi_schnier
     - mi_nstemi_schnier
     - mi_schnier
+    - bleeding_cadth
     index:
     - O00
     - O99
@@ -29285,6 +29444,7 @@ categories:
     - mi_stemi_schnier
     - mi_nstemi_schnier
     - mi_schnier
+    - bleeding_cadth
     index:
     - P00
     - P96
@@ -31563,6 +31723,7 @@ categories:
     - mi_stemi_schnier
     - mi_nstemi_schnier
     - mi_schnier
+    - bleeding_cadth
     index:
     - Q00
     - Q99
@@ -31583,6 +31744,8 @@ categories:
           index: R008
           name: R00.8
         docs: Abnormalities of heart beat
+        exclude:
+        - bleeding_cadth
         index: R00
         name: R00
       - categories:
@@ -31596,9 +31759,13 @@ categories:
           index: R012
           name: R01.2
         docs: Cardiac murmurs and other cardiac sounds
+        exclude:
+        - bleeding_cadth
         index: R01
         name: R01
       - docs: Gangrene, not elsewhere classified
+        exclude:
+        - bleeding_cadth
         index: R02
         name: R02
       - categories:
@@ -31609,6 +31776,8 @@ categories:
           index: R031
           name: R03.1
         docs: Abnormal blood-pressure reading, without diagnosis
+        exclude:
+        - bleeding_cadth
         index: R03
         name: R03
       - categories:
@@ -31631,6 +31800,8 @@ categories:
         index: R04
         name: R04
       - docs: Cough
+        exclude:
+        - bleeding_cadth
         index: R05
         name: R05
       - categories:
@@ -31662,6 +31833,8 @@ categories:
           index: R068
           name: R06.8
         docs: Abnormalities of breathing
+        exclude:
+        - bleeding_cadth
         index: R06
         name: R06
       - categories:
@@ -31681,6 +31854,8 @@ categories:
           index: R074
           name: R07.4
         docs: Pain in throat and chest
+        exclude:
+        - bleeding_cadth
         index: R07
         name: R07
       - categories:
@@ -31700,6 +31875,8 @@ categories:
           index: R098
           name: R09.8
         docs: Other symptoms and signs involving the circulatory and respiratory systems
+        exclude:
+        - bleeding_cadth
         index: R09
         name: R09
       docs: Symptoms and signs involving the circulatory and respiratory systems
@@ -31790,6 +31967,8 @@ categories:
         index: R19
         name: R19
       docs: Symptoms and signs involving the digestive system and abdomen
+      exclude:
+      - bleeding_cadth
       index:
       - R10
       - R19
@@ -31865,6 +32044,8 @@ categories:
         index: R23
         name: R23
       docs: Symptoms and signs involving the skin and subcutaneous tissue
+      exclude:
+      - bleeding_cadth
       index:
       - R20
       - R23
@@ -31944,6 +32125,8 @@ categories:
         index: R29
         name: R29
       docs: Symptoms and signs involving the nervous and musculoskeletal systems
+      exclude:
+      - bleeding_cadth
       index:
       - R25
       - R29
@@ -31960,24 +32143,36 @@ categories:
           index: R309
           name: R30.9
         docs: Pain associated with micturition
+        exclude:
+        - bleeding_cadth
         index: R30
         name: R30
       - docs: Unspecified haematuria
         index: R31
         name: R31
       - docs: Unspecified urinary incontinence
+        exclude:
+        - bleeding_cadth
         index: R32
         name: R32
       - docs: Retention of urine
+        exclude:
+        - bleeding_cadth
         index: R33
         name: R33
       - docs: Anuria and oliguria
+        exclude:
+        - bleeding_cadth
         index: R34
         name: R34
       - docs: Polyuria
+        exclude:
+        - bleeding_cadth
         index: R35
         name: R35
       - docs: Urethral discharge
+        exclude:
+        - bleeding_cadth
         index: R36
         name: R36
       - categories:
@@ -31994,6 +32189,8 @@ categories:
           index: R398
           name: R39.8
         docs: Other symptoms and signs involving the urinary system
+        exclude:
+        - bleeding_cadth
         index: R39
         name: R39
       docs: Symptoms and signs involving the urinary system
@@ -32135,6 +32332,8 @@ categories:
         index: R46
         name: R46
       docs: Symptoms and signs involving cognition, perception, emotional state and behaviour
+      exclude:
+      - bleeding_cadth
       index:
       - R40
       - R46
@@ -32186,6 +32385,8 @@ categories:
         index: R49
         name: R49
       docs: Symptoms and signs involving speech and voice
+      exclude:
+      - bleeding_cadth
       index:
       - R47
       - R49
@@ -32202,9 +32403,13 @@ categories:
           index: R509
           name: R50.9
         docs: Fever of other and unknown origin
+        exclude:
+        - bleeding_cadth
         index: R50
         name: R50
       - docs: Headache
+        exclude:
+        - bleeding_cadth
         index: R51
         name: R51
       - categories:
@@ -32221,15 +32426,23 @@ categories:
           index: R529
           name: R52.9
         docs: Pain, not elsewhere classified
+        exclude:
+        - bleeding_cadth
         index: R52
         name: R52
       - docs: Malaise and fatigue
+        exclude:
+        - bleeding_cadth
         index: R53
         name: R53
       - docs: Senility
+        exclude:
+        - bleeding_cadth
         index: R54
         name: R54
       - docs: Syncope and collapse
+        exclude:
+        - bleeding_cadth
         index: R55
         name: R55
       - categories:
@@ -32240,6 +32453,8 @@ categories:
           index: R568
           name: R56.8
         docs: Convulsions, not elsewhere classified
+        exclude:
+        - bleeding_cadth
         index: R56
         name: R56
       - categories:
@@ -32259,6 +32474,8 @@ categories:
           index: R579
           name: R57.9
         docs: Shock, not elsewhere classified
+        exclude:
+        - bleeding_cadth
         index: R57
         name: R57
       - docs: Haemorrhage, not elsewhere classified
@@ -32275,6 +32492,8 @@ categories:
           index: R599
           name: R59.9
         docs: Enlarged lymph nodes
+        exclude:
+        - bleeding_cadth
         index: R59
         name: R59
       - categories:
@@ -32288,6 +32507,8 @@ categories:
           index: R609
           name: R60.9
         docs: Oedema, not elsewhere classified
+        exclude:
+        - bleeding_cadth
         index: R60
         name: R60
       - categories:
@@ -32301,6 +32522,8 @@ categories:
           index: R619
           name: R61.9
         docs: Hyperhidrosis
+        exclude:
+        - bleeding_cadth
         index: R61
         name: R61
       - categories:
@@ -32314,6 +32537,8 @@ categories:
           index: R629
           name: R62.9
         docs: Lack of expected normal physiological development
+        exclude:
+        - bleeding_cadth
         index: R62
         name: R62
       - categories:
@@ -32342,9 +32567,13 @@ categories:
           index: R638
           name: R63.8
         docs: Symptoms and signs concerning food and fluid intake
+        exclude:
+        - bleeding_cadth
         index: R63
         name: R63
       - docs: Cachexia
+        exclude:
+        - bleeding_cadth
         index: R64
         name: R64
       - categories:
@@ -32364,6 +32593,8 @@ categories:
           index: R659
           name: R65.9
         docs: Systemic Inflammatory Response Syndrome [SIRS]
+        exclude:
+        - bleeding_cadth
         index: R65
         name: R65
       - categories:
@@ -32383,9 +32614,13 @@ categories:
           index: R688
           name: R68.8
         docs: Other general symptoms and signs
+        exclude:
+        - bleeding_cadth
         index: R68
         name: R68
       - docs: Unknown and unspecified causes of morbidity
+        exclude:
+        - bleeding_cadth
         index: R69
         name: R69
       docs: General symptoms and signs
@@ -32522,6 +32757,8 @@ categories:
         index: R79
         name: R79
       docs: Abnormal findings on examination of blood, without diagnosis
+      exclude:
+      - bleeding_cadth
       index:
       - R70
       - R79
@@ -32568,6 +32805,8 @@ categories:
         index: R82
         name: R82
       docs: Abnormal findings on examination of urine, without diagnosis
+      exclude:
+      - bleeding_cadth
       index:
       - R80
       - R82
@@ -32778,6 +33017,8 @@ categories:
         index: R89
         name: R89
       docs: Abnormal findings on examination of other body fluids, substances and tissues, without diagnosis
+      exclude:
+      - bleeding_cadth
       index:
       - R83
       - R89
@@ -32862,6 +33103,8 @@ categories:
         index: R94
         name: R94
       docs: Abnormal findings on diagnostic imaging and in function studies, without diagnosis
+      exclude:
+      - bleeding_cadth
       index:
       - R90
       - R94
@@ -32894,6 +33137,8 @@ categories:
         index: R99
         name: R99
       docs: Ill-defined and unknown causes of mortality
+      exclude:
+      - bleeding_cadth
       index:
       - R95
       - R99
@@ -37861,6 +38106,7 @@ categories:
     - mi_stemi_schnier
     - mi_nstemi_schnier
     - mi_schnier
+    - bleeding_cadth
     index:
     - V01
     - Y98
@@ -40132,6 +40378,7 @@ categories:
     - mi_stemi_schnier
     - mi_nstemi_schnier
     - mi_schnier
+    - bleeding_cadth
     index:
     - Z00
     - Z99
@@ -40299,6 +40546,7 @@ categories:
     - mi_stemi_schnier
     - mi_nstemi_schnier
     - mi_schnier
+    - bleeding_cadth
     index:
     - U00
     - U85
@@ -40310,6 +40558,8 @@ categories:
   name: ICD-10
 groups:
 - bleeding_al_ani
+- bleeding_cadth
+- bleeding_adaptt
 - mi_stemi_schnier
 - mi_nstemi_schnier
 - mi_schnier

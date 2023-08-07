@@ -137,39 +137,43 @@ The clinically relevant bleeding definition is BARC 3 or 5, as used in the ARC H
 
 * **CADTH Group**
     This set of codes was used to calculate costs associated with major bleeding in connection with estimating costs resulting from DAPT duration. The group is as follows:
-    | Descriptions | ICD-10 |
+    | Category | ICD-10 | Description |
     |--------------|--------|
-    | Gastrointestinal |I850 Esophageal varices with bleeding|
-    || K250 Gastric ulcer, acute with hemorrhage| 
-    ||K252 Gastric ulcer, acute with both hemorrhage and perforation|
-    ||K254 Gastric ulcer, chronic or unspecified with hemorrhage|
-    ||K256 Gastric ulcer, chronic or unspecified with both hemorrhage and perforation|
-    ||K260 Duodenal ulcer, acute with hemorrhage|
-    ||K262 Duodenal ulcer, acute with both hemorrhage and perforation|
-    ||K264 Duodenal ulcer, chronic or unspecified with hemorrhage|
-    ||K266 Duodenal ulcer, chronic or unspecified with both hemorrhage and perforation|
-    ||K270 Peptic ulcer, acute with hemorrhage|
-    ||K272 Peptic ulcer, acute with both hemorrhage and perforation|
-    ||K274 Peptic ulcer, chronic or unspecified with hemorrhage|
-    ||K276 Peptic ulcer, chronic or unspecified with both hemorrhage and perforation|
-    ||K280 Gastrojejunal ulcer, acute with hemorrhage|
-    ||K282 Gastrojejunal ulcer, acute with both hemorrhage and perforation|
-    ||K284 Gastrojejunal ulcer, chronic or unspecified with hemorrhage|
-    ||K286 Gastrojejunal ulcer, chronic or unspecified with both hemorrhage and perforation|
-    ||K290 Acute hemorrhagic gastritis|
-    ||K625 Hemorrhage of anus and rectum|
-    ||K661 Hemoperitoneum|
-    ||K920 Hematemesis|
-    ||K921 Melena|
-    ||K922 Gastrointestinal hemorrhage, unspecified|
-    |Hematology |R58 Hemorrhage, not elsewhere classified|
-    |Intracranial (other than hemorrhagic stroke) |I629 Intracranial hemorrhage (non-traumatic), unspecified|
-    |Respiratory |R040 Epistaxis|
-    ||R041 Hemorrhage from throat|
-    ||R042 Hemoptysis|
-    ||R048 Hemorrhage form other site in respiratory passages|
-    ||R049 Hemorrhage from respiratory passages, unspecified|
-    |Urogenital|N020-029 Recurrent and persistent hematuria R310, 311, 318 Unspecified hematuria|
+    | Gastrointestinal |I85.0 |Esophageal varices with bleeding|
+    || K25.0 | Gastric ulcer, acute with hemorrhage| 
+    ||K25.2 | Gastric ulcer, acute with both hemorrhage and perforation|
+    ||K25.4 | Gastric ulcer, chronic or unspecified with hemorrhage|
+    ||K25.6 | Gastric ulcer, chronic or unspecified with both hemorrhage and perforation|
+    ||K26.0 | Duodenal ulcer, acute with hemorrhage|
+    ||K26.2 | Duodenal ulcer, acute with both hemorrhage and perforation|
+    ||K26.4 | Duodenal ulcer, chronic or unspecified with hemorrhage|
+    ||K26.6 | Duodenal ulcer, chronic or unspecified with both hemorrhage and perforation|
+    ||K27.0 | Peptic ulcer, acute with hemorrhage|
+    ||K27.2 | Peptic ulcer, acute with both hemorrhage and perforation|
+    ||K27.4 | Peptic ulcer, chronic or unspecified with hemorrhage|
+    ||K27.6 | Peptic ulcer, chronic or unspecified with both hemorrhage and perforation|
+    ||K28.0 | Gastrojejunal ulcer, acute with hemorrhage|
+    ||K28.2 | Gastrojejunal ulcer, acute with both hemorrhage and perforation|
+    ||K28.4 | Gastrojejunal ulcer, chronic or unspecified with hemorrhage|
+    ||K28.6 | Gastrojejunal ulcer, chronic or unspecified with both hemorrhage and perforation|
+    ||K29.0 | Acute hemorrhagic gastritis|
+    ||K62.5 | Hemorrhage of anus and rectum|
+    ||K66.1 | Hemoperitoneum |
+    ||K92.0 | Hematemesis |
+    ||K92.1 | Melena |
+    ||K92.2 | Gastrointestinal hemorrhage, unspecified|
+    |Hematology |R58 | Hemorrhage, not elsewhere classified|
+    |Intracranial (other than hemorrhagic stroke) |I62.9 | Intracranial hemorrhage (non-traumatic), unspecified|
+    |Respiratory |R040 | Epistaxis|
+    ||R04.1 | Hemorrhage from throat|
+    ||R04.2 | Hemoptysis|
+    ||R04.8 | Hemorrhage form other site in respiratory passages |
+    ||R04.9 | Hemorrhage from respiratory passages, unspecified |
+    |Urogenital|N02.* | Recurrent and persistent hematuria 
+    || R31 | Unspecified hematuria|
+
+    Inclusion/exclusion notes (to check):
+    * The codes in the original list R31.0, R31.1, R31.8 were interpreted as the single code R31. 
 
 * **ADAPTT Group**
     The ADAPTT trial[^7] was conducted in the UK, and uses ICD-10 codes to identify all bleeding events (i.e. BARC 2 - 5). This 
