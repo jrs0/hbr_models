@@ -8154,6 +8154,7 @@ categories:
         - mi_stemi_schnier
         - mi_nstemi_schnier
         - mi_schnier
+        - bleeding_adaptt
         index: I20
         name: I20
       - categories:
@@ -8188,6 +8189,8 @@ categories:
           index: I219
           name: I21.9
         docs: Acute myocardial infarction
+        exclude:
+        - bleeding_adaptt
         index: I21
         name: I21
       - categories:
@@ -8212,6 +8215,8 @@ categories:
           index: I229
           name: I22.9
         docs: Subsequent myocardial infarction
+        exclude:
+        - bleeding_adaptt
         index: I22
         name: I22
       - categories:
@@ -8219,24 +8224,38 @@ categories:
           index: I230
           name: I23.0
         - docs: Atrial septal defect as current complication following acute myocardial infarction
+          exclude:
+          - bleeding_adaptt
           index: I231
           name: I23.1
         - docs: Ventricular septal defect as current complication following acute myocardial infarction
+          exclude:
+          - bleeding_adaptt
           index: I232
           name: I23.2
         - docs: Rupture of cardiac wall without haemopericardium as current complication following acute myocardial infarction
+          exclude:
+          - bleeding_adaptt
           index: I233
           name: I23.3
         - docs: Rupture of chordae tendineae as current complication following acute myocardial infarction
+          exclude:
+          - bleeding_adaptt
           index: I234
           name: I23.4
         - docs: Rupture of papillary muscle as current complication following acute myocardial infarction
+          exclude:
+          - bleeding_adaptt
           index: I235
           name: I23.5
         - docs: Thrombosis of atrium, auricular appendage, and ventricle as current complications following acute myocardial infarction
+          exclude:
+          - bleeding_adaptt
           index: I236
           name: I23.6
         - docs: Other current complications following acute myocardial infarction
+          exclude:
+          - bleeding_adaptt
           index: I238
           name: I23.8
         docs: Certain current complications following acute myocardial infarction
@@ -8268,6 +8287,7 @@ categories:
         exclude:
         - mi_stemi_schnier
         - mi_nstemi_schnier
+        - bleeding_adaptt
         index: I24
         name: I24
       - categories:
@@ -8318,13 +8338,13 @@ categories:
         exclude:
         - mi_stemi_schnier
         - mi_nstemi_schnier
+        - bleeding_adaptt
         index: I25
         name: I25
       docs: Ischaemic heart diseases
       exclude:
       - bleeding_al_ani
       - bleeding_cadth
-      - bleeding_adaptt
       index:
       - I20
       - I25
@@ -20550,6 +20570,8 @@ categories:
         index: N08
         name: N08
       docs: Glomerular diseases
+      exclude:
+      - bleeding_adaptt
       index:
       - N00
       - N08
@@ -20674,6 +20696,7 @@ categories:
       docs: Renal tubulo-interstitial diseases
       exclude:
       - bleeding_cadth
+      - bleeding_adaptt
       index:
       - N10
       - N16
@@ -20726,6 +20749,7 @@ categories:
       docs: Renal failure
       exclude:
       - bleeding_cadth
+      - bleeding_adaptt
       index:
       - N17
       - N19
@@ -20779,6 +20803,7 @@ categories:
       docs: Urolithiasis
       exclude:
       - bleeding_cadth
+      - bleeding_adaptt
       index:
       - N20
       - N23
@@ -20848,6 +20873,7 @@ categories:
       docs: Other disorders of kidney and ureter
       exclude:
       - bleeding_cadth
+      - bleeding_adaptt
       index:
       - N25
       - N29
@@ -21024,6 +21050,7 @@ categories:
       docs: Other diseases of urinary system
       exclude:
       - bleeding_cadth
+      - bleeding_adaptt
       index:
       - N30
       - N39
@@ -21199,6 +21226,7 @@ categories:
       docs: Diseases of male genital organs
       exclude:
       - bleeding_cadth
+      - bleeding_adaptt
       index:
       - N40
       - N51
@@ -21269,6 +21297,7 @@ categories:
       docs: Disorders of breast
       exclude:
       - bleeding_cadth
+      - bleeding_adaptt
       index:
       - N60
       - N64
@@ -21416,6 +21445,7 @@ categories:
       docs: Inflammatory diseases of female pelvic organs
       exclude:
       - bleeding_cadth
+      - bleeding_adaptt
       index:
       - N70
       - N77
@@ -21450,6 +21480,8 @@ categories:
           index: N809
           name: N80.9
         docs: Endometriosis
+        exclude:
+        - bleeding_adaptt
         index: N80
         name: N80
       - categories:
@@ -21481,6 +21513,8 @@ categories:
           index: N819
           name: N81.9
         docs: Female genital prolapse
+        exclude:
+        - bleeding_adaptt
         index: N81
         name: N81
       - categories:
@@ -21509,6 +21543,8 @@ categories:
           index: N829
           name: N82.9
         docs: Fistulae involving female genital tract
+        exclude:
+        - bleeding_adaptt
         index: N82
         name: N82
       - categories:
@@ -21543,6 +21579,8 @@ categories:
           index: N839
           name: N83.9
         docs: Noninflammatory disorders of ovary, fallopian tube and broad ligament
+        exclude:
+        - bleeding_adaptt
         index: N83
         name: N83
       - categories:
@@ -21565,6 +21603,8 @@ categories:
           index: N849
           name: N84.9
         docs: Polyp of female genital tract
+        exclude:
+        - bleeding_adaptt
         index: N84
         name: N84
       - categories:
@@ -21599,9 +21639,13 @@ categories:
           index: N859
           name: N85.9
         docs: Other noninflammatory disorders of uterus, except cervix
+        exclude:
+        - bleeding_adaptt
         index: N85
         name: N85
       - docs: Erosion and ectropion of cervix uteri
+        exclude:
+        - bleeding_adaptt
         index: N86
         name: N86
       - categories:
@@ -21618,6 +21662,8 @@ categories:
           index: N879
           name: N87.9
         docs: Dysplasia of cervix uteri
+        exclude:
+        - bleeding_adaptt
         index: N87
         name: N87
       - categories:
@@ -21643,6 +21689,8 @@ categories:
           index: N889
           name: N88.9
         docs: Other noninflammatory disorders of cervix uteri
+        exclude:
+        - bleeding_adaptt
         index: N88
         name: N88
       - categories:
@@ -21677,6 +21725,8 @@ categories:
           index: N899
           name: N89.9
         docs: Other noninflammatory disorders of vagina
+        exclude:
+        - bleeding_adaptt
         index: N89
         name: N89
       - categories:
@@ -21711,6 +21761,8 @@ categories:
           index: N909
           name: N90.9
         docs: Other noninflammatory disorders of vulva and perineum
+        exclude:
+        - bleeding_adaptt
         index: N90
         name: N90
       - categories:
@@ -21733,6 +21785,8 @@ categories:
           index: N915
           name: N91.5
         docs: Absent, scanty and rare menstruation
+        exclude:
+        - bleeding_adaptt
         index: N91
         name: N91
       - categories:
@@ -21758,10 +21812,14 @@ categories:
           index: N926
           name: N92.6
         docs: Excessive, frequent and irregular menstruation
+        exclude:
+        - bleeding_adaptt
         index: N92
         name: N92
       - categories:
         - docs: Postcoital and contact bleeding
+          exclude:
+          - bleeding_adaptt
           index: N930
           name: N93.0
         - docs: Other specified abnormal uterine and vaginal bleeding
@@ -21802,6 +21860,8 @@ categories:
           index: N949
           name: N94.9
         docs: Pain and other conditions associated with female genital organs and menstrual cycle
+        exclude:
+        - bleeding_adaptt
         index: N94
         name: N94
       - categories:
@@ -21824,9 +21884,13 @@ categories:
           index: N959
           name: N95.9
         docs: Menopausal and other perimenopausal disorders
+        exclude:
+        - bleeding_adaptt
         index: N95
         name: N95
       - docs: Habitual aborter
+        exclude:
+        - bleeding_adaptt
         index: N96
         name: N96
       - categories:
@@ -21852,6 +21916,8 @@ categories:
           index: N979
           name: N97.9
         docs: Female infertility
+        exclude:
+        - bleeding_adaptt
         index: N97
         name: N97
       - categories:
@@ -21874,6 +21940,8 @@ categories:
           index: N989
           name: N98.9
         docs: Complications associated with artificial fertilization
+        exclude:
+        - bleeding_adaptt
         index: N98
         name: N98
       docs: Noninflammatory disorders of female genital tract
@@ -21915,6 +21983,7 @@ categories:
       docs: Other disorders of the genitourinary system
       exclude:
       - bleeding_cadth
+      - bleeding_adaptt
       index:
       - N99
       - N99
@@ -21925,7 +21994,6 @@ categories:
     - mi_stemi_schnier
     - mi_nstemi_schnier
     - mi_schnier
-    - bleeding_adaptt
     index:
     - N00
     - N99
@@ -21961,6 +22029,8 @@ categories:
           index: S009
           name: S00.9
         docs: Superficial injury of head
+        exclude:
+        - bleeding_adaptt
         index: S00
         name: S00
       - categories:
@@ -21992,6 +22062,8 @@ categories:
           index: S019
           name: S01.9
         docs: Open wound of head
+        exclude:
+        - bleeding_adaptt
         index: S01
         name: S01
       - categories:
@@ -22026,6 +22098,8 @@ categories:
           index: S029
           name: S02.9
         docs: Fracture of skull and facial bones
+        exclude:
+        - bleeding_adaptt
         index: S02
         name: S02
       - categories:
@@ -22048,6 +22122,8 @@ categories:
           index: S035
           name: S03.5
         docs: Dislocation, sprain and strain of joints and ligaments of head
+        exclude:
+        - bleeding_adaptt
         index: S03
         name: S03
       - categories:
@@ -22082,6 +22158,8 @@ categories:
           index: S049
           name: S04.9
         docs: Injury of cranial nerves
+        exclude:
+        - bleeding_adaptt
         index: S04
         name: S04
       - categories:
@@ -22116,37 +22194,57 @@ categories:
           index: S059
           name: S05.9
         docs: Injury of eye and orbit
+        exclude:
+        - bleeding_adaptt
         index: S05
         name: S05
       - categories:
         - docs: Concussion
+          exclude:
+          - bleeding_adaptt
           index: S060
           name: S06.0
         - docs: Traumatic cerebral oedema
+          exclude:
+          - bleeding_adaptt
           index: S061
           name: S06.1
         - docs: Diffuse brain injury
+          exclude:
+          - bleeding_adaptt
           index: S062
           name: S06.2
         - docs: Focal brain injury
+          exclude:
+          - bleeding_adaptt
           index: S063
           name: S06.3
         - docs: Epidural haemorrhage
           index: S064
           name: S06.4
         - docs: Traumatic subdural haemorrhage
+          exclude:
+          - bleeding_adaptt
           index: S065
           name: S06.5
         - docs: Traumatic subarachnoid haemorrhage
+          exclude:
+          - bleeding_adaptt
           index: S066
           name: S06.6
         - docs: Intracranial injury with prolonged coma
+          exclude:
+          - bleeding_adaptt
           index: S067
           name: S06.7
         - docs: Other intracranial injuries
+          exclude:
+          - bleeding_adaptt
           index: S068
           name: S06.8
         - docs: Intracranial injury, unspecified
+          exclude:
+          - bleeding_adaptt
           index: S069
           name: S06.9
         docs: Intracranial injury
@@ -22166,6 +22264,8 @@ categories:
           index: S079
           name: S07.9
         docs: Crushing injury of head
+        exclude:
+        - bleeding_adaptt
         index: S07
         name: S07
       - categories:
@@ -22182,6 +22282,8 @@ categories:
           index: S089
           name: S08.9
         docs: Traumatic amputation of part of head
+        exclude:
+        - bleeding_adaptt
         index: S08
         name: S08
       - categories:
@@ -22204,6 +22306,8 @@ categories:
           index: S099
           name: S09.9
         docs: Other and unspecified injuries of head
+        exclude:
+        - bleeding_adaptt
         index: S09
         name: S09
       docs: Injuries to the head
@@ -22383,6 +22487,8 @@ categories:
         index: S19
         name: S19
       docs: Injuries to the neck
+      exclude:
+      - bleeding_adaptt
       index:
       - S10
       - S19
@@ -22615,6 +22721,8 @@ categories:
         index: S29
         name: S29
       docs: Injuries to the thorax
+      exclude:
+      - bleeding_adaptt
       index:
       - S20
       - S29
@@ -22889,6 +22997,8 @@ categories:
         index: S39
         name: S39
       docs: Injuries to the abdomen, lower back, lumbar spine and pelvis
+      exclude:
+      - bleeding_adaptt
       index:
       - S30
       - S39
@@ -23093,6 +23203,8 @@ categories:
         index: S49
         name: S49
       docs: Injuries to the shoulder and upper arm
+      exclude:
+      - bleeding_adaptt
       index:
       - S40
       - S49
@@ -23301,6 +23413,8 @@ categories:
         index: S59
         name: S59
       docs: Injuries to the elbow and forearm
+      exclude:
+      - bleeding_adaptt
       index:
       - S50
       - S59
@@ -23548,6 +23662,8 @@ categories:
         index: S69
         name: S69
       docs: Injuries to the wrist and hand
+      exclude:
+      - bleeding_adaptt
       index:
       - S60
       - S69
@@ -23732,6 +23848,8 @@ categories:
         index: S79
         name: S79
       docs: Injuries to the hip and thigh
+      exclude:
+      - bleeding_adaptt
       index:
       - S70
       - S79
@@ -23949,6 +24067,8 @@ categories:
         index: S89
         name: S89
       docs: Injuries to the knee and lower leg
+      exclude:
+      - bleeding_adaptt
       index:
       - S80
       - S89
@@ -24166,6 +24286,8 @@ categories:
         index: S99
         name: S99
       docs: Injuries to the ankle and foot
+      exclude:
+      - bleeding_adaptt
       index:
       - S90
       - S99
@@ -24368,6 +24490,8 @@ categories:
         index: T07
         name: T07
       docs: Injuries involving multiple body regions
+      exclude:
+      - bleeding_adaptt
       index:
       - T00
       - T07
@@ -24510,6 +24634,8 @@ categories:
         index: T14
         name: T14
       docs: Injuries to unspecified part of trunk, limb or body region
+      exclude:
+      - bleeding_adaptt
       index:
       - T08
       - T14
@@ -24613,6 +24739,8 @@ categories:
         index: T19
         name: T19
       docs: Effects of foreign body entering through natural orifice
+      exclude:
+      - bleeding_adaptt
       index:
       - T15
       - T19
@@ -25025,6 +25153,8 @@ categories:
         - T32
         name: T29-T32
       docs: Burns and corrosions
+      exclude:
+      - bleeding_adaptt
       index:
       - T20
       - T32
@@ -25127,6 +25257,8 @@ categories:
         index: T35
         name: T35
       docs: Frostbite
+      exclude:
+      - bleeding_adaptt
       index:
       - T33
       - T35
@@ -25604,6 +25736,8 @@ categories:
         index: T50
         name: T50
       docs: Poisoning by drugs, medicaments and biological substances
+      exclude:
+      - bleeding_adaptt
       index:
       - T36
       - T50
@@ -25931,6 +26065,8 @@ categories:
         index: T65
         name: T65
       docs: Toxic effects of substances chiefly nonmedicinal as to source
+      exclude:
+      - bleeding_adaptt
       index:
       - T51
       - T65
@@ -26112,6 +26248,8 @@ categories:
         index: T78
         name: T78
       docs: Other and unspecified effects of external causes
+      exclude:
+      - bleeding_adaptt
       index:
       - T66
       - T78
@@ -26152,6 +26290,8 @@ categories:
         index: T79
         name: T79
       docs: Certain early complications of trauma
+      exclude:
+      - bleeding_adaptt
       index:
       - T79
       - T79
@@ -26440,6 +26580,8 @@ categories:
         index: T88
         name: T88
       docs: Complications of surgical and medical care, not elsewhere classified
+      exclude:
+      - bleeding_adaptt
       index:
       - T80
       - T88
@@ -26621,6 +26763,8 @@ categories:
         index: T98
         name: T98
       docs: Sequelae of injuries, of poisoning and of other consequences of external causes
+      exclude:
+      - bleeding_adaptt
       index:
       - T90
       - T98
@@ -26632,7 +26776,6 @@ categories:
     - mi_nstemi_schnier
     - mi_schnier
     - bleeding_cadth
-    - bleeding_adaptt
     index:
     - S00
     - T98
@@ -31854,6 +31997,7 @@ categories:
         docs: Abnormalities of heart beat
         exclude:
         - bleeding_cadth
+        - bleeding_adaptt
         index: R00
         name: R00
       - categories:
@@ -31869,11 +32013,13 @@ categories:
         docs: Cardiac murmurs and other cardiac sounds
         exclude:
         - bleeding_cadth
+        - bleeding_adaptt
         index: R01
         name: R01
       - docs: Gangrene, not elsewhere classified
         exclude:
         - bleeding_cadth
+        - bleeding_adaptt
         index: R02
         name: R02
       - categories:
@@ -31886,6 +32032,7 @@ categories:
         docs: Abnormal blood-pressure reading, without diagnosis
         exclude:
         - bleeding_cadth
+        - bleeding_adaptt
         index: R03
         name: R03
       - categories:
@@ -31910,6 +32057,7 @@ categories:
       - docs: Cough
         exclude:
         - bleeding_cadth
+        - bleeding_adaptt
         index: R05
         name: R05
       - categories:
@@ -31943,6 +32091,7 @@ categories:
         docs: Abnormalities of breathing
         exclude:
         - bleeding_cadth
+        - bleeding_adaptt
         index: R06
         name: R06
       - categories:
@@ -31964,6 +32113,7 @@ categories:
         docs: Pain in throat and chest
         exclude:
         - bleeding_cadth
+        - bleeding_adaptt
         index: R07
         name: R07
       - categories:
@@ -31985,6 +32135,7 @@ categories:
         docs: Other symptoms and signs involving the circulatory and respiratory systems
         exclude:
         - bleeding_cadth
+        - bleeding_adaptt
         index: R09
         name: R09
       docs: Symptoms and signs involving the circulatory and respiratory systems
@@ -32077,6 +32228,7 @@ categories:
       docs: Symptoms and signs involving the digestive system and abdomen
       exclude:
       - bleeding_cadth
+      - bleeding_adaptt
       index:
       - R10
       - R19
@@ -32154,6 +32306,7 @@ categories:
       docs: Symptoms and signs involving the skin and subcutaneous tissue
       exclude:
       - bleeding_cadth
+      - bleeding_adaptt
       index:
       - R20
       - R23
@@ -32235,6 +32388,7 @@ categories:
       docs: Symptoms and signs involving the nervous and musculoskeletal systems
       exclude:
       - bleeding_cadth
+      - bleeding_adaptt
       index:
       - R25
       - R29
@@ -32302,6 +32456,8 @@ categories:
         index: R39
         name: R39
       docs: Symptoms and signs involving the urinary system
+      exclude:
+      - bleeding_adaptt
       index:
       - R30
       - R39
@@ -32442,6 +32598,7 @@ categories:
       docs: Symptoms and signs involving cognition, perception, emotional state and behaviour
       exclude:
       - bleeding_cadth
+      - bleeding_adaptt
       index:
       - R40
       - R46
@@ -32495,6 +32652,7 @@ categories:
       docs: Symptoms and signs involving speech and voice
       exclude:
       - bleeding_cadth
+      - bleeding_adaptt
       index:
       - R47
       - R49
@@ -32732,6 +32890,8 @@ categories:
         index: R69
         name: R69
       docs: General symptoms and signs
+      exclude:
+      - bleeding_adaptt
       index:
       - R50
       - R69
@@ -32867,6 +33027,7 @@ categories:
       docs: Abnormal findings on examination of blood, without diagnosis
       exclude:
       - bleeding_cadth
+      - bleeding_adaptt
       index:
       - R70
       - R79
@@ -32915,6 +33076,7 @@ categories:
       docs: Abnormal findings on examination of urine, without diagnosis
       exclude:
       - bleeding_cadth
+      - bleeding_adaptt
       index:
       - R80
       - R82
@@ -33127,6 +33289,7 @@ categories:
       docs: Abnormal findings on examination of other body fluids, substances and tissues, without diagnosis
       exclude:
       - bleeding_cadth
+      - bleeding_adaptt
       index:
       - R83
       - R89
@@ -33213,6 +33376,7 @@ categories:
       docs: Abnormal findings on diagnostic imaging and in function studies, without diagnosis
       exclude:
       - bleeding_cadth
+      - bleeding_adaptt
       index:
       - R90
       - R94
@@ -33247,6 +33411,7 @@ categories:
       docs: Ill-defined and unknown causes of mortality
       exclude:
       - bleeding_cadth
+      - bleeding_adaptt
       index:
       - R95
       - R99
@@ -33257,7 +33422,6 @@ categories:
     - mi_stemi_schnier
     - mi_nstemi_schnier
     - mi_schnier
-    - bleeding_adaptt
     index:
     - R00
     - R99
