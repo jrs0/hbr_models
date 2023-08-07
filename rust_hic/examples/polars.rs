@@ -57,6 +57,7 @@ fn main() {
     from abi.dbo.vw_apc_sem_001 where datalength(AIMTC_Pseudo_NHS) > 0 and datalength(pbrspellid) > 0"#;
     //order by nhs_number, spell_id"#;
 
+    // Downloading all results takes 205 seconds, results in 9,489,358 rows
     let start = Instant::now();
     let mut source_conn = SourceConn::try_from("mssql://XSW-000-SP09/ABI?trusted_connection=true")
         .expect("parse conn str failed");
@@ -66,6 +67,7 @@ fn main() {
     let duration = start.elapsed();
     println!("Time taken to fetch HES data is: {:?}", duration);
 
+    // Sorting the full dataset by nhs number and spell id takes 39 seconds
     let start = Instant::now();
     let df = destination
         .polars()
