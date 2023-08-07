@@ -135,7 +135,7 @@ The clinically relevant bleeding definition is BARC 3 or 5, as used in the ARC H
     * Codes that do not correspond directly to an acute bleed: K22.1, K55.2, K51, K57 -- often the conditions could cause catastrophic bleeding if on OAC or blood thinners, but the codes do not definitely imply a bleed.
     * Could consider including epistaxis RR04.0, although would not often result in a 3-5 g/dL drop in Hb (and does not therefore necessary fall into BARC 3). 
 
-* **CADTH Group**
+* **CADTH Group** `bleeding_cadth`:
     This set of codes was used to calculate costs associated with major bleeding in connection with estimating costs resulting from DAPT duration. The group is as follows:
     | Category | ICD-10 | Description |
     |--------------|--------|---------|
@@ -175,7 +175,7 @@ The clinically relevant bleeding definition is BARC 3 or 5, as used in the ARC H
     Inclusion/exclusion notes (to check):
     * The codes in the original list R31.0, R31.1, R31.8 were interpreted as the single code R31. 
 
-* **ADAPTT Group**
+* **ADAPTT Group** `bleeding_adaptt`:
     The ADAPTT trial[^7] was conducted in the UK, and uses ICD-10 codes to identify all bleeding events (i.e. BARC 2 - 5). The list of codes is provided below:
     | Category | ICD-10 | Description |
     |----------|--------|-------------|
