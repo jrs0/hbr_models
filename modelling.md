@@ -178,15 +178,43 @@ The clinically relevant bleeding definition is BARC 3 or 5, as used in the ARC H
 * **ADAPTT Group**
     The ADAPTT trial[^7] was conducted in the UK, and uses ICD-10 codes to identify all bleeding events (i.e. BARC 2 - 5). The list of codes is provided below:
     | Category | ICD-10 | Description |
-    |--------------|--------|----------|
-    | Gastrointestinal |I85.0 |Esophageal varices with bleeding|
-    || K25.0 | Gastric ulcer, acute with hemorrhage| 
-    ||K25.2 | Gastric ulcer, acute with both hemorrhage and perforation|
-    ||K25.4 | Gastric ulcer, chronic or unspecified with hemorrha
+    |----------|--------|-------------|
+    | Gastrointestinal | I85.0 Oesophageal varices with bleeding |  
+    ||K25.0 | Gastric ulcer, acute with haemorrhage |
+    ||K25.2 |Gastric ulcer, acute with both haemorrhage and perforation |
+    ||K25.4 |Gastric ulcer, chronic or unspecified with haemorrhage |
+    ||K25.6 |Chronic or unspecified with both haemorrhage and perforation |
+    ||K26.0 |Duodenal ulcer, acute with haemorrhage |
+    ||K26.2 |Duodenal ulcer, acute with both haemorrhage and perforation |
+    ||K26.4 |Duodenal ulcer, chronic or unspecified with haemorrhage |
+    ||K26.6 |Chronic or unspecified with both haemorrhage and perforation |
+    ||K27.0 |Peptic ulcer, acute with haemorrhage |
+    ||K27.2 |Peptic ulcer, acute with both haemorrhage and perforation |
+    ||K27.4 |Peptic ulcer, chronic or unspecified with haemorrhage |
+    ||K27.6 |Chronic or unspecified with both haemorrhage and perforation |
+    ||K28.0 |Gastrojejunal ulcer, acute with haemorrhage |
+    ||K28.2 |Acute with both haemorrhage and perforation |
+    ||K28.4 |Gastrojejunal ulcer, chronic or unspecified with haemorrhage |
+    ||K28.6 |Chronic or unspecified with both haemorrhage and perforation |
+    ||K29.0 |Acute haemorrhagic gastritis |
+    ||K62.5 |Haemorrhage of anus and rectum |
+    ||K66.1 |Haemoperitoneum |
+    ||K92.0 |Haematemesis |
+    ||K92.1 |Melaena |
+    ||K92.2 |Gastrointestinal haemorrhage, unspecified |
+    |Intracerebral |I60.* |Subarachnoid haemorrhage |
+    ||I61.* |Intracerebral haemorrhage |
+    ||I62.* |Other nontraumatic intracranial haemorrhage |
+    ||I69.0 |Sequelae of subarachnoid haemorrhage |
+    ||I69.1 |Sequelae of intracerebral haemorrhage |
+    ||I69.2 |Sequelae of other nontraumatic intracranial haemorrhage |
+    ||S06.4 |Epidural haemorrhage |
+    |Genitourinary |N93.8 |Other specified abnormal uterine and vaginal bleeding |
+    ||N93.9 |Abnormal uterine and vaginal bleeding, unspecified |
+    |Other |R04.* | Haemorrhage from respiratory passages |
+    ||I23.0 |Haemopericardium as current complication following acute myocardial infarction |
 
-
-
-It is important to recognise that no group of ICD-10 codes corresponds exactly to major bleeding events. Any models developed using this outcome must interpret the results in light of this shortcoming.
+It is important to recognise that no group of ICD-10 codes corresponds exactly to major bleeding events, because ICD-10 codes are predominantly used for financial and administrative purposes, rather than provision of care.
 
 ## Modelling and Analysis
 

@@ -3027,6 +3027,7 @@ categories:
     - mi_nstemi_schnier
     - mi_schnier
     - bleeding_cadth
+    - bleeding_adaptt
     index:
     - A00
     - B99
@@ -5896,6 +5897,7 @@ categories:
     - mi_nstemi_schnier
     - mi_schnier
     - bleeding_cadth
+    - bleeding_adaptt
     index:
     - C00
     - D48
@@ -6547,6 +6549,7 @@ categories:
     - mi_nstemi_schnier
     - mi_schnier
     - bleeding_cadth
+    - bleeding_adaptt
     index:
     - D50
     - D89
@@ -7899,6 +7902,7 @@ categories:
     - mi_nstemi_schnier
     - mi_schnier
     - bleeding_cadth
+    - bleeding_adaptt
     index:
     - E00
     - E90
@@ -7944,6 +7948,7 @@ categories:
       - mi_nstemi_schnier
       - mi_schnier
       - bleeding_cadth
+      - bleeding_adaptt
       index:
       - I00
       - I02
@@ -8054,6 +8059,7 @@ categories:
       - mi_nstemi_schnier
       - mi_schnier
       - bleeding_cadth
+      - bleeding_adaptt
       index:
       - I05
       - I09
@@ -8124,6 +8130,7 @@ categories:
       - mi_nstemi_schnier
       - mi_schnier
       - bleeding_cadth
+      - bleeding_adaptt
       index:
       - I10
       - I15
@@ -8317,6 +8324,7 @@ categories:
       exclude:
       - bleeding_al_ani
       - bleeding_cadth
+      - bleeding_adaptt
       index:
       - I20
       - I25
@@ -8374,6 +8382,7 @@ categories:
       - mi_nstemi_schnier
       - mi_schnier
       - bleeding_cadth
+      - bleeding_adaptt
       index:
       - I26
       - I28
@@ -8828,6 +8837,7 @@ categories:
       - mi_nstemi_schnier
       - mi_schnier
       - bleeding_cadth
+      - bleeding_adaptt
       index:
       - I30
       - I52
@@ -8951,12 +8961,14 @@ categories:
         exclude:
         - bleeding_al_ani
         - bleeding_cadth
+        - bleeding_adaptt
         index: I63
         name: I63
       - docs: Stroke, not specified as haemorrhage or infarction
         exclude:
         - bleeding_al_ani
         - bleeding_cadth
+        - bleeding_adaptt
         index: I64
         name: I64
       - categories:
@@ -8982,6 +8994,7 @@ categories:
         exclude:
         - bleeding_al_ani
         - bleeding_cadth
+        - bleeding_adaptt
         index: I65
         name: I65
       - categories:
@@ -9010,6 +9023,7 @@ categories:
         exclude:
         - bleeding_al_ani
         - bleeding_cadth
+        - bleeding_adaptt
         index: I66
         name: I66
       - categories:
@@ -9047,6 +9061,7 @@ categories:
         exclude:
         - bleeding_al_ani
         - bleeding_cadth
+        - bleeding_adaptt
         index: I67
         name: I67
       - categories:
@@ -9066,6 +9081,7 @@ categories:
         exclude:
         - bleeding_al_ani
         - bleeding_cadth
+        - bleeding_adaptt
         index: I68
         name: I68
       - categories:
@@ -9079,12 +9095,18 @@ categories:
           index: I692
           name: I69.2
         - docs: Sequelae of cerebral infarction
+          exclude:
+          - bleeding_adaptt
           index: I693
           name: I69.3
         - docs: Sequelae of stroke, not specified as haemorrhage or infarction
+          exclude:
+          - bleeding_adaptt
           index: I694
           name: I69.4
         - docs: Sequelae of other and unspecified cerebrovascular diseases
+          exclude:
+          - bleeding_adaptt
           index: I698
           name: I69.8
         docs: Sequelae of cerebrovascular disease
@@ -9298,6 +9320,7 @@ categories:
       - mi_nstemi_schnier
       - mi_schnier
       - bleeding_cadth
+      - bleeding_adaptt
       index:
       - I70
       - I79
@@ -9481,6 +9504,7 @@ categories:
       - mi_stemi_schnier
       - mi_nstemi_schnier
       - mi_schnier
+      - bleeding_adaptt
       index:
       - I80
       - I89
@@ -9553,6 +9577,7 @@ categories:
       - mi_nstemi_schnier
       - mi_schnier
       - bleeding_cadth
+      - bleeding_adaptt
       index:
       - I95
       - I99
@@ -11097,6 +11122,7 @@ categories:
     - mi_nstemi_schnier
     - mi_schnier
     - bleeding_cadth
+    - bleeding_adaptt
     index:
     - F00
     - F99
@@ -12400,6 +12426,7 @@ categories:
     - mi_nstemi_schnier
     - mi_schnier
     - bleeding_cadth
+    - bleeding_adaptt
     index:
     - G00
     - G99
@@ -13444,6 +13471,7 @@ categories:
     - mi_nstemi_schnier
     - mi_schnier
     - bleeding_cadth
+    - bleeding_adaptt
     index:
     - H00
     - H59
@@ -13907,6 +13935,7 @@ categories:
     - mi_nstemi_schnier
     - mi_schnier
     - bleeding_cadth
+    - bleeding_adaptt
     index:
     - H60
     - H95
@@ -14861,6 +14890,7 @@ categories:
     - mi_nstemi_schnier
     - mi_schnier
     - bleeding_cadth
+    - bleeding_adaptt
     index:
     - J00
     - J99
@@ -15258,6 +15288,7 @@ categories:
       exclude:
       - bleeding_al_ani
       - bleeding_cadth
+      - bleeding_adaptt
       index:
       - K00
       - K14
@@ -15267,6 +15298,7 @@ categories:
         exclude:
         - bleeding_al_ani
         - bleeding_cadth
+        - bleeding_adaptt
         index: K20
         name: K20
       - categories:
@@ -15280,6 +15312,7 @@ categories:
         exclude:
         - bleeding_al_ani
         - bleeding_cadth
+        - bleeding_adaptt
         index: K21
         name: K21
       - categories:
@@ -15332,6 +15365,7 @@ categories:
         docs: Other diseases of oesophagus
         exclude:
         - bleeding_cadth
+        - bleeding_adaptt
         index: K22
         name: K22
       - categories:
@@ -15348,6 +15382,7 @@ categories:
         exclude:
         - bleeding_al_ani
         - bleeding_cadth
+        - bleeding_adaptt
         index: K23
         name: K23
       - categories:
@@ -15358,6 +15393,7 @@ categories:
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K251
           name: K25.1
         - docs: 'Gastric ulcer : acute with both haemorrhage and perforation'
@@ -15367,6 +15403,7 @@ categories:
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K253
           name: K25.3
         - docs: 'Gastric ulcer : chronic or unspecified with haemorrhage'
@@ -15376,6 +15413,7 @@ categories:
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K255
           name: K25.5
         - docs: 'Gastric ulcer : chronic or unspecified with both haemorrhage and perforation'
@@ -15385,12 +15423,14 @@ categories:
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K257
           name: K25.7
         - docs: 'Gastric ulcer : unspecified as acute or chronic, without haemorrhage or perforation'
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K259
           name: K25.9
         docs: Gastric ulcer
@@ -15404,6 +15444,7 @@ categories:
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K261
           name: K26.1
         - docs: 'Duodenal ulcer : acute with both haemorrhage and perforation'
@@ -15413,6 +15454,7 @@ categories:
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K263
           name: K26.3
         - docs: 'Duodenal ulcer : chronic or unspecified with haemorrhage'
@@ -15422,6 +15464,7 @@ categories:
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K265
           name: K26.5
         - docs: 'Duodenal ulcer : chronic or unspecified with both haemorrhage and perforation'
@@ -15431,12 +15474,14 @@ categories:
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K267
           name: K26.7
         - docs: 'Duodenal ulcer : unspecified as acute or chronic, without haemorrhage or perforation'
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K269
           name: K26.9
         docs: Duodenal ulcer
@@ -15450,6 +15495,7 @@ categories:
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K271
           name: K27.1
         - docs: 'Peptic ulcer, site unspecified : acute with both haemorrhage and perforation'
@@ -15459,6 +15505,7 @@ categories:
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K273
           name: K27.3
         - docs: 'Peptic ulcer, site unspecified : chronic or unspecified with haemorrhage'
@@ -15468,6 +15515,7 @@ categories:
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K275
           name: K27.5
         - docs: 'Peptic ulcer, site unspecified : chronic or unspecified with both haemorrhage and perforation'
@@ -15477,12 +15525,14 @@ categories:
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K277
           name: K27.7
         - docs: 'Peptic ulcer, site unspecified : unspecified as acute or chronic, without haemorrhage or perforation'
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K279
           name: K27.9
         docs: Peptic ulcer, site unspecified
@@ -15496,6 +15546,7 @@ categories:
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K281
           name: K28.1
         - docs: 'Gastrojejunal ulcer : acute with both haemorrhage and perforation'
@@ -15505,6 +15556,7 @@ categories:
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K283
           name: K28.3
         - docs: 'Gastrojejunal ulcer : chronic or unspecified with haemorrhage'
@@ -15514,6 +15566,7 @@ categories:
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K285
           name: K28.5
         - docs: 'Gastrojejunal ulcer : chronic or unspecified with both haemorrhage and perforation'
@@ -15523,12 +15576,14 @@ categories:
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K287
           name: K28.7
         - docs: 'Gastrojejunal ulcer : unspecified as acute or chronic, without haemorrhage or perforation'
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K289
           name: K28.9
         docs: Gastrojejunal ulcer
@@ -15542,54 +15597,63 @@ categories:
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K291
           name: K29.1
         - docs: Alcoholic gastritis
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K292
           name: K29.2
         - docs: Chronic superficial gastritis
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K293
           name: K29.3
         - docs: Chronic atrophic gastritis
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K294
           name: K29.4
         - docs: Chronic gastritis, unspecified
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K295
           name: K29.5
         - docs: Other gastritis
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K296
           name: K29.6
         - docs: Gastritis, unspecified
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K297
           name: K29.7
         - docs: Duodenitis
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K298
           name: K29.8
         - docs: Gastroduodenitis, unspecified
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K299
           name: K29.9
         docs: Gastritis and duodenitis
@@ -15599,6 +15663,7 @@ categories:
         exclude:
         - bleeding_al_ani
         - bleeding_cadth
+        - bleeding_adaptt
         index: K30
         name: K30
       - categories:
@@ -15636,6 +15701,7 @@ categories:
         exclude:
         - bleeding_al_ani
         - bleeding_cadth
+        - bleeding_adaptt
         index: K31
         name: K31
       docs: Diseases of oesophagus, stomach and duodenum
@@ -15689,6 +15755,7 @@ categories:
       exclude:
       - bleeding_al_ani
       - bleeding_cadth
+      - bleeding_adaptt
       index:
       - K35
       - K38
@@ -15825,6 +15892,7 @@ categories:
       exclude:
       - bleeding_al_ani
       - bleeding_cadth
+      - bleeding_adaptt
       index:
       - K40
       - K46
@@ -15900,6 +15968,7 @@ categories:
       docs: Noninfective enteritis and colitis
       exclude:
       - bleeding_cadth
+      - bleeding_adaptt
       index:
       - K50
       - K52
@@ -15932,6 +16001,7 @@ categories:
         docs: Vascular disorders of intestine
         exclude:
         - bleeding_cadth
+        - bleeding_adaptt
         index: K55
         name: K55
       - categories:
@@ -15963,6 +16033,7 @@ categories:
         exclude:
         - bleeding_al_ani
         - bleeding_cadth
+        - bleeding_adaptt
         index: K56
         name: K56
       - categories:
@@ -15993,6 +16064,7 @@ categories:
         docs: Diverticular disease of intestine
         exclude:
         - bleeding_cadth
+        - bleeding_adaptt
         index: K57
         name: K57
       - categories:
@@ -16006,6 +16078,7 @@ categories:
         exclude:
         - bleeding_al_ani
         - bleeding_cadth
+        - bleeding_adaptt
         index: K58
         name: K58
       - categories:
@@ -16034,6 +16107,7 @@ categories:
         exclude:
         - bleeding_al_ani
         - bleeding_cadth
+        - bleeding_adaptt
         index: K59
         name: K59
       - categories:
@@ -16059,6 +16133,7 @@ categories:
         exclude:
         - bleeding_al_ani
         - bleeding_cadth
+        - bleeding_adaptt
         index: K60
         name: K60
       - categories:
@@ -16081,6 +16156,7 @@ categories:
         exclude:
         - bleeding_al_ani
         - bleeding_cadth
+        - bleeding_adaptt
         index: K61
         name: K61
       - categories:
@@ -16088,30 +16164,35 @@ categories:
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K620
           name: K62.0
         - docs: Rectal polyp
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K621
           name: K62.1
         - docs: Anal prolapse
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K622
           name: K62.2
         - docs: Rectal prolapse
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K623
           name: K62.3
         - docs: Stenosis of anus and rectum
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K624
           name: K62.4
         - docs: Haemorrhage of anus and rectum
@@ -16121,24 +16202,28 @@ categories:
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K626
           name: K62.6
         - docs: Radiation proctitis
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K627
           name: K62.7
         - docs: Other specified diseases of anus and rectum
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K628
           name: K62.8
         - docs: Disease of anus and rectum, unspecified
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K629
           name: K62.9
         docs: Other diseases of anus and rectum
@@ -16173,6 +16258,7 @@ categories:
         exclude:
         - bleeding_al_ani
         - bleeding_cadth
+        - bleeding_adaptt
         index: K63
         name: K63
       - categories:
@@ -16204,6 +16290,7 @@ categories:
         exclude:
         - bleeding_al_ani
         - bleeding_cadth
+        - bleeding_adaptt
         index: K64
         name: K64
       docs: Other diseases of intestines
@@ -16225,12 +16312,14 @@ categories:
         docs: Peritonitis
         exclude:
         - bleeding_cadth
+        - bleeding_adaptt
         index: K65
         name: K65
       - categories:
         - docs: Peritoneal adhesions
           exclude:
           - bleeding_cadth
+          - bleeding_adaptt
           index: K660
           name: K66.0
         - docs: Haemoperitoneum
@@ -16239,11 +16328,13 @@ categories:
         - docs: Other specified disorders of peritoneum
           exclude:
           - bleeding_cadth
+          - bleeding_adaptt
           index: K668
           name: K66.8
         - docs: Disorder of peritoneum, unspecified
           exclude:
           - bleeding_cadth
+          - bleeding_adaptt
           index: K669
           name: K66.9
         docs: Other disorders of peritoneum
@@ -16268,6 +16359,7 @@ categories:
         docs: Disorders of peritoneum in infectious diseases classified elsewhere
         exclude:
         - bleeding_cadth
+        - bleeding_adaptt
         index: K67
         name: K67
       docs: Diseases of peritoneum
@@ -16464,6 +16556,7 @@ categories:
       exclude:
       - bleeding_al_ani
       - bleeding_cadth
+      - bleeding_adaptt
       index:
       - K70
       - K77
@@ -16621,6 +16714,7 @@ categories:
       exclude:
       - bleeding_al_ani
       - bleeding_cadth
+      - bleeding_adaptt
       index:
       - K80
       - K87
@@ -16652,6 +16746,7 @@ categories:
         exclude:
         - bleeding_al_ani
         - bleeding_cadth
+        - bleeding_adaptt
         index: K90
         name: K90
       - categories:
@@ -16683,6 +16778,7 @@ categories:
         exclude:
         - bleeding_al_ani
         - bleeding_cadth
+        - bleeding_adaptt
         index: K91
         name: K91
       - categories:
@@ -16693,18 +16789,22 @@ categories:
           index: K921
           name: K92.1
         - docs: Gastrointestinal haemorrhage, unspecified
+          exclude:
+          - bleeding_adaptt
           index: K922
           name: K92.2
         - docs: Other specified diseases of digestive system
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K928
           name: K92.8
         - docs: Disease of digestive system, unspecified
           exclude:
           - bleeding_al_ani
           - bleeding_cadth
+          - bleeding_adaptt
           index: K929
           name: K92.9
         docs: Other diseases of digestive system
@@ -16724,6 +16824,7 @@ categories:
         exclude:
         - bleeding_al_ani
         - bleeding_cadth
+        - bleeding_adaptt
         index: K93
         name: K93
       docs: Other diseases of the digestive system
@@ -18054,6 +18155,7 @@ categories:
     - mi_nstemi_schnier
     - mi_schnier
     - bleeding_cadth
+    - bleeding_adaptt
     index:
     - L00
     - L99
@@ -20127,6 +20229,7 @@ categories:
     - mi_nstemi_schnier
     - mi_schnier
     - bleeding_cadth
+    - bleeding_adaptt
     index:
     - M00
     - M99
@@ -21822,6 +21925,7 @@ categories:
     - mi_stemi_schnier
     - mi_nstemi_schnier
     - mi_schnier
+    - bleeding_adaptt
     index:
     - N00
     - N99
@@ -26528,6 +26632,7 @@ categories:
     - mi_nstemi_schnier
     - mi_schnier
     - bleeding_cadth
+    - bleeding_adaptt
     index:
     - S00
     - T98
@@ -28158,6 +28263,7 @@ categories:
     - mi_nstemi_schnier
     - mi_schnier
     - bleeding_cadth
+    - bleeding_adaptt
     index:
     - O00
     - O99
@@ -29445,6 +29551,7 @@ categories:
     - mi_nstemi_schnier
     - mi_schnier
     - bleeding_cadth
+    - bleeding_adaptt
     index:
     - P00
     - P96
@@ -31724,6 +31831,7 @@ categories:
     - mi_nstemi_schnier
     - mi_schnier
     - bleeding_cadth
+    - bleeding_adaptt
     index:
     - Q00
     - Q99
@@ -33149,6 +33257,7 @@ categories:
     - mi_stemi_schnier
     - mi_nstemi_schnier
     - mi_schnier
+    - bleeding_adaptt
     index:
     - R00
     - R99
@@ -38107,6 +38216,7 @@ categories:
     - mi_nstemi_schnier
     - mi_schnier
     - bleeding_cadth
+    - bleeding_adaptt
     index:
     - V01
     - Y98
@@ -40379,6 +40489,7 @@ categories:
     - mi_nstemi_schnier
     - mi_schnier
     - bleeding_cadth
+    - bleeding_adaptt
     index:
     - Z00
     - Z99
@@ -40547,6 +40658,7 @@ categories:
     - mi_nstemi_schnier
     - mi_schnier
     - bleeding_cadth
+    - bleeding_adaptt
     index:
     - U00
     - U85
