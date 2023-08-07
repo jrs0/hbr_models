@@ -3,7 +3,7 @@ use std::convert::TryFrom;
 use std::time::{Duration, Instant};
 
 fn main() {
-    let query = r#"select top 1000000 AIMTC_Pseudo_NHS as nhs_number,AIMTC_Age as age_at_episode,PBRspellID as spell_id,
+    let query = r#"select AIMTC_Pseudo_NHS as nhs_number,AIMTC_Age as age_at_episode,PBRspellID as spell_id,
     StartDate_ConsultantEpisode as episode_start,EndDate_ConsultantEpisode as episode_end,
     AIMTC_ProviderSpell_Start_Date as spell_start,AIMTC_ProviderSpell_End_Date as spell_end,
     diagnosisprimary_icd as primary_diagnosis,
