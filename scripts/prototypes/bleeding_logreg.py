@@ -5,10 +5,13 @@
 # (python 3.11 did not work). I tested on a python 3.9 venv.
 #
 
+import time
 import polars as pl
 
 connection_uri = "mssql://XSW-000-SP09/ABI?trusted_connection=true"
-query = '''select top 1000000 AIMTC_Pseudo_NHS as nhs_number,AIMTC_Age as age_at_episode,PBRspellID as spell_id,
+query = '''select AIMTC_Pseudo_NHS as nhs_number,
+    AIMTC_Age as age_at_episode,
+    PBRspellID as spell_id,
     StartDate_ConsultantEpisode as episode_start,EndDate_ConsultantEpisode as episode_end,
     AIMTC_ProviderSpell_Start_Date as spell_start,AIMTC_ProviderSpell_End_Date as spell_end,
     diagnosisprimary_icd as primary_diagnosis,
@@ -59,11 +62,20 @@ query = '''select top 1000000 AIMTC_Pseudo_NHS as nhs_number,AIMTC_Age as age_at
     ,procedure22nd_opcs as secondary_procedure_20
     ,procedure23rd_opcs as secondary_procedure_21
     ,procedure24th_opcs as secondary_procedure_22
-    from abi.dbo.vw_apc_sem_001
-    where AIMTC_ProviderSpell_Start_Date between '2020-01-01' and '2021-01-01'  
+    from vw_apc_sem_spell_001
+    where AIMTC_ProviderSpell_Start_Date between '2020-01-01' and '2023-01-01'  
     '''
 
+# Time to make raw query 299 seconds (seems too slow)
+start = time.time()
 raw_data = pl.read_database(query=query, connection=connection_uri)
+stop = time.time()
+print(f"Time to fetch spells data: {stop - start}")
+
+not_null = raw_data.filter((pl.col("nhs_number") == None) & 
+                           ~pl.col("spell_id").str.isspace() & (pl.col("spell_id") != None))
+
+raw_data.columns
 
 s = pl.Series("a", [1, 2, 3, 4, 5])
 print(s)
