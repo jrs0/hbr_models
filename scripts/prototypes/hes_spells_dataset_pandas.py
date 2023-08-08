@@ -1,14 +1,8 @@
-# For this file:
-# pip install polars[pandas,numpy,connectorx]
-# The square brackets define features that will be installed.
-# At the time of testing, only python 3.10 and lower is supported
-# (python 3.11 did not work). I tested on a python 3.9 venv.
-#
-
 import time
-import polars as pl
+import pandas as pd
+import sqlalchemy as sql
 
-connection_uri = "mssql://XSW-000-SP09/ABI?trusted_connection=true"
+con = sql.create_engine("mssql+pyodbc://xsw")
 query = """select AIMTC_Pseudo_NHS as nhs_number,
     AIMTC_Age as age,
     Sex as gender,
@@ -63,23 +57,23 @@ query = """select AIMTC_Pseudo_NHS as nhs_number,
     procedure22nd_opcs as secondary_procedure_20,
     procedure23rd_opcs as secondary_procedure_21,
     procedure24th_opcs as secondary_procedure_22
-    from vw_apc_sem_spell_001
+    from ABI.dbo.vw_apc_sem_spell_001
     where AIMTC_ProviderSpell_Start_Date between '2020-01-01' and '2023-01-01'  
     """
 
 # Time to make raw query 299 seconds (seems a bit slow)
 start = time.time()
-raw_data = pl.read_database(query=query, connection=connection_uri)
+raw_data = pd.read_sql(query, con)# (query=query, connection=connection_uri)
 stop = time.time()
 print(f"Time to fetch spells data: {stop - start}")
 
 # Remove rows with no NHS number, no spell ID,
 # or duplicate spell IDs.
-df_preprocess = raw_data.filter(
-    (pl.col("nhs_number") == None)
-    & ~pl.col("spell_id").str.isspace()
-    & (pl.col("spell_id") != None)
-).unique("spell_id")
+# df_preprocess = raw_data.filter(
+#     (pl.col("nhs_number") == None)
+#     & ~pl.col("spell_id").str.isspace()
+#     & (pl.col("spell_id") != None)
+# ).unique("spell_id")
 
 
 raw_data.columns
