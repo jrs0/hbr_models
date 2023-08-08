@@ -39,11 +39,40 @@ Columns contain NULLs, which can have meanings other than missing data. Data tha
 
 The following sections contain specifications for example synthetic tables. Discrepancies between the types of columns and the semantic content (for example, a nullable column that cannot be null, and behaves as a primary key) is due to the requirement to copy as closely as possible real datasets for testing purposes. Column descriptions clarify the actual content of the column.
 
+### Pharmacy on admission table: `pharmacy_administration`
+
+This table contains medication that patients were taking when they arrived at the hospital. The table is called "administration" because the information is extracted from the discharge summary by the administrative team.
+
+The columns, SQL Server types, and descriptions are given below:
+
+* `subject`, nvarchar(30), nullable: contains a string in the form `bristol_<NUM>`, where `<NUM>` is a positive integer.
+* `prescription_order_id`, nvarchar(30), nullable: always NULL in this synthetic data
+* `therapeutical_class`, ncharchar(30), nullable: always NULL in this synthetic data
+* `medication_name`, nvarchar(4000), nullable: the name of the medication prescribed; one of 979 different values (including "CLOPIDOGREL", "PRASUGREL", "TICAGRELOR", and "WARFARIN SODIUM"), always fully capitalised.
+* `administration_date_time`, datetime, nullable: date time column which is always equal to `ADMIT_DTTM`
+* `dosage_unit`, nvarchar(80), nullable: medication-specific string indicating the dose units for the prescribed medication.
+* `route`, nvarchar(80), nullable: the method of medication administration; one of 29 options, including "Oral" (and "Orally"), "Intravenous", etc. Column does contain NULLs.
+* `brc_name`, nvarchar(10), nullable: name of source of test information. Always equal to "bristol". Does not contain NULLs.
+* `IP_SPELL_ID`, nvarchar(30), nullable: key linking to the `spell_identifier` in the `episodes` table. Format is `bristol_<NUM>` where `<NUM>` is a positive integer.
+* `ADMIT_DTTN`, datetime, nullable: the admission datetime (for the associated spell?)
+* `DISCH_DTTN`, datetime, nullable: the discharge datetime (for the associated spell?) 
+* `Site of Admin`, nvarchar(12), nullable: always NULL in this synthetic data.
+* `Medication Order Type`, varchar(12), not nullable: always equal to "On Admission" in this synthetic data.
+* `Medication - Frequency`, nvarchar(80), nullable: how often the medication should be table; expression such as "TWICE a day", "at NIGHT", "daily", etc. (2342 variants in original dataset).
+* `Medication - On Admission`, nvarchar(80), nullable: indicates further information about the medication state on admission. Valid values are:
+    * NULL
+    * "Continued" - medication is left the same on discharge as admission
+    * "Changed" - medication changed (often the dose or frequency) on discharge compared to admission
+    * "Stopped/Held" - means medication was discontinued at discharge vs. admission
+    * "Omitted on admission" - during the spell the patient does not take the medication; this is really independent information from "changed", "stopped/held" or "continued".
+    * "Added by Pharmacist Prescriber" - newly prescribed
+    * "Added via Pharmacy Enabling Policy" - meaning not known.
+
 ### Blood test results table: `pathology_blood`
 
 This table contains blood test results. Columns, SQL Server types, and descriptions are given below:
 
-* `subject`, nvarchar(30), nullable: contains a string in the form `bristol_<NUM>`, where `<NUM>` is a positive integer not larger than 50000.
+* `subject`, nvarchar(30), nullable: contains a string in the form `bristol_<NUM>`, where `<NUM>` is a positive integer.
 * `laboratory_department`, nvarchar(30), nullable: always NULL in this synthetic data.
 * `order_name`, nvarchar(100), nullable: top-level test category, capitalised (e.g. "FULL BLOOD COUNT"). Does not contain nulls.
 * `test_name`, nvarchar(100), nullable: laboratory test name, lower-case (e.g. "haemoglobin"). Does not contain nulls.
