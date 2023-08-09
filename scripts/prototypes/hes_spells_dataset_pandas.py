@@ -61,7 +61,7 @@ query = """select AIMTC_Pseudo_NHS as nhs_number,
     where AIMTC_ProviderSpell_Start_Date between '2020-01-01' and '2023-01-01'  
     """
 
-# Time to make raw query 299 seconds (seems a bit slow)
+# Time to make raw query 1395 seconds (very slow, could be network)
 start = time.time()
 raw_data = pd.read_sql(query, con)# (query=query, connection=connection_uri)
 stop = time.time()
