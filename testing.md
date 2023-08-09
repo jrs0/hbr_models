@@ -68,6 +68,26 @@ The columns, SQL Server types, and descriptions are given below:
     * "Added by Pharmacist Prescriber" - newly prescribed
     * "Added via Pharmacy Enabling Policy" - meaning not known.
 
+#### Aspirin
+
+Aspirin is recorded in the dataset in the following format:
+* `medication_name`: "ASPIRIN" or "ASPIRIN [UNLICENSED]"
+* `dosage_unit`: May be the following values:
+    * NULL
+    * A string composed of the following optional items in any order, separated by any separaters (e.g. " ", ";"):
+        * A value with a unit, e.g. "75mg". The value is typically 75, but includes 37.5, 40, 75, 80, 85, 225, 300, 600, 900. The unit is often "mg", but includes typos such as "g", "m", "mcg" (to check). There may or may not be a space between the value and unit.
+        * A gastro-resistant type indication: one of "gr", "G/R", "GR", "gastroresistant", "gastro-resistant", "gatsro resistant", "gastro -resistant", "gastro-resisttant" "GASTRO RESISTANT", "GASTRO-RESISTANT", "Gastro-resistant"
+        * May include the mark ec (meaning?): "E/C", "ec"
+        * An optional tablet/soluble indicator: "dispensible tablets", "disp tabs", "disp", "tablets", "soluble"
+    * "Taking OTC"
+* `Medication - Frequency`: One of the following:
+    * NULL 
+    * "Once daily", "OD", "daily", "ONCE a day until review", "ONCE a day for 14 days", "ONCE a day at 6pm", "ONCE a day", "ONCE a day at lunchtime", "ONCE a day at lunch", "ONCE a day in the morning", "at NIGHT", "Every morning", "ONCE in the morning til seen in clinic"
+    * "TWICE a day"
+    * "TWICE a week"
+    * "every 48 hours", "alternate days"
+    * "FOUR times a day"
+
 ### Blood test results table: `pathology_blood`
 
 This table contains blood test results. Columns, SQL Server types, and descriptions are given below:
