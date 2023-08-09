@@ -23,6 +23,15 @@ If you get the error `Could not find tools necessary to compile a package`, you 
 PATH="c:/rtools43/x86_64-w64-mingw32.static.posix/bin;c:/rtools43/usr/bin;${PATH}"
 ```
 
+If you are behind a proxy that has SSL issues, and you see an error like this: `warning: spurious network error (3 tries remaining): [35] SSL connect error (schannel: next InitializeSecurityContext failed: Unknown error (0x80092012) - The revocation function was unable to check revocation for the certificate.)`, try disabling certificate revocation checks. Modify the file `config.toml` in `C:\Users\your-username\.cargo\` (or create it if it doesn't exist) with the following contents:
+
+```toml
+[http]
+# If you are behind a proxy that has got SSL problems, 
+# this line might help. Comment out if not needed (preferred).
+check-revoke = false
+```
+
 ### Tips for Windows Development
 
 If the rust part of the library needs recompilation, it seems faster to do it directly using `cargo build` from the `src/rust/` directory than calling `rextendr::document()` from an R console (at least on my computer). This recompilation is needed after calling `cargo update` from `src/rust`, which is required when the `rust_hic` crate changes 
