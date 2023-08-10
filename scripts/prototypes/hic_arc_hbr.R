@@ -151,8 +151,19 @@ code_group_counts <- episode_diagnoses_and_procedures %>%
 # Index events are identified by whether the first
 # episode of the spell is a MI or a PCI
 
-index_episodes <- code_group_counts %>%
+# This table contains the list of index episodes
+idx_episodes <- code_group_counts %>%
     # Join the episode data to add the episode and spell start
     # date to the code count information for each episode
-    left_join(raw_episodes_data, by = "episode_id")
+    left_join(raw_episodes_data, by = "episode_id") %>%
+    # Pick only the first episode of each spell
+    arrange(episode_start_date) %>%
+    group_by(spell_id) %>%
+    slice_head(n=1) %>%
+    ungroup() %>%
+    filter(mi_schnier_count > 0 | pci_count > 0) %>%
+    transmute(
+        idx_episode_id = episode_id,
+        idx_spell_id = spell_id
+    )
 
