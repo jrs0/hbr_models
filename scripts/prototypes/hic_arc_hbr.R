@@ -52,8 +52,20 @@ raw_episodes_data <- dplyr::tbl(con, episodes_id) %>%
         episode_start_date = episode_start_time,
     ) %>%
     filter(!is.na(patient)) %>%
-    filter(spell_start_date > start_date, spell_start_date < end_date) %>%
+    #filter(spell_start_date > start_date, spell_start_date < end_date) %>%
     collect()
+
+# Find the last date seen in the dataset to use as an approximation for
+# the right-censor date for the purpose of survival analysis
+right_censor_date <- raw_episodes_data %>%
+    pull(episode_start_date) %>%
+    max()
+
+# Also helpful to know the earliest date in the dataset. This is important
+# for whether it is possible to know predictors a certain time in advance.
+left_censor_date <- raw_episodes_data %>%
+    pull(episode_start_date) %>%
+    min()
 
 # Mapping from episode_id to patient. Required later for joining
 # episodes together from different tables by patient.
@@ -251,26 +263,76 @@ episodes_in_window_before_index <- time_from_index_to_episode %>%
 # in the valid window before the index. Note that this excludes
 # index events with zero episodes before the index.
 nonzero_code_counts_before <- episodes_in_window_before_index %>%
-    left_join(code_group_counts, by="episode_id") %>%
+    left_join(code_group_counts, by = "episode_id") %>%
     # Don't need the episode_id any more, just need the index
     # episode id to group-by for the summarise
     select(-episode_id) %>%
     group_by(idx_episode_id) %>%
     summarize(across(matches("_count"), sum)) %>%
     # Append "_before" to all count columns
-    rename_with(~ paste0(.,"_before"), matches("count"))
+    rename_with(~ paste0(., "_before"), matches("count"))
 
 # Join back all the index events that do not have any episodes
-# beforehand,  
+# beforehand,
 code_counts_before <- idx_episodes %>%
-    full_join(nonzero_code_counts_before, by="idx_episode_id") %>%
+    full_join(nonzero_code_counts_before, by = "idx_episode_id") %>%
     # In the full join, any index events not in the nonzero counts
     # table show up as NAs in the result. Replace these with zero
     # to indicate non of the code groups were present as predictors
-    mutate(across(matches("count"), ~replace_na(.,0)))
+    mutate(across(matches("count"), ~ replace_na(., 0)))
 
+####### COMPUTE TIME TO FIRST BLEED AND FIRST MI #######
 
+# This table contains the total number of each diagnosis and procedure
+# group in a period before the index event. This could be the previous
+# 12 months, excluding the month before the index event (to account for
+# lack of coding data in that period)
+max_period_after <- lubridate::dyears(1) # Limit count to next 12 months
+min_period_after <- lubridate::dhours(72) # Exclude the subsequent 72 hours after index
 
+# These are the subsequent episodes after the index (not
+# yet limited to one year).
+episodes_after <- time_from_index_to_episode %>%
+    filter(
+        index_to_episode_time > min_period_after, # Exclude a short window after the index
+        # Not needed if the min_period_after != 0, but left here
+        # in case that condition is lifted
+        episode_id != idx_episode_id,
+    ) %>%
+    left_join(code_group_counts, by="episode_id")
+    
+# Find the episodes with a bleeding event and add
+# the survival time and status columns
+idx_with_bleeding_after <- episodes_after %>%
+    # Keep only index events with a subsequent bleeding event
+    group_by(idx_episode_id) %>%
+    filter(any(bleeding_al_ani_count > 0)) %>%
+    # Pick only the first subsequent bleeding event
+    arrange(index_to_episode_time) %>%
+    summarise(
+        outcome_time_bleeding_al_ani = min(index_to_episode_time),
+        outcome_status_bleeding_al_ani = 1,
+    )
+
+# Find the non-bleeding episodes and add the right-censored
+# time and non-status columns
+idx_with_no_bleeding_after <- episodes_after %>%
+    # Keep only index events with no subsequent bleeding episode
+    group_by(idx_episode_id) %>%
+    filter(all(bleeding_al_ani_count == 0)) %>%
+    ungroup() %>%
+    distinct(idx_episode_id) %>%
+    # Need the index date to compute the right censor
+    # information below.
+    left_join(idx_dates_by_patient, by="idx_episode_id") %>%
+    transmute(
+        idx_episode_id,
+        outcome_time_bleeding_al_ani = right_censor_date - idx_date,
+        outcome_status_bleeding_al_ani = 0,
+    )
+
+idx_by_subsequent_bleeding <- idx_with_bleeding_after %>%
+    bind_rows(idx_with_no_bleeding_after)
 
 
 
