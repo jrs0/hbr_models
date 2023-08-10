@@ -230,31 +230,6 @@ time_from_index_to_episode <- idx_dates_by_patient %>%
         index_to_episode_time = episode_start_date - idx_date
     )
 
-    
-
-
-a <- raw_episodes_data %>%
-    left_join(patients, by = c("idx_episode_id" = "episode_id"))
-
-code_group_counts_by_patient <- code_group_counts %>%
-    left_join(patients, by = "episode_id")
-
-
-episode_time_differences <- idx_epsiodes_by_patient %>%
-    # For each index event, join all other spells that the patient had.
-    # Expect many-to-many because the same patient could have multiple index events.
-    left_join(
-        code_group_counts_with_nhs_number,
-        by = "nhs_number", relationship = "many-to-many"
-    ) %>%
-    # Join on the spell data to the other spells
-    left_join(spell_data, by = c("other_spell_id" = "spell_id")) %>%
-    # Positive time difference for after, negative for before
-    transmute(
-        spell_id,
-        other_spell_id,
-        spell_time_difference = spell_start_date - index_date
-    )
 
 # This table contains the total number of each diagnosis and procedure
 # group in a period before the index event. This could be the previous
@@ -262,6 +237,42 @@ episode_time_differences <- idx_epsiodes_by_patient %>%
 # lack of coding data in that period)
 max_period_before <- lubridate::dyears(1) # Limit count to previous 12 months
 min_period_before <- lubridate::dmonths(1) # Exclude month before index (not coded yet)
+
+# These are the episodes whose clinical code counts should contribute
+# to predictors.
+episodes_in_window_before_index <- time_from_index_to_episode %>%
+    filter(
+        index_to_episode_time < -min_period_before,
+        -max_period_before < index_to_episode_time
+    ) %>%
+    select(idx_episode_id, episode_id)
+
+# Compute the total count for each index event that has an episode
+# in the valid window before the index. Note that this excludes
+# index events with zero episodes before the index.
+nonzero_code_counts_before <- episodes_in_window_before_index %>%
+    left_join(code_group_counts, by="episode_id") %>%
+    # Don't need the episode_id any more, just need the index
+    # episode id to group-by for the summarise
+    select(-episode_id) %>%
+    group_by(idx_episode_id) %>%
+    summarize(across(matches("_count"), sum)) %>%
+    # Append "_before" to all count columns
+    rename_with(~ paste0(.,"_before"), matches("count"))
+
+# Join back all the index events that do not have any episodes
+# beforehand,  
+code_counts_before <- idx_episodes %>%
+    full_join(nonzero_code_counts_before, by="idx_episode_id") %>%
+    # In the full join, any index events not in the nonzero counts
+    # table show up as NAs in the result. Replace these with zero
+    # to indicate non of the code groups were present as predictors
+    mutate(across(matches("count"), ~replace_na(.,0)))
+
+
+
+
+
 
 counts_before_index <- spell_time_differences %>%
     # Add a mask to only include the spells in a particular window before the
