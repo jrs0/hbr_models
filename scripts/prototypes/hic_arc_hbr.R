@@ -39,12 +39,16 @@ raw_episodes_data <- dplyr::tbl(con, episodes_id) %>%
         ID, # Key for the diagnosis and procedure tables
         subject, # Patient identifier
         spell_identifier,
-        arrival_dt_tm, # Taking hospital arrival time as spell start time
+        # Taking hospital arrival time as spell start time for the purpose
+        # of calculating time-to-subsequent events
+        arrival_dt_tm, 
+        episode_start_time,
     ) %>%
     rename(
         episode_id = ID,
         spell_id = spell_identifier,
         spell_start_date = arrival_dt_tm,
+        episode_start_date = episode_start_time,
     ) %>%
     filter(!is.na(subject)) %>%
     filter(spell_start_date > start_date, spell_start_date < end_date) %>%
