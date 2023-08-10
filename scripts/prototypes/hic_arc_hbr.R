@@ -147,3 +147,8 @@ code_group_counts <- episode_diagnoses_and_procedures %>%
 # Index events are identified by whether the first
 # episode of the spell is a MI or a PCI
 
+index_episodes <- code_group_counts %>%
+    # Join the episode data to add the episode and spell start
+    # date to the code count information for each episode
+    left_join(raw_episodes_data, by = "episode_id")
+
