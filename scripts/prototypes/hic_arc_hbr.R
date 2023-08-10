@@ -167,3 +167,20 @@ idx_episodes <- code_group_counts %>%
         idx_spell_id = spell_id
     )
 
+# Derive data about the index episode. Note: above, we are only including
+# index event according to the first episode, which means we are already
+# missing cases where an MI is present in the first episode but a PCI is
+# performed in a subsequent episode -- there is no point trying to correct
+# for it here. That is for a future version of the script.
+idx_episode_info <- idx_episodes %>%
+    left_join(code_group_counts, by = c("idx_episode_id"="episode_id")) %>%
+    # Record whether the index event is PCI or conservatively managed (ACS).
+    # Record STEMI and NSTEMI as separate columns to account for possibility
+    # of neither (i.e. no ACS).
+    transmute(
+        idx_episode_id,
+        pci_performed = (pci_count > 0), # If false, conservatively managed
+        stemi = (mi_stemi_schnier_count > 0),
+        nstemi = (mi_nstemi_schnier_count > 0),
+        mi = (mi_schnier_count > 0)
+    )
