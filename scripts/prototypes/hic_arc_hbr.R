@@ -316,47 +316,10 @@ idx_with_bleeding_after <- episodes_after %>%
 
 # Find the non-bleeding episodes and add the right-censored
 # time and non-status columns
-idx_with_no_bleeding_after <- episodes_after %>%
-    # Keep only index events with no subsequent bleeding episode
-    group_by(idx_episode_id) %>%
-    filter(all(bleeding_al_ani_count == 0)) %>%
-    ungroup() %>%
-    distinct(idx_episode_id) %>%
-    # Need the index date to compute the right censor
-    # information below.
-    left_join(idx_dates_by_patient, by="idx_episode_id") %>%
+idx_with_no_bleeding_after <- idx_dates_by_patient %>%
+    filter(!(idx_episode_id %in% idx_with_bleeding_after$idx_episode_id)) %>%
     transmute(
         idx_episode_id,
         outcome_time_bleeding_al_ani = right_censor_date - idx_date,
         outcome_status_bleeding_al_ani = 0,
-    )
-
-idx_by_subsequent_bleeding <- idx_with_bleeding_after %>%
-    bind_rows(idx_with_no_bleeding_after)
-
-
-
-counts_before_index <- spell_time_differences %>%
-    # Add a mask to only include the spells in a particular window before the
-    # index event (up to one year before, excluding the month before the index event
-    # when data will not be available). Need to negate the time difference because
-    # spells before the index have negative time.
-    mutate(spell_valid_mask = if_else(
-        (-spell_time_difference) > min_period_before &
-            (-spell_time_difference) <= max_period_before,
-        0,
-        1
-    )) %>%
-    # Join the count information
-    left_join(code_group_counts, by = c("other_spell_id" = "spell_id")) %>%
-    # Do all operations per patient (and per index event for patients with multiple index events)
-    group_by(spell_id) %>%
-    # Sum up the counts in the valid window. By multipling the count by the valid flag (0 or 1),
-    # it is only included if it came from a spell in the valid window.
-    summarise(
-        bleeding_al_ani_count_before = sum(bleeding_al_ani_count * spell_valid_mask),
-        mi_schnier_count_before = sum(mi_schnier_count * spell_valid_mask),
-        mi_stemi_schnier_count_before = sum(mi_stemi_schnier_count * spell_valid_mask),
-        mi_nstemi_schnier_count_before = sum(mi_nstemi_schnier_count * spell_valid_mask),
-        pci_count_before = sum(pci_count * spell_valid_mask),
     )
