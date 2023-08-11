@@ -6,6 +6,7 @@ start_time <- Sys.time()
 setwd("scripts/prototypes")
 
 library(tidyverse)
+source("preprocessing.R")
 
 # Either load rhic using rextendr::document() (from the rhic/ directory)
 # or install rhic and use library(rhic). Pick one of the options from
@@ -52,7 +53,7 @@ raw_episodes_data <- dplyr::tbl(con, episodes_id) %>%
         episode_start_date = episode_start_time,
     ) %>%
     filter(!is.na(patient)) %>%
-    #filter(spell_start_date > start_date, spell_start_date < end_date) %>%
+    # filter(spell_start_date > start_date, spell_start_date < end_date) %>%
     collect()
 
 # Find the last date seen in the dataset to use as an approximation for
@@ -227,14 +228,13 @@ idx_dates_by_patient <- idx_episodes %>%
 # Join all the episodes' dates back on by patient to get each patient's
 # index events paired up with all their other episodes.
 # Note that this table has negative times for episodes before the index.
+# This table also contains the index event itself as a row with 0 time
 time_from_index_to_episode <- idx_dates_by_patient %>%
     # Expect many-to-many because the same patient could have
     # multiple index events.
     left_join(episode_dates_by_patient,
         by = "patient", relationship = "many-to-many"
     ) %>%
-    # Remove the rows which map the index event back to itself
-    filter(idx_episode_id != episode_id) %>%
     # Calculate the time from index to episode
     transmute(
         idx_episode_id,
@@ -255,7 +255,7 @@ min_period_before <- lubridate::dmonths(1) # Exclude month before index (not cod
 episodes_in_window_before_index <- time_from_index_to_episode %>%
     filter(
         index_to_episode_time < -min_period_before,
-        -max_period_before < index_to_episode_time
+        -max_period_before < index_to_episode_time,
     ) %>%
     select(idx_episode_id, episode_id)
 
@@ -290,37 +290,24 @@ code_counts_before <- idx_episodes %>%
 max_period_after <- lubridate::dyears(1) # Limit count to next 12 months
 min_period_after <- lubridate::dhours(72) # Exclude the subsequent 72 hours after index
 
-# These are the subsequent episodes after the index (not
-# yet limited to one year).
+# These are the subsequent episodes after the index, with
+# the index row also retained.
 episodes_after <- time_from_index_to_episode %>%
     filter(
-        index_to_episode_time > min_period_after, # Exclude a short window after the index
-        # Not needed if the min_period_after != 0, but left here
-        # in case that condition is lifted
-        episode_id != idx_episode_id,
+        # Exclude a short window after the index
+        (index_to_episode_time > min_period_after)
+        # Retain the index events in the table
+        | (episode_id == idx_episode_id),
     ) %>%
-    left_join(code_group_counts, by="episode_id")
-    
-# Find the episodes with a bleeding event and add
-# the survival time and status columns
-idx_with_bleeding_after <- episodes_after %>%
-    # Keep only subsequent bleeding events. This will
-    filter(bleeding_al_ani_count > 0) %>%
-    # For each index event, record the time to the first
-    # bleeding event.
-    group_by(idx_episode_id) %>%
-    summarise(
-        outcome_time_bleeding_al_ani = min(index_to_episode_time),
-        outcome_status_bleeding_al_ani = 1,
-    )
+    left_join(code_group_counts, by = "episode_id") %>%
+    left_join(idx_dates_by_patient, by = "idx_episode_id")
 
-# Find the non-bleeding episodes and add the right-censored
-# time and non-status columns
-idx_with_no_bleeding_after <- idx_dates_by_patient %>%
-    filter(!(idx_episode_id %in% idx_with_bleeding_after$idx_episode_id)) %>%
-    transmute(
+subsequent_bleeding <- episodes_after %>%
+    find_subsequent_outcome(
+        episode_id,
         idx_episode_id,
-        outcome_time_bleeding_al_ani = right_censor_date - idx_date,
-        outcome_status_bleeding_al_ani = 0,
+        index_to_episode_time,
+        idx_date,
+        "bleeding_al_ani",
+        right_censor_date
     )
-
