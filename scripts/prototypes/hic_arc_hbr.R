@@ -302,6 +302,13 @@ episodes_after <- time_from_index_to_episode %>%
     left_join(code_group_counts, by = "episode_id") %>%
     left_join(idx_dates_by_patient, by = "idx_episode_id")
 
+# Get the list of outcomes as a character vector
+outcome_list <- c("bleeding_al_ani", "mi_schnier")
+
+# Fixed follow-up period for computing whether outcome
+# occurred or not (used in classification models)
+follow_up <- lubridate::dyears(1)
+
 subsequent_bleeding <- episodes_after %>%
     find_subsequent_outcome(
         episode_id,
@@ -310,4 +317,9 @@ subsequent_bleeding <- episodes_after %>%
         idx_date,
         "bleeding_al_ani",
         right_censor_date
-    )
+    ) %>%
+    add_fixed_follow_up_outcome("bleeding_al_ani", follow_up)
+
+a <- function(test) {
+    !!test
+}
