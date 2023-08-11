@@ -14,24 +14,15 @@
 ##' record from the index record. 
 ##' @param idx_date The column containing the date of the index event
 ##' (a function of idx_record_id, not record_id)
-##' @param outcome_name The name of the outcome to look for, as a string.
-##' There should be a column called outcome_name_count in the records_after
+##' @param outcome The name of the outcome to look for, as a string.
+##' There should be a column called outcome_count in the records_after
 ##' table.
 ##' @param right_censor_date The date used as the right censor when the 
 ##' outcome is not found in the records after the index event.
 ##'
-##' The spell_time_differences_and_counts is a table of all the
-##' spells for a particular patient that occurred after the index
-##' event. It contains the spell_time_difference column, which is
-##' the time from the index to the other spell.
-##'
-##' It also contains the outcome_count column, which is formed from
-##' the outcome_name by appending "_count". This is the number of
-##' occurrences of that outcome in the other spell.
-##'
 ##' The resulting dataframe contains one row per index event, with three
 ##' columns in total. The function records, for each index spell, two
-## pieces of information:
+##  pieces of information:
 ##'
 ##' - the outcome_time, which is the time to the first occurrence of
 ##'   the outcome in a subsequent spell. If the outcome did not occur,
@@ -49,12 +40,12 @@ find_subsequent_outcome <- function(
     idx_record_id,
     time_to_outcome,
     idx_date,
-    outcome_name,
+    outcome,
     right_censor_date) {
 
-    outcome_time <- paste0(outcome_name, "_time")
-    outcome_status <- paste0(outcome_name, "_status")
-    outcome_count <- as.symbol(paste0(outcome_name, "_count"))
+    outcome_time <- paste0(outcome, "_time")
+    outcome_status <- paste0(outcome, "_status")
+    outcome_count <- as.symbol(paste0(outcome, "_count"))
 
     # Find the episodes with a bleeding event and add
     # the survival time and status columns
@@ -91,21 +82,47 @@ find_subsequent_outcome <- function(
         bind_rows(idx_no_outcome_after)
 }
 
-##' Adds a column for whether the outcome occurred at 12 months, using
-##' the survival time and status columns. The new column is 1 if the
-##' status is 1 for survival time less than 12 months; 0 otherwise.
+##' Adds a column for whether the outcome occurred at before a fixed
+##' follow-up period expired. 
 ##'
-add_12m_outcome <- function(index_with_subsequent_outcome, outcome_name) {
-    twelve_months <- lubridate::dyears(1)
+##' @param idx_records_with_outcome An input tibble where each 
+##' row is an index event with information about whether the outcome
+##' occurred or not (outcome_status) and the time to the outcome
+##' (outcome_time), which is interpreted as a right-censored date if
+##' the outcome did not occur. 
+##' @param outcome The name of the outcome column (a string). Used to
+##' generate the real column names (outcome_status and outcome_time).
+##' @param follow_up The time at which to compute whether the outcome
+##' occurred or not.  
+##'
+##' The function appends a new column to the tibble with the name
+##' outcome_occurred. The column may contain NA, in the case when the
+##' outcome was not observed, but the right-censored time is before
+##' the follow-up time (meaning that it is unknown whether the outcome
+##' occurred or not).
+##' 
+##'
+add_fixed_follow_up_outcome <- function(idx_records_with_outcome, outcome, follow_up) {
+    
+    outcome_time <- as.symbol(paste0(outcome, "_time"))
+    outcome_status <- as.symbol(paste0(outcome, "_status"))
+    outcome_occurred <- paste0(outcome, "_occurred")
 
-    outcome_time <- as.symbol(paste0(outcome_name, "_time"))
-    outcome_status <- as.symbol(paste0(outcome_name, "_status"))
-    outcome_12m <- paste0(outcome_name, "_12m")
-
-    index_with_subsequent_outcome %>%
-        mutate(!!outcome_12m := if_else(
-            (!!outcome_time < twelve_months) & (!!outcome_status == 1),
-            1,
-            0
+    idx_records_with_outcome %>%
+        mutate(!!outcome_occurred := case_when(
+            # If the outcome first occurred after the follow-up period,
+            # then it did not occur before.
+            (!!outcome_status == 1) & (!!outcome_time > follow_up) ~ 0,
+            # This is the case when the outcome definitely occurred
+            # before the follow-up time
+            (!!outcome_status == 1) & (!!outcome_time <= follow_up)  ~ 1,
+            # In this case, the outcome did not occur, and the right-censor
+            # date means that it is known the outcome did not occur until
+            # at least after the follow-up date
+            (!!outcome_status == 0) & (!!outcome_time > follow_up)  ~ 0,
+            # If the outcome did not occur, but the right-censor date
+            # is before the follow-up, then it is unknown whether
+            # the outcome occurred by follow-up or not
+            TRUE ~ NA,
         ))
 }
