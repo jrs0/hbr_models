@@ -6,15 +6,15 @@ library(vip)
 setwd("scripts/prototypes")
 source("save_datasets.R")
 
-raw_data <- load_dataset("hes_spells_dataset") %>%
+raw_data <- load_dataset("hic_episodes_dataset") %>%
     # Drop variables that are not used here
     select(-idx_date, -matches("(time|status)"))
 
 # Check correlations with bleeding outcome
 raw_data %>%
     correlate() %>%
-    focus(outcome_12m_bleeding_al_ani) %>%
-    arrange(desc(outcome_12m_bleeding_al_ani))
+    focus(outcome_occurred_bleeding_al_ani) %>%
+    arrange(desc(outcome_occurred_bleeding_al_ani))
 
 # Process the dataset for modelling
 dataset <- raw_data %>%
@@ -22,30 +22,31 @@ dataset <- raw_data %>%
     mutate(across(where(is.logical), as.factor)) %>%
     # These are defects in the dataset -- should be fixed
     # at source
-    mutate(outcome_12m_bleeding_al_ani = factor(outcome_12m_bleeding_al_ani,
+    mutate(occurred = factor(outcome_occurred_bleeding_al_ani,
         levels = c("1", "0")
     )) %>%
-    # Drop NA for now (only in the age column it looks like)
-    drop_na()
+    # Drop the other outcome columns
+    select(-matches("outcome")) %>%
+    # Drop rows where the outcome is unknown
+    filter(!is.na(occurred))
 
 # Check proportion of bleeding outcome
 dataset %>%
-    count(outcome_12m_bleeding_al_ani) %>%
+    count(occurred) %>%
     mutate(prop = n / sum(n))
 
 set.seed(1)
-splits <- initial_split(dataset, strata = outcome_12m_bleeding_al_ani, prop = 3 / 4)
+splits <- initial_split(dataset, strata = occurred, prop = 3 / 4)
 dataset_train <- training(splits)
 dataset_test <- testing(splits)
 
 mod <- logistic_reg() %>%
     set_engine("glm")
 
-rec <- recipe(outcome_12m_bleeding_al_ani ~ ., data = dataset_train) %>%
-    step_rm(outcome_12m_mi_schnier) %>%
+rec <- recipe(occurred ~ ., data = dataset_train) %>%
     step_dummy(all_nominal_predictors()) %>%
     step_zv(all_predictors()) %>%
-    step_impute_mean(idx_age) %>%
+    #step_impute_mean(idx_age) %>%
     step_normalize(all_numeric_predictors())
 
 workflow <-
@@ -64,5 +65,5 @@ aug <- augment(fit, dataset_test)
 
 # Plot ROC curve
 aug %>% 
-  roc_curve(truth = outcome_12m_bleeding_al_ani, .pred_1) %>% 
+  roc_curve(truth = occurred, .pred_1) %>% 
   autoplot()
