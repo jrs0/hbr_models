@@ -320,3 +320,31 @@ idx_with_subsequent_outcomes <- episodes_after %>%
         right_censor_date,
         follow_up
     )
+
+hic_episodes_dataset <- idx_episode_info %>%
+    left_join(idx_dates_by_patient, by = "idx_episode_id") %>%
+    left_join(idx_with_subsequent_outcomes, by = "idx_episode_id") %>%
+    left_join(code_counts_before, by = "idx_episode_id") %>%
+    transmute(
+        # Index information
+        idx_date,
+        #idx_age = age,
+        #idx_gender = gender,
+        idx_pci_performed = pci_performed,
+        idx_mi = mi,
+        idx_stemi = stemi,
+        idx_nstemi = nstemi,
+        # Counts of previous codes
+        bleeding_al_ani_count_before,
+        mi_schnier_count_before,
+        mi_stemi_schnier_count_before,
+        mi_nstemi_schnier_count_before,
+        pci_count_before,
+        # Outcomes
+        outcome_time_bleeding_al_ani = bleeding_al_ani_time,
+        outcome_status_bleeding_al_ani = bleeding_al_ani_status,
+        outcome_occurred_bleeding_al_ani = bleeding_al_ani_occurred,
+        outcome_time_mi_schnier = mi_schnier_time,
+        outcome_status_mi_schnier = mi_schnier_status,
+        outcome_occurred_mi_schnier = mi_schnier_occurred,
+    )
