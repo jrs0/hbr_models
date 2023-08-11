@@ -29,9 +29,9 @@ find_subsequent_outcome <- function(
     records_after,
     record_idx_id,
     time_to_outcome,
+    idx_date,
     outcome_name,
     right_censor_date) {
-
     outcome_time <- paste0(outcome_name, "_time")
     outcome_status <- paste0(outcome_name, "_status")
     outcome_count <- as.symbol(paste0(outcome_name, "_count"))
@@ -49,14 +49,15 @@ find_subsequent_outcome <- function(
             !!outcome_status := 1,
         )
 
-    # Now get all the index spells where there was no subsequent bleed,
-    # and record the right censoring time based on the end date of the
-    # raw dataset
-    index_no_subsequent_outcome <- index_spell_info %>%
-        filter(!(spell_id %in% (index_with_subsequent_outcome$spell_id))) %>%
+    idx_no_subsequent_outcome <- records_after %>%
+        # Pick out the index events without a subsequent outcome
+        group_by({{ record_idx_id }}) %>%
+        filter(all(!!outcome_count == 0)) %>%
+        
+        #filter(!({{ record_idx_id }} %in% idx_with_bleeding_after$idx_episode_id)) %>%
         transmute(
-            spell_id,
-            !!outcome_time := right_censor_date - index_date, # Right-censored
+            {{ record_idx_id }},
+            !!outcome_time := right_censor_date - {{ idx_date }}, # Right-censored
             !!outcome_status := 0
         )
 
