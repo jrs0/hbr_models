@@ -323,3 +323,4 @@ idx_with_no_bleeding_after <- idx_dates_by_patient %>%
         outcome_time_bleeding_al_ani = right_censor_date - idx_date,
         outcome_status_bleeding_al_ani = 0,
     )
+
