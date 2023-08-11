@@ -18,25 +18,25 @@
 # correct).
 #
 
+# Set the working directory here
+setwd("scripts/prototypes")
 
+library(tidyverse)
+source("save_datasets.R")
 
-####### END OF DATA PREPROCESSING #######
+raw_data <- load_dataset("hic_episodes_dataset")
 
-# At this point, expecting to have a dataframe bleed_times with the following
-# columns. (Note: if neither acs_stemi_schnier nor acs_nstemi are true, index did not
-# contain an ACS.
-#
-# General information:
-# - index_date: what was the index event start date
-# Outcomes:
-# - bleed_status: whether a bleed occurred (right-censored)
-# - bleed_time: time to bleed if occurred, or time to end_date if no bleed
-# Predictors:
-# - age_at_index:
-# - pci_performed: whether index included PCI procedures
-# - acs_stemi_schnier: If index was ACS STEMI
-# - acs_nstemi: If index was ACS NSTEMI
-#
+dataset <- raw_data %>%
+    mutate(
+        time = outcome_time_bleeding_al_ani,
+        status = outcome_status_bleeding_al_ani
+    ) %>%
+    select(
+        matches("idx"),
+        matches("before"),
+        time,
+        status
+    )
 
 
 ####### SURVIVAL ANALYSIS (OVERALL) #######
@@ -45,11 +45,11 @@ library(survival)
 library(ggsurvfit)
 library(gtsummary)
 
-sv <- Surv(dataset$bleeding_time, dataset$bleeding_status)
-s1 <- survfit(Surv(bleeding_time, bleeding_status) ~ 1, data = dataset)
+sv <- Surv(dataset$time, dataset$status)
+s1 <- survfit(Surv(time, status) ~ 1, data = dataset)
 
 # Plot Kaplan-Meier curves
-survfit2(Surv(bleeding_time, bleeding_status) ~ 1, data = dataset) %>%
+survfit2(Surv(time, status) ~ 1, data = dataset) %>%
     ggsurvfit() +
     # Convert x scale to days
     scale_x_continuous(labels = function(x) x / 86400) +
@@ -60,7 +60,7 @@ survfit2(Surv(bleeding_time, bleeding_status) ~ 1, data = dataset) %>%
 # Find the bleeding risk at one year. This shows the survival
 # probability at one year, along with upper and lower confidence
 # intervals.
-one_year_risk <- summary(survfit(Surv(bleeding_time, bleeding_status) ~ 1, data = dataset),
+one_year_risk <- summary(survfit(Surv(time, status) ~ 1, data = dataset),
     times = 365 * 24 * 60 * 60
 )
 
@@ -72,7 +72,7 @@ p_bleed_one_year_upper <- 1 - one_year_risk$lower # Lower CI, 95%
 p_bleed_one_year_lower <- 1 - one_year_risk$upper # Upper CI, 95%
 
 # Show survival in table
-survfit(Surv(bleeding_time, bleeding_status) ~ 1, data = dataset) %>%
+survfit(Surv(time, status) ~ 1, data = dataset) %>%
     tbl_survfit(
         times = 365 * 24 * 60 * 60,
         label_header = "**1-year survival (95% CI)**"
@@ -80,7 +80,9 @@ survfit(Surv(bleeding_time, bleeding_status) ~ 1, data = dataset) %>%
 
 ####### SURVIVAL ANALYSIS (AGE INPUT) #######
 
-coxph(Surv(bleeding_time, bleeding_status) ~ age_at_index, data = dataset)
+coxph(Surv(time, status) 
+    ~ idx_stemi + idx_nstemi + idx_pci_performed + idx_mi,
+    data = dataset)
 
 survdiff(Surv(bleeding_time, bleeding_status) ~ age_at_index,
     data = dataset
@@ -88,8 +90,8 @@ survdiff(Surv(bleeding_time, bleeding_status) ~ age_at_index,
 
 # Show the regression results as a table
 coxph(
-    Surv(bleeding_time, bleeding_status) ~ age_at_index
-        + pci_performed + stemi + nstemi,
+    Surv(time, status)
+        ~ idx_stemi + idx_nstemi + idx_pci_performed + idx_mi,
     data = dataset
 ) %>%
     tbl_regression(exp = TRUE)

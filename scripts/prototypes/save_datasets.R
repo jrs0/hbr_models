@@ -29,7 +29,7 @@ save_dataset <- function(dataset, name) {
     full_filename <- paste0(datasets_dir, "/", name, "_", suffix, ".rds")
 
     if (!fs::dir_exists(datasets_dir)) {
-        message("Creating missing ", datasets_dir, " for storing dataset")
+        message("Creating missing folder", datasets_dir, "/ for storing dataset")
         fs::dir_create(datasets_dir)
     }
     saveRDS(dataset, full_filename)

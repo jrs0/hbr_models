@@ -7,6 +7,7 @@ setwd("scripts/prototypes")
 
 library(tidyverse)
 source("preprocessing.R")
+source("save_datasets.R")
 
 # Either load rhic using rextendr::document() (from the rhic/ directory)
 # or install rhic and use library(rhic). Pick one of the options from
@@ -287,7 +288,7 @@ code_counts_before <- idx_episodes %>%
 # group in a period before the index event. This could be the previous
 # 12 months, excluding the month before the index event (to account for
 # lack of coding data in that period)
-max_period_after <- lubridate::dyears(1) # Limit count to next 12 months
+follow_up <- lubridate::dyears(1) # Limit "occurred" column to 12 months
 min_period_after <- lubridate::dhours(72) # Exclude the subsequent 72 hours after index
 
 # These are the subsequent episodes after the index, with
@@ -304,11 +305,6 @@ episodes_after <- time_from_index_to_episode %>%
 
 # Get the list of outcomes as a character vector
 outcome_list <- c("bleeding_al_ani", "mi_schnier")
-
-# Fixed follow-up period for computing whether outcome
-# occurred or not (used in classification models)
-follow_up <- lubridate::dyears(1)
-
 
 idx_with_subsequent_outcomes <- episodes_after %>%
     add_outcome_columns(
@@ -348,3 +344,10 @@ hic_episodes_dataset <- idx_episode_info %>%
         outcome_status_mi_schnier = mi_schnier_status,
         outcome_occurred_mi_schnier = mi_schnier_occurred,
     )
+
+save_dataset(hic_episodes_dataset, "hic_episodes_dataset")
+
+end_time <- Sys.time()
+
+# Calculate the script running time
+end_time - start_time
