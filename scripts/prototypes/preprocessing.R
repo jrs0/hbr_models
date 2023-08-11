@@ -133,7 +133,7 @@ find_subsequent_outcome <- function(
         # Keep the index row and any rows with the subsequent outcome.
         filter((!!outcome_count != 0) |
             ({{ idx_record_id }} == {{ record_id }})) %>%
-        group_by(idx_episode_id) %>%
+        group_by({{ idx_record_id }}) %>%
         # The test for whether there is no subsequent outcome is if the group
         # size is exactly one (just index event)
         filter(n() == 1) %>%

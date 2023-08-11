@@ -207,9 +207,6 @@ idx_episode_info <- idx_episodes %>%
 
 ####### COMPUTE COUNT OF PREVIOUS DIAGNOSES AND PROCEDURES #######
 
-# The first step is getting the time from every index event to
-# every other spell (for each patient).
-
 # The first step is knowing the time of the index events, which is
 # obtained by first getting the dates/times of all episodes
 episode_dates_by_patient <- raw_episodes_data %>%
@@ -229,7 +226,7 @@ idx_dates_by_patient <- idx_episodes %>%
 # Join all the episodes' dates back on by patient to get each patient's
 # index events paired up with all their other episodes.
 # Note that this table has negative times for episodes before the index.
-# This table also contains the index event itself as a row with 0 time
+# This table also contains the index event itself as a row with 0 time.
 time_from_index_to_episode <- idx_dates_by_patient %>%
     # Expect many-to-many because the same patient could have
     # multiple index events.
@@ -266,7 +263,8 @@ episodes_in_window_before_index <- time_from_index_to_episode %>%
 nonzero_code_counts_before <- episodes_in_window_before_index %>%
     left_join(code_group_counts, by = "episode_id") %>%
     # Don't need the episode_id any more, just need the index
-    # episode id to group-by for the summarise
+    # episode id to group-by for the summarise. NOTE -- this
+    # might not be needed?
     select(-episode_id) %>%
     group_by(idx_episode_id) %>%
     summarize(across(matches("_count"), sum)) %>%
@@ -285,9 +283,11 @@ code_counts_before <- idx_episodes %>%
 ####### COMPUTE TIME TO FIRST BLEED AND FIRST MI #######
 
 # This table contains the total number of each diagnosis and procedure
-# group in a period before the index event. This could be the previous
-# 12 months, excluding the month before the index event (to account for
-# lack of coding data in that period)
+# group in a period after the index event. A fixed window immediately
+# after the index event is excluded, to filter out peri-procedural
+# outcomes or outcomes that occur in the index event itself. A follow-up
+# date is defined that becomes the "outcome_occurred" column in the 
+# dataset, for classification models.
 follow_up <- lubridate::dyears(1) # Limit "occurred" column to 12 months
 min_period_after <- lubridate::dhours(72) # Exclude the subsequent 72 hours after index
 
@@ -306,6 +306,11 @@ episodes_after <- time_from_index_to_episode %>%
 # Get the list of outcomes as a character vector
 outcome_list <- c("bleeding_al_ani", "mi_schnier")
 
+# Compute the outcome columns: outcome status (whether it
+# occurred or not), time-to-outcome (or right-censored time),
+# and an outcome occurred flag derived from the previous two
+# columns, which is NA if it cannot be determined whether the
+# outcome occurred or not.
 idx_with_subsequent_outcomes <- episodes_after %>%
     add_outcome_columns(
         episode_id,
