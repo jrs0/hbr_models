@@ -309,17 +309,39 @@ outcome_list <- c("bleeding_al_ani", "mi_schnier")
 # occurred or not (used in classification models)
 follow_up <- lubridate::dyears(1)
 
-subsequent_bleeding <- episodes_after %>%
-    find_subsequent_outcome(
+
+add_outcome_columns <- function(
+    records_after,
+    record_id,
+    idx_record_id,
+    time_to_outcome,
+    idx_date,
+    outcomes,
+    right_censor_date,
+    follow_up) {
+    outcomes %>%
+        map(
+            ~ records_after %>%
+                find_subsequent_outcome(
+                    {{ record_id }},
+                    {{ idx_record_id }},
+                    {{ time_to_outcome }},
+                    {{ idx_date }},
+                    .x,
+                    right_censor_date
+                ) %>%
+                add_fixed_follow_up_outcome(.x, follow_up)
+        ) %>%
+        reduce(left_join)
+}
+
+idx_with_subsequent_outcomes <- episodes_after %>%
+    add_outcome_columns(
         episode_id,
         idx_episode_id,
         index_to_episode_time,
         idx_date,
-        "bleeding_al_ani",
-        right_censor_date
-    ) %>%
-    add_fixed_follow_up_outcome("bleeding_al_ani", follow_up)
-
-a <- function(test) {
-    !!test
-}
+        outcome_list,
+        right_censor_date,
+        follow_up
+    )
