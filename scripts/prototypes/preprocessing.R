@@ -10,12 +10,12 @@
 ##'
 ##' It also contains the outcome_count column, which is formed from
 ##' the outcome_name by appending "_count". This is the number of
-##' occurrences of that outcome in the other spell. 
+##' occurrences of that outcome in the other spell.
 ##'
 ##' The resulting dataframe contains one row per index event, with three
-##' columns in total. The function records, for each index spell, two 
+##' columns in total. The function records, for each index spell, two
 ## pieces of information:
-##' 
+##'
 ##' - the outcome_time, which is the time to the first occurrence of
 ##'   the outcome in a subsequent spell. If the outcome did not occur,
 ##'   then this column contains the time to the right_censor_date, which
@@ -26,37 +26,26 @@
 ##' The columns are named according to the outcome_name field, with
 ##' "_time" and "_status" appended.
 find_subsequent_outcome <- function(
-    spell_time_differences_and_counts,
-    index_spell_info,
+    records_after,
+    record_idx_id,
+    time_to_outcome,
     outcome_name,
     right_censor_date) {
-
-    # Want two things for survival analysis: time to next bleed if there
-    # is a bleed; and maximum follow-up date for right censoring, if there is no bleed.
-    max_period_after <- lubridate::dyears(1) # limit outcome to 12 months after (for binary classification)
-    min_period_after <- lubridate::dhours(72) # Potentially exclude following 72 hours
 
     outcome_time <- paste0(outcome_name, "_time")
     outcome_status <- paste0(outcome_name, "_status")
     outcome_count <- as.symbol(paste0(outcome_name, "_count"))
 
-    # Table of just the index spells which have a subsequent outcome in the
-    # window defined above. This is generic -- the only bit that depends on the
-    # column is the filter and summarise part.
-    index_with_subsequent_outcome <- spell_time_differences_and_counts %>%
-        # Only keep other spells where the bleeding count is non-zero
-        # and the spell occurred in the correct window after the index
-        filter(
-            spell_time_difference >= min_period_after,
-            spell_time_difference < max_period_after,
-            !!outcome_count > 0,
-        ) %>%
-        # Group by the index event and pick the first bleeding event
-        group_by(spell_id) %>%
+    # Find the episodes with a bleeding event and add
+    # the survival time and status columns
+    idx_with_subsequent_outcome <- records_after %>%
+        # Keep only records where the outcome is present.
+        filter(!!outcome_count > 0) %>%
+        # For each index event, record the time to the
+        # first subsequent outcome
+        group_by({{ record_idx_id }}) %>%
         summarise(
-            # Note comment above -- might accidentally include
-            # the index (to fix)
-            !!outcome_time := min(spell_time_difference),
+            !!outcome_time := min({{ time_to_outcome }}),
             !!outcome_status := 1,
         )
 

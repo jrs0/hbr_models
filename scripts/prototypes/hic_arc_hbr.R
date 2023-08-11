@@ -304,11 +304,11 @@ episodes_after <- time_from_index_to_episode %>%
 # Find the episodes with a bleeding event and add
 # the survival time and status columns
 idx_with_bleeding_after <- episodes_after %>%
-    # Keep only index events with a subsequent bleeding event
+    # Keep only subsequent bleeding events. This will
+    filter(bleeding_al_ani_count > 0) %>%
+    # For each index event, record the time to the first
+    # bleeding event.
     group_by(idx_episode_id) %>%
-    filter(any(bleeding_al_ani_count > 0)) %>%
-    # Pick only the first subsequent bleeding event
-    arrange(index_to_episode_time) %>%
     summarise(
         outcome_time_bleeding_al_ani = min(index_to_episode_time),
         outcome_status_bleeding_al_ani = 1,
