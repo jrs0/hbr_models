@@ -6,7 +6,7 @@ library(vip)
 setwd("scripts/prototypes")
 source("save_datasets.R")
 
-raw_data <- load_dataset("hic_episodes_dataset") %>%
+raw_data <- load_dataset("hes_spells_dataset") %>%
     # Drop variables that are not used here
     select(-idx_date, -matches("(time|status)"))
 
