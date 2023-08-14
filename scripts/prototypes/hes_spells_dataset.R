@@ -313,6 +313,7 @@ idx_spell_info <- idx_spells %>%
         pci_performed = (pci_count > 0), # If false, conservatively managed
         stemi = (mi_stemi_schnier_count > 0),
         nstemi = (mi_nstemi_schnier_count > 0),
+        acs = (acs_bezin_count > 0),
     )
 
 ####### COMPUTE COUNT OF PREVIOUS DIAGNOSES AND PROCEDURES #######
@@ -439,6 +440,7 @@ hes_spells_dataset <- idx_spell_info %>%
         pred_idx_pci_performed = pci_performed,
         pred_idx_stemi = stemi,
         pred_idx_nstemi = nstemi,
+        pred_idx_acs = acs,
         # Counts of previous codes
         pred_bleeding_al_ani_count_before = bleeding_al_ani_count_before,
         pred_mi_schnier_count_before = mi_schnier_count_before,
