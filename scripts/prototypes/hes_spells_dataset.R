@@ -240,16 +240,12 @@ code_group_counts <- spell_diagnoses_and_procedures %>%
 
 # Note that the spell start date is used as the index date.
 
-# Get the spell id of index spells
+# Get the spell id of index spells. The index spells are defined as the 
+# union of the STEMI and NSTEMI groups, because the full mi_schnier group
+# multiplies the number of index events by 5 (so something in that group is
+# swamping the results).
 idx_spells <- code_group_counts %>%
-    filter(mi_schnier_count > 0 | pci_count > 0) %>%
-    transmute(
-        idx_spell_id = spell_id
-    )
-
-##### DEBUGGING
-reduced_idx_spells <- code_group_counts %>%
-    filter(mi_schnier_count > 0) %>%
+    filter(mi_stemi_schnier_count > 0 | mi_nstemi_schnier_count > 0 | pci_count > 0) %>%
     transmute(
         idx_spell_id = spell_id
     )
