@@ -247,6 +247,13 @@ idx_spells <- code_group_counts %>%
         idx_spell_id = spell_id
     )
 
+##### DEBUGGING
+reduced_idx_spells <- code_group_counts %>%
+    filter(mi_schnier_count > 0) %>%
+    transmute(
+        idx_spell_id = spell_id
+    )
+
 # Derive data about the index spell from the counts and spell data
 idx_spell_info <- idx_spells %>%
     left_join(code_group_counts, by = c("idx_spell_id" = "spell_id")) %>%
