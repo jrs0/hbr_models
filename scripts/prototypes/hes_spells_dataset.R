@@ -14,7 +14,7 @@
 ##' - idx_date: the date of the index event
 ##' - idx_age: the patient age at the index event
 ##' - idx_gender: the patient gender at the index event
-##' - idx_pci_performed: was a PCI procedure was performed at the index?
+##' - idx_pci_performed: was a PCI procedure performed at the index?
 ##' - idx_mi: did the index include an MI?
 ##' - idx_stemi: did the index include an MI that was STEMI?
 ##' - idx_nstemi: did the index include an MI that was NSTEMI?
@@ -33,7 +33,7 @@
 ##' - outcome_status_<name>: 1 if the outcome event was observed to
 ##'      occur, 0 if right-censored
 ##' - outcome_12m_<name>: 1 if the event was observed to occur in the
-##'      12 montsh following the index event
+##'      12 months following the index event
 ##'
 ##' The following outcomes (<name>) are included:
 ##'
