@@ -214,6 +214,35 @@ spell_diagnoses_and_procedures <- raw_spell_data %>%
         "procedure"
     ))
 
+# Just extract the MI diagnoses for plotting
+diagnoses <- spell_diagnoses_and_procedures %>%
+    mutate(clinical_code = clinical_code %>% str_replace_all("(\\.| )", "") %>% tolower()) %>%
+    filter(
+        clinical_code_type == "diagnosis",
+        (clinical_code %in% mi_schnier) |
+            (clinical_code %in% mi_stemi_schnier) |
+            (clinical_code %in% mi_nstemi_schnier)
+    ) %>%
+    transmute(
+        clinical_code,
+        group = case_when(
+            (clinical_code %in% mi_stemi_schnier) ~ "stemi",
+            (clinical_code %in% mi_nstemi_schnier) ~ "nstemi",
+            (clinical_code %in% mi_schnier) ~ "other_mi",
+        )
+    )
+
+# Plot the distribution of different MI codes. It is seen that
+# I25.2 (Old myocardial infarction) dominates the other MI group
+# (i.e. MI that is not in the STEMI or NSTEMI groups). This code
+# must be excluded, because it is not an acute coronary syndrome.
+library(ggplot2)
+diagnoses %>%
+    ggplot(aes(x = clinical_code, fill=group)) +
+    geom_bar(stat="count") +
+    labs(title="Distribution of ICD-10 codes within the MI (Schnier) group",
+        x="ICD-10 code", y = "Total count") 
+
 # Count up instances of different code groups inside each
 # episode
 code_group_counts <- spell_diagnoses_and_procedures %>%
@@ -240,7 +269,7 @@ code_group_counts <- spell_diagnoses_and_procedures %>%
 
 # Note that the spell start date is used as the index date.
 
-# Get the spell id of index spells. The index spells are defined as the 
+# Get the spell id of index spells. The index spells are defined as the
 # union of the STEMI and NSTEMI groups, because the full mi_schnier group
 # multiplies the number of index events by 5 (so something in that group is
 # swamping the results).
@@ -379,7 +408,7 @@ hes_spells_dataset <- idx_spell_info %>%
     left_join(idx_dates_by_patient, by = "idx_spell_id") %>%
     left_join(idx_with_subsequent_outcomes, by = "idx_spell_id") %>%
     left_join(code_counts_before, by = "idx_spell_id") %>%
-    left_join(age_and_gender, by=c("idx_spell_id"="spell_id")) %>%
+    left_join(age_and_gender, by = c("idx_spell_id" = "spell_id")) %>%
     transmute(
         # Index information
         idx_date,
