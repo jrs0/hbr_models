@@ -177,6 +177,23 @@ mi_nstemi_schnier <- codes_for_matching(
     "mi_nstemi_schnier"
 )
 
+# The ischaemic heart diseases group, considered by 2015 Bezin
+# et al. to be a superset of ACS (includes all codes that an
+# ACS could be coded as). As a result, it increases the chance of
+# identifying ACS index events, at the expense of including
+# some spells that are not necessarily the ACS of interest.
+ihd_bezin <- codes_for_matching(
+    "../codes_files/icd10.yaml",
+    "ihd_bezin"
+)
+
+# A smaller subset of ihd_bezin, considered to represent a good
+# compromise between the PPV for ACS and identifying ACS spells.
+acs_bezin <- codes_for_matching(
+    "../codes_files/icd10.yaml",
+    "acs_bezin"
+)
+
 # List of OPCS-4 codes identifying PCI procedures
 pci <- codes_for_matching(
     "../codes_files/opcs4.yaml",
@@ -265,6 +282,10 @@ code_group_counts <- spell_diagnoses_and_procedures %>%
             clinical_code_type == "diagnosis"),
         mi_nstemi_schnier_count = sum(clinical_code %in% mi_nstemi_schnier &
             clinical_code_type == "diagnosis"),
+        ihd_bezin_count = sum(clinical_code %in% ihd_bezin &
+            clinical_code_type == "diagnosis"),
+        acs_bezin_count = sum(clinical_code %in% acs_bezin &
+            clinical_code_type == "diagnosis"),
         pci_count = sum(clinical_code %in% pci &
             clinical_code_type == "procedure"),
     )
@@ -274,11 +295,9 @@ code_group_counts <- spell_diagnoses_and_procedures %>%
 # Note that the spell start date is used as the index date.
 
 # Get the spell id of index spells. The index spells are defined as the
-# union of the STEMI and NSTEMI groups, because the full mi_schnier group
-# multiplies the number of index events by 5 (so something in that group is
-# swamping the results).
+# as the ACS group defined by Bezin et al. 
 idx_spells <- code_group_counts %>%
-    filter(mi_stemi_schnier_count > 0 | mi_nstemi_schnier_count > 0 | pci_count > 0) %>%
+    filter(acs_bezin_count > 0 | pci_count > 0) %>%
     transmute(
         idx_spell_id = spell_id
     )
