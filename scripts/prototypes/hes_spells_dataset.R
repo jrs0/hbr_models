@@ -6,22 +6,27 @@
 ##' summarised (in some way) from the underlying episodes. This script
 ##' uses the data to produce a dataframe with the following columns:
 ##'
+##' Any columns beginning with pred_ are predictors. Some of the predictors
+##' are derived from the index event, and these begin pred_idx_. Columns
+##' containing outcomes begin outcome_. Columns containing index information
+##' that is not to be used as a predictor begins idx_.
+##'
 ##' Index event information:
 ##'
 ##' An index event is defined as having a PCI procedure or an MI
 ##' diagnosis code (mi_schnier, see below).
 ##'
 ##' - idx_date: the date of the index event
-##' - idx_age: the patient age at the index event
-##' - idx_gender: the patient gender at the index event
-##' - idx_pci_performed: was a PCI procedure performed at the index?
-##' - idx_mi: did the index include an MI?
-##' - idx_stemi: did the index include an MI that was STEMI?
-##' - idx_nstemi: did the index include an MI that was NSTEMI?
+##' - pred_idx_age: the patient age at the index event
+##' - pred_idx_gender: the patient gender at the index event
+##' - pred_idx_pci_performed: was a PCI procedure performed at the index?
+##' - pred_idx_mi: did the index include an MI?
+##' - pred_idx_stemi: did the index include an MI that was STEMI?
+##' - pred_idx_nstemi: did the index include an MI that was NSTEMI?
 ##'
 ##' Prior diagnoses and procedures:
 ##'
-##' - <code_group>_count_before: how many ICD-10 or OPCS-4 codes
+##' - pred_<code_group>_count_before: how many ICD-10 or OPCS-4 codes
 ##'      occurred in the window [12 months before to 1 month before]
 ##'      the index event. The 1 month limit simulates lack of
 ##'      availability for one month due to the coding process
@@ -32,7 +37,7 @@
 ##'      censored using the end date range of the database
 ##' - outcome_status_<name>: 1 if the outcome event was observed to
 ##'      occur, 0 if right-censored
-##' - outcome_12m_<name>: 1 if the event was observed to occur in the
+##' - outcome_occurred_<name>: 1 if the event was observed to occur in the
 ##'      12 months following the index event
 ##'
 ##' The following outcomes (<name>) are included:
@@ -376,16 +381,16 @@ hes_spells_dataset <- idx_spell_info %>%
         idx_date,
         # idx_age = age,
         # idx_gender = gender,
-        idx_pci_performed = pci_performed,
-        idx_mi = mi,
-        idx_stemi = stemi,
-        idx_nstemi = nstemi,
+        pred_idx_pci_performed = pci_performed,
+        pred_idx_mi = mi,
+        pred_idx_stemi = stemi,
+        pred_idx_nstemi = nstemi,
         # Counts of previous codes
-        bleeding_al_ani_count_before,
-        mi_schnier_count_before,
-        mi_stemi_schnier_count_before,
-        mi_nstemi_schnier_count_before,
-        pci_count_before,
+        pred_bleeding_al_ani_count_before,
+        pred_mi_schnier_count_before,
+        pred_mi_stemi_schnier_count_before,
+        pred_mi_nstemi_schnier_count_before,
+        pred_pci_count_before,
         # Outcomes
         outcome_time_bleeding_al_ani = bleeding_al_ani_time,
         outcome_status_bleeding_al_ani = bleeding_al_ani_status,
@@ -401,33 +406,3 @@ end_time <- Sys.time()
 
 # Calculate the script running time
 end_time - start_time
-
-####### DESCRIPTIVE ANALYSIS #######
-
-# Proportion of index events with a PCI procedure
-# (expect the majority)
-p_pci_performed <- hes_spells_dataset %>%
-    pull(idx_pci_performed) %>%
-    mean()
-
-# Calculate the proportion of index events with ACS (either
-# STEMI or NSTEMI) (expect majority)
-p_mi <- hes_spells_dataset %>%
-    pull(idx_mi) %>%
-    mean()
-
-# Calculate proportion of _all_ index events that are STEMI
-# or NSTEMI (note some index events are not ACS)
-p_stemi <- hes_spells_dataset %>%
-    pull(idx_stemi) %>%
-    mean()
-p_nstemi <- hes_spells_dataset %>%
-    pull(idx_nstemi) %>%
-    mean()
-
-# Calculate the proportion of patients with bleeding
-# events in one year. Should be around 0-5%. This estimate
-# will underestimate risk due to right censoring.
-p_bleed_1y_naive <- hes_spells_dataset %>%
-    pull(outcome_12m_bleeding_al_ani) %>%
-    mean()
