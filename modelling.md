@@ -66,14 +66,15 @@ The STEMI and NSTEMI codes are labelled `mi_stemi_schnier`, `mi_nstemi_schnier`,
 Inclusion/exclusion notes (to check):
 * The code I24.1 was included, even though it does not appear to correspond directly to an MI.
 
-It was found that the MI group is too large to identify index events of acute coronary syndrome, due to the presence in large numbers of the code I25.2 (Old myocardial infarction), which indicates ECG evidence of a previous MI without there being current evidence of MI. This code was explicitly excluded in 2015 Bezin et al. [^9], who define ACS codes as a subset of the following groups, for ischaemic heart disease (`ihd_bezin`) (quoting):
+It was found that the MI group is too large to identify index events of acute coronary syndrome, due to the presence in large numbers of the code I25.2 (Old myocardial infarction), which indicates ECG evidence of a previous MI without there being current evidence of MI. This code was explicitly excluded in 2015 Bezin et al. [^9], who define ACS codes as a subset of the following groups, for ischaemic heart disease (`ihd_bezin`) (quoting from page 587):
 * I20 for angina pectoris (which includes I20.0 for unstable angina and I20.1, I20.8 and I20.9 for other angina pectoris)
 * I21 for acute MI
 * I22 for subsequent MI
 * I24 for other acute ischaemic heart diseases
 * I25 for chronic ischaemic heart disease, with the exception of I25.2 for old MI (citing French clinical coding manuals)
+* (I23 was not considered because it refers to complications following MI)
 
-This group is a "wide" classification that contains more codes, and is therefore more likely to identify ACS at the expense of PPV. Bezin et al. go on to identify I20.0, I21.* and I24.* as the best compromise between validated ACS events and PPV (84.2%) in the French hospital database they studied. This group is called `acs_bezin` in this analysis.
+This group is a "wide" classification that contains more codes, and is therefore more likely to identify ACS at the expense of PPV. Bezin et al. go on to identify I20.0, I21.* and I24.* as the "best compromise between validated ACS events and PPV" (84.2%, athough note N = 100) in the French hospital database they studied. This group is called `acs_bezin` in this analysis. 
 
 ## Percutaneous Coronary Intervention (PCI) Procedures Definition
 
