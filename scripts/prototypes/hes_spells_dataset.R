@@ -80,7 +80,7 @@ id <- dbplyr::in_catalog("abi", "dbo", "vw_apc_sem_spell_001")
 # for the survival data. To be valid, make sure that the database contains data
 # for the full date range given here -- the end date is used as the follow up
 # time for right censoring.
-start_date <- lubridate::ymd_hms("2020-01-01 00:00:00")
+start_date <- lubridate::ymd_hms("2018-01-01 00:00:00")
 # Go careful with the end date -- data must be present in the
 # dataset up the the end date (for right censoring). Should really
 # compute right censor date from last seen date in the data
@@ -138,14 +138,14 @@ patients <- raw_spell_data %>%
     select(spell_id, patient)
 
 # For joining spell information by spell id later
-# spell_data <- raw_data %>%
-#     select(spell_id, age, gender, spell_start_date) %>%
-#     mutate(gender = case_when(
-#         gender == 0 ~ "unknown",
-#         gender == 1 ~ "male",
-#         gender == 2 ~ "female",
-#         gender == 9 ~ NA_character_,
-#     ))
+age_and_gender <- raw_data %>%
+    select(spell_id, age, gender) %>%
+    mutate(gender = case_when(
+        gender == 0 ~ "unknown",
+        gender == 1 ~ "male",
+        gender == 2 ~ "female",
+        gender == 9 ~ NA_character_,
+    ))
 
 ####### DEFINE ICD-10 and OPCS-4 CODE GROUPS #######
 
@@ -376,21 +376,22 @@ hes_spells_dataset <- idx_spell_info %>%
     left_join(idx_dates_by_patient, by = "idx_spell_id") %>%
     left_join(idx_with_subsequent_outcomes, by = "idx_spell_id") %>%
     left_join(code_counts_before, by = "idx_spell_id") %>%
+    left_join(age_and_gender, by=c("idx_spell_id"="spell_id")) %>%
     transmute(
         # Index information
         idx_date,
-        # idx_age = age,
-        # idx_gender = gender,
+        pred_idx_age = age,
+        pred_idx_gender = gender,
         pred_idx_pci_performed = pci_performed,
         pred_idx_mi = mi,
         pred_idx_stemi = stemi,
         pred_idx_nstemi = nstemi,
         # Counts of previous codes
-        pred_bleeding_al_ani_count_before,
-        pred_mi_schnier_count_before,
-        pred_mi_stemi_schnier_count_before,
-        pred_mi_nstemi_schnier_count_before,
-        pred_pci_count_before,
+        pred_bleeding_al_ani_count_before = bleeding_al_ani_count_before,
+        pred_mi_schnier_count_before = mi_schnier_count_before,
+        pred_mi_stemi_schnier_count_before = mi_stemi_schnier_count_before,
+        pred_mi_nstemi_schnier_count_before = mi_nstemi_schnier_count_before,
+        pred_pci_count_before = pci_count_before,
         # Outcomes
         outcome_time_bleeding_al_ani = bleeding_al_ani_time,
         outcome_status_bleeding_al_ani = bleeding_al_ani_status,
