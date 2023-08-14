@@ -238,10 +238,14 @@ diagnoses <- spell_diagnoses_and_procedures %>%
 # must be excluded, because it is not an acute coronary syndrome.
 library(ggplot2)
 diagnoses %>%
-    ggplot(aes(x = clinical_code, fill=group)) +
-    geom_bar(stat="count") +
-    labs(title="Distribution of ICD-10 codes within the MI (Schnier) group",
-        x="ICD-10 code", y = "Total count") 
+    ggplot(aes(x = clinical_code, fill = group)) +
+    geom_bar(stat = "count") +
+    scale_y_log10() +
+    labs(
+        title = "Distribution of ICD-10 codes within the MI (Schnier) group",
+        x = "ICD-10 code",
+        y = "Total count (Note logarithmic scale)"
+    )
 
 # Count up instances of different code groups inside each
 # episode
