@@ -313,7 +313,6 @@ idx_spell_info <- idx_spells %>%
         pci_performed = (pci_count > 0), # If false, conservatively managed
         stemi = (mi_stemi_schnier_count > 0),
         nstemi = (mi_nstemi_schnier_count > 0),
-        mi = (mi_schnier_count > 0)
     )
 
 ####### COMPUTE COUNT OF PREVIOUS DIAGNOSES AND PROCEDURES #######
@@ -381,7 +380,7 @@ code_counts_before <- idx_spells %>%
     full_join(nonzero_code_counts_before, by = "idx_spell_id") %>%
     # In the full join, any index events not in the nonzero counts
     # table show up as NAs in the result. Replace these with zero
-    # to indicate non of the code groups were present as predictors
+    # to indicate none of the code groups were present as predictors
     mutate(across(matches("count"), ~ replace_na(., 0)))
 
 ####### COMPUTE TIME TO FIRST BLEED AND FIRST MI #######
@@ -438,7 +437,6 @@ hes_spells_dataset <- idx_spell_info %>%
         pred_idx_age = age,
         pred_idx_gender = gender,
         pred_idx_pci_performed = pci_performed,
-        pred_idx_mi = mi,
         pred_idx_stemi = stemi,
         pred_idx_nstemi = nstemi,
         # Counts of previous codes
