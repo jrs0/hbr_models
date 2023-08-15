@@ -38,7 +38,7 @@ episodes_id <- dbplyr::in_catalog("HIC_COVID_JS", "dbo", "cv_covid_episodes")
 
 raw_episodes_data <- dplyr::tbl(con, episodes_id) %>%
     select(
-        ID, # Key for the diagnosis and procedure tables WRONG, this is not the episode ID
+        episode_identifier, # Key for the diagnosis and procedure tables
         subject, # Patient identifier
         spell_identifier,
         # Taking hospital arrival time as spell start time for the purpose
@@ -47,7 +47,7 @@ raw_episodes_data <- dplyr::tbl(con, episodes_id) %>%
         episode_start_time,
     ) %>%
     rename(
-        episode_id = ID,
+        episode_id = episode_identifier,
         patient = subject,
         spell_id = spell_identifier,
         spell_start_date = arrival_dt_tm,
@@ -77,12 +77,12 @@ patients <- raw_episodes_data %>%
 diagnoses_id <- dbplyr::in_catalog("HIC_COVID_JS", "dbo", "cv_covid_episodes_diagnosis")
 raw_diagnoses_data <- dplyr::tbl(con, diagnoses_id) %>%
     select(
-        ID,
+        episode_identifier,
         diagnosis_code_icd,
     ) %>%
     collect() %>%
     transmute(
-        episode_id = ID,
+        episode_id = episode_identifier,
         clinical_code = diagnosis_code_icd,
         clinical_code_type = "diagnosis"
     )
@@ -90,12 +90,12 @@ raw_diagnoses_data <- dplyr::tbl(con, diagnoses_id) %>%
 procedures_id <- dbplyr::in_catalog("HIC_COVID_JS", "dbo", "cv_covid_episodes_procedures")
 raw_procedures_data <- dplyr::tbl(con, procedures_id) %>%
     select(
-        ID,
+        episode_identifier,
         procedure_code_opcs,
     ) %>%
     collect() %>%
     transmute(
-        episode_id = ID,
+        episode_id = episode_identifier,
         clinical_code = procedure_code_opcs,
         clinical_code_type = "procedure"
     )
@@ -142,13 +142,15 @@ pci <- codes_for_matching(
 # into a single table in long format, along with the episode id
 raw_clinical_codes <- raw_diagnoses_data %>%
     bind_rows(raw_procedures_data)
-episode_diagnoses_and_procedures <- raw_episodes_data %>%
-    select(episode_id) %>%
-    left_join(raw_clinical_codes, by = "episode_id")
+
+# This is nonsense:
+# episode_diagnoses_and_procedures <- raw_episodes_data %>%
+#     select(episode_id) %>%
+#     left_join(raw_clinical_codes, by = "episode_id")
 
 # Count up instances of different code groups inside each
 # episode
-code_group_counts <- episode_diagnoses_and_procedures %>%
+code_group_counts <- raw_clinical_codes %>%
     # Remove the dot from the codes and convert to lower case to compare with the code
     # lists
     mutate(clinical_code = clinical_code %>% str_replace_all("(\\.| )", "") %>% tolower()) %>%
