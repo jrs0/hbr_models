@@ -34,11 +34,11 @@ end_date <- lubridate::ymd_hms("2023-01-01 00:00:00")
 # containing the diagnoses and procedures in long format.
 
 con <- DBI::dbConnect(odbc::odbc(), "hic", bigint = "character")
-
 episodes_id <- dbplyr::in_catalog("HIC_COVID_JS", "dbo", "cv_covid_episodes")
+
 raw_episodes_data <- dplyr::tbl(con, episodes_id) %>%
     select(
-        ID, # Key for the diagnosis and procedure tables
+        ID, # Key for the diagnosis and procedure tables WRONG, this is not the episode ID
         subject, # Patient identifier
         spell_identifier,
         # Taking hospital arrival time as spell start time for the purpose
