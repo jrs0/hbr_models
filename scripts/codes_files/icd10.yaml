@@ -3028,6 +3028,8 @@ categories:
     - mi_schnier
     - bleeding_cadth
     - bleeding_adaptt
+    - acs_bezin
+    - ihd_bezin
     index:
     - A00
     - B99
@@ -5898,6 +5900,8 @@ categories:
     - mi_schnier
     - bleeding_cadth
     - bleeding_adaptt
+    - acs_bezin
+    - ihd_bezin
     index:
     - C00
     - D48
@@ -6550,6 +6554,8 @@ categories:
     - mi_schnier
     - bleeding_cadth
     - bleeding_adaptt
+    - acs_bezin
+    - ihd_bezin
     index:
     - D50
     - D89
@@ -7903,6 +7909,8 @@ categories:
     - mi_schnier
     - bleeding_cadth
     - bleeding_adaptt
+    - acs_bezin
+    - ihd_bezin
     index:
     - E00
     - E90
@@ -7949,6 +7957,8 @@ categories:
       - mi_schnier
       - bleeding_cadth
       - bleeding_adaptt
+      - acs_bezin
+      - ihd_bezin
       index:
       - I00
       - I02
@@ -8060,6 +8070,8 @@ categories:
       - mi_schnier
       - bleeding_cadth
       - bleeding_adaptt
+      - acs_bezin
+      - ihd_bezin
       index:
       - I05
       - I09
@@ -8131,6 +8143,8 @@ categories:
       - mi_schnier
       - bleeding_cadth
       - bleeding_adaptt
+      - acs_bezin
+      - ihd_bezin
       index:
       - I10
       - I15
@@ -8141,12 +8155,18 @@ categories:
           index: I200
           name: I20.0
         - docs: Angina pectoris with documented spasm
+          exclude:
+          - acs_bezin
           index: I201
           name: I20.1
         - docs: Other forms of angina pectoris
+          exclude:
+          - acs_bezin
           index: I208
           name: I20.8
         - docs: Angina pectoris, unspecified
+          exclude:
+          - acs_bezin
           index: I209
           name: I20.9
         docs: Angina pectoris
@@ -8217,6 +8237,7 @@ categories:
         docs: Subsequent myocardial infarction
         exclude:
         - bleeding_adaptt
+        - acs_bezin
         index: I22
         name: I22
       - categories:
@@ -8262,6 +8283,8 @@ categories:
         exclude:
         - mi_stemi_schnier
         - mi_nstemi_schnier
+        - acs_bezin
+        - ihd_bezin
         index: I23
         name: I23
       - categories:
@@ -8302,6 +8325,8 @@ categories:
           index: I251
           name: I25.1
         - docs: Old myocardial infarction
+          exclude:
+          - ihd_bezin
           index: I252
           name: I25.2
         - docs: Aneurysm of heart
@@ -8339,6 +8364,7 @@ categories:
         - mi_stemi_schnier
         - mi_nstemi_schnier
         - bleeding_adaptt
+        - acs_bezin
         index: I25
         name: I25
       docs: Ischaemic heart diseases
@@ -8403,6 +8429,8 @@ categories:
       - mi_schnier
       - bleeding_cadth
       - bleeding_adaptt
+      - acs_bezin
+      - ihd_bezin
       index:
       - I26
       - I28
@@ -8858,6 +8886,8 @@ categories:
       - mi_schnier
       - bleeding_cadth
       - bleeding_adaptt
+      - acs_bezin
+      - ihd_bezin
       index:
       - I30
       - I52
@@ -9140,6 +9170,8 @@ categories:
       - mi_stemi_schnier
       - mi_nstemi_schnier
       - mi_schnier
+      - acs_bezin
+      - ihd_bezin
       index:
       - I60
       - I69
@@ -9341,6 +9373,8 @@ categories:
       - mi_schnier
       - bleeding_cadth
       - bleeding_adaptt
+      - acs_bezin
+      - ihd_bezin
       index:
       - I70
       - I79
@@ -9525,6 +9559,8 @@ categories:
       - mi_nstemi_schnier
       - mi_schnier
       - bleeding_adaptt
+      - acs_bezin
+      - ihd_bezin
       index:
       - I80
       - I89
@@ -9598,6 +9634,8 @@ categories:
       - mi_schnier
       - bleeding_cadth
       - bleeding_adaptt
+      - acs_bezin
+      - ihd_bezin
       index:
       - I95
       - I99
@@ -11143,6 +11181,8 @@ categories:
     - mi_schnier
     - bleeding_cadth
     - bleeding_adaptt
+    - acs_bezin
+    - ihd_bezin
     index:
     - F00
     - F99
@@ -12447,6 +12487,8 @@ categories:
     - mi_schnier
     - bleeding_cadth
     - bleeding_adaptt
+    - acs_bezin
+    - ihd_bezin
     index:
     - G00
     - G99
@@ -13492,6 +13534,8 @@ categories:
     - mi_schnier
     - bleeding_cadth
     - bleeding_adaptt
+    - acs_bezin
+    - ihd_bezin
     index:
     - H00
     - H59
@@ -13956,6 +14000,8 @@ categories:
     - mi_schnier
     - bleeding_cadth
     - bleeding_adaptt
+    - acs_bezin
+    - ihd_bezin
     index:
     - H60
     - H95
@@ -14911,6 +14957,8 @@ categories:
     - mi_schnier
     - bleeding_cadth
     - bleeding_adaptt
+    - acs_bezin
+    - ihd_bezin
     index:
     - J00
     - J99
@@ -16857,6 +16905,8 @@ categories:
     - mi_stemi_schnier
     - mi_nstemi_schnier
     - mi_schnier
+    - acs_bezin
+    - ihd_bezin
     index:
     - K00
     - K93
@@ -18176,6 +18226,8 @@ categories:
     - mi_schnier
     - bleeding_cadth
     - bleeding_adaptt
+    - acs_bezin
+    - ihd_bezin
     index:
     - L00
     - L99
@@ -20250,6 +20302,8 @@ categories:
     - mi_schnier
     - bleeding_cadth
     - bleeding_adaptt
+    - acs_bezin
+    - ihd_bezin
     index:
     - M00
     - M99
@@ -21994,6 +22048,8 @@ categories:
     - mi_stemi_schnier
     - mi_nstemi_schnier
     - mi_schnier
+    - acs_bezin
+    - ihd_bezin
     index:
     - N00
     - N99
@@ -26776,6 +26832,8 @@ categories:
     - mi_nstemi_schnier
     - mi_schnier
     - bleeding_cadth
+    - acs_bezin
+    - ihd_bezin
     index:
     - S00
     - T98
@@ -28407,6 +28465,8 @@ categories:
     - mi_schnier
     - bleeding_cadth
     - bleeding_adaptt
+    - acs_bezin
+    - ihd_bezin
     index:
     - O00
     - O99
@@ -29695,6 +29755,8 @@ categories:
     - mi_schnier
     - bleeding_cadth
     - bleeding_adaptt
+    - acs_bezin
+    - ihd_bezin
     index:
     - P00
     - P96
@@ -31975,6 +32037,8 @@ categories:
     - mi_schnier
     - bleeding_cadth
     - bleeding_adaptt
+    - acs_bezin
+    - ihd_bezin
     index:
     - Q00
     - Q99
@@ -33422,6 +33486,8 @@ categories:
     - mi_stemi_schnier
     - mi_nstemi_schnier
     - mi_schnier
+    - acs_bezin
+    - ihd_bezin
     index:
     - R00
     - R99
@@ -38381,6 +38447,8 @@ categories:
     - mi_schnier
     - bleeding_cadth
     - bleeding_adaptt
+    - acs_bezin
+    - ihd_bezin
     index:
     - V01
     - Y98
@@ -40654,6 +40722,8 @@ categories:
     - mi_schnier
     - bleeding_cadth
     - bleeding_adaptt
+    - acs_bezin
+    - ihd_bezin
     index:
     - Z00
     - Z99
@@ -40823,6 +40893,8 @@ categories:
     - mi_schnier
     - bleeding_cadth
     - bleeding_adaptt
+    - acs_bezin
+    - ihd_bezin
     index:
     - U00
     - U85
@@ -40839,3 +40911,5 @@ groups:
 - mi_stemi_schnier
 - mi_nstemi_schnier
 - mi_schnier
+- acs_bezin
+- ihd_bezin

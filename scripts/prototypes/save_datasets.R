@@ -63,5 +63,12 @@ load_dataset <- function(name) {
         head(1) %>%
         pull(file)
 
+    if (length(latest_filename) == 0) {
+        stop(
+            "Did not find a dataset called ", name,
+            ". Did you spell it correctly?"
+        )
+    }
+
     readRDS(paste0(datasets_dir, "/", latest_filename))
 }
