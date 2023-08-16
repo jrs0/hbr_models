@@ -44,9 +44,10 @@ mod <- logistic_reg() %>%
     set_engine("glm")
 
 rec <- recipe(occurred ~ ., data = dataset_train) %>%
+    #step_impute_mode(pred_idx_gender) %>%
     step_dummy(all_nominal_predictors()) %>%
     step_zv(all_predictors()) %>%
-    #step_impute_mean(idx_age) %>%
+    step_impute_mean(pred_idx_age) %>%
     step_normalize(all_numeric_predictors())
 
 workflow <-
@@ -58,12 +59,16 @@ fit <- workflow %>%
     fit(data = dataset_train)
 
 # Print the model coefficients
-fit %>% extract_fit_parsnip() %>%
+fit %>%
+    extract_fit_parsnip() %>%
     tidy()
 
 aug <- augment(fit, dataset_test)
 
 # Plot ROC curve
-aug %>% 
-  roc_curve(truth = occurred, .pred_1) %>% 
-  autoplot()
+aug %>%
+    roc_curve(truth = occurred, .pred_1) %>%
+    autoplot()
+
+aug %>%
+    roc_auc(truth = occurred, .pred_1)

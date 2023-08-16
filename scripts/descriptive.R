@@ -1,6 +1,7 @@
 library(tidyverse)
 library(corrr)
 library(vip)
+library(ggplot2)
 
 setwd("scripts/prototypes")
 source("save_datasets.R")
@@ -40,3 +41,30 @@ prop_bleed_1y_naive <- raw_data %>%
     pull(outcome_occurred_bleeding_al_ani) %>%
     mean()
 
+# Plot the distribution of age in the dataset
+raw_data %>%
+    ggplot(aes(x = pred_idx_age)) +
+    geom_histogram(binwidth=5) +
+    labs(title = "Distribution of ages at index",
+    x = "Age", y = "")
+
+# Plot correlations between properties of the index
+x <- raw_data %>%
+    select(matches("(pred|outcome)")) %>%
+    filter(!is.na(outcome_occurred_bleeding_al_ani)) %>%
+    correlate() %>%
+    focus(outcome_occurred_bleeding_al_ani)
+    
+    rearrange() %>%
+    shave()
+
+fashion(x)
+rplot(x)
+
+raw_data %>%
+    pivot_longer(matches("pred_idx")) %>%
+    colnames()
+    
+    
+        ggplot(aes(x = matches("pred_idx"))) +
+    geom_bar(stat="count")
