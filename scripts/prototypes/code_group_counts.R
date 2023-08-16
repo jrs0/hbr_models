@@ -29,7 +29,7 @@ get_code_groups <- function(diagnoses_file, procedures_file) {
 ##' The function assumes that the clinical codes have had whitespace
 ##' removed, dots removed, and all characters converted to lower case.
 ##' Only exact matches of codes in the groups are considered.
-count_code_groups_by_record <- function(diagnoses_and_procedures, record_id) {
+count_code_groups_by_record <- function(diagnoses_and_procedures, record_id, code_groups) {
     diagnosis_counts <- diagnoses_and_procedures %>%
         filter(clinical_code_type == "diagnosis") %>%
         group_by({{ record_id }}) %>%
