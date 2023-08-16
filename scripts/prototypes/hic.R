@@ -1,3 +1,27 @@
+##' Get patient demographic information (age and gender)
+get_demographics <- function(con) {
+    demographics_id <- dbplyr::in_catalog("HIC_COVID_JS", "dbo", "cv_covid_demographics")
+    dplyr::tbl(con, demographics_id) %>%
+    select(
+        Subject, # Patient identifier
+        gender_desc,
+        age, # At time of data collection, 2021
+        ethnicity_desc,
+    ) %>%
+    rename(
+        patient_id = Subject,
+        gender = gender_desc,
+        age_in_2021 = age,
+        ethnicity = ethnicity_desc,
+    ) %>%
+    collect() %>%
+    mutate(gender = case_when(
+        gender == "Female" ~ "female",
+        gender == "Male" ~ "male",
+        TRUE ~ "unknown",
+    ))
+}
+
 ##' Get a list of blood test results
 get_blood_tests_hic <- function(con, start_date, end_date) {
     pathology_blood_id <- dbplyr::in_catalog("HIC_COVID_JS", "dbo", "cv_covid_pathology_blood")

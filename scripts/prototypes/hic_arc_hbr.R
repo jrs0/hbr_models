@@ -41,6 +41,9 @@ con <- DBI::dbConnect(odbc::odbc(), "hic", bigint = "character")
 
 raw_episodes_data <- get_episodes_hic(con, start_date, end_date)
 
+all_episodes <- raw_episodes_data %>%
+    select(episode_id)
+
 # Get a long list of clinical codes (ICD-10 and OPCS-4) for each episode
 # (there are multiple codes per episode)
 raw_diagnoses_and_procedures <- get_diagnoses_and_procedures_hic(con)
@@ -62,7 +65,7 @@ code_group_counts <- raw_diagnoses_and_procedures %>%
 
 ####### DEMOGRAPHICS #######
 
-
+raw_demographics <- get_demographics(con)
 
 ####### BLOOD TEST RESULTS #######
 
@@ -119,3 +122,31 @@ blood_tests <- blood_tests_numeric_results %>%
         test,
         result,
     )
+
+####### COMPUTE ARC-HBR CRITERIA IN EACH EPISODE #######
+
+# Anaemia
+# - For men and women, major (1) if Hb < 110 g/L
+# - For women, minor (0.5) if Hb < 119 g/L
+# - For men, minor (0.5) if Hb < 129 g/L
+# - 0 otherwise
+arc_hbr_anaemia <- blood_tests %>%
+    # Need patient gender from demographics
+    left_join(raw_episodes_data, by = "episode_id") %>%
+    left_join(raw_demographics, by = "patient_id") %>%
+    # Calculate the ARC HBR criterion for each blood test
+    mutate(arc_hbr_anaemia = case_when(
+        (test == "Haemoglobin") & (result < 110) ~ 1,
+        (test == "Haemoglobin") & (gender == "female") & (result < 119) ~ 0.5,
+        (test == "Haemoglobin") & (gender == "male") & (result < 129) ~ 0.5,
+        TRUE ~ 0,
+    )) %>%
+    # Reduce by taking the maximum score over all the blood tests for
+    # each episode
+    group_by(episode_id) %>%
+    summarise(arc_hbr_anaemia = max(arc_hbr_anaemia)) %>%
+    # Finally, join on all the episodes that did not have any blood test
+    # results (will right join as NA) and replace the NA with zero to indicate
+    # no HBR criterion.
+    right_join(all_episodes, by="episode_id") %>%
+    mutate(arc_hbr_anaemia = replace_na(arc_hbr_anaemia, 0))
