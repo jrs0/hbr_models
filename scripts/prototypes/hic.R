@@ -1,3 +1,30 @@
+##' Get a list of blood test results
+get_blood_tests_hic <- function(con, start_date, end_date) {
+    pathology_blood_id <- dbplyr::in_catalog("HIC_COVID_JS", "dbo", "cv_covid_pathology_blood")
+    dplyr::tbl(con, pathology_blood_id)  %>%
+        select(
+            subject, # Patient identifier
+            order_name,
+            test_name,
+            test_result,
+            test_result_unit,
+            sample_collected_date_time,
+            result_available_date_time,
+        ) %>%
+        rename(
+            patient_id = subject,
+            family = order_name,
+            test = test_name,
+            result = test_result,
+            unit = test_result_unit,
+            sample_collected = sample_collected_date_time,
+            result_available = result_available_date_time
+        )%>%
+        filter(!is.na(patient_id)) %>%
+        filter(sample_collected > start_date, sample_collected < end_date) %>%
+        collect()
+}
+
 ##' Get a list of episodes, along with the corresponding spell identifier,
 ##' the patient identifier, and the episode and spell start date
 get_episodes_hic <- function(con, start_date, end_date) {
@@ -11,6 +38,7 @@ get_episodes_hic <- function(con, start_date, end_date) {
             # of calculating time-to-subsequent events
             arrival_dt_tm,
             episode_start_time,
+            episode_end_time,
         ) %>%
         rename(
             episode_id = episode_identifier,
@@ -18,6 +46,7 @@ get_episodes_hic <- function(con, start_date, end_date) {
             spell_id = spell_identifier,
             spell_start_date = arrival_dt_tm,
             episode_start_date = episode_start_time,
+            episode_end_date = episode_end_time,
         ) %>%
         filter(!is.na(patient_id)) %>%
         filter(spell_start_date > start_date, spell_start_date < end_date) %>%

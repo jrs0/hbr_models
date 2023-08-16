@@ -102,7 +102,7 @@ count_codes_by_type <- function(diagnoses_and_procedures, record_id, code_groups
 ##'
 ##' The function assumes that the clinical codes have had whitespace
 ##' removed, dots removed, and all characters converted to lower case.
-##' Only exact matches of codes in the groups are considered.
+##' Only exact matches of codes in the groups contribute to the sum.
 count_code_groups_by_record <- function(diagnoses_and_procedures, record_id, code_groups) {
 
     # The steps are as follows: first, iterate over the diagnosis code lists, which are
