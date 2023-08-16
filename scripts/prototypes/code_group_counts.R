@@ -44,10 +44,16 @@ get_codes_in_group <- function(code_groups, group_name) {
 }
 
 ##' Get a list of all the code groups of a particular type
-##' (either diagnosis or procedure). Returns a named list
-##' of code lists, where each name is a code group and the
-##' corresponding item in the list if the list of code names.
-##' Used as a helper in counting instances of code occurances.
+##' (either diagnosis or procedure). Returns a list containing
+##' two items:
+##'
+##' - the list of group names
+##' - a list  of code lists (each one associated to a group name)
+##'
+##' Used as a helper in counting instances of code occurances. The
+##' purpose of returning data in this format is to make it easy to use
+##' pmap directly for iterating over both the group names and the 
+##' associated code lists.
 get_code_lists <- function(code_groups, group_type) {
     code_group_names <- code_groups %>%
         filter(type == group_type) %>%
@@ -57,8 +63,36 @@ get_code_lists <- function(code_groups, group_type) {
     code_lists <- code_group_names %>%
         map(~ get_codes_in_group(code_groups, .x))
 
-    names(code_lists) <- code_group_names
-    code_lists
+    list(
+        code_group_names,
+        code_lists
+    )
+}
+
+##' codes_table is a tibble with a column called clinical_code
+##' containing the codes, and a record_id which groups the codes
+##' together. The function reduces to one row per record id, and
+##' a column called count which contains the total clinical_codes
+##' matching the code_list.
+count_codes_in_group <- function(codes_table, record_id, code_list) {
+    codes_table %>%
+        mutate(code_match = clinical_code %in% code_list) %>%
+        group_by({{ record_id }}) %>%
+        summarise("count" := sum(code_match))
+}
+
+##' Take a table of diagnoses and procedures, filter to only keep one
+##' type (diagnosis or procedure), and then count the occurances of all
+##' code groups in the code_groups lists for each record_id. Used as a 
+##' helper in the code count function below.
+count_codes_by_type <- function(diagnoses_and_procedures, record_id, code_groups, diagnosis_or_procedure) {
+    code_groups %>%
+        get_code_lists(diagnosis_or_procedure) %>%
+        pmap(~ diagnoses_and_procedures %>%
+            filter(clinical_code_type == diagnosis_or_procedure) %>%
+            count_codes_in_group({{ record_id }}, .y) %>%
+            rename(!!paste0(.x, "_count") := count)) %>%
+        reduce(left_join, by = join_by({{ record_id }}))
 }
 
 ##' From a table of diagnosis and procedure codes in long format,
@@ -70,24 +104,23 @@ get_code_lists <- function(code_groups, group_type) {
 ##' removed, dots removed, and all characters converted to lower case.
 ##' Only exact matches of codes in the groups are considered.
 count_code_groups_by_record <- function(diagnoses_and_procedures, record_id, code_groups) {
-    # Get the list of diagnosis code groups and convert it into
-    # a form that can be used as the argument to summarise
-    diagnosis_code_lists <- get_code_lists(code_groups, "diagnosis")
 
-    # Append a new column for each code group, marking whether the
-    # code belongs to the group (true/false)
-    diagnosis_group_counts <- list(names(diagnosis_code_lists), diagnosis_code_lists) %>%
-        pmap(~ raw_diagnoses_and_procedures %>%
-            mutate(code_match = (clinical_code %in% .y) & (clinical_code_type == "diagnosis")) %>%
-            group_by(episode_id) %>%
-            summarise(!!paste0(.x, "_count") := sum(code_match))) %>%
-        reduce(left_join) 
+    # The steps are as follows: first, iterate over the diagnosis code lists, which are
+    # code group names x paired with lists of codes y. For each list y, count the number
+    # of diagnosis codes in the clinical_code column, for each record_id, so that you get
+    # a dataframe out with the total count for each record id. This total count is given
+    # a column name like group_name_count. Reduce by left joining together the counts,
+    # which leaves a single table of record_id and one column for each count.
+    diagnosis_group_counts <- diagnoses_and_procedures %>%
+        count_codes_by_type({{ record_id }}, code_groups, "diagnosis")
+    
+    # Do the same for procedures
+    procedure_group_counts <- diagnoses_and_procedures %>%
+        count_codes_by_type({{ record_id }}, code_groups, "procedure")
 
-    count_args <- list(names(diagnosis_code_lists), diagnosis_code_lists) %>%
-        pmap(~ rlang::expr(!!as.symbol(.x) := sum(clinical_code %in% !!.y)))
-
-    diagnoses_and_procedures %>%
-        filter(clinical_code_type == "diagnosis") %>%
-        group_by({{ record_id }}) %>%
-        mutate(!!!count_args)
+    # Join the two together to form the full counts table
+    diagnosis_group_counts %>%
+        left_join(procedure_group_counts, by = join_by({{ record_id }}))
 }
+
+count_code_groups_by_record(raw_diagnoses_and_procedures, episode_id, code_groups)
