@@ -51,8 +51,7 @@ raw_diagnoses_and_procedures <- get_diagnoses_and_procedures_hic(con)
 # Get the code groups that are in the codes files
 code_groups <- get_code_groups("../codes_files/icd10.yaml", "../codes_files/opcs4.yaml")
 
-# Reduce 
+# Reduce the diagnosis and procedures to a total count in each group by
+# episode id
 code_group_counts <- raw_diagnoses_and_procedures %>%
     count_code_groups_by_record(episode_id, code_groups)
-
-    count_code_groups_by_record(raw_diagnoses_and_procedures, episode_id, code_groups)

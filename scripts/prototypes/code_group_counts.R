@@ -37,7 +37,7 @@ get_code_groups <- function(diagnoses_file, procedures_file) {
 }
 
 ##' Get the codes in a group as a list
-get_codes_in_group <- function(code_groups, group_name) {
+get_code_list <- function(code_groups, group_name) {
     code_groups %>%
         filter(group == group_name) %>%
         pull(name)
@@ -61,7 +61,7 @@ get_code_lists <- function(code_groups, group_type) {
         pull(group)
 
     code_lists <- code_group_names %>%
-        map(~ get_codes_in_group(code_groups, .x))
+        map(~ get_code_list(code_groups, .x))
 
     list(
         code_group_names,
@@ -123,4 +123,3 @@ count_code_groups_by_record <- function(diagnoses_and_procedures, record_id, cod
         left_join(procedure_group_counts, by = join_by({{ record_id }}))
 }
 
-count_code_groups_by_record(raw_diagnoses_and_procedures, episode_id, code_groups)
