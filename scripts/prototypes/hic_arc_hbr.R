@@ -46,5 +46,10 @@ patients <- raw_episodes_data %>%
 
 raw_diagnoses_and_procedures <- get_diagnoses_and_procedures_hic(con)
 
+code_groups <- get_code_groups("../codes_files/icd10.yaml", "../codes_files/opcs4.yaml")
+
+list(names(code_lists), code_lists) %>%
+        pmap(~ rlang::expr(!!paste0(.x, "_count") = sum(clinical_code %in% !!.y)))
+
 code_group_counts <- raw_diagnoses_and_procedures %>%
     count_code_groups_by_record(episode_id)
