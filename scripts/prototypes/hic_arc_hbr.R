@@ -44,12 +44,15 @@ raw_episodes_data <- get_episodes_hic(con, start_date, end_date)
 patients <- raw_episodes_data %>%
     select(episode_id, patient_id)
 
+# Get a long list of clinical codes (ICD-10 and OPCS-4) for each episode
+# (there are multiple codes per episode)
 raw_diagnoses_and_procedures <- get_diagnoses_and_procedures_hic(con)
 
+# Get the code groups that are in the codes files
 code_groups <- get_code_groups("../codes_files/icd10.yaml", "../codes_files/opcs4.yaml")
 
-list(names(code_lists), code_lists) %>%
-        pmap(~ rlang::expr(!!paste0(.x, "_count") = sum(clinical_code %in% !!.y)))
-
+# Reduce 
 code_group_counts <- raw_diagnoses_and_procedures %>%
-    count_code_groups_by_record(episode_id)
+    count_code_groups_by_record(episode_id, code_groups)
+
+    count_code_groups_by_record(raw_diagnoses_and_procedures, episode_id, code_groups)
