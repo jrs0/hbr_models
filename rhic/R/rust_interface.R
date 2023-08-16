@@ -14,11 +14,10 @@ get_groups_in_codes_file <- function(codes_file_path) {
 ##' Get a dataframe (tibble) of all the docs in a particular group
 ##' defined in a codes file.
 ##'
-##' The tibble contains three columns:
+##' The tibble contains two columns:
 ##' - name: for the clinical code name (e.g. "I22.1")
 ##' - docs: for the description of the code (e.g. "Subsequent
 ##'   myocardial infarction of inferior wall").
-##' - group: for the group name passed as the argument group
 ##'
 ##' The group is defined by the codes file (e.g. icd10.yaml), and
 ##' code groups can be edited using the codes editor program.
@@ -31,8 +30,5 @@ get_codes_in_group <- function(codes_file_path, group) {
         stop("code group '", group, "' is not present in codes file '", codes_file_path, "'")
     }
 
-    codes_in_group <- rust_get_codes_in_group(codes_file_path, group)
-    codes_in_group$group <- rep(group, length(codes_in_group$name))
-
-    tibble::as_tibble(codes_in_group)
+    tibble::as_tibble(rust_get_codes_in_group(codes_file_path, group))
 }
