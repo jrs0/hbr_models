@@ -60,6 +60,10 @@ code_groups <- get_code_groups("../codes_files/icd10.yaml", "../codes_files/opcs
 code_group_counts <- raw_diagnoses_and_procedures %>%
     count_code_groups_by_record(episode_id, code_groups)
 
+####### DEMOGRAPHICS #######
+
+
+
 ####### BLOOD TEST RESULTS #######
 
 # Get the full set of blood test results.
