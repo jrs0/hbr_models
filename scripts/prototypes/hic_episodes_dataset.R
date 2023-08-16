@@ -143,28 +143,28 @@ pci <- codes_for_matching(
 raw_clinical_codes <- raw_diagnoses_data %>%
     bind_rows(raw_procedures_data)
 
-# Just extract the MI diagnoses for plotting
-diagnoses <- raw_clinical_codes %>%
-    mutate(clinical_code = clinical_code %>% str_replace_all("(\\.| )", "") %>% tolower()) %>%
-    filter(
-        clinical_code_type == "diagnosis",
-        (clinical_code %in% mi_schnier) |
-            (clinical_code %in% mi_stemi_schnier) |
-            (clinical_code %in% mi_nstemi_schnier)
-    ) %>%
-    transmute(
-        clinical_code,
-        group = case_when(
-            (clinical_code %in% mi_stemi_schnier) ~ "stemi",
-            (clinical_code %in% mi_nstemi_schnier) ~ "nstemi",
-            (clinical_code %in% mi_schnier) ~ "other_mi",
-        )
-    )
+# # Just extract the MI diagnoses for plotting
+# diagnoses <- raw_clinical_codes %>%
+#     mutate(clinical_code = clinical_code %>% str_replace_all("(\\.| )", "") %>% tolower()) %>%
+#     filter(
+#         clinical_code_type == "diagnosis",
+#         (clinical_code %in% mi_schnier) |
+#             (clinical_code %in% mi_stemi_schnier) |
+#             (clinical_code %in% mi_nstemi_schnier)
+#     ) %>%
+#     transmute(
+#         clinical_code,
+#         group = case_when(
+#             (clinical_code %in% mi_stemi_schnier) ~ "stemi",
+#             (clinical_code %in% mi_nstemi_schnier) ~ "nstemi",
+#             (clinical_code %in% mi_schnier) ~ "other_mi",
+#         )
+#     )
 
-# This is nonsense:
-# episode_diagnoses_and_procedures <- raw_episodes_data %>%
-#     select(episode_id) %>%
-#     left_join(raw_clinical_codes, by = "episode_id")
+# # This is nonsense:
+# # episode_diagnoses_and_procedures <- raw_episodes_data %>%
+# #     select(episode_id) %>%
+# #     left_join(raw_clinical_codes, by = "episode_id")
 
 # Count up instances of different code groups inside each
 # episode

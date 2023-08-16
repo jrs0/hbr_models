@@ -8,9 +8,15 @@ defined in a codes file.}
 get_codes_in_group(codes_file_path, group)
 }
 \description{
-The tibble contains two columns: "name", for the clinical code
-name (e.g. "I22.1"); and "docs, for the description of the code
-(e.g. "Subsequent myocardial infarction of inferior wall").
+The tibble contains three columns:
+\itemize{
+\item name: for the clinical code name (e.g. "I22.1")
+\item docs: for the description of the code (e.g. "Subsequent
+myocardial infarction of inferior wall").
+\item group: for the group name passed as the argument group
+}
+}
+\details{
 The group is defined by the codes file (e.g. icd10.yaml), and
 code groups can be edited using the codes editor program.
 }

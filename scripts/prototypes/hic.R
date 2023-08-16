@@ -1,6 +1,7 @@
 ##' Get a list of episodes, along with the corresponding spell identifier,
 ##' the patient identifier, and the episode and spell start date
 get_episodes_hic <- function(con, start_date, end_date) {
+    episodes_id <- dbplyr::in_catalog("HIC_COVID_JS", "dbo", "cv_covid_episodes")
     dplyr::tbl(con, episodes_id) %>%
         select(
             episode_identifier, # Key for the diagnosis and procedure tables
@@ -13,13 +14,13 @@ get_episodes_hic <- function(con, start_date, end_date) {
         ) %>%
         rename(
             episode_id = episode_identifier,
-            patient = subject,
+            patient_id = subject,
             spell_id = spell_identifier,
             spell_start_date = arrival_dt_tm,
             episode_start_date = episode_start_time,
         ) %>%
-        filter(!is.na(patient)) %>%
-        # filter(spell_start_date > start_date, spell_start_date < end_date) %>%
+        filter(!is.na(patient_id)) %>%
+        filter(spell_start_date > start_date, spell_start_date < end_date) %>%
         collect()
 }
 
@@ -32,7 +33,7 @@ get_episodes_hic <- function(con, start_date, end_date) {
 ##' Diagnosis codes are converted to lower case, whitespace is stripped,
 ##' and the dot is removed.
 ##'
-get_diagnoses_long_hic <- function(con) {
+get_diagnoses_and_procedures_hic <- function(con) {
     diagnoses_id <- dbplyr::in_catalog("HIC_COVID_JS", "dbo", "cv_covid_episodes_diagnosis")
     raw_diagnoses_data <- dplyr::tbl(con, diagnoses_id) %>%
         select(

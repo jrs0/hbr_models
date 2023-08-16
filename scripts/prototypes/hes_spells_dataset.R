@@ -149,56 +149,6 @@ age_and_gender <- raw_data %>%
 
 ####### DEFINE ICD-10 and OPCS-4 CODE GROUPS #######
 
-##' Get all the codes in a code group, with the dot removed
-##' and converted to all-lowercase, ready for matching with
-##' codes in columns
-codes_for_matching <- function(codes_file_path, group) {
-    get_codes_in_group(codes_file_path, group) %>%
-        pull(name) %>%
-        str_replace("\\.", "") %>%
-        tolower()
-}
-
-# Diagnosis groups
-bleeding_al_ani <- codes_for_matching(
-    "../codes_files/icd10.yaml",
-    "bleeding_al_ani"
-)
-mi_schnier <- codes_for_matching(
-    "../codes_files/icd10.yaml",
-    "mi_schnier"
-)
-mi_stemi_schnier <- codes_for_matching(
-    "../codes_files/icd10.yaml",
-    "mi_stemi_schnier"
-)
-mi_nstemi_schnier <- codes_for_matching(
-    "../codes_files/icd10.yaml",
-    "mi_nstemi_schnier"
-)
-
-# The ischaemic heart diseases group, considered by 2015 Bezin
-# et al. to be a superset of ACS (includes all codes that an
-# ACS could be coded as). As a result, it increases the chance of
-# identifying ACS index events, at the expense of including
-# some spells that are not necessarily the ACS of interest.
-ihd_bezin <- codes_for_matching(
-    "../codes_files/icd10.yaml",
-    "ihd_bezin"
-)
-
-# A smaller subset of ihd_bezin, considered to represent a good
-# compromise between the PPV for ACS and identifying ACS spells.
-acs_bezin <- codes_for_matching(
-    "../codes_files/icd10.yaml",
-    "acs_bezin"
-)
-
-# List of OPCS-4 codes identifying PCI procedures
-pci <- codes_for_matching(
-    "../codes_files/opcs4.yaml",
-    "pci"
-)
 
 ####### COUNT UP OCCURRENCES OF CODE GROUPS IN EACH SPELL #######
 

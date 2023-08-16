@@ -9,6 +9,7 @@ library(tidyverse)
 source("preprocessing.R")
 source("save_datasets.R")
 source("hic.R")
+source("code_group_counts.R")
 
 # Either load rhic using rextendr::document() (from the rhic/ directory)
 # or install rhic and use library(rhic). Pick one of the options from
@@ -35,14 +36,15 @@ end_date <- lubridate::ymd_hms("2023-01-01 00:00:00")
 # containing the diagnoses and procedures in long format.
 
 con <- DBI::dbConnect(odbc::odbc(), "hic", bigint = "character")
-episodes_id <- dbplyr::in_catalog("HIC_COVID_JS", "dbo", "cv_covid_episodes")
 
-raw_episodes_data <- get_episodes_hic()
+raw_episodes_data <- get_episodes_hic(con, start_date, end_date)
 
 # Mapping from episode_id to patient. Required later for joining
 # episodes together from different tables by patient.
 patients <- raw_episodes_data %>%
-    select(episode_id, patient)
+    select(episode_id, patient_id)
 
+raw_diagnoses_and_procedures <- get_diagnoses_and_procedures_hic(con)
 
-raw_diagnoses_and_procedures <- get_diagnoses_long_hic(con)
+code_group_counts <- raw_diagnoses_and_procedures %>%
+    count_code_groups_by_record(episode_id)
