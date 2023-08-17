@@ -64,7 +64,7 @@ query = """select AIMTC_Pseudo_NHS as nhs_number,
     procedure23rd_opcs as secondary_procedure_21,
     procedure24th_opcs as secondary_procedure_22
     from vw_apc_sem_spell_001
-    where AIMTC_ProviderSpell_Start_Date between '2020-01-01' and '2023-01-01'  
+    where AIMTC_ProviderSpell_Start_Date between '2022-01-01' and '2023-01-01'  
     """
 
 # Time to make raw query 299 seconds (seems a bit slow)
