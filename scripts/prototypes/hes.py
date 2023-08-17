@@ -1,9 +1,8 @@
-import time
 import pandas as pd
-import sqlalchemy as sql
+import time
 
-con = sql.create_engine("mssql+pyodbc://xsw")
-query = """select AIMTC_Pseudo_NHS as nhs_number,
+def get_spells_hes(con):
+    query = """select AIMTC_Pseudo_NHS as nhs_number,
     AIMTC_Age as age,
     Sex as gender,
     PBRspellID as spell_id,
@@ -58,14 +57,14 @@ query = """select AIMTC_Pseudo_NHS as nhs_number,
     procedure23rd_opcs as secondary_procedure_21,
     procedure24th_opcs as secondary_procedure_22
     from ABI.dbo.vw_apc_sem_spell_001
-    where AIMTC_ProviderSpell_Start_Date between '2020-01-01' and '2023-01-01'  
+    where AIMTC_ProviderSpell_Start_Date between '2022-01-01' and '2023-01-01'  
     """
+    start = time.time()
+    raw_data = pd.read_sql(query, con)  # (query=query, connection=connection_uri)
+    stop = time.time()
+    print(f"Time to fetch spells data: {stop - start}")
+    return raw_data
 
-# Time to make raw query 1395 seconds (very slow, could be network)
-start = time.time()
-raw_data = pd.read_sql(query, con)# (query=query, connection=connection_uri)
-stop = time.time()
-print(f"Time to fetch spells data: {stop - start}")
 
 # Remove rows with no NHS number, no spell ID,
 # or duplicate spell IDs.
@@ -76,4 +75,4 @@ print(f"Time to fetch spells data: {stop - start}")
 # ).unique("spell_id")
 
 
-raw_data.columns
+# raw_data.columns
