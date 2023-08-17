@@ -68,6 +68,10 @@ reduced_codes = long_codes[long_codes.value.isin(most_frequent_codes)]
     
 encoded = reduced_codes[['spell_id']].join(pd.get_dummies(reduced_codes['value'], sparse = True)).groupby('spell_id').max()
 
-encoded = pd.get_dummies(long_codes, columns=["value"], sparse = True)
+encoded = pd.get_dummies(reduced_codes, columns=["value"])
+
+# Now join this reduced encoded version back onto all the
+# spells to get NaNs, which can be replaced with zero (indicating
+# no code in that spell).
 
 reducer = umap.UMAP()
