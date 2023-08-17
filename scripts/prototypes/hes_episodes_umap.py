@@ -66,8 +66,8 @@ counts = long_codes.value.value_counts() / len(long_codes)
 most_frequent_codes = counts.head(1000).index.to_list()
 reduced_codes = long_codes[long_codes.value.isin(most_frequent_codes)]
     
-encoded = long_codes[['spell_id']].join(pd.get_dummies(long_codes['value'], sparse = True)).groupby('spell_id').max()
+encoded = reduced_codes[['spell_id']].join(pd.get_dummies(reduced_codes['value'], sparse = True)).groupby('spell_id').max()
 
-pd.get_dummies(long_codes['value'], sparse = True)
+encoded = pd.get_dummies(long_codes, columns=["value"], sparse = True)
 
 reducer = umap.UMAP()
