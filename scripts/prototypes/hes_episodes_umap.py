@@ -2,17 +2,17 @@ import os
 os.chdir("scripts/prototypes")
 
 import hes
-import sqlalchemy as sql
 import importlib
 
 importlib.reload(hes)
 
-####### CONNECT TO THE DATABASE #######
-
-con = sql.create_engine("mssql+pyodbc://xsw")
-
 ####### FETCH RAW SPELL DATA #######
 
-data = hes.get_spells_hes(con)
+# Polars is slightly slower than pandas here, but polars
+# returns the nhs_number column as an int not a float (that
+# bigint problem again), so preferring polars for now. Both
+# queries are really slow compared to R -- not sure why yet.
+pd_data = hes.get_spells_hes_pandas()
+pl_data = hes.get_spells_hes_polars()
 
 

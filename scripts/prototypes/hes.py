@@ -1,8 +1,10 @@
+import sqlalchemy as sql
 import pandas as pd
+import polars as pl
 import time
 
-def get_spells_hes(con):
-    query = """select AIMTC_Pseudo_NHS as nhs_number,
+# Fixed query for getting spells data from HES (BNSSG-ICB)
+query = """select AIMTC_Pseudo_NHS as nhs_number,
     AIMTC_Age as age,
     Sex as gender,
     PBRspellID as spell_id,
@@ -59,8 +61,19 @@ def get_spells_hes(con):
     from ABI.dbo.vw_apc_sem_spell_001
     where AIMTC_ProviderSpell_Start_Date between '2022-01-01' and '2023-01-01'  
     """
+
+def get_spells_hes_pandas():
+    con = sql.create_engine("mssql+pyodbc://xsw")
     start = time.time()
     raw_data = pd.read_sql(query, con)  # (query=query, connection=connection_uri)
+    stop = time.time()
+    print(f"Time to fetch spells data: {stop - start}")
+    return raw_data
+
+def get_spells_hes_polars():
+    connection_uri = "mssql://XSW-000-SP09/ABI?trusted_connection=true"
+    start = time.time()
+    raw_data = pl.read_database(query=query, connection=connection_uri)
     stop = time.time()
     print(f"Time to fetch spells data: {stop - start}")
     return raw_data
@@ -73,6 +86,5 @@ def get_spells_hes(con):
 #     & ~pl.col("spell_id").str.isspace()
 #     & (pl.col("spell_id") != None)
 # ).unique("spell_id")
-
 
 # raw_data.columns
