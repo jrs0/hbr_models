@@ -54,8 +54,18 @@ def normalise_code(code):
 long_codes = pd.melt(df, id_vars=index_cols, value_vars=code_cols).dropna().drop(columns="variable")
 long_codes.value = long_codes.value.apply(normalise_code)
 
+# It is too memory-intensive to just encode all the values
+# in one go. Instead, filter the low-frequency codes first,
+# then perform the encoding
+counts = long_codes.value.value_counts() / len(long_codes)
+most_frequent_codes = counts.head(1000).index.to_list()
+
+reduced_codes = long_codes[long_codes.value.isin(most_frequent_codes)]
+    
+    filter(lambda x: x in most_frequent_codes)
+
 encoded = long_codes[['spell_id']].join(pd.get_dummies(long_codes['value'])).groupby('spell_id').max()
 
-pd.get_dummies(long_codes['value'])
+pd.get_dummies(long_codes['value'], sparse = True)
 
 reducer = umap.UMAP()
