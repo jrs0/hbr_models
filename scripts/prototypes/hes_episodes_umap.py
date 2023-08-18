@@ -1,3 +1,8 @@
+# Extraction of common features among HES spells using UMAP
+# (uniform manifold approximation and projection)
+#
+#
+
 import os
 
 os.chdir("scripts/prototypes")
@@ -8,6 +13,7 @@ import numpy as np
 from sklearn.datasets import load_digits
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
+from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
@@ -81,18 +87,77 @@ encoded = pd.get_dummies(reduced_codes, columns=["full_code"]).groupby("spell_id
 all_spells = df[["spell_id"]]
 full_encoded = all_spells.join(encoded).fillna(False)
 
-reducer = umap.UMAP()
 
 # No need to normalise, all the columns are on the same
 # scale
 
-# Apply UMAP to reduce to two dimensions
-embedding = reducer.fit_transform(full_encoded)
-embedding.shape
+# Get the age and gender by spell ID
+age_and_gender = raw_data[["spell_id", "age", "gender"]]
 
+# Join the age and gender to ensure that the rows are in the
+# right order
+dataset = age_and_gender.join(full_encoded)
+
+# UMAP has the following parameters:
+#
+# - n_neighbors: this is the number of nearest neighbors to
+#   use in the approximation of a uniform distance around 
+#   each data point in the original manifold. Choosing a
+#   a large number will course-grain the manifold, so that
+#   the uniform distances are approximated over larger groups
+#   of spells. 
+# - min_dist: in the dimension-reduced manifold (after projection
+#   from the original manifold), the local-connectedness condition
+#   which translated to assuming that each data point is 0 distance
+#   away from its nearest neighbour, must translate to an arbitrary
+#   choice for what this minimum distance is in the Euclidean plane.
+#   Making it small will cause more clustering, whereas making it 
+#   large will push points away from each other, which may focus
+#   more on the overall topological structure.
+# - n_components: the n here is the dimension of the reduced space,
+#   which is the manifold R^n with the standard topology arising
+#   from Eucliean distances
+# - metric: which metric is used to measure distance between the
+#   different points of the dataset in the original (ambient)
+#   space R^m (m is the number of columns in the original dataset).
+#   Here, there is one binary column per clinical code, and two rows
+#   (spells) are considered different according to how many of their
+#   clinical codes differe -- this is the Hamming distance.
+
+# 2D embedding
+fit = umap.UMAP(
+    n_neighbors = 15,
+    min_dist = 1,
+    n_components = 2,
+    metric = "hamming"
+)
+embedding2d = fit.fit_transform(full_encoded)
+embedding2d.shape
 plt.scatter(
-    embedding[:, 0],
-    embedding[:, 1])
+    embedding2[:, 0],
+    embedding2[:, 1],
+    c=[sns.color_palette()[x] for x in full_encoded. map({"Adelie":0, "Chinstrap":1, "Gentoo":2})]))
+plt.gca().set_aspect('equal', 'datalim')
+plt.title('UMAP projection of HES spell codes', fontsize=24)
+plt.show()
+
+# Apply UMAP to reduce to 3 dimensions
+fit = umap.UMAP(
+    n_neighbors = 15,
+    min_dist = 0.1,
+    n_components = 3,
+    metric = "hamming"
+)
+embedding3d = fit.fit_transform(full_encoded)
+embedding3d.shape
+
+# 3D embedding
+fig = plt.figure()
+ax = fig.add_subplot(projection = '3d')
+ax.scatter(
+    embedding3d[:, 0],
+    embedding3d[:, 1],
+    embedding3d[:, 2])
 plt.gca().set_aspect('equal', 'datalim')
 plt.title('UMAP projection of HES spell codes', fontsize=24)
 plt.show()
