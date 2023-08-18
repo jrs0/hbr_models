@@ -39,8 +39,10 @@ raw_data = hes.get_spells_hes_pandas()
 
 # Replace empty codes ("") with NaN, so that they are
 # ignored in the conversion to dummies
-cols_to_remove = ["nhs_number", "age", "gender", "spell_start_date", "spell_end_date"]
+cols_to_remove = ["nhs_number", "spell_start_date", "spell_end_date"]
 df = raw_data.replace("", np.nan).drop(columns=cols_to_remove, axis=1)
+
+age_and_gender = df[["spell_id", "age", "gender"]]
 
 pattern = re.compile("(diagnosis|procedure)")
 code_cols = [s for s in df.columns if pattern.search(s)]
@@ -76,27 +78,17 @@ long_codes = long_codes.drop(columns=["variable", "value", "diagnosis_or_procedu
 counts = long_codes.full_code.value_counts() / len(long_codes)
 most_frequent_codes = counts.head(1000).index.to_list()
 reduced_codes = long_codes[long_codes.full_code.isin(most_frequent_codes)]
-    
-encoded = reduced_codes[['spell_id']].join(pd.get_dummies(reduced_codes['full_code'], sparse=True)).groupby('spell_id').max()
 
 encoded = pd.get_dummies(reduced_codes, columns=["full_code"]).groupby("spell_id").max()
 
 # Now join this reduced encoded version back onto all the
 # spells to get NaNs, which can be replaced with zero (indicating
 # no code in that spell).
-all_spells = df[["spell_id"]]
-full_encoded = all_spells.join(encoded).fillna(False)
-
+full_encoded = age_and_gender.join(encoded).fillna(False)
 
 # No need to normalise, all the columns are on the same
-# scale
+# scale (binary, with hamming distance between rows).
 
-# Get the age and gender by spell ID
-age_and_gender = raw_data[["spell_id", "age", "gender"]]
-
-# Join the age and gender to ensure that the rows are in the
-# right order
-dataset = age_and_gender.join(full_encoded)
 
 # UMAP has the following parameters:
 #
@@ -122,21 +114,22 @@ dataset = age_and_gender.join(full_encoded)
 #   space R^m (m is the number of columns in the original dataset).
 #   Here, there is one binary column per clinical code, and two rows
 #   (spells) are considered different according to how many of their
-#   clinical codes differe -- this is the Hamming distance.
+#   clinical codes differ -- this is the Hamming distance.
 
 # 2D embedding
 fit = umap.UMAP(
     n_neighbors = 15,
-    min_dist = 1,
-    n_components = 2,
-    metric = "hamming"
+    min_dist = 0.1,
+    n_components = 2
+    #metric = "hamming"
 )
-embedding2d = fit.fit_transform(full_encoded)
+data_to_reduce = full_encoded.filter(regex="full_code")
+embedding2d = fit.fit_transform(data_to_reduce)
 embedding2d.shape
 plt.scatter(
-    embedding2[:, 0],
-    embedding2[:, 1],
-    c=[sns.color_palette()[x] for x in full_encoded. map({"Adelie":0, "Chinstrap":1, "Gentoo":2})]))
+    embedding2d[:, 0],
+    embedding2d[:, 1],
+    c=full_encoded["age"])
 plt.gca().set_aspect('equal', 'datalim')
 plt.title('UMAP projection of HES spell codes', fontsize=24)
 plt.show()
