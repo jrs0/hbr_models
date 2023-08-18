@@ -82,3 +82,17 @@ all_spells = df[["spell_id"]]
 full_encoded = all_spells.join(encoded).fillna(False)
 
 reducer = umap.UMAP()
+
+# No need to normalise, all the columns are on the same
+# scale
+
+# Apply UMAP to reduce to two dimensions
+embedding = reducer.fit_transform(full_encoded)
+embedding.shape
+
+plt.scatter(
+    embedding[:, 0],
+    embedding[:, 1])
+plt.gca().set_aspect('equal', 'datalim')
+plt.title('UMAP projection of HES spell codes', fontsize=24)
+plt.show()
