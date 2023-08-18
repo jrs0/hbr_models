@@ -59,7 +59,7 @@ query = """select AIMTC_Pseudo_NHS as nhs_number,
     procedure23rd_opcs as secondary_procedure_21,
     procedure24th_opcs as secondary_procedure_22
     from ABI.dbo.vw_apc_sem_spell_001
-    where AIMTC_ProviderSpell_Start_Date between '2022-01-01' and '2023-01-01'  
+    where AIMTC_ProviderSpell_Start_Date between '2022-08-01' and '2023-01-01'  
     """
 
 def get_spells_hes_pandas():
