@@ -2,6 +2,7 @@ import sqlalchemy as sql
 import pandas as pd
 import polars as pl
 import time
+import re
 
 # Fixed query for getting spells data from HES (BNSSG-ICB).
 query = """select AIMTC_Pseudo_NHS as nhs_number,
@@ -78,13 +79,48 @@ def get_spells_hes_polars():
     print(f"Time to fetch spells data: {stop - start}")
     return raw_data
 
+def normalise_code(code):
+    '''
+    Remove all whitespace and any dot character,
+    and convert characters in the code to lower case.
+    '''
+    alpha_num = re.sub(r'\W+', '', code)
+    return alpha_num.lower()
 
-# Remove rows with no NHS number, no spell ID,
-# or duplicate spell IDs.
-# df_preprocess = raw_data.filter(
-#     (pl.col("nhs_number") == None)
-#     & ~pl.col("spell_id").str.isspace()
-#     & (pl.col("spell_id") != None)
-# ).unique("spell_id")
+def convert_codes_to_long(df):
+    '''
+    df is a table containing the diagnosis and procedure columns returned
+    from get_spells_hes_pandas(). The result is a table with index column
+    spell_id, a column of normalised diagnosis or procedure codes with the
+    prefix icd10_ or opcs4_, and a position column indicating the code
+    position (0 for primary, increasing for more secondary).
+    '''
+    pattern = re.compile("(diagnosis|procedure)")
+    code_cols = [s for s in df.columns if pattern.search(s)]
+    index_cols = ["spell_id"]
 
-# raw_data.columns
+    # Pivot all the diagnosis and procedure codes into one
+    # columns. Consider https://stackoverflow.com/questions/47684961/
+    # melt-uneven-data-in-columns-and-ignore-nans-using-pandas
+    # for speed.
+    long_codes = pd.melt(df, id_vars=index_cols, value_vars=code_cols).dropna()
+    long_codes.value = long_codes.value.apply(normalise_code)
+    # Prepend icd10 or opc4 to the codes to indicate which are which
+    # (because some codes appear in both ICD-10 and OPCS-4)
+    pattern = re.compile("diagnosis")
+    diagnosis_or_procedure = ["icd10_" if pattern.search(s) else "opcs4_" for s in long_codes.variable]
+    long_codes["full_code"] = diagnosis_or_procedure + long_codes.value
+    long_codes["position"] = long_codes["variable"].replace("(diagnosis|procedure)_", "", regex = True).astype(int)
+    long_codes = long_codes.drop(columns=["variable", "value"])
+    return long_codes
+
+def make_linear_position_scale(long_codes, N = 23):
+    '''
+    Using the result from convert_codes_to_long, remap the
+    clinical code position to a linear scale where 1 is the
+    last secondary, and N+1 is primary, where N is the total
+    number of diagnosis or procedure columns
+    '''
+    df = long_codes.copy()
+    df.position = N + 1 - df.position
+    return df
