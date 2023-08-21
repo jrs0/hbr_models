@@ -7,7 +7,7 @@ def encode_sparse(long_codes):
     column) in long format, by the spell_id,
     and containing the clinical code position
     in the position column. The output is a
-    sparse matrix
+    sparse matrix.
     '''
     sorted_by_spell = long_codes.sort_values("spell_id") 
 
@@ -25,9 +25,13 @@ def encode_sparse(long_codes):
     current_lil_matrix_row = []
     current_lil_matrix_data = []
 
-    for spell_id, row in sorted_by_spell.head(50).iterrows():
+    for _, row in sorted_by_spell.head(20).iterrows():
         
+        spell_id = row["spell_id"]
+
+        print(current_spell_id, spell_id)
         if current_spell_id != spell_id:
+            print("Next spell")
             # Append the row for this spell to the 
             # sparse data
             lil_matrix_rows.append(current_lil_matrix_row)
@@ -40,6 +44,7 @@ def encode_sparse(long_codes):
             # Update the current spell
             current_spell_id = spell_id
         
+        print("Normal")
         # Get the code and position data
         full_code = row["full_code"]
         position = row["position"]
@@ -66,3 +71,4 @@ def encode_sparse(long_codes):
     mat.data = lil_matrix_data
 
     return mat
+    

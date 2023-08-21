@@ -113,6 +113,10 @@ full_encoded = age_and_gender.join(encoded).fillna(False)
 #   (spells) are considered different according to how many of their
 #   clinical codes differ -- this is the Hamming distance.
 
+mapper = umap.UMAP(metric='cosine', random_state=42, low_memory=True)
+
+mapper.fit(mat)
+
 # 2D embedding
 fit = umap.UMAP(
     n_neighbors = 50,
