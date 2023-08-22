@@ -22,6 +22,8 @@ get_demographics <- function(con) {
     ))
 }
 
+get_
+
 ##' Get a list of blood test results
 get_blood_tests_hic <- function(con, start_date, end_date) {
     pathology_blood_id <- dbplyr::in_catalog("HIC_COVID_JS", "dbo", "cv_covid_pathology_blood")
