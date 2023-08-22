@@ -46,6 +46,8 @@ Haemoglobin level varies with time, and is captured in the data as either labora
 
 A blood test including an Hb measurement is often performed in the intervention episode, so this should be used to calculate the risk. If Hb from the index is not available, then a previous low Hb could be taken as a proxy to calculate the risk (the program should indicate that this has been done). 
 
+The anaemia HBR criterion has been interpreted to mean baseline anaemia (although this is not explicitly stated in the ARC HBR definition). As a result, the first Hb reading will be used to assess anaemia.
+
 In addition to the calculation using the same-episode Hb value, prior Hb measurement could be used to improve the performance of the score. This is not part of the ARC HBR calculation, but is discussed in connection with other HBR models **TODO link to where**. Test results should not be averaged over time; instead, what is relevant is whether the measurement dips below a threshold at any time.
 
 ### Thrombocytopenia (Low Platelet Count, Major)
