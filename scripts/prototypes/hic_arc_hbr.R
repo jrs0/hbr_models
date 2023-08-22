@@ -101,7 +101,7 @@ stopifnot(identical(units, c("g/L", "10*9/L", "mL/min")))
 # eGFR column. This will be replaced with 90.
 blood_tests_numeric_results <- raw_blood_tests %>%
     select(-unit) %>%
-    # Pick a value strictly larger than 90 to use as the 
+    # Pick a value strictly larger than 90 to use as the
     # representative for >90 class.
     mutate(result = str_replace(result, ">90", "91")) %>%
     mutate(result = as.numeric(result))
@@ -216,7 +216,7 @@ arc_hbr_tcp <- blood_tests %>%
     mutate(arc_hbr_tcp = replace_na(arc_hbr_tcp, 0))
 
 # Chronic Kidney Disease (CKD)
-# Severe (stage 4) or end-stage (stage 5) 
+# Severe (stage 4) or end-stage (stage 5)
 # CKD is a major ARC HBR criterion. Moderate
 # (stage 3) CKD is a minor criterion. See
 # below for definitions.
@@ -230,15 +230,15 @@ arc_hbr_tcp <- blood_tests %>%
 # - Minor (0.5) if eGFR < 60
 # - 0 otherwise
 #
-# "Approximately 30% of patients undergoing PCI 
-# have an eGFR <60 mL/min", (Urban et al., 2019), 
-# so expect mean of arc_hbr_tcp column approx. 
+# "Approximately 30% of patients undergoing PCI
+# have an eGFR <60 mL/min", (Urban et al., 2019),
+# so expect mean of arc_hbr_tcp column approx.
 # 0.3.
 #
 arc_hbr_ckd <- blood_tests %>%
     filter(test == "eGFR") %>%
     # Reduce by taking the _first_ platelet count reading,
-    # 
+    #
     arrange(episode_id, sample_collected) %>%
     group_by(episode_id) %>%
     summarise(first_result = first(result)) %>%
@@ -257,3 +257,23 @@ arc_hbr_ckd <- blood_tests %>%
     # NA with zero to indicate no HBR criterion.
     right_join(all_episodes, by = "episode_id") %>%
     mutate(arc_hbr_ckd = replace_na(arc_hbr_ckd, 0))
+
+# Age
+# - Minor (0.5) if age >= 75
+# - 0 otherwise
+#
+# The age in the demographics data was the patient
+# age when data was collected (2021). Ages must be
+# recomputed based on this date
+age_baseline_date <- lubridate::ymd_hms("2021-1-1 00:00:00")
+arc_hbr_age <- raw_episodes_data %>%
+    left_join(raw_demographics, by = "patient_id") %>%
+    mutate(
+        age = age_in_2021 +
+            (episode_start_date - age_baseline_date) /
+                lubridate::dyears(1)
+    ) %>%
+    transmute(
+        episode_id,
+        arc_hbr_age = if_else(age >= 75, 0.5, 0)
+    )
