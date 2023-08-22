@@ -67,6 +67,20 @@ code_group_counts <- raw_diagnoses_and_procedures %>%
 
 raw_demographics <- get_demographics(con)
 
+####### PRESCRIPTIONS INFORMATION #######
+
+prescriptions_admission_id <- dbplyr::in_catalog("HIC_COVID_JS", "dbo", "cv_covid_pharmacy_administration")
+raw_prescriptions_on_admission <- dplyr::tbl(con, prescriptions_admission_id) %>%
+    select(
+        subject, # Patient identifier
+        IP_SPELL_ID, # Link to the spell ID in the episodes table
+        medication_name,
+        dosage_unit,
+        `Medication - Frequency`,
+        `Medication - On Admission`
+    ) %>%
+    collect()
+
 ####### BLOOD TEST RESULTS #######
 
 # Get the full set of blood test results.
