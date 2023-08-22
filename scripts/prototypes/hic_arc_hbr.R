@@ -147,10 +147,10 @@ arc_hbr_anaemia <- blood_tests %>%
     # each episode
     group_by(episode_id) %>%
     summarise(arc_hbr_anaemia = max(arc_hbr_anaemia)) %>%
-    # Finally, join on all the episodes that did not have any blood test
-    # results (will right join as NA) and replace the NA with zero to indicate
-    # no HBR criterion.
-    right_join(all_episodes, by="episode_id") %>%
+    # Join on all the episodes that did not have any blood test
+    # results (will right join as NA) and replace the
+    # NA with zero to indicate no HBR criterion.
+    right_join(all_episodes, by = "episode_id") %>%
     mutate(arc_hbr_anaemia = replace_na(arc_hbr_anaemia, 0))
 
 # Thrombocytopenia (low platelet count)
@@ -165,13 +165,33 @@ arc_hbr_anaemia <- blood_tests %>%
 # PCI occurred as a code in the episode (because individual)
 # codes are not timestamped within an episode. It may
 # be possible when the PCI occurs in a different episode
-# (as it sometimes does), but that case is not covered 
-# here anyway. This is a suitable approximation for 
+# (as it sometimes does), but that case is not covered
+# here anyway. This is a suitable approximation for
 # prototyping purposes.
 #
-blood_tests %>%
+# "The reported prevalence of baseline thrombocytopenia
+# in patients undergoing PCI is ~2.5% in the United States
+# and 1.5% in Japan" (Urban et al., 2019), so expect mean
+# of arc_hbr_tcp column approx. 0.015 to 0.025.
+#
+arc_hbr_tcp <- blood_tests %>%
     filter(test == "Platelets") %>%
+    # Reduce by taking the _first_ platelet count reading
+    # (approximation to baseline) within in episode
     arrange(episode_id, sample_collected) %>%
     group_by(episode_id) %>%
-    filter(any(result < 100), n() > 1) %>%
-    print(n=100)
+    summarise(first_platelet_count = first(result)) %>%
+    # Calculate the ARC HBR criterion for each episode
+    mutate(arc_hbr_tcp = case_when(
+        (first_platelet_count < 100) ~ 1,
+        TRUE ~ 0,
+    )) %>%
+    select(
+        episode_id,
+        arc_hbr_tcp
+    ) %>%
+    # Join on all the episodes that did not have any blood test
+    # results (will right join as NA) and replace the
+    # NA with zero to indicate no HBR criterion.
+    right_join(all_episodes, by = "episode_id") %>%
+    mutate(arc_hbr_tcp = replace_na(arc_hbr_tcp, 0))
