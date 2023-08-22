@@ -79,10 +79,6 @@ Patient age at least 75 at the time of risk score calculation is considered a mi
 
 The relevant time point for the calculation is the time of intervention (the PCI procedure, or shortly afterwords when therapy is being prescribed). Afterwords, the risk level theoretically changes (if the patient crosses the 75 boundary), although this is likely an arbitrary distinction (for example, for the duration of DAPT, the patient is likely either at risk due to age for the full period, or not at risk due to age).
 
-
-
-
-
 ### Oral Anticoagulant Use (Major)
 
 Anticipated use of long-term OAC is considered a major criterion. There are two types of oral anticoagulants:
