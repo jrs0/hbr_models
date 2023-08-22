@@ -2,7 +2,6 @@
 
 start_time <- Sys.time()
 
-
 # Set the working directory here
 setwd("scripts/prototypes")
 
@@ -102,7 +101,9 @@ stopifnot(identical(units, c("g/L", "10*9/L", "mL/min")))
 # eGFR column. This will be replaced with 90.
 blood_tests_numeric_results <- raw_blood_tests %>%
     select(-unit) %>%
-    mutate(result = str_replace(result, ">", "")) %>%
+    # Pick a value strictly larger than 90 to use as the 
+    # representative for >90 class.
+    mutate(result = str_replace(result, ">90", "91")) %>%
     mutate(result = as.numeric(result))
 
 # Want to associate each blood test with the episode in which it
@@ -132,26 +133,48 @@ blood_tests <- blood_tests_numeric_results %>%
 # - For women, minor (0.5) if Hb < 119 g/L
 # - For men, minor (0.5) if Hb < 129 g/L
 # - 0 otherwise
+#
+# The calculation interpretes the criterion as baseline
+# anaemia, i.e. before the PCI (not explicitly stated in
+# the ARC HBR definition). See comments for TCP below.
+#
+# "Anemia ... is frequently encountered in patients
+# undergoing PCI, with a reported prevalence of 21.6%
+# in the Bern DES Registry" (Urban et al., 2019), so
+# expect mean of arc_hbr_anaemia != 0 column
+# approx. 0.22.
+#
 arc_hbr_anaemia <- blood_tests %>%
+    # Reduce to the tests of interest
+    filter(test == "Haemoglobin") %>%
+    # Reduce by taking the _first_ Hb count reading
+    # (approximation to baseline) within in episode
+    arrange(episode_id, sample_collected) %>%
+    group_by(episode_id) %>%
+    summarise(first_result = first(result)) %>%
     # Need patient gender from demographics
     left_join(raw_episodes_data, by = "episode_id") %>%
     left_join(raw_demographics, by = "patient_id") %>%
     # Calculate the ARC HBR criterion for each blood test
     mutate(arc_hbr_anaemia = case_when(
-        (test == "Haemoglobin") & (result < 110) ~ 1,
-        (test == "Haemoglobin") & (gender == "female") & (result < 119) ~ 0.5,
-        (test == "Haemoglobin") & (gender == "male") & (result < 129) ~ 0.5,
+        first_result < 110 ~ 1,
+        (gender == "female") & (first_result) < 119 ~ 0.5,
+        (gender == "male") & (first_result < 129) ~ 0.5,
         TRUE ~ 0,
     )) %>%
-    # Reduce by taking the maximum score over all the blood tests for
-    # each episode
-    group_by(episode_id) %>%
-    summarise(arc_hbr_anaemia = max(arc_hbr_anaemia)) %>%
+    select(
+        episode_id,
+        arc_hbr_anaemia
+    ) %>%
     # Join on all the episodes that did not have any blood test
     # results (will right join as NA) and replace the
     # NA with zero to indicate no HBR criterion.
     right_join(all_episodes, by = "episode_id") %>%
     mutate(arc_hbr_anaemia = replace_na(arc_hbr_anaemia, 0))
+
+# Check anaemia prevalance (expect 0.22)
+arc_hbr_anaemia %>%
+    summary(arc_hbr_anaemia != 0)
 
 # Thrombocytopenia (low platelet count)
 # - Baseline platelet count < 100e9/L
@@ -180,10 +203,10 @@ arc_hbr_tcp <- blood_tests %>%
     # (approximation to baseline) within in episode
     arrange(episode_id, sample_collected) %>%
     group_by(episode_id) %>%
-    summarise(first_platelet_count = first(result)) %>%
+    summarise(first_result = first(result)) %>%
     # Calculate the ARC HBR criterion for each episode
     mutate(arc_hbr_tcp = case_when(
-        (first_platelet_count < 100) ~ 1,
+        (first_result < 100) ~ 1,
         TRUE ~ 0,
     )) %>%
     select(
@@ -195,3 +218,57 @@ arc_hbr_tcp <- blood_tests %>%
     # NA with zero to indicate no HBR criterion.
     right_join(all_episodes, by = "episode_id") %>%
     mutate(arc_hbr_tcp = replace_na(arc_hbr_tcp, 0))
+
+# Check thrombocytopenia prevalance (expect 0.015 to 0.025)
+arc_hbr_tcp %>%
+    summary(arc_hbr_tcp != 0)
+
+
+# Chronic Kidney Disease (CKD)
+# Severe (stage 4) or end-stage (stage 5) 
+# CKD is a major ARC HBR criterion. Moderate
+# (stage 3) CKD is a minor criterion. See
+# below for definitions.
+#
+# Stage 5: eGFR < 15 mL/min
+# Stage 4: eGFR < 30 mL/min
+# Stage 3: eGFR < 60 mL/min
+#
+# As a result:
+# - Major (1) if eGFR < 30
+# - Minor (0.5) if eGFR < 60
+# - 0 otherwise
+#
+# "Approximately 30% of patients undergoing PCI 
+# have an eGFR <60 mL/min", (Urban et al., 2019), 
+# so expect mean of arc_hbr_tcp column approx. 
+# 0.3.
+#
+arc_hbr_ckd <- blood_tests %>%
+    filter(test == "eGFR") %>%
+    # Reduce by taking the _first_ platelet count reading,
+    # 
+    arrange(episode_id, sample_collected) %>%
+    group_by(episode_id) %>%
+    summarise(first_result = first(result)) %>%
+    # Calculate the ARC HBR criterion for each episode
+    mutate(arc_hbr_ckd = case_when(
+        (first_result < 30) ~ 1,
+        (first_result < 60) ~ 0.5,
+        TRUE ~ 0,
+    )) %>%
+    select(
+        episode_id,
+        arc_hbr_ckd
+    ) %>%
+    # Join on all the episodes that did not have any blood test
+    # results (will right join as NA) and replace the
+    # NA with zero to indicate no HBR criterion.
+    right_join(all_episodes, by = "episode_id") %>%
+    mutate(arc_hbr_ckd = replace_na(arc_hbr_ckd, 0))
+
+# Check CKD prevalence (expect 0.3)
+# Note: CKD prevalence seems a bit low by the calculation
+# above. 
+arc_hbr_ckd %>%
+    summary(arc_hbr_ckd != 0)
