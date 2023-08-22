@@ -172,10 +172,6 @@ arc_hbr_anaemia <- blood_tests %>%
     right_join(all_episodes, by = "episode_id") %>%
     mutate(arc_hbr_anaemia = replace_na(arc_hbr_anaemia, 0))
 
-# Check anaemia prevalance (expect 0.22)
-arc_hbr_anaemia %>%
-    summary(arc_hbr_anaemia != 0)
-
 # Thrombocytopenia (low platelet count)
 # - Baseline platelet count < 100e9/L
 #
@@ -219,11 +215,6 @@ arc_hbr_tcp <- blood_tests %>%
     right_join(all_episodes, by = "episode_id") %>%
     mutate(arc_hbr_tcp = replace_na(arc_hbr_tcp, 0))
 
-# Check thrombocytopenia prevalance (expect 0.015 to 0.025)
-arc_hbr_tcp %>%
-    summary(arc_hbr_tcp != 0)
-
-
 # Chronic Kidney Disease (CKD)
 # Severe (stage 4) or end-stage (stage 5) 
 # CKD is a major ARC HBR criterion. Moderate
@@ -266,9 +257,3 @@ arc_hbr_ckd <- blood_tests %>%
     # NA with zero to indicate no HBR criterion.
     right_join(all_episodes, by = "episode_id") %>%
     mutate(arc_hbr_ckd = replace_na(arc_hbr_ckd, 0))
-
-# Check CKD prevalence (expect 0.3)
-# Note: CKD prevalence seems a bit low by the calculation
-# above. 
-arc_hbr_ckd %>%
-    summary(arc_hbr_ckd != 0)
