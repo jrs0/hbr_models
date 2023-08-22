@@ -2,6 +2,7 @@
 
 start_time <- Sys.time()
 
+
 # Set the working directory here
 setwd("scripts/prototypes")
 
@@ -89,7 +90,7 @@ raw_blood_tests <- get_blood_tests_hic(con, start_date, end_date) %>%
 
 # Expect exactly three units:
 # - g/L for Hb
-# - 10*9/L (meaning count per 1e9) for Platelets
+# - 10*9/L (meaning 1e9 platelets per litre) for Platelets
 # - mL/min for eGFR
 units <- raw_blood_tests %>%
     distinct(unit) %>%
@@ -121,6 +122,7 @@ blood_tests <- blood_tests_numeric_results %>%
         episode_id,
         test,
         result,
+        sample_collected
     )
 
 ####### COMPUTE ARC-HBR CRITERIA IN EACH EPISODE #######
@@ -150,3 +152,26 @@ arc_hbr_anaemia <- blood_tests %>%
     # no HBR criterion.
     right_join(all_episodes, by="episode_id") %>%
     mutate(arc_hbr_anaemia = replace_na(arc_hbr_anaemia, 0))
+
+# Thrombocytopenia (low platelet count)
+# - Baseline platelet count < 100e9/L
+#
+# The baseline is the count before the PCI. In order to
+# approximate this, we are picking the first platelet
+# measurement of each episode, on the assumption that
+# this is often done for ACS prior to PCI. This assumption
+# should be checked by comparing the sample collected
+# time to the PCI time, but this is not possible if the
+# PCI occurred as a code in the episode (because individual)
+# codes are not timestamped within an episode. It may
+# be possible when the PCI occurs in a different episode
+# (as it sometimes does), but that case is not covered 
+# here anyway. This is a suitable approximation for 
+# prototyping purposes.
+#
+blood_tests %>%
+    filter(test == "Platelets") %>%
+    arrange(episode_id, sample_collected) %>%
+    group_by(episode_id) %>%
+    filter(any(result < 100), n() > 1) %>%
+    print(n=100)
