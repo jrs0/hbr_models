@@ -356,3 +356,21 @@ arc_hbr_oac <- raw_episodes_data %>%
     # NA with zero to indicate no HBR criterion.
     right_join(all_episodes, by = "episode_id") %>%
     mutate(arc_hbr_oac = replace_na(arc_hbr_oac, 0))
+
+####### MAKE ARC SCORE TABLE #######
+
+arc_hbr <- arc_hbr_age %>%
+    left_join(arc_hbr_oac, by = "episode_id") %>%
+    left_join(arc_hbr_ckd, by = "episode_id") %>%
+    left_join(arc_hbr_anaemia, by = "episode_id") %>%
+    #left_join(arc_hbr_transfusion, by = "episode_id") %>%
+    left_join(arc_hbr_tcp, by = "episode_id")
+    #left_join(arc_hbr_cbd, by = "episode_id") %>%
+    #left_join(arc_hbr_transfusion, by = "episode_id") %>%
+    #left_join(arc_hbr_cph, by = "episode_id") %>%
+    #left_join(arc_hbr_cancer, by = "episode_id") %>%
+    #left_join(arc_hbr_stroke_ich, by = "episode_id") %>%
+    #left_join(arc_hbr_surgery_after_pci, by = "episode_id") %>%
+    #left_join(arc_hbr_surgery_before_pci, by = "episode_id") %>%
+    #left_join(arc_hbr_nsaid_steroid, by = "episode_id") %>%
+
