@@ -2,32 +2,76 @@
 get_demographics <- function(con) {
     demographics_id <- dbplyr::in_catalog("HIC_COVID_JS", "dbo", "cv_covid_demographics")
     dplyr::tbl(con, demographics_id) %>%
-    select(
-        Subject, # Patient identifier
-        gender_desc,
-        age, # At time of data collection, 2021
-        ethnicity_desc,
-    ) %>%
-    rename(
-        patient_id = Subject,
-        gender = gender_desc,
-        age_in_2021 = age,
-        ethnicity = ethnicity_desc,
-    ) %>%
-    collect() %>%
-    mutate(gender = case_when(
-        gender == "Female" ~ "female",
-        gender == "Male" ~ "male",
-        TRUE ~ "unknown",
-    ))
+        select(
+            Subject, # Patient identifier
+            gender_desc,
+            age, # At time of data collection, 2021
+            ethnicity_desc,
+        ) %>%
+        rename(
+            patient_id = Subject,
+            gender = gender_desc,
+            age_in_2021 = age,
+            ethnicity = ethnicity_desc,
+        ) %>%
+        collect() %>%
+        mutate(gender = case_when(
+            gender == "Female" ~ "female",
+            gender == "Male" ~ "male",
+            TRUE ~ "unknown",
+        ))
 }
 
-get_
+get_admission_medication <- function(con) {
+    prescriptions_admission_id <- dbplyr::in_catalog("HIC_COVID_JS", "dbo", "cv_covid_pharmacy_administration")
+    dplyr::tbl(con, prescriptions_admission_id) %>%
+        select(
+            IP_SPELL_ID, # Link to the spell ID in the episodes table
+            medication_name,
+            route,
+            dosage_unit,
+            `Medication - Frequency`,
+            `Medication - On Admission`
+        ) %>%
+        rename(
+            spell_id = IP_SPELL_ID,
+            medication = medication_name,
+            frequency = `Medication - Frequency`,
+            unit = `dosage_unit`,
+            action_on_admission = `Medication - On Admission`,
+        ) %>%
+        filter(!is.na(spell_id)) %>%
+        collect()
+}
+
+get_discharge_medication <- function(con) {
+    prescriptions_discharge_id <- dbplyr::in_catalog("HIC_COVID_JS", "dbo", "cv_covid_pharmacy_discharge")
+    dplyr::tbl(con, prescriptions_discharge_id) 
+    
+    %>%
+        select(
+            IP_SPELL_ID, # Link to the spell ID in the episodes table
+            medication_name,
+            route,
+            dosage_unit,
+            `Medication - Frequency`,
+            `Medication - On Admission`
+        ) %>%
+        rename(
+            spell_id = IP_SPELL_ID,
+            medication = medication_name,
+            frequency = `Medication - Frequency`,
+            unit = `dosage_unit`,
+            action_on_admission = `Medication - On Admission`,
+        ) %>%
+        filter(!is.na(spell_id)) %>%
+        collect()
+}
 
 ##' Get a list of blood test results
 get_blood_tests_hic <- function(con, start_date, end_date) {
     pathology_blood_id <- dbplyr::in_catalog("HIC_COVID_JS", "dbo", "cv_covid_pathology_blood")
-    dplyr::tbl(con, pathology_blood_id)  %>%
+    dplyr::tbl(con, pathology_blood_id) %>%
         select(
             subject, # Patient identifier
             order_name,
@@ -45,7 +89,7 @@ get_blood_tests_hic <- function(con, start_date, end_date) {
             unit = test_result_unit,
             sample_collected = sample_collected_date_time,
             result_available = result_available_date_time
-        )%>%
+        ) %>%
         filter(!is.na(patient_id)) %>%
         filter(sample_collected > start_date, sample_collected < end_date) %>%
         collect()

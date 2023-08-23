@@ -69,17 +69,8 @@ raw_demographics <- get_demographics(con)
 
 ####### PRESCRIPTIONS INFORMATION #######
 
-prescriptions_admission_id <- dbplyr::in_catalog("HIC_COVID_JS", "dbo", "cv_covid_pharmacy_administration")
-raw_prescriptions_on_admission <- dplyr::tbl(con, prescriptions_admission_id) %>%
-    select(
-        subject, # Patient identifier
-        IP_SPELL_ID, # Link to the spell ID in the episodes table
-        medication_name,
-        dosage_unit,
-        `Medication - Frequency`,
-        `Medication - On Admission`
-    ) %>%
-    collect()
+raw_admission_medication <- get_admission_medication(con)
+raw_discharge_medication <- get_discharge_medication(con)
 
 ####### BLOOD TEST RESULTS #######
 
@@ -141,6 +132,11 @@ blood_tests <- blood_tests_numeric_results %>%
     )
 
 ####### COMPUTE ARC-HBR CRITERIA IN EACH EPISODE #######
+
+# The steps below calculate the ARC-HBR score locally to
+# each episode (even for the scores which refer to a period
+# of time). This is a step in the full calculation for each
+# epsiode, which may aggregate scores from previous episodes.
 
 # Anaemia
 # - For men and women, major (1) if Hb < 110 g/L
@@ -291,3 +287,40 @@ arc_hbr_age <- raw_episodes_data %>%
         episode_id,
         arc_hbr_age = if_else(age >= 75, 0.5, 0)
     )
+
+# Long-term use of OAC
+#
+# Anticipated use of long-term oral anticoagulants is
+# considered a major criterion. The presence of one of
+# the following drugs in either the continued admission
+# medication or discharge medication is used as a proxy
+# for "anticipated long-term use":
+#
+# - Warfarin (vitamin K antagonist)
+# - Apixaban, dabigatran, edoxaban, rivaroxaban (direct
+#   oral anticoagulants)
+#
+# Medication is only considered if it is orally administered
+# (excludes jejunoenteral and subcutaneous, and NA)
+raw_episodes_data %>%
+    # Join the admission medication for each episode, by
+    # spell ID. expect many-to-many because one episode
+    # can have many different medications, but also one
+    # medication (for a spell) will apply to all the episodes
+    # in that spell
+    left_join(
+        raw_admission_medication,
+        by = "spell_id", relationship = "many-to-many"
+    ) %>%
+    # Pick out only the relevant orally administered drugs
+    filter(
+        str_detect(
+            medication,
+            "(WARFARIN|APIXABAN|DABIGATRAN|EDOXABAN|RIVAROXABAN)"
+        ),
+        route == "Oral"
+    ) %>%
+    # Only retain medication that was "continued" (assuming it
+    # means continued on discharge -- to check).
+    filter(action_on_admission == "Continued")
+
