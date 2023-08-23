@@ -324,3 +324,7 @@ raw_episodes_data %>%
     # means continued on discharge -- to check).
     filter(action_on_admission == "Continued")
 
+    raw_admission_medication %>%
+        left_join(raw_discharge_medication, by = "spell_id") %>%
+        arrange(spell_id) %>%
+        print(n=100)

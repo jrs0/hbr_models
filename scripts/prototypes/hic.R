@@ -28,16 +28,16 @@ get_admission_medication <- function(con) {
         select(
             IP_SPELL_ID, # Link to the spell ID in the episodes table
             medication_name,
-            route,
             dosage_unit,
             `Medication - Frequency`,
+            route,
             `Medication - On Admission`
         ) %>%
         rename(
             spell_id = IP_SPELL_ID,
             medication = medication_name,
+            dose = `dosage_unit`,
             frequency = `Medication - Frequency`,
-            unit = `dosage_unit`,
             action_on_admission = `Medication - On Admission`,
         ) %>%
         filter(!is.na(spell_id)) %>%
@@ -46,24 +46,22 @@ get_admission_medication <- function(con) {
 
 get_discharge_medication <- function(con) {
     prescriptions_discharge_id <- dbplyr::in_catalog("HIC_COVID_JS", "dbo", "cv_covid_pharmacy_discharge")
-    dplyr::tbl(con, prescriptions_discharge_id) 
-    
-    %>%
+    dplyr::tbl(con, prescriptions_discharge_id) %>%
         select(
-            IP_SPELL_ID, # Link to the spell ID in the episodes table
+            spell_id,
             medication_name,
-            route,
-            dosage_unit,
-            `Medication - Frequency`,
-            `Medication - On Admission`
+            ordered_dose,
+            ordered_frequency,
+            ordered_route,
+            prescription_type,
         ) %>%
         rename(
-            spell_id = IP_SPELL_ID,
             medication = medication_name,
-            frequency = `Medication - Frequency`,
-            unit = `dosage_unit`,
-            action_on_admission = `Medication - On Admission`,
-        ) %>%
+            dose = ordered_dose,
+            frequency = ordered_frequency,
+            route = ordered_route,
+            type = prescription_type,
+        )%>%
         filter(!is.na(spell_id)) %>%
         collect()
 }
