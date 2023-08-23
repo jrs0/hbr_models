@@ -67,10 +67,39 @@ code_group_counts <- raw_diagnoses_and_procedures %>%
 
 raw_demographics <- get_demographics(con)
 
-####### PRESCRIPTIONS INFORMATION #######
+####### MEDICATION INFORMATION #######
 
 raw_admission_medication <- get_admission_medication(con)
 raw_discharge_medication <- get_discharge_medication(con)
+
+continued_medication <- raw_admission_medication %>%
+    filter(action_on_admission == "Continued") %>%
+    transmute(
+        spell_id,
+        medication = tolower(medication),
+        route = tolower(route),
+        new_or_continued = "continued",
+    )
+
+new_medication <- raw_discharge_medication %>%
+    transmute(
+        spell_id,
+        medication = tolower(medication),
+        route = tolower(route),
+        new_or_continued = "new"
+    )
+
+# Medication that is present on discharge is both medication
+# on admission that is "Continued", or new medication that is
+# prescribed on discharge. This table does not contain any
+# dose or frequency information, but does include the route.
+# Note that, depending on exactly how the continued medication
+# is recorded in the discharge medication table, this table may
+# contain duplicate medication (medication in the same spell marked
+# as both new and continued). Do not depend on medication counts
+# (only use medication presence).
+medication_present_on_discharge <- continued_medication %>%
+    bind_rows(new_medication)
 
 ####### BLOOD TEST RESULTS #######
 
@@ -302,29 +331,28 @@ arc_hbr_age <- raw_episodes_data %>%
 #
 # Medication is only considered if it is orally administered
 # (excludes jejunoenteral and subcutaneous, and NA)
-raw_episodes_data %>%
-    # Join the admission medication for each episode, by
-    # spell ID. expect many-to-many because one episode
-    # can have many different medications, but also one
-    # medication (for a spell) will apply to all the episodes
-    # in that spell
+arc_hbr_oac <- raw_episodes_data %>%
+    # Join the new and continued medication on discharge
     left_join(
-        raw_admission_medication,
+        medication_present_on_discharge,
         by = "spell_id", relationship = "many-to-many"
     ) %>%
     # Pick out only the relevant orally administered drugs
     filter(
         str_detect(
             medication,
-            "(WARFARIN|APIXABAN|DABIGATRAN|EDOXABAN|RIVAROXABAN)"
+            # Do not depend on medication column having these
+            # exact names -- for example, "warfarin sodium" is present
+            "(warfarin|apixaban|dabigatran|edoxaban|rivaroxaban)",
         ),
-        route == "Oral"
+        route == "oral"
     ) %>%
-    # Only retain medication that was "continued" (assuming it
-    # means continued on discharge -- to check).
-    filter(action_on_admission == "Continued")
-
-    raw_admission_medication %>%
-        left_join(raw_discharge_medication, by = "spell_id") %>%
-        arrange(spell_id) %>%
-        print(n=100)
+    # All these rows are episodes with an OAC -- mark them as
+    # ARC-HBR major
+    distinct(episode_id) %>%
+    mutate(arc_hbr_oac = 1) %>%
+    # Join on all the episodes that did not have any OAC
+    # prescribed (will right join as NA) and replace the
+    # NA with zero to indicate no HBR criterion.
+    right_join(all_episodes, by = "episode_id") %>%
+    mutate(arc_hbr_oac = replace_na(arc_hbr_oac, 0))
