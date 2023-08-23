@@ -39,6 +39,51 @@ Columns contain NULLs, which can have meanings other than missing data. Data tha
 
 The following sections contain specifications for example synthetic tables. Discrepancies between the types of columns and the semantic content (for example, a nullable column that cannot be null, and behaves as a primary key) is due to the requirement to copy as closely as possible real datasets for testing purposes. Column descriptions clarify the actual content of the column.
 
+
+### Pharmacy on discharge table: `pharmacy_discharge`
+
+This table contains medication that patients were taking when they arrived were discharged from hospital.
+
+The columns, SQL Server types, and descriptions are given below:
+
+* `subject`, nvarchar(30), nullable: contains a string in the form `bristol_<NUM>`, where `<NUM>` is a positive integer.
+* `spell_id`, nvarchar(30), nullable: key linking to the `spell_identifier` in the `episodes` table. Format is `bristol_<NUM>` where `<NUM>` is a positive integer.
+* `admit_dttm`, datetime, nullable: the admission datetime (for the associated spell?)
+* `disch_dttm`, datetime, nullable: the discharge datetime (for the associated spell?) 
+* `prescription_order_id`, nvarchar(30), nullable: always NULL in this synthetic data
+* `order_date_time`, datetime, nullable: always NULL in this synthetic data
+* `prescription_type`, nvarchar(30), nullable: one of the following values:
+    * "Administered during admission"
+    * "At home"
+    * "Compliance box (Dosett)"
+    * "Dispense at discharge"
+    * "FP10"
+    * "FP10MDA"
+    * "Not Set"
+    * "Patient's own supply"
+    * "Relabel"
+    * "Supplied during admission"
+    * "Use clinical trial stock"
+    * "Ward pre-pack"
+* `therapeutical_class`, ncharchar(30), nullable: always NULL in this synthetic data
+* `medication_name`, nvarchar(80), nullable: the name of the medication prescribed; one of 970 different values (including "clopidogrel", "prasugrel", "ticagrelor", and "warfarin"), often lower case, but sometimes with an upper case item in square brackets. Examples include:
+    * "prednisoLONE"
+    * "lamotrigine"
+    * "mirtazapine"
+    * "omeprazole"
+    * "carbocisteine"
+    * "clopidogrel"
+    * "fluticasone / salmeterol [SIRDUPLA]"
+    * "losartan"
+* `ordered_dose`, nvarchar(4000), nullable: The amount of medication to be taken at the specified frequency. 4000 column length may have been applicable to `medication_name`. Often a mass such as "20mg", "30 mg", "200 micrograms", etc. or a quantity e.g. "1 tablets"
+* `ordered_frequency`, nvarchar(80), nullable: How often the medication should be taken. Similar in structure to the `Medication - Frequency` column in the admission medication table below.
+* `ordered_drug_form`, nvarchar(80), nullable: further information about the physical type of the medication; e.g. "tablets", "capsules", etc. (201 distinct values).
+* `ordered_unit`, nvarchar(80), nullable: always NULL in this synthetic data.
+* `ordered_route`, nvarchar(80), nullable: the method of medication administration; one of 29 options, including "Oral", "Intravenous", etc. Column does contain NULLs.
+* `admission_medicine_y_n`, nvarchar(2), nullable: always NULL in this synthetic data.
+* `gp_to_continue`, nvarchar(80), nullable: always NULL in this synthetic data.
+* `brc_name`, nvarchar(10), nullable: name of source of test information. Always equal to "bristol". Does not contain NULLs.
+
 ### Pharmacy on admission table: `pharmacy_administration`
 
 This table contains medication that patients were taking when they arrived at the hospital. The table is called "administration" because the information is extracted from the discharge summary by the administrative team.
@@ -48,21 +93,33 @@ The columns, SQL Server types, and descriptions are given below:
 * `subject`, nvarchar(30), nullable: contains a string in the form `bristol_<NUM>`, where `<NUM>` is a positive integer.
 * `prescription_order_id`, nvarchar(30), nullable: always NULL in this synthetic data
 * `therapeutical_class`, ncharchar(30), nullable: always NULL in this synthetic data
-* `medication_name`, nvarchar(4000), nullable: the name of the medication prescribed; one of 979 different values (including "CLOPIDOGREL", "PRASUGREL", "TICAGRELOR", and "WARFARIN SODIUM"), always fully capitalised.
+* `medication_name`, nvarchar(4000), nullable: the name of the medication prescribed; one of 979 different values (including "CLOPIDOGREL", "PRASUGREL", "TICAGRELOR", and "WARFARIN SODIUM"), very often fully capitalised (different from discharge table). There does not appear to be a reason for the length 4000 (no item in the table is longer than about 150 characters). Examples include:
+    * "BUPROFEN"
+    * "INDAPAMIDE"
+    * "SALBUTAMOL"
+    * "DOCUSATE SODIUM"
+    * "FUROSEMIDE"
+    * "SERTRALINE"
+    * "INDAPAMIDE"
+    * "FOLIC ACID"
+    * "LEVETIRACETAM"
+    * "MIRTAZAPINE"
+    * "APIXABAN"
+    * "ASPIRIN"
 * `administration_date_time`, datetime, nullable: date time column which is always equal to `ADMIT_DTTM`
-* `dosage_unit`, nvarchar(80), nullable: medication-specific string indicating the dose units for the prescribed medication.
+* `dosage_unit`, nvarchar(80), nullable: medication-specific string indicating the dose units for the prescribed medication. Note that this is not a unit (unlike in the blood tests table; it also contains a value often, see aspirin below). The purpose is specifying the dose amount to be taken at the given specified frequency.
 * `route`, nvarchar(80), nullable: the method of medication administration; one of 29 options, including "Oral" (and "Orally"), "Intravenous", etc. Column does contain NULLs.
 * `brc_name`, nvarchar(10), nullable: name of source of test information. Always equal to "bristol". Does not contain NULLs.
 * `IP_SPELL_ID`, nvarchar(30), nullable: key linking to the `spell_identifier` in the `episodes` table. Format is `bristol_<NUM>` where `<NUM>` is a positive integer.
-* `ADMIT_DTTN`, datetime, nullable: the admission datetime (for the associated spell?)
-* `DISCH_DTTN`, datetime, nullable: the discharge datetime (for the associated spell?) 
+* `ADMIT_DTTM`, datetime, nullable: the admission datetime (for the associated spell?)
+* `DISCH_DTTM`, datetime, nullable: the discharge datetime (for the associated spell?) 
 * `Site of Admin`, nvarchar(12), nullable: always NULL in this synthetic data.
 * `Medication Order Type`, varchar(12), not nullable: always equal to "On Admission" in this synthetic data.
 * `Medication - Frequency`, nvarchar(80), nullable: how often the medication should be table; expression such as "TWICE a day", "at NIGHT", "daily", etc. (2342 variants in original dataset).
 * `Medication - On Admission`, nvarchar(80), nullable: indicates further information about the medication state on admission. Valid values are:
     * NULL
-    * "Continued" - medication is left the same on discharge as admission
-    * "Changed" - medication changed (often the dose or frequency) on discharge compared to admission
+    * "Continued" - medication is left the same on discharge as admission (actually, given the column heading name, it might mean whether the medication was continued in the spell -- to check)
+    * "Changed" - medication changed (often the dose or frequency) on discharge compared to admission (or, as above, changed during the spell?)
     * "Stopped/Held" - means medication was discontinued at discharge vs. admission
     * "Omitted on admission" - during the spell the patient does not take the medication; this is really independent information from "changed", "stopped/held" or "continued".
     * "Added by Pharmacist Prescriber" - newly prescribed
