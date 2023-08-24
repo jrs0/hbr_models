@@ -1,6 +1,27 @@
 import scipy.sparse
 import numpy as np
 
+def get_column_index(code_to_column, code):
+    '''
+    Convert a code to its corresponding index in
+    the dictionary code_to_column. If the code has
+    been seen before, return its index. If it has
+    not been seen before, add the code and return 
+    its index. The code_to_column dictionary is
+    updated in place.
+    '''
+    # Add the index of the current code to the index
+    # list
+    if code in code_to_column:
+        # Append the column index
+        column_index = code_to_column[code]
+    else:
+        # Add the code as a new column index 
+        column_index = len(code_to_column)
+        code_to_column[code] = column_index
+
+    return column_index
+
 def encode_sparse(long_codes):
     '''
     The input is a table of codes (full_code
@@ -53,15 +74,7 @@ def encode_sparse(long_codes):
         position = row["position"]
         print(f"{full_code}, {position}")
         
-        # Add the index of the current code to the index
-        # list
-        if full_code in code_to_column:
-            # Append the column index
-            column_index = code_to_column[full_code]
-        else:
-            # Add the code as a new column index 
-            column_index = len(code_to_column)
-            code_to_column[full_code] = column_index
+        column_index = get_column_index(code_to_column, full_code)
 
         # Append the column index and data to the current
         # list
