@@ -37,18 +37,23 @@ long_codes = hes.convert_codes_to_long(df)
 highest_priority_position = long_codes.groupby(["spell_id", "full_code"]).position.transform(min)
 long_codes_dedup = long_codes[long_codes.position == highest_priority_position]
 
+# Map the position onto the following linear scale: primary diagnosis
+# is 24, through secondary_diagnosis_23 is 1 (same for procedure). The
+# intention is to later create a linear scale where a higher number
+# means a higher priority diagnosis or procedure, and the value 0 is
+# reserved for diagnosis or procedure not present
+linear_position = hes.make_linear_position_scale(long_codes_dedup, 23)
+
+# Calculate a sparse encoded representation of the codes where
+encoded = spe.encode_sparse(linear_position)
+
+
 # Only keep the two 3 diagnosis and procedure codes, under the
 # assumption that the others may contribute more noise than
 # structure, or that the top codes may contain the most
 # important information
 top_three_codes = long_codes[long_codes.position < 3]
 
-# Map the position onto the following linear scale: primary diagnosis
-# is 24, through secondary_diagnosis_23 is 1 (same for procedure). The
-# intention is to later create a linear scale where a higher number
-# means a higher priority diagnosis or procedure, and the value 0 is
-# reserved for diagnosis or procedure not present
-linear_position = hes.make_linear_position_scale(long_codes, 23)
 
 # It is too memory-intensive to just encode all the values
 # in one go. Instead, filter the low-frequency codes first,
@@ -119,9 +124,14 @@ full_encoded = age_and_gender.join(encoded).fillna(False)
 #   (spells) are considered different according to how many of their
 #   clinical codes differ -- this is the Hamming distance.
 
-mapper = umap.UMAP(metric='cosine', random_state=42, low_memory=True)
-
-mapper.fit(mat)
+mapper = umap.UMAP(metric='euclidean', random_state=42, low_memory=True)
+embedding = mapper.fit_transform(e)
+plt.scatter(
+    embedding[:, 0],
+    embedding[:, 1])
+plt.gca().set_aspect('equal', 'datalim')
+plt.title('UMAP projection of HES spell codes', fontsize=24)
+plt.show()
 
 # 2D embedding
 fit = umap.UMAP(
