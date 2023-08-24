@@ -50,17 +50,17 @@ def encode_sparse(long_codes):
 
     num_non_zeros = 0
 
-    for _, row in sorted_by_spell.head(20).iterrows():
+    for _, row in sorted_by_spell.iterrows():
         
         spell_id = row["spell_id"]
 
-        print(current_spell_id, spell_id)
+        #print(current_spell_id, spell_id)
         if current_spell_id != spell_id:
-            print("Next spell")
+            #print("Next spell")
             # Append the row for this spell (constructed
             # in previous iterations of the for loop) to
             # the main list of lists
-            print(current_lil_matrix_row, current_lil_matrix_data)
+            #print(current_lil_matrix_row, current_lil_matrix_data)
 
             lil_matrix_rows.append(current_lil_matrix_row)
             lil_matrix_data.append(current_lil_matrix_data)
@@ -72,11 +72,11 @@ def encode_sparse(long_codes):
             # Update the current spell
             current_spell_id = spell_id
 
-        print("Normal")
+        #print("Normal")
         # Get the code and position data
         full_code = row["full_code"]
         position = row["position"]
-        print(f"{full_code}, {position}")
+        #print(f"{full_code}, {position}")
         
         column_index = get_column_index(code_to_column, full_code)
 
@@ -104,8 +104,8 @@ def encode_sparse(long_codes):
     # Find matrix dimensions
     num_rows = len(lil_matrix_rows)
 
-    print(f"Rows: {lil_matrix_rows}")
-    print(f"nzv: {lil_matrix_data}")
+    #print(f"Rows: {lil_matrix_rows}")
+    #print(f"nzv: {lil_matrix_data}")
 
     # Create the sparse matrix
     #num_non_zeros = long_codes.spell_id.nunique()
