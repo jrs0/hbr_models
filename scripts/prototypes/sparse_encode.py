@@ -29,6 +29,11 @@ def encode_sparse(long_codes):
     and containing the clinical code position
     in the position column. The output is a
     sparse matrix.
+
+    The reason for doing this manually is that I 
+    could not figure out how to make pandas pivot
+    into a wide sparse format. If that is possible,
+    this function is not needed.
     '''
     sorted_by_spell = long_codes.sort_values("spell_id")
 
@@ -48,7 +53,7 @@ def encode_sparse(long_codes):
     current_lil_matrix_row = []
     current_lil_matrix_data = []
 
-    for _, row in sorted_by_spell.head(50).iterrows():
+    for _, row in sorted_by_spell.head(15000).iterrows():
         
         spell_id = row["spell_id"]
 

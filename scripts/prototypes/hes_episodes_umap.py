@@ -20,6 +20,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 import umap
+import umap.plot
 from sklearn.preprocessing import OneHotEncoder
 import re
 
@@ -125,7 +126,13 @@ full_encoded = age_and_gender.join(encoded).fillna(False)
 #   clinical codes differ -- this is the Hamming distance.
 
 mapper = umap.UMAP(metric='euclidean', random_state=42, low_memory=True)
-embedding = mapper.fit_transform(e)
+res = mapper.fit(encoded)
+
+p = umap.plot.points(res, values=np.arange(encoded.get_shape()[0]), theme='viridis')
+plt.show()
+
+
+embedding = mapper.fit_transform(encoded)
 plt.scatter(
     embedding[:, 0],
     embedding[:, 1])
