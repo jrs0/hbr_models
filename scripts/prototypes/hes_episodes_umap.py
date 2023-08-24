@@ -47,8 +47,20 @@ long_codes_dedup = long_codes.groupby(["spell_id", "full_code"]).min().reset_ind
 # reserved for diagnosis or procedure not present
 linear_position = hes.make_linear_position_scale(long_codes_dedup, 23)
 
+# It is too memory-intensive to just encode all the values
+# in one go. Instead, filter the low-frequency codes first,
+# then perform the encoding.
+#
+# Found I don't need this now that I've got sparse=True in
+# the get_dummies call. There is also a mistake here -- you
+# will drop spells that have no common codes, which might
+# be a mistake.
+counts = linear_position.full_code.value_counts() / len(linear_position)
+most_frequent_codes = counts.head(1000).index.to_list()
+reduced_codes = linear_position[linear_position.full_code.isin(most_frequent_codes)]
+
 # Calculate a sparse encoded representation of the codes where
-encoded, spell_ids = spe.encode_sparse(linear_position)
+encoded, spell_ids = spe.encode_sparse(reduced_codes)
 
 # Get the list of ages in the same order as the encoded data
 ordered_spells = pd.DataFrame({"spell_id": spell_ids})
@@ -59,18 +71,6 @@ age = ordered_spells.merge(age_and_gender, on = "spell_id")
 # structure, or that the top codes may contain the most
 # important information
 top_three_codes = long_codes[long_codes.position < 3]
-
-# It is too memory-intensive to just encode all the values
-# in one go. Instead, filter the low-frequency codes first,
-# then perform the encoding.
-#
-# Found I don't need this now that I've got sparse=True in
-# the get_dummies call. There is also a mistake here -- you
-# will drop spells that have no common codes, which might
-# be a mistake.
-counts = long_codes.full_code.value_counts() / len(long_codes)
-most_frequent_codes = counts.head(1000).index.to_list()
-reduced_codes = long_codes[long_codes.full_code.isin(most_frequent_codes)]
 
 # There is an issue where the same code can show up in different
 # positions. Pick the smallest position (higher priority).
@@ -89,7 +89,7 @@ encoded = pd.get_dummies(reduced_codes, columns=["full_code"]).groupby("spell_id
 # instead of just a TRUE/FALSE. The value after this pivot is the
 # linear diagnosis/procedure scale from 1 (last secondary) to 24
 # (primary), with NA when the code is not present in the spell.
-encoded = linear_position_dedup.pivot(index = "spell_id", columns = "full_code", values = "position")
+encoded = linear_position.pivot(index = "spell_id", columns = "full_code", values = "position")
 # Replace NA with 0 to indicate no code
 #encoded = encoded.fillna(0)
 
