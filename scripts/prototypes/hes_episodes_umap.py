@@ -8,6 +8,8 @@ import os
 os.chdir("scripts/prototypes")
 
 import hes
+import sparse_encode as spe
+
 import importlib
 import numpy as np
 from sklearn.datasets import load_digits
@@ -22,6 +24,7 @@ from sklearn.preprocessing import OneHotEncoder
 import re
 
 importlib.reload(hes)
+importlib.reload(spe)
 
 raw_data = hes.get_spells_hes_pandas()
 cols_to_remove = ["nhs_number", "spell_start_date", "spell_end_date"]

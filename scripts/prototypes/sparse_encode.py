@@ -9,7 +9,7 @@ def encode_sparse(long_codes):
     in the position column. The output is a
     sparse matrix.
     '''
-    sorted_by_spell = long_codes.sort_values("spell_id") 
+    sorted_by_spell = long_codes.sort_values("spell_id")
 
     lil_matrix_rows = []
     lil_matrix_data = []
@@ -20,8 +20,10 @@ def encode_sparse(long_codes):
     code_to_column = {}
 
     # This variable tracks the current spell_id and
-    # indicates when a particular row is finished
-    current_spell_id = sorted_by_spell.spell_id[0] 
+    # indicates when a particular row is finished. Note
+    # min is still required as index has not changed by
+    # sort
+    current_spell_id = sorted_by_spell.spell_id.min()
     current_lil_matrix_row = []
     current_lil_matrix_data = []
 
@@ -32,8 +34,9 @@ def encode_sparse(long_codes):
         print(current_spell_id, spell_id)
         if current_spell_id != spell_id:
             print("Next spell")
-            # Append the row for this spell to the 
-            # sparse data
+            # Append the row for this spell (constructed
+            # in previous iterations of the for loop) to
+            # the main list of lists
             lil_matrix_rows.append(current_lil_matrix_row)
             lil_matrix_data.append(current_lil_matrix_data)
 
@@ -43,32 +46,45 @@ def encode_sparse(long_codes):
 
             # Update the current spell
             current_spell_id = spell_id
-        
+
         print("Normal")
         # Get the code and position data
         full_code = row["full_code"]
         position = row["position"]
+        print(f"{full_code}, {position}")
         
         # Add the index of the current code to the index
         # list
         if full_code in code_to_column:
             # Append the column index
             column_index = code_to_column[full_code]
-            current_lil_matrix_row.append(column_index)
-
-            # Append the column data. This is either the
-            # linear code position, or just a TRUE/FALSE
-            # marker if dummy encoding. (TODO)
-            current_lil_matrix_data.append(position)
         else:
             # Add the code as a new column index 
-            code_to_column[full_code] = len(code_to_column)
+            column_index = len(code_to_column)
+            code_to_column[full_code] = column_index
+
+        # Append the column index and data to the current
+        # list
+        current_lil_matrix_row.append(column_index)
+        # Append the column data. This is either the
+        # linear code position, or just a TRUE/FALSE
+        # marker if dummy encoding. (TODO)
+        current_lil_matrix_data.append(position)
+
+    # Find matrix dimensions
+    num_rows = len(lil_matrix_rows)
+    num_cols = len(code_to_column)
+
+    print(f"Rows: {lil_matrix_rows}")
+    print(f"nzv: {lil_matrix_data}")
 
     # Create the sparse matrix
-    num_non_zeros = long_codes.spell_id.nunique()
-    mat = scipy.sparse.lil_matrix((len(lil_matrix_rows), num_non_zeros), dtype=np.float32)
+    #num_non_zeros = long_codes.spell_id.nunique()
+    mat = scipy.sparse.lil_matrix((num_rows, num_cols), dtype=np.float32)
     mat.rows = lil_matrix_rows
     mat.data = lil_matrix_data
 
     return mat
     
+
+
