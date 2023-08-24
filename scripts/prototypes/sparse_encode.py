@@ -48,6 +48,8 @@ def encode_sparse(long_codes):
     current_lil_matrix_row = []
     current_lil_matrix_data = []
 
+    num_non_zeros = 0
+
     for _, row in sorted_by_spell.head(20).iterrows():
         
         spell_id = row["spell_id"]
@@ -58,8 +60,10 @@ def encode_sparse(long_codes):
             # Append the row for this spell (constructed
             # in previous iterations of the for loop) to
             # the main list of lists
-            lil_matrix_rows.append(current_lil_matrix_row)
-            lil_matrix_data.append(current_lil_matrix_data)
+            print(current_lil_matrix_row, current_lil_matrix_data)
+
+            lil_matrix_rows.append(current_lil_matrix_row.copy())
+            lil_matrix_data.append(current_lil_matrix_data.copy())
 
             # Reset the rows
             current_lil_matrix_row = []
@@ -83,21 +87,23 @@ def encode_sparse(long_codes):
         # linear code position, or just a TRUE/FALSE
         # marker if dummy encoding. (TODO)
         current_lil_matrix_data.append(position)
+        num_non_zeros += 1
 
     # Find matrix dimensions
     num_rows = len(lil_matrix_rows)
-    num_cols = len(code_to_column)
 
     print(f"Rows: {lil_matrix_rows}")
     print(f"nzv: {lil_matrix_data}")
 
     # Create the sparse matrix
     #num_non_zeros = long_codes.spell_id.nunique()
-    mat = scipy.sparse.lil_matrix((num_rows, num_cols), dtype=np.float32)
+    mat = scipy.sparse.lil_matrix((num_rows, num_non_zeros), dtype=np.float32)
     mat.rows = lil_matrix_rows
     mat.data = lil_matrix_data
 
     return mat
+    
+
     
 
 
