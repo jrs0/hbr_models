@@ -34,6 +34,9 @@ age_and_gender = df[["spell_id", "age", "gender"]]
 
 long_codes = hes.convert_codes_to_long(df)
 
+highest_priority_position = long_codes.groupby(["spell_id", "full_code"]).position.transform(min)
+long_codes_dedup = long_codes[long_codes.position == highest_priority_position]
+
 # Only keep the two 3 diagnosis and procedure codes, under the
 # assumption that the others may contribute more noise than
 # structure, or that the top codes may contain the most
