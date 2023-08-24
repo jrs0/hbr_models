@@ -62,8 +62,8 @@ def encode_sparse(long_codes):
             # the main list of lists
             print(current_lil_matrix_row, current_lil_matrix_data)
 
-            lil_matrix_rows.append(current_lil_matrix_row.copy())
-            lil_matrix_data.append(current_lil_matrix_data.copy())
+            lil_matrix_rows.append(current_lil_matrix_row)
+            lil_matrix_data.append(current_lil_matrix_data)
 
             # Reset the rows
             current_lil_matrix_row = []
@@ -80,6 +80,12 @@ def encode_sparse(long_codes):
         
         column_index = get_column_index(code_to_column, full_code)
 
+        # Check that this column index has not been seen
+        # before. If it has, then there is a duplicate value
+        # in the data -- raise a value error
+        if column_index in current_lil_matrix_row:
+            raise ValueError(f"Found duplicate code {full_code} in spell {spell_id}")
+
         # Append the column index and data to the current
         # list
         current_lil_matrix_row.append(column_index)
@@ -88,6 +94,12 @@ def encode_sparse(long_codes):
         # marker if dummy encoding. (TODO)
         current_lil_matrix_data.append(position)
         num_non_zeros += 1
+
+    # The last set of rows/data will not have been pushed
+    # to the main arrays at the end of the for loop. Do it
+    # here
+    lil_matrix_rows.append(current_lil_matrix_row)
+    lil_matrix_data.append(current_lil_matrix_data)
 
     # Find matrix dimensions
     num_rows = len(lil_matrix_rows)
@@ -102,7 +114,8 @@ def encode_sparse(long_codes):
     mat.data = lil_matrix_data
 
     return mat
-    
+
+
 
     
 
