@@ -53,7 +53,12 @@ def encode_sparse(long_codes):
     current_lil_matrix_row = []
     current_lil_matrix_data = []
 
-    for _, row in sorted_by_spell.head(15000).iterrows():
+    # Will be returned as the "row order", so that the
+    # caller can determine which rows correspond to which
+    # spells
+    spell_ids = []
+
+    for _, row in sorted_by_spell.head(50000).iterrows():
         
         spell_id = row["spell_id"]
 
@@ -64,6 +69,9 @@ def encode_sparse(long_codes):
             # in previous iterations of the for loop) to
             # the main list of lists
             #print(current_lil_matrix_row, current_lil_matrix_data)
+
+            # Record the spell id as a row identifier
+            spell_ids.append(current_spell_id)
 
             lil_matrix_rows.append(current_lil_matrix_row)
             lil_matrix_data.append(current_lil_matrix_data)
@@ -99,7 +107,8 @@ def encode_sparse(long_codes):
 
     # The last set of rows/data will not have been pushed
     # to the main arrays at the end of the for loop. Do it
-    # here
+    # here.
+    spell_ids.append(current_spell_id)
     lil_matrix_rows.append(current_lil_matrix_row)
     lil_matrix_data.append(current_lil_matrix_data)
 
@@ -117,4 +126,4 @@ def encode_sparse(long_codes):
     mat.rows = np.array(lil_matrix_rows, dtype=object)
     mat.data = np.array(lil_matrix_data, dtype=object)
 
-    return mat
+    return mat, spell_ids 

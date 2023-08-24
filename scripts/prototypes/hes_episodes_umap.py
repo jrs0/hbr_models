@@ -28,6 +28,7 @@ importlib.reload(hes)
 importlib.reload(spe)
 
 raw_data = hes.get_spells_hes_pandas()
+
 cols_to_remove = ["nhs_number", "spell_start_date", "spell_end_date"]
 df = raw_data.replace("", np.nan).drop(columns=cols_to_remove, axis=1)
 
@@ -35,8 +36,9 @@ age_and_gender = df[["spell_id", "age", "gender"]]
 
 long_codes = hes.convert_codes_to_long(df)
 
-highest_priority_position = long_codes.groupby(["spell_id", "full_code"]).position.transform(min)
-long_codes_dedup = long_codes[long_codes.position == highest_priority_position]
+#highest_priority_position = long_codes.groupby(["spell_id", "full_code"]).position.transform(min)
+#long_codes_dedup = long_codes[long_codes.position == highest_priority_position]
+long_codes_dedup = long_codes.groupby(["spell_id", "full_code"]).min().reset_index()
 
 # Map the position onto the following linear scale: primary diagnosis
 # is 24, through secondary_diagnosis_23 is 1 (same for procedure). The
@@ -46,15 +48,17 @@ long_codes_dedup = long_codes[long_codes.position == highest_priority_position]
 linear_position = hes.make_linear_position_scale(long_codes_dedup, 23)
 
 # Calculate a sparse encoded representation of the codes where
-encoded = spe.encode_sparse(linear_position)
+encoded, spell_ids = spe.encode_sparse(linear_position)
 
+# Get the list of ages in the same order as the encoded data
+ordered_spells = pd.DataFrame({"spell_id": spell_ids})
+age = ordered_spells.merge(age_and_gender, on = "spell_id")
 
 # Only keep the two 3 diagnosis and procedure codes, under the
 # assumption that the others may contribute more noise than
 # structure, or that the top codes may contain the most
 # important information
 top_three_codes = long_codes[long_codes.position < 3]
-
 
 # It is too memory-intensive to just encode all the values
 # in one go. Instead, filter the low-frequency codes first,
@@ -125,10 +129,10 @@ full_encoded = age_and_gender.join(encoded).fillna(False)
 #   (spells) are considered different according to how many of their
 #   clinical codes differ -- this is the Hamming distance.
 
-mapper = umap.UMAP(metric='euclidean', random_state=42, low_memory=True)
+mapper = umap.UMAP(metric='euclidean', random_state=1, verbose = True)
 res = mapper.fit(encoded)
 
-p = umap.plot.points(res, values=np.arange(encoded.get_shape()[0]), theme='viridis')
+umap.plot.points(res, values=age.age, theme='viridis')
 plt.show()
 
 
