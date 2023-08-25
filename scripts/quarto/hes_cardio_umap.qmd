@@ -1,5 +1,5 @@
 ---
-title: "Topological Data Analysis of HES Spells for Cardiovascular Outcomes"
+title: "Dimension Reduction of HES Spells for Cardiovascular Outcomes"
 project:
   output-dir: _output
 format:
@@ -13,7 +13,8 @@ Diagnosis and procedure code data present in the hospital episode statistics (HE
 Ideally, we want to know how well the information (as a whole) in hospital episode data can inform predictive models of future outcomes. We wish to include not only the ad-hoc derived information obtained by reducing spells to presence of code groups, but also any other relationships which may be informative. For example:
 * Diagnosis and procedure codes come with a position (indicating a priority derived from the rules of the coding process), which may provide predictive information, and which is not included by considering code groups.
 * Certain patterns of codes may be standard for certain types of hospital interaction, and deviations from these standard patterns may represent important predictive information.
-* 
+
+One approach to trying to automatically capture 
 
 
 

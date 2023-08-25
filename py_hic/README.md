@@ -18,11 +18,23 @@ maturin develop
 
 If you find that you get Rust build errors after changing Python environment (or version), run `cargo clean` from the same directory and try again.
 
-To use the library, run (for example):
+Once you have run `maturin develop`, a temporary copy of the library is installed in the current virtual environment, meaning that it can be loaded from a script as if it were an installed library. To use the library, run (for example):
 
 ```python
 from py_hic.clinical_codes import get_codes_in_group
 ```
+
+## Installation on Windows
+
+To install the library in a virtual environment in VS Code, activate the environment, change to this folder, and build the release library using:
+
+```powershell
+# -i python is required so that it looks for a binary called python (not python3), as in the venv.
+maturin build --release -i python
+```
+
+
+
 
 ## Development on Linux
 
