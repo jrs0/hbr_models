@@ -33,7 +33,11 @@ To install the library in a virtual environment in VS Code, activate the environ
 maturin build --release -i python
 ```
 
+This will create a wheel with a name like `target\wheels\py_hic-0.1.0-cp39-none-win_amd64.whl`. To install it, run
 
+```powershell
+pip install target\wheels\py_hic-0.1.0-cp39-none-win_amd64.whl
+```
 
 
 ## Development on Linux
