@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 import umap
+import umap.plot
 from sklearn.preprocessing import OneHotEncoder
 import re
 
@@ -107,7 +108,6 @@ reduced_codes = linear_position.head(50000)
 
 # Encoded with dummy variables (true/false for code present)
 encoded = pd.get_dummies(reduced_codes, columns=["full_code"]).groupby("spell_id").max()
-data_to_reduce = encoded.filter(regex="(icd10|opcs4)") # Use "full_code" for dummy encoding
 
 data_to_reduce, _ = spe.encode_sparse(reduced_codes)
 
@@ -124,7 +124,7 @@ data_to_reduce, _ = spe.encode_sparse(reduced_codes)
 # no code in that spell). Replace 0 with False when using dummy
 # encoding
 full_encoded = age_and_gender.join(encoded).fillna(False)
-
+data_to_reduce = full_encoded.filter(regex="(icd10|opcs4)") # Use "full_code" for dummy encoding
 
 # No need to normalise, all the columns are on the same
 # scale (binary, with hamming distance between rows).
@@ -162,13 +162,17 @@ fit = umap.UMAP(
     min_dist = 0.1,
     n_components = 2,
     #metric = "euclidean"
-    verbose = True
+    verbose = True,
+    low_memory = True
 )
-embedding2d = fit.fit_transform(data_to_reduce)
+embedding2d = fit.fit(data_to_reduce)
+umap.plot.points(embedding2d)
+
 embedding2d.shape
 plt.scatter(
     embedding2d[:, 0],
-    embedding2d[:, 1])
+    embedding2d[:, 1],
+    c=full_encoded["age"])
 plt.gca().set_aspect('equal', 'datalim')
 plt.title('UMAP projection of HES spell codes', fontsize=24)
 plt.show()
