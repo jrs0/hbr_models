@@ -15,6 +15,8 @@ import pandas as pd
 import umap
 import umap.plot
 import re
+import scipy
+from py_hic.clinical_codes import get_codes_in_group
 
 import hes
 importlib.reload(hes)
@@ -26,7 +28,7 @@ raw_data = hes.get_spells_hes_pandas()
 # Copy in order to not modify raw_data (to use
 # inplace=True later). Want to keep the raw
 # data to avoid SQL fetch time.
-reduced = raw_data.head(5000).copy()
+reduced = raw_data.head(50000).copy()
 
 # Remove irrelevant columns
 cols_to_remove = ["nhs_number", "spell_start_date", "spell_end_date"]
@@ -75,10 +77,21 @@ dummy_encoded = pd.get_dummies(reduced, columns=["full_code"]).groupby("spell_id
 
 # Get just the columns that will be dimension-reduced
 dummy_data_to_reduce = dummy_encoded.filter(regex = "(icd10|opcs4)")
+dummy_data_to_reduce =  scipy.sparse.csr_matrix(dummy_data_to_reduce.values)
 
 # Get the age column in the same order as the data to reduce
 dummy_ordered_age = dummy_encoded.merge(age_and_gender, on="spell_id").age
+
 # ... get other values to plot on embedding here
+def get_code_group_labels(reduced, code_group):
+    group = get_codes_in_group("../codes_files/icd10.yaml", code_group)
+    group = "icd10_" + group.name.apply(hes.normalise_code)
+    df = reduced.copy()
+    df["ingroup"] = df.full_code.isin(group)
+    group = df.groupby("spell_id").ingroup.any()
+    return dummy_encoded.merge(group, on="spell_id").ingroup
+
+dummy_ordered_code_group = get_code_group_labels(reduced, "acs_bezin")
 
 # Pivot to keep the diagnosis position as the value of the code,
 # instead of just a TRUE/FALSE. The value after this pivot is the
@@ -88,6 +101,7 @@ linear_encoded = reduced.pivot(index = "spell_id", columns = "full_code", values
 
 # Get just the columns that will be dimension-reduced
 linear_data_to_reduce = linear_encoded.filter(regex = "(icd10|opcs4)")
+linear_data_to_reduce = scipy.sparse.csr_matrix(linear_data_to_reduce.values)
 
 # Get the age column in the same order as the data to reduce
 linear_ordered_age = linear_encoded.merge(age_and_gender, on="spell_id").age
@@ -122,13 +136,13 @@ linear_ordered_age = linear_encoded.merge(age_and_gender, on="spell_id").age
 dummy_mapper = umap.UMAP(metric='hamming', random_state=1, verbose = True)
 dummy_fit = dummy_mapper.fit(dummy_data_to_reduce)
 #umap.plot.diagnostic(dummy_fit, diagnostic_type='local_dim')
-umap.plot.points(dummy_fit, values = dummy_ordered_age, theme='viridis')
+umap.plot.points(dummy_fit, values = dummy_ordered_code_group, theme='viridis')
 plt.show()
 
-linear_mapper = umap.UMAP(metric='euclidean', random_state=2, verbose = True)
-linear_fit = linear_mapper.fit(linear_data_to_reduce.head(1000))
+linear_mapper = umap.UMAP(metric='euclidean', random_state=3, verbose = True)
+linear_fit = linear_mapper.fit(linear_data_to_reduce)
 #umap.plot.diagnostic(dummy_fit, diagnostic_type='local_dim')
-umap.plot.points(linear_fit, values = linear_ordered_age.head(1000), theme='viridis')
+umap.plot.points(linear_fit, values = linear_ordered_age, theme='viridis')
 plt.show()
 
 embedding = mapper.fit_transform(encoded)
