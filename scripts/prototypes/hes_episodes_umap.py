@@ -93,6 +93,9 @@ counts = long_codes.full_code.value_counts() / len(long_codes)
 most_frequent_codes = counts.head(1000).index.to_list()
 reduced_codes = long_codes[long_codes.full_code.isin(most_frequent_codes)]
 
+# Truncate instead of reducing
+reduced_codes = long_codes.head(50000)
+
 # There is an issue where the same code can show up in different
 # positions. Pick the smallest position (higher priority).
 # TODO figure out what is going on here
@@ -156,6 +159,7 @@ fit = umap.UMAP(
     min_dist = 0.1,
     n_components = 2,
     #metric = "euclidean"
+    verbose = True
 )
 data_to_reduce = full_encoded.filter(regex="(icd10|opcs4)") # Use "full_code" for dummy encoding
 embedding2d = fit.fit_transform(data_to_reduce)
