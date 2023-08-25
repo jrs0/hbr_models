@@ -8,6 +8,7 @@ import os
 os.chdir("scripts/prototypes")
 
 import hes
+import sparse_encode as spe
 import importlib
 import numpy as np
 from sklearn.datasets import load_digits
@@ -74,6 +75,9 @@ long_codes = long_codes.drop(columns=["variable", "value"])
 # important information
 long_codes = long_codes[long_codes.position < 3]
 
+long_codes_dedup = long_codes.groupby(["spell_id", "full_code"]).min().reset_index()
+linear_position = hes.make_linear_position_scale(long_codes_dedup, 23)
+
 # Map the position onto the following linear scale: primary diagnosis
 # is 24, through secondary_diagnosis_23 is 1 (same for procedure). The
 # intention is to later create a linear scale where a higher number
@@ -94,20 +98,18 @@ most_frequent_codes = counts.head(1000).index.to_list()
 reduced_codes = long_codes[long_codes.full_code.isin(most_frequent_codes)]
 
 # Truncate instead of reducing
-reduced_codes = long_codes.head(50000)
+reduced_codes = linear_position.head(50000)
 
 # There is an issue where the same code can show up in different
 # positions. Pick the smallest position (higher priority).
 # TODO figure out what is going on here
 #reduced_codes = reduced_codes.groupby(["spell_id", "full_code"]).min().reset_index()
 
-# Create dummy variables for all the different codes
-#
-# This line takes quite a long time with relatively few codes, and
-# should probably be optimised. The C++ approach of just passing
-# through the vector once and building a numpy array row by row might 
-# be fine. 
+# Encoded with dummy variables (true/false for code present)
 encoded = pd.get_dummies(reduced_codes, columns=["full_code"]).groupby("spell_id").max()
+data_to_reduce = encoded.filter(regex="(icd10|opcs4)") # Use "full_code" for dummy encoding
+
+data_to_reduce, _ = spe.encode_sparse(reduced_codes)
 
 # Pivot to keep the diagnosis position as the value of the code,
 # instead of just a TRUE/FALSE. The value after this pivot is the
@@ -122,6 +124,7 @@ encoded = pd.get_dummies(reduced_codes, columns=["full_code"]).groupby("spell_id
 # no code in that spell). Replace 0 with False when using dummy
 # encoding
 full_encoded = age_and_gender.join(encoded).fillna(False)
+
 
 # No need to normalise, all the columns are on the same
 # scale (binary, with hamming distance between rows).
@@ -161,13 +164,11 @@ fit = umap.UMAP(
     #metric = "euclidean"
     verbose = True
 )
-data_to_reduce = full_encoded.filter(regex="(icd10|opcs4)") # Use "full_code" for dummy encoding
 embedding2d = fit.fit_transform(data_to_reduce)
 embedding2d.shape
 plt.scatter(
     embedding2d[:, 0],
-    embedding2d[:, 1],
-    c=full_encoded["age"])
+    embedding2d[:, 1])
 plt.gca().set_aspect('equal', 'datalim')
 plt.title('UMAP projection of HES spell codes', fontsize=24)
 plt.show()
