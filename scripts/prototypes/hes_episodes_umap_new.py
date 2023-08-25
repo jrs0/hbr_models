@@ -7,83 +7,77 @@ import os
 
 os.chdir("scripts/prototypes")
 
-import hes
-import sparse_encode as spe
-
 import importlib
 import numpy as np
-from sklearn.datasets import load_digits
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 import umap
 import umap.plot
-from sklearn.preprocessing import OneHotEncoder
 import re
 
+import hes
 importlib.reload(hes)
-importlib.reload(spe)
 
+# Get raw data
 raw_data = hes.get_spells_hes_pandas()
 
+# Reduce the data to a size UMAP can handle.
+# Copy in order to not modify raw_data (to use
+# inplace=True later). Want to keep the raw
+# data to avoid SQL fetch time.
+reduced = raw_data.head(50000).copy()
+
+# Remove irrelevant columns
 cols_to_remove = ["nhs_number", "spell_start_date", "spell_end_date"]
-df = raw_data.replace("", np.nan).drop(columns=cols_to_remove, axis=1)
+reduced.drop(columns=cols_to_remove, axis=1, inplace=True)
 
-age_and_gender = df[["spell_id", "age", "gender"]]
+# Replace all empty strings in the table with NA
+reduced.replace("", np.nan, inplace = True)
 
-long_codes = hes.convert_codes_to_long(df)
+# Extract the demographic information for use later.
+age_and_gender = reduced[["spell_id", "age", "gender"]].copy()
 
-#highest_priority_position = long_codes.groupby(["spell_id", "full_code"]).position.transform(min)
-#long_codes_dedup = long_codes[long_codes.position == highest_priority_position]
-long_codes_dedup = long_codes.groupby(["spell_id", "full_code"]).min().reset_index()
+# Convert the wide codes to long format in place
+reduced = hes.convert_codes_to_long(reduced)
+
+# The same spell can have the same diagnosis or procedure code in
+# multiple positions. Keep onlt the highest priority code (the one
+# with the lowest code position). This might arise due to aggregating
+# the spells from underlying episodes, depending on the method that 
+# was used.
+reduced = reduced.groupby(["spell_id", "full_code"]).min().reset_index()
 
 # Map the position onto the following linear scale: primary diagnosis
 # is 24, through secondary_diagnosis_23 is 1 (same for procedure). The
 # intention is to later create a linear scale where a higher number
 # means a higher priority diagnosis or procedure, and the value 0 is
 # reserved for diagnosis or procedure not present
-linear_position = hes.make_linear_position_scale(long_codes_dedup, 23)
+reduced = hes.make_linear_position_scale(reduced, 23)
 
-# It is too memory-intensive to just encode all the values
-# in one go. Instead, filter the low-frequency codes first,
-# then perform the encoding.
-#
-# Found I don't need this now that I've got sparse=True in
-# the get_dummies call. There is also a mistake here -- you
-# will drop spells that have no common codes, which might
-# be a mistake.
-counts = linear_position.full_code.value_counts() / len(linear_position)
-most_frequent_codes = counts.head(1000).index.to_list()
-reduced_codes = linear_position[linear_position.full_code.isin(most_frequent_codes)]
+# Trying to keep all the codes as individual columns and using
+# all the spells results in much more data than than pandas can
+# handle (attempting to pivot wider), without writing a custom
+# encoder. One approach is to only keep columns for the most
+# commonly occurring codes. However, doing this results in some
+# kind of degenerate UMAP result, which might result from the 
+# introduction of many spells with all-zero rows (i.e. no codes
+# from the most commonly occurring group). If you see UMAP reduce
+# the data to a set of roughly uniformly distributed points inside
+# a circle in R2, this kind of issue is a likely culprit. Instead
+# of doing this, the current script keeps all the code columns,
+# and instead reduces the amount of spells so that the algorithm
+# can cope. This is a prototype which can be extended (with more
+# high performance code) later if it is worthwhile to do so.
 
-# Calculate a sparse encoded representation of the codes where
-encoded, spell_ids = spe.encode_sparse(reduced_codes)
+# This line takes a long time to run, so make copies and modify them.
+dummy_encoded = pd.get_dummies(reduced, columns=["full_code"]).groupby("spell_id").max()
 
-# Get the list of ages in the same order as the encoded data
-ordered_spells = pd.DataFrame({"spell_id": spell_ids})
-age = ordered_spells.merge(age_and_gender, on = "spell_id")
+# Get just the columns that will be dimension-reduced
+data_to_reduce = dummy_encoded.filter(regex = "(icd10|opcs4)")
 
-# Only keep the two 3 diagnosis and procedure codes, under the
-# assumption that the others may contribute more noise than
-# structure, or that the top codes may contain the most
-# important information
-top_three_codes = long_codes[long_codes.position < 3]
-
-# There is an issue where the same code can show up in different
-# positions. Pick the smallest position (higher priority).
-# TODO figure out what is going on here
-linear_position_dedup = linear_position.groupby(["spell_id", "full_code"]).min().reset_index()
-
-# Create dummy variables for all the different codes
-#
-# This line takes quite a long time with relatively few codes, and
-# should probably be optimised. The C++ approach of just passing
-# through the vector once and building a numpy array row by row might 
-# be fine. 
-encoded = pd.get_dummies(reduced_codes, columns=["full_code"]).groupby("spell_id").max()
+# Get the age column in the same order as the data to reduce
+ordered_age = dummy_encoded.merge(age_and_gender, on="spell_id")[["age"]]
 
 # Pivot to keep the diagnosis position as the value of the code,
 # instead of just a TRUE/FALSE. The value after this pivot is the
@@ -129,10 +123,10 @@ full_encoded = age_and_gender.join(encoded).fillna(False)
 #   (spells) are considered different according to how many of their
 #   clinical codes differ -- this is the Hamming distance.
 
-mapper = umap.UMAP(metric='euclidean', random_state=1, verbose = True)
-res = mapper.fit(encoded)
+mapper = umap.UMAP(metric='hamming', random_state=1, verbose = True)
+dummy_fit = mapper.fit(data_to_reduce)
 
-umap.plot.points(res, values=age.age, theme='viridis')
+umap.plot.points(dummy_fit, values = ordered_age.age, theme='viridis')
 plt.show()
 
 
