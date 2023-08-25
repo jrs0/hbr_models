@@ -26,7 +26,7 @@ raw_data = hes.get_spells_hes_pandas()
 # Copy in order to not modify raw_data (to use
 # inplace=True later). Want to keep the raw
 # data to avoid SQL fetch time.
-reduced = raw_data.head(50000).copy()
+reduced = raw_data.head(5000).copy()
 
 # Remove irrelevant columns
 cols_to_remove = ["nhs_number", "spell_start_date", "spell_end_date"]
@@ -74,28 +74,24 @@ reduced = hes.make_linear_position_scale(reduced, 23)
 dummy_encoded = pd.get_dummies(reduced, columns=["full_code"]).groupby("spell_id").max()
 
 # Get just the columns that will be dimension-reduced
-data_to_reduce = dummy_encoded.filter(regex = "(icd10|opcs4)")
+dummy_data_to_reduce = dummy_encoded.filter(regex = "(icd10|opcs4)")
 
 # Get the age column in the same order as the data to reduce
-ordered_age = dummy_encoded.merge(age_and_gender, on="spell_id")[["age"]]
+dummy_ordered_age = dummy_encoded.merge(age_and_gender, on="spell_id").age
+# ... get other values to plot on embedding here
 
 # Pivot to keep the diagnosis position as the value of the code,
 # instead of just a TRUE/FALSE. The value after this pivot is the
 # linear diagnosis/procedure scale from 1 (last secondary) to 24
-# (primary), with NA when the code is not present in the spell.
-encoded = linear_position.pivot(index = "spell_id", columns = "full_code", values = "position")
-# Replace NA with 0 to indicate no code
-#encoded = encoded.fillna(0)
+# (primary); replace NA with 0 to indicate no code present.
+linear_encoded = reduced.pivot(index = "spell_id", columns = "full_code", values = "position").fillna(0)
 
-# Now join this reduced encoded version back onto all the
-# spells to get NaNs, which can be replaced with zero (indicating
-# no code in that spell). Replace 0 with False when using dummy
-# encoding
-full_encoded = age_and_gender.join(encoded).fillna(False)
+# Get just the columns that will be dimension-reduced
+linear_data_to_reduce = linear_encoded.filter(regex = "(icd10|opcs4)")
 
-# No need to normalise, all the columns are on the same
-# scale (binary, with hamming distance between rows).
-
+# Get the age column in the same order as the data to reduce
+linear_ordered_age = linear_encoded.merge(age_and_gender, on="spell_id").age
+# ... get other values to plot on embedding here
 
 # UMAP has the following parameters:
 #
@@ -123,12 +119,17 @@ full_encoded = age_and_gender.join(encoded).fillna(False)
 #   (spells) are considered different according to how many of their
 #   clinical codes differ -- this is the Hamming distance.
 
-mapper = umap.UMAP(metric='hamming', random_state=1, verbose = True)
-dummy_fit = mapper.fit(data_to_reduce)
-
-umap.plot.points(dummy_fit, values = ordered_age.age, theme='viridis')
+dummy_mapper = umap.UMAP(metric='hamming', random_state=1, verbose = True)
+dummy_fit = dummy_mapper.fit(dummy_data_to_reduce)
+#umap.plot.diagnostic(dummy_fit, diagnostic_type='local_dim')
+umap.plot.points(dummy_fit, values = dummy_ordered_age, theme='viridis')
 plt.show()
 
+linear_mapper = umap.UMAP(metric='euclidean', random_state=2, verbose = True)
+linear_fit = linear_mapper.fit(linear_data_to_reduce.head(1000))
+#umap.plot.diagnostic(dummy_fit, diagnostic_type='local_dim')
+umap.plot.points(linear_fit, values = linear_ordered_age.head(1000), theme='viridis')
+plt.show()
 
 embedding = mapper.fit_transform(encoded)
 plt.scatter(
