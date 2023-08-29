@@ -3030,6 +3030,7 @@ categories:
     - bleeding_adaptt
     - acs_bezin
     - ihd_bezin
+    - ckd
     index:
     - A00
     - B99
@@ -5902,6 +5903,7 @@ categories:
     - bleeding_adaptt
     - acs_bezin
     - ihd_bezin
+    - ckd
     index:
     - C00
     - D48
@@ -6556,6 +6558,7 @@ categories:
     - bleeding_adaptt
     - acs_bezin
     - ihd_bezin
+    - ckd
     index:
     - D50
     - D89
@@ -7911,6 +7914,7 @@ categories:
     - bleeding_adaptt
     - acs_bezin
     - ihd_bezin
+    - ckd
     index:
     - E00
     - E90
@@ -9641,6 +9645,8 @@ categories:
       - I99
       name: I95-I99
     docs: Diseases of the circulatory system
+    exclude:
+    - ckd
     index:
     - I00
     - I99
@@ -11183,6 +11189,7 @@ categories:
     - bleeding_adaptt
     - acs_bezin
     - ihd_bezin
+    - ckd
     index:
     - F00
     - F99
@@ -12489,6 +12496,7 @@ categories:
     - bleeding_adaptt
     - acs_bezin
     - ihd_bezin
+    - ckd
     index:
     - G00
     - G99
@@ -13536,6 +13544,7 @@ categories:
     - bleeding_adaptt
     - acs_bezin
     - ihd_bezin
+    - ckd
     index:
     - H00
     - H59
@@ -14002,6 +14011,7 @@ categories:
     - bleeding_adaptt
     - acs_bezin
     - ihd_bezin
+    - ckd
     index:
     - H60
     - H95
@@ -14959,6 +14969,7 @@ categories:
     - bleeding_adaptt
     - acs_bezin
     - ihd_bezin
+    - ckd
     index:
     - J00
     - J99
@@ -16907,6 +16918,7 @@ categories:
     - mi_schnier
     - acs_bezin
     - ihd_bezin
+    - ckd
     index:
     - K00
     - K93
@@ -18228,6 +18240,7 @@ categories:
     - bleeding_adaptt
     - acs_bezin
     - ihd_bezin
+    - ckd
     index:
     - L00
     - L99
@@ -20304,6 +20317,7 @@ categories:
     - bleeding_adaptt
     - acs_bezin
     - ihd_bezin
+    - ckd
     index:
     - M00
     - M99
@@ -20626,6 +20640,7 @@ categories:
       docs: Glomerular diseases
       exclude:
       - bleeding_adaptt
+      - ckd
       index:
       - N00
       - N08
@@ -20751,6 +20766,7 @@ categories:
       exclude:
       - bleeding_cadth
       - bleeding_adaptt
+      - ckd
       index:
       - N10
       - N16
@@ -20773,6 +20789,8 @@ categories:
           index: N179
           name: N17.9
         docs: Acute renal failure
+        exclude:
+        - ckd
         index: N17
         name: N17
       - categories:
@@ -20798,6 +20816,8 @@ categories:
         index: N18
         name: N18
       - docs: Unspecified kidney failure
+        exclude:
+        - ckd
         index: N19
         name: N19
       docs: Renal failure
@@ -20858,6 +20878,7 @@ categories:
       exclude:
       - bleeding_cadth
       - bleeding_adaptt
+      - ckd
       index:
       - N20
       - N23
@@ -20928,6 +20949,7 @@ categories:
       exclude:
       - bleeding_cadth
       - bleeding_adaptt
+      - ckd
       index:
       - N25
       - N29
@@ -21105,6 +21127,7 @@ categories:
       exclude:
       - bleeding_cadth
       - bleeding_adaptt
+      - ckd
       index:
       - N30
       - N39
@@ -21281,6 +21304,7 @@ categories:
       exclude:
       - bleeding_cadth
       - bleeding_adaptt
+      - ckd
       index:
       - N40
       - N51
@@ -21352,6 +21376,7 @@ categories:
       exclude:
       - bleeding_cadth
       - bleeding_adaptt
+      - ckd
       index:
       - N60
       - N64
@@ -21500,6 +21525,7 @@ categories:
       exclude:
       - bleeding_cadth
       - bleeding_adaptt
+      - ckd
       index:
       - N70
       - N77
@@ -22001,6 +22027,7 @@ categories:
       docs: Noninflammatory disorders of female genital tract
       exclude:
       - bleeding_cadth
+      - ckd
       index:
       - N80
       - N98
@@ -22038,6 +22065,7 @@ categories:
       exclude:
       - bleeding_cadth
       - bleeding_adaptt
+      - ckd
       index:
       - N99
       - N99
@@ -26834,6 +26862,7 @@ categories:
     - bleeding_cadth
     - acs_bezin
     - ihd_bezin
+    - ckd
     index:
     - S00
     - T98
@@ -28467,6 +28496,7 @@ categories:
     - bleeding_adaptt
     - acs_bezin
     - ihd_bezin
+    - ckd
     index:
     - O00
     - O99
@@ -29757,6 +29787,7 @@ categories:
     - bleeding_adaptt
     - acs_bezin
     - ihd_bezin
+    - ckd
     index:
     - P00
     - P96
@@ -32039,6 +32070,7 @@ categories:
     - bleeding_adaptt
     - acs_bezin
     - ihd_bezin
+    - ckd
     index:
     - Q00
     - Q99
@@ -33488,6 +33520,7 @@ categories:
     - mi_schnier
     - acs_bezin
     - ihd_bezin
+    - ckd
     index:
     - R00
     - R99
@@ -38449,6 +38482,7 @@ categories:
     - bleeding_adaptt
     - acs_bezin
     - ihd_bezin
+    - ckd
     index:
     - V01
     - Y98
@@ -40724,6 +40758,7 @@ categories:
     - bleeding_adaptt
     - acs_bezin
     - ihd_bezin
+    - ckd
     index:
     - Z00
     - Z99
@@ -40895,6 +40930,7 @@ categories:
     - bleeding_adaptt
     - acs_bezin
     - ihd_bezin
+    - ckd
     index:
     - U00
     - U85
@@ -40913,3 +40949,6 @@ groups:
 - mi_schnier
 - acs_bezin
 - ihd_bezin
+- ckd
+- cancer
+- diabetes

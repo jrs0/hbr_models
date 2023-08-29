@@ -84,14 +84,12 @@ dummy_ordered_age = dummy_encoded.merge(age_and_gender, on="spell_id").age
 
 # ... get other values to plot on embedding here
 def get_code_group_labels(reduced, code_group):
-    group = get_codes_in_group("../codes_files/icd10.yaml", code_group)
+    group = get_codes_in_group("../codes_files/opcs4.yaml", code_group)
     group = "icd10_" + group.name.apply(hes.normalise_code)
     df = reduced.copy()
     df["ingroup"] = df.full_code.isin(group)
     group = df.groupby("spell_id").ingroup.any()
     return dummy_encoded.merge(group, on="spell_id").ingroup
-
-dummy_ordered_code_group = get_code_group_labels(reduced, "acs_bezin")
 
 # Pivot to keep the diagnosis position as the value of the code,
 # instead of just a TRUE/FALSE. The value after this pivot is the
@@ -136,6 +134,8 @@ linear_ordered_age = linear_encoded.merge(age_and_gender, on="spell_id").age
 dummy_mapper = umap.UMAP(metric='hamming', random_state=1, verbose = True)
 dummy_fit = dummy_mapper.fit(dummy_data_to_reduce)
 #umap.plot.diagnostic(dummy_fit, diagnostic_type='local_dim')
+
+dummy_ordered_code_group = get_code_group_labels(reduced, "pci")
 umap.plot.points(dummy_fit, values = dummy_ordered_code_group, theme='viridis')
 plt.show()
 
