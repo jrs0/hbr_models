@@ -19,15 +19,13 @@ rextendr::document(pkg = "../../rhic")
 
 ####### DATE RANGE FOR DATA COLLECTION #######
 
-# Date range for the data. This is necessary for computing right censoring
-# for the survival data. To be valid, make sure that the database contains data
-# for the full date range given here -- the end date is used as the follow up
-# time for right censoring.
-start_date <- lubridate::ymd_hms("2020-01-01 00:00:00")
+# Date range for the data. Set a date range outside the date range
+# of the dataset to collect all data.
+start_date <- lubridate::ymd_hms("2015-01-01 00:00:00")
 # Go careful with the end date -- data must be present in the
 # dataset up the the end date (for right censoring). Should really
 # compute right censor date from last seen date in the data
-end_date <- lubridate::ymd_hms("2023-01-01 00:00:00")
+end_date <- lubridate::ymd_hms("2024-01-01 00:00:00")
 
 ####### DATABASE CONNECTION
 
@@ -41,17 +39,30 @@ con <- DBI::dbConnect(odbc::odbc(), "hic", bigint = "character")
 
 raw_episodes_data <- get_episodes_hic(con, start_date, end_date)
 
+# Find the last date seen in the dataset to use as an approximation for
+# the right-censor date for the purpose of survival analysis
+right_censor_date <- raw_episodes_data %>%
+    pull(episode_start_date) %>%
+    max()
+
+# Also helpful to know the earliest date in the dataset. This is important
+# for whether it is possible to know predictors a certain time in advance.
+left_censor_date <- raw_episodes_data %>%
+    pull(episode_start_date) %>%
+    min()
+
+# Single column of all episodes in the dataset
 all_episodes <- raw_episodes_data %>%
     select(episode_id)
-
-# Get a long list of clinical codes (ICD-10 and OPCS-4) for each episode
-# (there are multiple codes per episode)
-raw_diagnoses_and_procedures <- get_diagnoses_and_procedures_hic(con)
 
 # Mapping from episode_id to patient. Required later for joining
 # episodes together from different tables by patient.
 patients <- raw_episodes_data %>%
     select(episode_id, patient_id)
+
+# Get a long list of clinical codes (ICD-10 and OPCS-4) for each episode
+# (there are multiple codes per episode)
+raw_diagnoses_and_procedures <- get_diagnoses_and_procedures_hic(con)
 
 ####### COUNT THE OCCURANCES OF CODES IN EACH GROUP #######
 
@@ -59,7 +70,7 @@ patients <- raw_episodes_data %>%
 code_groups <- get_code_groups("../codes_files/icd10.yaml", "../codes_files/opcs4.yaml")
 
 # Reduce the diagnosis and procedures to a total count in each group by
-# episode id
+# episode id.
 code_group_counts <- raw_diagnoses_and_procedures %>%
     count_code_groups_by_record(episode_id, code_groups)
 
@@ -378,3 +389,42 @@ arc_hbr <- arc_hbr_age %>%
     #left_join(arc_hbr_surgery_before_pci, by = "episode_id") %>%
     #left_join(arc_hbr_nsaid_steroid, by = "episode_id") %>%
 
+####### FIND THE INDEX EVENTS (MI OR PCI) #######
+
+# Index events are identified by whether the first
+# episode of the spell is a MI or a PCI
+
+# This table contains the list of index episodes
+idx_episodes <- code_group_counts %>%
+    # Join the episode data to add the episode and spell start
+    # date to the code count information for each episode
+    left_join(raw_episodes_data, by = "episode_id") %>%
+    # Pick only the first episode of each spell
+    arrange(episode_start_date) %>%
+    group_by(spell_id) %>%
+    slice_head(n = 1) %>%
+    ungroup() %>%
+    filter(acs_bezin_count > 0 | pci_count > 0) %>%
+    transmute(
+        idx_episode_id = episode_id,
+        idx_spell_id = spell_id
+    )
+
+# Derive data about the index episode. Note: above, we are only including
+# index event according to the first episode, which means we are already
+# missing cases where an MI is present in the first episode but a PCI is
+# performed in a subsequent episode -- there is no point trying to correct
+# for it here. That is for a future version of the script.
+idx_episode_info <- idx_episodes %>%
+    left_join(code_group_counts, by = c("idx_episode_id" = "episode_id")) %>%
+    # Record whether the index event is PCI or conservatively managed (ACS).
+    # Record STEMI and NSTEMI as separate columns to account for possibility
+    # of neither (i.e. no ACS).
+    transmute(
+        idx_episode_id,
+        pci_performed = (pci_count > 0), # If false, conservatively managed
+        stemi = (mi_stemi_schnier_count > 0),
+        nstemi = (mi_nstemi_schnier_count > 0),
+        mi = (mi_schnier_count > 0),
+        acs = (acs_bezin_count > 0)
+    )

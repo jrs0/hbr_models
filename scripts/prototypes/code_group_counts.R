@@ -120,6 +120,10 @@ count_code_groups_by_record <- function(diagnoses_and_procedures, record_id, cod
 
     # Join the two together to form the full counts table
     diagnosis_group_counts %>%
-        left_join(procedure_group_counts, by = join_by({{ record_id }}))
+        full_join(procedure_group_counts, by = join_by({{ record_id }})) %>%
+        # After joining, some episodes may have had only diagnoses or
+        # procedures, leading to NAs. Replace the NAs with zero to indicate
+        # no code.
+        mutate(across(matches("count"), ~ replace_na(., 0)))
 }
 

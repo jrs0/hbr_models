@@ -8,6 +8,7 @@ setwd("scripts/prototypes")
 library(tidyverse)
 source("preprocessing.R")
 source("save_datasets.R")
+source("code_group_counts.R")
 
 # Either load rhic using rextendr::document() (from the rhic/ directory)
 # or install rhic and use library(rhic). Pick one of the options from
@@ -102,39 +103,8 @@ raw_procedures_data <- dplyr::tbl(con, procedures_id) %>%
 
 ####### DEFINE ICD-10 and OPCS-4 CODE GROUPS #######
 
-##' Get all the codes in a code group, with the dot removed
-##' and converted to all-lowercase, ready for matching with
-##' codes in columns
-codes_for_matching <- function(codes_file_path, group) {
-    get_codes_in_group(codes_file_path, group) %>%
-        pull(name) %>%
-        str_replace("\\.", "") %>%
-        tolower()
-}
-
-# Diagnosis groups
-bleeding_al_ani <- codes_for_matching(
-    "../codes_files/icd10.yaml",
-    "bleeding_al_ani"
-)
-mi_schnier <- codes_for_matching(
-    "../codes_files/icd10.yaml",
-    "mi_schnier"
-)
-mi_stemi_schnier <- codes_for_matching(
-    "../codes_files/icd10.yaml",
-    "mi_stemi_schnier"
-)
-mi_nstemi_schnier <- codes_for_matching(
-    "../codes_files/icd10.yaml",
-    "mi_nstemi_schnier"
-)
-
-# List of OPCS-4 codes identifying PCI procedures
-pci <- codes_for_matching(
-    "../codes_files/opcs4.yaml",
-    "pci"
-)
+# Get the code groups that are in the codes files
+code_groups <- get_code_groups("../codes_files/icd10.yaml", "../codes_files/opcs4.yaml")
 
 ####### COUNT UP OCCURRENCES OF CODE GROUPS IN EACH SPELL #######
 
