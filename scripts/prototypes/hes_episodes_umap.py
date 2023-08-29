@@ -8,6 +8,7 @@ import os
 os.chdir("scripts/prototypes")
 
 import hes
+import sparse_encode as spe
 import importlib
 import numpy as np
 from sklearn.datasets import load_digits
@@ -18,31 +19,72 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 import umap
+import umap.plot
 from sklearn.preprocessing import OneHotEncoder
 import re
 
 importlib.reload(hes)
 
+####### FETCH RAW SPELL DATA #######
+
+# Polars is slightly slower than pandas here, but polars
+# returns the nhs_number column as an int not a float (that
+# bigint problem again), so preferring polars for now. Both
+# queries are really slow compared to R -- not sure why yet.
 raw_data = hes.get_spells_hes_pandas()
+# pl_data = hes.get_spells_hes_polars()
+# raw_spells = pl_data.to_pandas()
+
+####### CONVERT CODE COLUMNS TO DUMMIES #######
+
+# Replace empty codes ("") with NaN, so that they are
+# ignored in the conversion to dummies
 cols_to_remove = ["nhs_number", "spell_start_date", "spell_end_date"]
 df = raw_data.replace("", np.nan).drop(columns=cols_to_remove, axis=1)
 
 age_and_gender = df[["spell_id", "age", "gender"]]
 
-long_codes = hes.convert_codes_to_long(df)
+pattern = re.compile("(diagnosis|procedure)")
+code_cols = [s for s in df.columns if pattern.search(s)]
+index_cols = ["spell_id"]
+
+def normalise_code(code):
+    '''
+    Remove all whitespace and any dot character,
+    and convert characters in the code to lower case.
+    '''
+    alpha_num = re.sub(r'\W+', '', code)
+    return alpha_num.lower()
+
+# Pivot all the diagnosis and procedure codes into one
+# columns. Consider https://stackoverflow.com/questions/47684961/
+# melt-uneven-data-in-columns-and-ignore-nans-using-pandas
+# for speed.
+long_codes = pd.melt(df, id_vars=index_cols, value_vars=code_cols).dropna()
+long_codes.value = long_codes.value.apply(normalise_code)
+# Prepend icd10 or opc4 to the codes to indicate which are which
+# (because some codes appear in both ICD-10 and OPCS-4)
+pattern = re.compile("diagnosis")
+diagnosis_or_procedure = ["icd10_" if pattern.search(s) else "opcs4_" for s in long_codes.variable]
+long_codes["full_code"] = diagnosis_or_procedure + long_codes.value
+long_codes["position"] = long_codes["variable"].replace("(diagnosis|procedure)_", "", regex = True).astype(int)
+long_codes = long_codes.drop(columns=["variable", "value"])
 
 # Only keep the two 3 diagnosis and procedure codes, under the
 # assumption that the others may contribute more noise than
 # structure, or that the top codes may contain the most
 # important information
-top_three_codes = long_codes[long_codes.position < 3]
+long_codes = long_codes[long_codes.position < 3]
+
+long_codes_dedup = long_codes.groupby(["spell_id", "full_code"]).min().reset_index()
+linear_position = hes.make_linear_position_scale(long_codes_dedup, 23)
 
 # Map the position onto the following linear scale: primary diagnosis
 # is 24, through secondary_diagnosis_23 is 1 (same for procedure). The
 # intention is to later create a linear scale where a higher number
 # means a higher priority diagnosis or procedure, and the value 0 is
 # reserved for diagnosis or procedure not present
-linear_position = hes.make_linear_position_scale(long_codes, 23)
+#long_codes.position = 24 - long_codes.position
 
 # It is too memory-intensive to just encode all the values
 # in one go. Instead, filter the low-frequency codes first,
@@ -56,24 +98,24 @@ counts = long_codes.full_code.value_counts() / len(long_codes)
 most_frequent_codes = counts.head(1000).index.to_list()
 reduced_codes = long_codes[long_codes.full_code.isin(most_frequent_codes)]
 
+# Truncate instead of reducing
+reduced_codes = linear_position.head(50000)
+
 # There is an issue where the same code can show up in different
 # positions. Pick the smallest position (higher priority).
 # TODO figure out what is going on here
-linear_position_dedup = linear_position.groupby(["spell_id", "full_code"]).min().reset_index()
+#reduced_codes = reduced_codes.groupby(["spell_id", "full_code"]).min().reset_index()
 
-# Create dummy variables for all the different codes
-#
-# This line takes quite a long time with relatively few codes, and
-# should probably be optimised. The C++ approach of just passing
-# through the vector once and building a numpy array row by row might 
-# be fine. 
+# Encoded with dummy variables (true/false for code present)
 encoded = pd.get_dummies(reduced_codes, columns=["full_code"]).groupby("spell_id").max()
+
+data_to_reduce, _ = spe.encode_sparse(reduced_codes)
 
 # Pivot to keep the diagnosis position as the value of the code,
 # instead of just a TRUE/FALSE. The value after this pivot is the
 # linear diagnosis/procedure scale from 1 (last secondary) to 24
 # (primary), with NA when the code is not present in the spell.
-encoded = linear_position_dedup.pivot(index = "spell_id", columns = "full_code", values = "position")
+#encoded = reduced_codes.pivot(index = "spell_id", columns = "full_code", values = "position")
 # Replace NA with 0 to indicate no code
 #encoded = encoded.fillna(0)
 
@@ -82,6 +124,7 @@ encoded = linear_position_dedup.pivot(index = "spell_id", columns = "full_code",
 # no code in that spell). Replace 0 with False when using dummy
 # encoding
 full_encoded = age_and_gender.join(encoded).fillna(False)
+data_to_reduce = full_encoded.filter(regex="(icd10|opcs4)") # Use "full_code" for dummy encoding
 
 # No need to normalise, all the columns are on the same
 # scale (binary, with hamming distance between rows).
@@ -113,19 +156,18 @@ full_encoded = age_and_gender.join(encoded).fillna(False)
 #   (spells) are considered different according to how many of their
 #   clinical codes differ -- this is the Hamming distance.
 
-mapper = umap.UMAP(metric='cosine', random_state=42, low_memory=True)
-
-mapper.fit(mat)
-
 # 2D embedding
 fit = umap.UMAP(
-    n_neighbors = 50,
+    n_neighbors = 15,
     min_dist = 0.1,
     n_components = 2,
     #metric = "euclidean"
+    verbose = True,
+    low_memory = True
 )
-data_to_reduce = full_encoded.filter(regex="(icd10|opcs4)") # Use "full_code" for dummy encoding
-embedding2d = fit.fit_transform(data_to_reduce)
+embedding2d = fit.fit(data_to_reduce)
+umap.plot.points(embedding2d)
+
 embedding2d.shape
 plt.scatter(
     embedding2d[:, 0],

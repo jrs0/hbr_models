@@ -1,0 +1,52 @@
+---
+title: "Dimension Reduction of HES Spells for Cardiovascular Outcomes"
+project:
+  output-dir: _output
+format:
+  html:
+    code-fold: true
+jupyter: python3
+---
+
+Diagnosis and procedure code data present in the hospital episode statistics (HES) administrative database may provide a wealth of predictive information about patient outcomes, but which is very difficult to access due to the difficulty involved reducing the data to a form suitable for use in predictive modelling. For example, subsequent bleeding following an index event may be predictable by looking at prior bleeding, which amounts to finding instances of bleeding diagnosis codes in the HES data. This amounts to formulating a list of bleeding codes, and reducing the prior spells to a yes/no question of whether one of these codes is present. As more predictors are added (for example, prior cardiovascular conditions, prior cancer, etc.), the number of different groups of codes multiples. In addition, within in group, a complex array of choices are made regarding which codes to include or exclude, which multiply to create a large amount of ad-hoc decisions in the preprocessing of predictors prior to formulating a predictive model.
+
+Ideally, we want to know how well the information (as a whole) in hospital episode data can inform predictive models of future outcomes. We wish to include not only the ad-hoc derived information obtained by reducing spells to presence of code groups, but also any other relationships which may be informative. For example:
+* Diagnosis and procedure codes come with a position (indicating a priority derived from the rules of the coding process), which may provide predictive information, and which is not included by considering code groups.
+* Certain patterns of codes may be standard for certain types of hospital interaction, and deviations from these standard patterns may represent important predictive information.
+
+One approach to trying to automatically capture 
+
+
+
+For a demonstration of a line plot on a polar axis, see @fig-polar.
+
+```{python}
+#| label: fig-polar
+#| fig-cap: "A line plot on a polar axis"
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+r = np.arange(0, 2, 0.01)
+theta = 2 * np.pi * r
+fig, ax = plt.subplots(
+  subplot_kw = {'projection': 'polar'} 
+)
+ax.plot(theta, r)
+ax.set_rticks([0.5, 1, 1.5, 2])
+ax.grid(True)
+plt.show()
+```
+
+An example calling rust functions:
+
+```{python}
+from py_hic.foo import test
+test()
+```
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+
