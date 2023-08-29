@@ -5,6 +5,7 @@ library(vip)
 
 setwd("scripts/prototypes")
 source("save_datasets.R")
+source("describe.R")
 
 raw_data <- load_dataset("hic_arc_hbr_dataset") %>%
     # Drop variables that are not used here
@@ -35,6 +36,13 @@ dataset %>%
     count(occurred) %>%
     mutate(prop = n / sum(n))
 
+# Summary info
+num_samples <- dataset %>% nrow()
+num_bleeds <- dataset %>% filter(occurred == 1) %>% nrow()
+prevalence <- dataset %>% arc_hbr_prevalence_summary()
+prev_bleed <- dataset %>% 
+    summarise(prev = mean(occurred == 1)) %>% pull(prev)
+
 set.seed(1)
 splits <- initial_split(dataset, strata = occurred, prop = 3 / 4)
 dataset_train <- training(splits)
@@ -44,10 +52,10 @@ mod <- logistic_reg() %>%
     set_engine("glm")
 
 rec <- recipe(occurred ~ ., data = dataset_train) %>%
-    #step_impute_mode(pred_idx_gender) %>%
+    # step_impute_mode(pred_idx_gender) %>%
     step_dummy(all_nominal_predictors()) %>%
     step_nzv(all_predictors()) %>%
-    #step_impute_mean(pred_idx_age) %>%
+    # step_impute_mean(pred_idx_age) %>%
     step_normalize(all_numeric_predictors())
 
 workflow <-
@@ -70,5 +78,6 @@ aug %>%
     roc_curve(truth = occurred, .pred_1) %>%
     autoplot()
 
-aug %>%
-    roc_auc(truth = occurred, .pred_1)
+roc_auc <- aug %>%
+    roc_auc(truth = occurred, .pred_1) %>%
+    pull(.estimate)
