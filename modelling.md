@@ -226,6 +226,14 @@ The clinically relevant bleeding definition is BARC 3 or 5, as used in the ARC H
 
 It is important to recognise that no group of ICD-10 codes corresponds exactly to major bleeding events, because ICD-10 codes are predominantly used for financial and administrative purposes, rather than provision of care.
 
+## Other ICD-10 and OPCS-4 Code Groups
+
+Other groups of codes are used to define predictors or otherwise identify different types of hospital spells in datasets with clinical code information. The code groups used are documented here.
+
+### Diabetes
+
+
+
 ## Modelling and Analysis
 
 This section contains plans for different modelling approaches and descriptive analysis, along with references to the scripts that implement them.
