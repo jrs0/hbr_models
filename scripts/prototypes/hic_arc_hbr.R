@@ -371,23 +371,29 @@ arc_hbr_oac <- raw_episodes_data %>%
 ####### MAKE ARC SCORE TABLE #######
 
 # This is a table of what HBR criteria occurred in every episode
-# in the dataset. It is not strictly the ARC-HBR score, because that
-# involves calculating whether ARC criteria occurred in a time frame.
+# in the dataset. Some HBR criteria are calculated from the index
+# episode, assuming that the relevant blood tests are always (or
+# very often) performed: OAC, anaemia, and CKD (from eGFR).
 
-arc_hbr <- arc_hbr_age %>%
+idx_arc_hbr <- arc_hbr_age %>%
     left_join(arc_hbr_oac, by = "episode_id") %>%
     left_join(arc_hbr_ckd, by = "episode_id") %>%
     left_join(arc_hbr_anaemia, by = "episode_id") %>%
-    #left_join(arc_hbr_transfusion, by = "episode_id") %>%
     left_join(arc_hbr_tcp, by = "episode_id")
-    #left_join(arc_hbr_cbd, by = "episode_id") %>%
-    #left_join(arc_hbr_transfusion, by = "episode_id") %>%
-    #left_join(arc_hbr_cph, by = "episode_id") %>%
-    #left_join(arc_hbr_cancer, by = "episode_id") %>%
-    #left_join(arc_hbr_stroke_ich, by = "episode_id") %>%
-    #left_join(arc_hbr_surgery_after_pci, by = "episode_id") %>%
-    #left_join(arc_hbr_surgery_before_pci, by = "episode_id") %>%
-    #left_join(arc_hbr_nsaid_steroid, by = "episode_id") %>%
+
+# Other HBR criteria can only be calculated once the index
+# episode is known, and the episodes before it can be searched.
+
+
+# left_join(arc_hbr_transfusion, by = "episode_id") %>%
+# left_join(arc_hbr_cbd, by = "episode_id") %>%
+# left_join(arc_hbr_transfusion, by = "episode_id") %>%
+# left_join(arc_hbr_cph, by = "episode_id") %>%
+# left_join(arc_hbr_cancer, by = "episode_id") %>%
+# left_join(arc_hbr_stroke_ich, by = "episode_id") %>%
+# left_join(arc_hbr_surgery_after_pci, by = "episode_id") %>%
+# left_join(arc_hbr_surgery_before_pci, by = "episode_id") %>%
+# left_join(arc_hbr_nsaid_steroid, by = "episode_id") %>%
 
 ####### FIND THE INDEX EVENTS (MI OR PCI) #######
 
@@ -428,3 +434,166 @@ idx_episode_info <- idx_episodes %>%
         mi = (mi_schnier_count > 0),
         acs = (acs_bezin_count > 0)
     )
+
+
+####### COMPUTE COUNT OF PREVIOUS DIAGNOSES AND PROCEDURES #######
+
+# The first step is knowing the time of the index events, which is
+# obtained by first getting the dates/times of all episodes
+episode_dates_by_patient <- raw_episodes_data %>%
+    select(episode_id, patient_id, episode_start_date)
+
+# Do the same for the index episodes
+idx_dates_by_patient <- idx_episodes %>%
+    left_join(raw_episodes_data, by = c("idx_episode_id" = "episode_id")) %>%
+    transmute(
+        idx_episode_id,
+        patient_id,
+        # The spell start date is being used as the index date for the
+        # purpose of this script.
+        idx_date = spell_start_date
+    )
+
+# Join all the episodes' dates back on by patient to get each patient's
+# index events paired up with all their other episodes.
+# Note that this table has negative times for episodes before the index.
+# This table also contains the index event itself as a row with 0 time.
+time_from_index_to_episode <- idx_dates_by_patient %>%
+    # Expect many-to-many because the same patient could have
+    # multiple index events.
+    left_join(episode_dates_by_patient,
+        by = "patient_id", relationship = "many-to-many"
+    ) %>%
+    # Calculate the time from index to episode
+    transmute(
+        idx_episode_id,
+        episode_id,
+        index_to_episode_time = episode_start_date - idx_date
+    )
+
+
+# This table contains the total number of each diagnosis and procedure
+# group in a period before the index event. This could be the previous
+# 6 months, excluding the month before the index event (to account for
+# lack of coding data in that period). Currently using 6 months instead
+# of 12 due to lack of date range in data.
+max_period_before <- lubridate::dmonths(6) # Limit count to previous 6 months
+min_period_before <- lubridate::dmonths(1) # Exclude month before index (not coded yet)
+
+# These are the episodes whose clinical code counts should contribute
+# to predictors.
+episodes_in_window_before_index <- time_from_index_to_episode %>%
+    filter(
+        index_to_episode_time < -min_period_before,
+        -max_period_before < index_to_episode_time,
+    ) %>%
+    select(idx_episode_id, episode_id)
+
+# Compute the total count for each index event that has an episode
+# in the valid window before the index. Note that this excludes
+# index events with zero episodes before the index.
+nonzero_code_counts_before <- episodes_in_window_before_index %>%
+    left_join(code_group_counts, by = "episode_id") %>%
+    # Don't need the episode_id any more, just need the index
+    # episode id to group-by for the summarise. NOTE -- this
+    # might not be needed?
+    select(-episode_id) %>%
+    group_by(idx_episode_id) %>%
+    summarize(across(matches("_count"), sum)) %>%
+    # Append "_before" to all count columns
+    rename_with(~ paste0(., "_before"), matches("count"))
+
+# Join back all the index events that do not have any episodes
+# beforehand,
+code_counts_before <- idx_episodes %>%
+    full_join(nonzero_code_counts_before, by = "idx_episode_id") %>%
+    # In the full join, any index events not in the nonzero counts
+    # table show up as NAs in the result. Replace these with zero
+    # to indicate non of the code groups were present as predictors
+    mutate(across(matches("count"), ~ replace_na(., 0)))
+
+####### COMPUTE TIME TO FIRST BLEED AND FIRST MI #######
+
+# This table contains the total number of each diagnosis and procedure
+# group in a period after the index event. A fixed window immediately
+# after the index event is excluded, to filter out peri-procedural
+# outcomes or outcomes that occur in the index event itself. A follow-up
+# date is defined that becomes the "outcome_occurred" column in the
+# dataset, for classification models.
+#
+# Limiting outcome to 6 months currently due to lack of date range in data.
+follow_up <- lubridate::dmonths(6) # Limit "occurred" column to 6 months
+min_period_after <- lubridate::dhours(72) # Exclude the subsequent 72 hours after index
+
+# These are the subsequent episodes after the index, with
+# the index row also retained.
+episodes_after <- time_from_index_to_episode %>%
+    filter(
+        # Exclude a short window after the index
+        (index_to_episode_time > min_period_after)
+        # Retain the index events in the table
+        | (episode_id == idx_episode_id),
+    ) %>%
+    left_join(code_group_counts, by = "episode_id") %>%
+    left_join(idx_dates_by_patient, by = "idx_episode_id")
+
+# Get the list of outcomes as a character vector
+outcome_list <- c("bleeding_al_ani", "mi_schnier")
+
+# Compute the outcome columns: outcome status (whether it
+# occurred or not), time-to-outcome (or right-censored time),
+# and an outcome occurred flag derived from the previous two
+# columns, which is NA if it cannot be determined whether the
+# outcome occurred or not.
+idx_with_subsequent_outcomes <- episodes_after %>%
+    add_outcome_columns(
+        episode_id,
+        idx_episode_id,
+        index_to_episode_time,
+        idx_date,
+        outcome_list,
+        right_censor_date,
+        follow_up
+    )
+
+hic_arc_hbr_dataset <- idx_episode_info %>%
+    left_join(idx_arc_hbr, by = c("idx_episode_id" = "episode_id")) %>%
+    left_join(idx_dates_by_patient, by = "idx_episode_id") %>%
+    left_join(idx_with_subsequent_outcomes, by = "idx_episode_id") %>%
+    left_join(code_counts_before, by = "idx_episode_id") %>%
+    transmute(
+        # Index information
+        idx_date,
+        # idx_age = age,
+        # idx_gender = gender,
+        pred_idx_pci_performed = pci_performed,
+        pred_idx_mi = mi,
+        pred_idx_stemi = stemi,
+        pred_idx_nstemi = nstemi,
+        # ARC HBR criteria
+        pred_arc_hbr_age = arc_hbr_age,
+        pred_arc_hbr_oac = arc_hbr_oac,
+        pred_arc_hbr_ckd = arc_hbr_ckd,
+        pred_arc_hbr_anaemia = arc_hbr_anaemia,
+        pred_arc_hbr_tcp = arc_hbr_tcp,
+        # Counts of previous codes
+        pred_bleeding_al_ani_count_before = bleeding_al_ani_count_before,
+        pred_mi_schnier_count_before = mi_schnier_count_before,
+        pred_mi_stemi_schnier_count_before = mi_stemi_schnier_count_before,
+        pred_mi_nstemi_schnier_count_before = mi_nstemi_schnier_count_before,
+        pred_pci_count_before = pci_count_before,
+        # Outcomes
+        outcome_time_bleeding_al_ani = bleeding_al_ani_time,
+        outcome_status_bleeding_al_ani = bleeding_al_ani_status,
+        outcome_occurred_bleeding_al_ani = bleeding_al_ani_occurred,
+        outcome_time_mi_schnier = mi_schnier_time,
+        outcome_status_mi_schnier = mi_schnier_status,
+        outcome_occurred_mi_schnier = mi_schnier_occurred,
+    )
+
+save_dataset(hic_arc_hbr_dataset, "hic_arc_hbr_dataset")
+
+end_time <- Sys.time()
+
+# Calculate the script running time
+end_time - start_time
