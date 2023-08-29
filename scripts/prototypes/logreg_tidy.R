@@ -6,7 +6,7 @@ library(vip)
 setwd("scripts/prototypes")
 source("save_datasets.R")
 
-raw_data <- load_dataset("hes_spells_dataset") %>%
+raw_data <- load_dataset("hic_arc_hbr_dataset") %>%
     # Drop variables that are not used here
     select(-idx_date, -matches("(time|status)"))
 
@@ -46,8 +46,8 @@ mod <- logistic_reg() %>%
 rec <- recipe(occurred ~ ., data = dataset_train) %>%
     #step_impute_mode(pred_idx_gender) %>%
     step_dummy(all_nominal_predictors()) %>%
-    step_zv(all_predictors()) %>%
-    step_impute_mean(pred_idx_age) %>%
+    step_nzv(all_predictors()) %>%
+    #step_impute_mean(pred_idx_age) %>%
     step_normalize(all_numeric_predictors())
 
 workflow <-
