@@ -359,6 +359,10 @@ arc_hbr_oac <- raw_episodes_data %>%
 
 ####### MAKE ARC SCORE TABLE #######
 
+# This is a table of what HBR criteria occurred in every episode
+# in the dataset. It is not strictly the ARC-HBR score, because that
+# involves calculating whether ARC criteria occurred in a time frame.
+
 arc_hbr <- arc_hbr_age %>%
     left_join(arc_hbr_oac, by = "episode_id") %>%
     left_join(arc_hbr_ckd, by = "episode_id") %>%
