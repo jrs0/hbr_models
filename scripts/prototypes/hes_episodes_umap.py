@@ -17,9 +17,12 @@ import umap.plot
 import re
 import scipy
 from py_hic.clinical_codes import get_codes_in_group
+import code_group_counts as codes
 
 import hes
+
 importlib.reload(hes)
+importlib.reload(codes)
 
 # Get raw data
 raw_data = hes.get_spells_hes_pandas()
@@ -28,14 +31,15 @@ raw_data = hes.get_spells_hes_pandas()
 # Copy in order to not modify raw_data (to use
 # inplace=True later). Want to keep the raw
 # data to avoid SQL fetch time.
-reduced = raw_data.head(50000).copy()
+#reduced = raw_data.head(50000).copy()
+reduced = raw_data.head(100000).copy()
 
 # Remove irrelevant columns
 cols_to_remove = ["nhs_number", "spell_start_date", "spell_end_date"]
 reduced.drop(columns=cols_to_remove, axis=1, inplace=True)
 
 # Replace all empty strings in the table with NA
-reduced.replace("", np.nan, inplace = True)
+reduced.replace("", np.nan, inplace=True)
 
 # Extract the demographic information for use later.
 age_and_gender = reduced[["spell_id", "age", "gender"]].copy()
@@ -46,7 +50,7 @@ reduced = hes.convert_codes_to_long(reduced)
 # The same spell can have the same diagnosis or procedure code in
 # multiple positions. Keep onlt the highest priority code (the one
 # with the lowest code position). This might arise due to aggregating
-# the spells from underlying episodes, depending on the method that 
+# the spells from underlying episodes, depending on the method that
 # was used.
 reduced = reduced.groupby(["spell_id", "full_code"]).min().reset_index()
 
@@ -62,7 +66,7 @@ reduced = hes.make_linear_position_scale(reduced, 23)
 # handle (attempting to pivot wider), without writing a custom
 # encoder. One approach is to only keep columns for the most
 # commonly occurring codes. However, doing this results in some
-# kind of degenerate UMAP result, which might result from the 
+# kind of degenerate UMAP result, which might result from the
 # introduction of many spells with all-zero rows (i.e. no codes
 # from the most commonly occurring group). If you see UMAP reduce
 # the data to a set of roughly uniformly distributed points inside
@@ -76,11 +80,13 @@ reduced = hes.make_linear_position_scale(reduced, 23)
 dummy_encoded = pd.get_dummies(reduced, columns=["full_code"]).groupby("spell_id").max()
 
 # Get just the columns that will be dimension-reduced
-dummy_data_to_reduce = dummy_encoded.filter(regex = "(icd10|opcs4)")
-dummy_data_to_reduce =  scipy.sparse.csr_matrix(dummy_data_to_reduce.values)
+dummy_data_to_reduce = dummy_encoded.filter(regex="(icd10|opcs4)")
+dummy_data_to_reduce = scipy.sparse.csr_matrix(dummy_data_to_reduce.values)
 
 # Get the age column in the same order as the data to reduce
 dummy_ordered_age = dummy_encoded.merge(age_and_gender, on="spell_id").age
+
+code_groups = codes.get_code_groups("../codes_files/icd10.yaml", "../codes_files/opcs4.yaml")
 
 # ... get other values to plot on embedding here
 def get_code_group_labels(reduced, code_group):
@@ -91,46 +97,60 @@ def get_code_group_labels(reduced, code_group):
     group = df.groupby("spell_id").ingroup.any()
     return dummy_encoded.merge(group, on="spell_id").ingroup
 
+
 def get_ordered_group_labels(reduced, groups, code_groups):
-    '''
+    """
     Get a dataframe of spell_id with a column indicating whether
     each spell has a code from a set of groups. The column 'label'
     contains a group name from groups if the spell has a code from
-    those groups. If a spell contains codes from multiple of these 
+    those groups. If a spell contains codes from multiple of these
     groups, then only the first one is recorded (so the order of the
     groups list matter -- items at the front are higher priority).
-    '''
+    """
     # Get a list of the relevant codes (the ones in groups), along
     # with the name in the format of the reduced dataframe
     relevant_codes = code_groups[code_groups["group"].isin(groups)].copy()
-    icd10_or_opcs4 = ["icd10_" if x == "diagnosis" else "opcs4_" for x in relevant_codes.type]
+    icd10_or_opcs4 = [
+        "icd10_" if x == "diagnosis" else "opcs4_" for x in relevant_codes.type
+    ]
     relevant_codes["full_code"] = icd10_or_opcs4 + relevant_codes["name"]
     relevant_codes = relevant_codes[["full_code", "group"]]
 
-    reduced_with_groups = reduced.merge(relevant_codes, how = "left", on = "full_code")[["spell_id","group"]].replace(np.nan, "none")
+    reduced_with_groups = reduced.merge(relevant_codes, how="left", on="full_code")[
+        ["spell_id", "group"]
+    ].replace(np.nan, "none")
     reduced_with_groups.drop_duplicates(inplace=True)
 
     # The next line sorts the group according to the order of the
     # groups argument. First append "none" to the groups
     groups.append("none")
-    reduced_with_groups.sort_values(by="group", key=lambda column: column.map(lambda e: groups.index(e)), inplace=True)
+    reduced_with_groups.sort_values(
+        by="group",
+        key=lambda column: column.map(lambda e: groups.index(e)),
+        inplace=True,
+    )
     # Pick only the first group in each spell (now priority give by groups order)
     reduced_with_groups = reduced_with_groups.groupby("spell_id").first().reset_index()
 
-    #reduced.groupby("spell_id").
+    # reduced.groupby("spell_id").
     return reduced_with_groups
 
-df = get_ordered_group_labels(reduced, ["pci", "mi_schnier", "ihd_bezin",  "acs_bezin", "mi_nstemi_schnier", "mi_stemi_schnier"], code_groups)
-df[df["spell_id"] == "1684230051579963076"]
+code_groups = get_code_groups("../codes_files/icd10.yaml", "../codes_files/opcs4.yaml")
+
+dummy_ordered_mi = get_ordered_group_labels(
+    reduced, ["mi_nstemi_schnier", "mi_stemi_schnier"], code_groups
+)
 
 # Pivot to keep the diagnosis position as the value of the code,
 # instead of just a TRUE/FALSE. The value after this pivot is the
 # linear diagnosis/procedure scale from 1 (last secondary) to 24
 # (primary); replace NA with 0 to indicate no code present.
-linear_encoded = reduced.pivot(index = "spell_id", columns = "full_code", values = "position").fillna(0)
+linear_encoded = reduced.pivot(
+    index="spell_id", columns="full_code", values="position"
+).fillna(0)
 
 # Get just the columns that will be dimension-reduced
-linear_data_to_reduce = linear_encoded.filter(regex = "(icd10|opcs4)")
+linear_data_to_reduce = linear_encoded.filter(regex="(icd10|opcs4)")
 linear_data_to_reduce = scipy.sparse.csr_matrix(linear_data_to_reduce.values)
 
 # Get the age column in the same order as the data to reduce
@@ -140,17 +160,17 @@ linear_ordered_age = linear_encoded.merge(age_and_gender, on="spell_id").age
 # UMAP has the following parameters:
 #
 # - n_neighbors: this is the number of nearest neighbors to
-#   use in the approximation of a uniform distance around 
+#   use in the approximation of a uniform distance around
 #   each data point in the original manifold. Choosing a
 #   a large number will course-grain the manifold, so that
 #   the uniform distances are approximated over larger groups
-#   of spells. 
+#   of spells.
 # - min_dist: in the dimension-reduced manifold (after projection
 #   from the original manifold), the local-connectedness condition
 #   which translated to assuming that each data point is 0 distance
 #   away from its nearest neighbour, must translate to an arbitrary
 #   choice for what this minimum distance is in the Euclidean plane.
-#   Making it small will cause more clustering, whereas making it 
+#   Making it small will cause more clustering, whereas making it
 #   large will push points away from each other, which may focus
 #   more on the overall topological structure.
 # - n_components: the n here is the dimension of the reduced space,
@@ -163,79 +183,142 @@ linear_ordered_age = linear_encoded.merge(age_and_gender, on="spell_id").age
 #   (spells) are considered different according to how many of their
 #   clinical codes differ -- this is the Hamming distance.
 
-dummy_mapper = umap.UMAP(metric='hamming', random_state=1, verbose = True)
+dummy_mapper = umap.UMAP(metric="hamming", random_state=1, verbose=True)
 dummy_fit = dummy_mapper.fit(dummy_data_to_reduce)
-#umap.plot.diagnostic(dummy_fit, diagnostic_type='local_dim')
+# umap.plot.diagnostic(dummy_fit, diagnostic_type='local_dim')
 
 dummy_ordered_code_group = get_code_group_labels(reduced, "pci")
-umap.plot.points(dummy_fit, values = dummy_ordered_code_group, theme='viridis')
+umap.plot.points(dummy_fit, values=dummy_ordered_code_group, theme="viridis")
 embedding = dummy_mapper.transform(dummy_data_to_reduce)
+
+# Helper for plotting distributions
+def plot_discrete_groups(embedding, reduced, groups, colour_map, title):
+    ordered_groups = get_ordered_group_labels(reduced, groups, code_groups)
+    fig, ax = plt.subplots()
+    for g in ordered_groups.group.unique():
+        ix = np.where(ordered_groups.group == g)
+        ax.scatter(
+            embedding[ix, 1], embedding[ix, 0], marker=".", s=10, c=colour_map[g], label=g
+        )
+    plt.title(title, fontsize=24)
+    plt.legend()
+    plt.show()
+
+# Plot PCI
+colour_map = {"pci": "r", "none": "lightgray"}
+plot_discrete_groups(
+    embedding,
+    reduced,
+    ["pci"],
+    colour_map,
+    "Distribution of PCI",
+)
+
+# Plot STEMI/NSTEMI
+colour_map = {"mi_stemi_schnier": "r", "mi_nstemi_schnier": "b", "none": "lightgray"}
+plot_discrete_groups(
+    embedding,
+    reduced,
+    ["mi_nstemi_schnier", "mi_stemi_schnier"],
+    colour_map,
+    "Distribution of STEMI/NSTEMI MI",
+)
+
+# Plot bleeding
+colour_map = {"bleeding_al_ani": "r", "none": "lightgray"}
+plot_discrete_groups(
+    embedding,
+    reduced,
+    ["bleeding_al_ani"],
+    colour_map,
+    "Distribution of Bleeding",
+)
+
+# Plot CKD
+colour_map = {"ckd": "r", "none": "lightgray"}
+plot_discrete_groups(
+    embedding,
+    reduced,
+    ["ckd"],
+    colour_map,
+    "Distribution of CKD",
+)
+
+# Plot diabetes
+colour_map = {"diabetes_type1": "r", "diabetes_type2": "b", "none": "lightgray"}
+plot_discrete_groups(
+    embedding,
+    reduced,
+    ["diabetes_type1", "diabetes_type2"],
+    colour_map,
+    "Distribution of Type1/Type2 diabetes",
+)
+
+# Plot cancer
+colour_map = {"cancer": "r", "none": "lightgray"}
+plot_discrete_groups(
+    embedding,
+    reduced,
+    ["cancer"],
+    colour_map,
+    "Distribution of Cancer (all neoplasms)",
+)
 
 # Plot age on reduction
 fig, ax = plt.subplots()
 points = ax.scatter(
-    embedding[:, 1],
-    embedding[:, 0],
-    marker = '.',
-    s=5,
-    c=dummy_ordered_age)
-fig.colorbar(points, label= "Age")
-plt.title('Age Distribution', fontsize=24)
+    embedding[:, 1], embedding[:, 0], marker=".", s=5, c=dummy_ordered_age
+)
+fig.colorbar(points, label="Age")
+plt.title("Age Distribution", fontsize=24)
 plt.show()
 
-# Plot 
 
-linear_mapper = umap.UMAP(metric='euclidean', random_state=3, verbose = True)
+
+
+
+###########################
+
+linear_mapper = umap.UMAP(metric="euclidean", random_state=3, verbose=True)
 linear_fit = linear_mapper.fit(linear_data_to_reduce)
-#umap.plot.diagnostic(dummy_fit, diagnostic_type='local_dim')
-umap.plot.points(linear_fit, values = linear_ordered_age, theme='viridis')
+# umap.plot.diagnostic(dummy_fit, diagnostic_type='local_dim')
+umap.plot.points(linear_fit, values=linear_ordered_age, theme="viridis")
 plt.show()
 
 embedding = mapper.fit_transform(encoded)
-plt.scatter(
-    embedding[:, 0],
-    embedding[:, 1])
-plt.gca().set_aspect('equal', 'datalim')
-plt.title('UMAP projection of HES spell codes', fontsize=24)
+plt.scatter(embedding[:, 0], embedding[:, 1])
+plt.gca().set_aspect("equal", "datalim")
+plt.title("UMAP projection of HES spell codes", fontsize=24)
 plt.show()
 
 # 2D embedding
 fit = umap.UMAP(
-    n_neighbors = 50,
-    min_dist = 0.1,
-    n_components = 2,
-    #metric = "euclidean"
+    n_neighbors=50,
+    min_dist=0.1,
+    n_components=2,
+    # metric = "euclidean"
 )
-data_to_reduce = full_encoded.filter(regex="(icd10|opcs4)") # Use "full_code" for dummy encoding
+data_to_reduce = full_encoded.filter(
+    regex="(icd10|opcs4)"
+)  # Use "full_code" for dummy encoding
 embedding2d = fit.fit_transform(data_to_reduce)
 embedding2d.shape
-plt.scatter(
-    embedding2d[:, 0],
-    embedding2d[:, 1],
-    c=full_encoded["age"])
-plt.gca().set_aspect('equal', 'datalim')
-plt.title('UMAP projection of HES spell codes', fontsize=24)
+plt.scatter(embedding2d[:, 0], embedding2d[:, 1], c=full_encoded["age"])
+plt.gca().set_aspect("equal", "datalim")
+plt.title("UMAP projection of HES spell codes", fontsize=24)
 plt.show()
 
 embedding_old = embedding2d
 
 # Apply UMAP to reduce to 3 dimensions
-fit = umap.UMAP(
-    n_neighbors = 15,
-    min_dist = 0.1,
-    n_components = 3,
-    metric = "hamming"
-)
+fit = umap.UMAP(n_neighbors=15, min_dist=0.1, n_components=3, metric="hamming")
 embedding3d = fit.fit_transform(full_encoded)
 embedding3d.shape
 
 # 3D embedding
 fig = plt.figure()
-ax = fig.add_subplot(projection = '3d')
-ax.scatter(
-    embedding3d[:, 0],
-    embedding3d[:, 1],
-    embedding3d[:, 2])
-plt.gca().set_aspect('equal', 'datalim')
-plt.title('UMAP projection of HES spell codes', fontsize=24)
+ax = fig.add_subplot(projection="3d")
+ax.scatter(embedding3d[:, 0], embedding3d[:, 1], embedding3d[:, 2])
+plt.gca().set_aspect("equal", "datalim")
+plt.title("UMAP projection of HES spell codes", fontsize=24)
 plt.show()
