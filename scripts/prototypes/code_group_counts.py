@@ -1,5 +1,6 @@
 import pandas as pd
 from py_hic.clinical_codes import get_codes_in_group, get_groups_in_codes_file
+import re
 
 def get_single_code_group(codes_file, code_group, diagnosis_or_procedure):
     '''

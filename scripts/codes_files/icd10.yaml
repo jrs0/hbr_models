@@ -3033,6 +3033,8 @@ categories:
     - ckd
     - diabetes
     - cancer
+    - diabetes_type1
+    - diabetes_type2
     index:
     - A00
     - B99
@@ -5907,6 +5909,8 @@ categories:
     - ihd_bezin
     - ckd
     - diabetes
+    - diabetes_type1
+    - diabetes_type2
     index:
     - C00
     - D48
@@ -6564,6 +6568,8 @@ categories:
     - ckd
     - diabetes
     - cancer
+    - diabetes_type1
+    - diabetes_type2
     index:
     - D50
     - D89
@@ -6724,6 +6730,8 @@ categories:
       docs: Disorders of thyroid gland
       exclude:
       - diabetes
+      - diabetes_type1
+      - diabetes_type2
       index:
       - E00
       - E07
@@ -6761,6 +6769,8 @@ categories:
           index: E109
           name: E10.9
         docs: Type 1 diabetes mellitus
+        exclude:
+        - diabetes_type2
         index: E10
         name: E10
       - categories:
@@ -6795,6 +6805,8 @@ categories:
           index: E119
           name: E11.9
         docs: Type 2 diabetes mellitus
+        exclude:
+        - diabetes_type1
         index: E11
         name: E11
       - categories:
@@ -6831,6 +6843,8 @@ categories:
         docs: Malnutrition-related diabetes mellitus
         exclude:
         - diabetes
+        - diabetes_type1
+        - diabetes_type2
         index: E12
         name: E12
       - categories:
@@ -6867,6 +6881,8 @@ categories:
         docs: Other specified diabetes mellitus
         exclude:
         - diabetes
+        - diabetes_type1
+        - diabetes_type2
         index: E13
         name: E13
       - categories:
@@ -6903,6 +6919,8 @@ categories:
         docs: Unspecified diabetes mellitus
         exclude:
         - diabetes
+        - diabetes_type1
+        - diabetes_type2
         index: E14
         name: E14
       docs: Diabetes mellitus
@@ -6942,6 +6960,8 @@ categories:
       docs: Other disorders of glucose regulation and pancreatic internal secretion
       exclude:
       - diabetes
+      - diabetes_type1
+      - diabetes_type2
       index:
       - E15
       - E16
@@ -7238,6 +7258,8 @@ categories:
       docs: Disorders of other endocrine glands
       exclude:
       - diabetes
+      - diabetes_type1
+      - diabetes_type2
       index:
       - E20
       - E35
@@ -7274,6 +7296,8 @@ categories:
       docs: Malnutrition
       exclude:
       - diabetes
+      - diabetes_type1
+      - diabetes_type2
       index:
       - E40
       - E46
@@ -7461,6 +7485,8 @@ categories:
       docs: Other nutritional deficiencies
       exclude:
       - diabetes
+      - diabetes_type1
+      - diabetes_type2
       index:
       - E50
       - E64
@@ -7513,6 +7539,8 @@ categories:
       docs: Obesity and other hyperalimentation
       exclude:
       - diabetes
+      - diabetes_type1
+      - diabetes_type2
       index:
       - E65
       - E68
@@ -7925,6 +7953,8 @@ categories:
       docs: Metabolic disorders
       exclude:
       - diabetes
+      - diabetes_type1
+      - diabetes_type2
       index:
       - E70
       - E90
@@ -9675,6 +9705,8 @@ categories:
     - ckd
     - diabetes
     - cancer
+    - diabetes_type1
+    - diabetes_type2
     index:
     - I00
     - I99
@@ -11220,6 +11252,8 @@ categories:
     - ckd
     - diabetes
     - cancer
+    - diabetes_type1
+    - diabetes_type2
     index:
     - F00
     - F99
@@ -12529,6 +12563,8 @@ categories:
     - ckd
     - diabetes
     - cancer
+    - diabetes_type1
+    - diabetes_type2
     index:
     - G00
     - G99
@@ -13579,6 +13615,8 @@ categories:
     - ckd
     - diabetes
     - cancer
+    - diabetes_type1
+    - diabetes_type2
     index:
     - H00
     - H59
@@ -14048,6 +14086,8 @@ categories:
     - ckd
     - diabetes
     - cancer
+    - diabetes_type1
+    - diabetes_type2
     index:
     - H60
     - H95
@@ -15008,6 +15048,8 @@ categories:
     - ckd
     - diabetes
     - cancer
+    - diabetes_type1
+    - diabetes_type2
     index:
     - J00
     - J99
@@ -16959,6 +17001,8 @@ categories:
     - ckd
     - diabetes
     - cancer
+    - diabetes_type1
+    - diabetes_type2
     index:
     - K00
     - K93
@@ -18283,6 +18327,8 @@ categories:
     - ckd
     - diabetes
     - cancer
+    - diabetes_type1
+    - diabetes_type2
     index:
     - L00
     - L99
@@ -20362,6 +20408,8 @@ categories:
     - ckd
     - diabetes
     - cancer
+    - diabetes_type1
+    - diabetes_type2
     index:
     - M00
     - M99
@@ -22124,6 +22172,8 @@ categories:
     - ihd_bezin
     - diabetes
     - cancer
+    - diabetes_type1
+    - diabetes_type2
     index:
     - N00
     - N99
@@ -26911,6 +26961,8 @@ categories:
     - ckd
     - diabetes
     - cancer
+    - diabetes_type1
+    - diabetes_type2
     index:
     - S00
     - T98
@@ -28547,6 +28599,8 @@ categories:
     - ckd
     - diabetes
     - cancer
+    - diabetes_type1
+    - diabetes_type2
     index:
     - O00
     - O99
@@ -29840,6 +29894,8 @@ categories:
     - ckd
     - diabetes
     - cancer
+    - diabetes_type1
+    - diabetes_type2
     index:
     - P00
     - P96
@@ -32125,6 +32181,8 @@ categories:
     - ckd
     - diabetes
     - cancer
+    - diabetes_type1
+    - diabetes_type2
     index:
     - Q00
     - Q99
@@ -33577,6 +33635,8 @@ categories:
     - ckd
     - diabetes
     - cancer
+    - diabetes_type1
+    - diabetes_type2
     index:
     - R00
     - R99
@@ -38541,6 +38601,8 @@ categories:
     - ckd
     - diabetes
     - cancer
+    - diabetes_type1
+    - diabetes_type2
     index:
     - V01
     - Y98
@@ -40819,6 +40881,8 @@ categories:
     - ckd
     - diabetes
     - cancer
+    - diabetes_type1
+    - diabetes_type2
     index:
     - Z00
     - Z99
@@ -40993,6 +41057,8 @@ categories:
     - ckd
     - diabetes
     - cancer
+    - diabetes_type1
+    - diabetes_type2
     index:
     - U00
     - U85
@@ -41014,3 +41080,5 @@ groups:
 - ckd
 - cancer
 - diabetes
+- diabetes_type1
+- diabetes_type2
