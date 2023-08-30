@@ -91,6 +91,38 @@ def get_code_group_labels(reduced, code_group):
     group = df.groupby("spell_id").ingroup.any()
     return dummy_encoded.merge(group, on="spell_id").ingroup
 
+def get_ordered_group_labels(reduced, groups, code_groups):
+    '''
+    Get a dataframe of spell_id with a column indicating whether
+    each spell has a code from a set of groups. The column 'label'
+    contains a group name from groups if the spell has a code from
+    those groups. If a spell contains codes from multiple of these 
+    groups, then only the first one is recorded (so the order of the
+    groups list matter -- items at the front are higher priority).
+    '''
+    # Get a list of the relevant codes (the ones in groups), along
+    # with the name in the format of the reduced dataframe
+    relevant_codes = code_groups[code_groups["group"].isin(groups)].copy()
+    icd10_or_opcs4 = ["icd10_" if x == "diagnosis" else "opcs4_" for x in relevant_codes.type]
+    relevant_codes["full_code"] = icd10_or_opcs4 + relevant_codes["name"]
+    relevant_codes = relevant_codes[["full_code", "group"]]
+
+    reduced_with_groups = reduced.merge(relevant_codes, how = "left", on = "full_code")[["spell_id","group"]].replace(np.nan, "none")
+    reduced_with_groups.drop_duplicates(inplace=True)
+
+    # The next line sorts the group according to the order of the
+    # groups argument. First append "none" to the groups
+    groups.append("none")
+    reduced_with_groups.sort_values(by="group", key=lambda column: column.map(lambda e: groups.index(e)), inplace=True)
+    # Pick only the first group in each spell (now priority give by groups order)
+    reduced_with_groups = reduced_with_groups.groupby("spell_id").first().reset_index()
+
+    #reduced.groupby("spell_id").
+    return reduced_with_groups
+
+df = get_ordered_group_labels(reduced, ["pci", "mi_schnier", "ihd_bezin",  "acs_bezin", "mi_nstemi_schnier", "mi_stemi_schnier"], code_groups)
+df[df["spell_id"] == "1684230051579963076"]
+
 # Pivot to keep the diagnosis position as the value of the code,
 # instead of just a TRUE/FALSE. The value after this pivot is the
 # linear diagnosis/procedure scale from 1 (last secondary) to 24
