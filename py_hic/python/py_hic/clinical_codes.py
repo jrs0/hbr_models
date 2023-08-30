@@ -35,3 +35,4 @@ def get_codes_in_group(codes_file_path, group):
       raise ValueError(f"code group '{group}' is not present in codes file '{codes_file_path}'")
    
    return pandas.DataFrame(_lib_name.rust_get_codes_in_group(codes_file_path, group))
+
