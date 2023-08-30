@@ -32,7 +32,7 @@ raw_data = hes.get_spells_hes_pandas()
 # inplace=True later). Want to keep the raw
 # data to avoid SQL fetch time.
 #reduced = raw_data.head(50000).copy()
-reduced = raw_data.head(100000).copy()
+reduced = raw_data.head(50000).copy()
 
 # Remove irrelevant columns
 cols_to_remove = ["nhs_number", "spell_start_date", "spell_end_date"]
@@ -135,12 +135,6 @@ def get_ordered_group_labels(reduced, groups, code_groups):
     # reduced.groupby("spell_id").
     return reduced_with_groups
 
-code_groups = get_code_groups("../codes_files/icd10.yaml", "../codes_files/opcs4.yaml")
-
-dummy_ordered_mi = get_ordered_group_labels(
-    reduced, ["mi_nstemi_schnier", "mi_stemi_schnier"], code_groups
-)
-
 # Pivot to keep the diagnosis position as the value of the code,
 # instead of just a TRUE/FALSE. The value after this pivot is the
 # linear diagnosis/procedure scale from 1 (last secondary) to 24
@@ -184,12 +178,7 @@ linear_ordered_age = linear_encoded.merge(age_and_gender, on="spell_id").age
 #   clinical codes differ -- this is the Hamming distance.
 
 dummy_mapper = umap.UMAP(metric="hamming", random_state=1, verbose=True)
-dummy_fit = dummy_mapper.fit(dummy_data_to_reduce)
-# umap.plot.diagnostic(dummy_fit, diagnostic_type='local_dim')
-
-dummy_ordered_code_group = get_code_group_labels(reduced, "pci")
-umap.plot.points(dummy_fit, values=dummy_ordered_code_group, theme="viridis")
-embedding = dummy_mapper.transform(dummy_data_to_reduce)
+embedding = dummy_mapper.fit_transform(dummy_data_to_reduce)
 
 # Helper for plotting distributions
 def plot_discrete_groups(embedding, reduced, groups, colour_map, title):
@@ -203,6 +192,14 @@ def plot_discrete_groups(embedding, reduced, groups, colour_map, title):
     plt.title(title, fontsize=24)
     plt.legend()
     plt.show()
+
+# Plot basic embedding
+fig, ax = plt.subplots()
+ax.scatter(
+    embedding[:, 1], embedding[:, 0], marker=".", s=5,
+    )
+plt.title(f"{embedding.shape[0]} Spells, {dummy_data_to_reduce.shape[1]} Code Dimensions (one per ICD-10/OPCS-4)", fontsize=24)
+plt.show()
 
 # Plot PCI
 colour_map = {"pci": "r", "none": "lightgray"}
@@ -272,6 +269,8 @@ points = ax.scatter(
 fig.colorbar(points, label="Age")
 plt.title("Age Distribution", fontsize=24)
 plt.show()
+
+
 
 
 
