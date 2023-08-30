@@ -3031,6 +3031,8 @@ categories:
     - acs_bezin
     - ihd_bezin
     - ckd
+    - diabetes
+    - cancer
     index:
     - A00
     - B99
@@ -5904,6 +5906,7 @@ categories:
     - acs_bezin
     - ihd_bezin
     - ckd
+    - diabetes
     index:
     - C00
     - D48
@@ -6559,6 +6562,8 @@ categories:
     - acs_bezin
     - ihd_bezin
     - ckd
+    - diabetes
+    - cancer
     index:
     - D50
     - D89
@@ -6717,6 +6722,8 @@ categories:
         index: E07
         name: E07
       docs: Disorders of thyroid gland
+      exclude:
+      - diabetes
       index:
       - E00
       - E07
@@ -6822,6 +6829,8 @@ categories:
           index: E129
           name: E12.9
         docs: Malnutrition-related diabetes mellitus
+        exclude:
+        - diabetes
         index: E12
         name: E12
       - categories:
@@ -6856,6 +6865,8 @@ categories:
           index: E139
           name: E13.9
         docs: Other specified diabetes mellitus
+        exclude:
+        - diabetes
         index: E13
         name: E13
       - categories:
@@ -6890,6 +6901,8 @@ categories:
           index: E149
           name: E14.9
         docs: Unspecified diabetes mellitus
+        exclude:
+        - diabetes
         index: E14
         name: E14
       docs: Diabetes mellitus
@@ -6927,6 +6940,8 @@ categories:
         index: E16
         name: E16
       docs: Other disorders of glucose regulation and pancreatic internal secretion
+      exclude:
+      - diabetes
       index:
       - E15
       - E16
@@ -7221,6 +7236,8 @@ categories:
         index: E35
         name: E35
       docs: Disorders of other endocrine glands
+      exclude:
+      - diabetes
       index:
       - E20
       - E35
@@ -7255,6 +7272,8 @@ categories:
         index: E46
         name: E46
       docs: Malnutrition
+      exclude:
+      - diabetes
       index:
       - E40
       - E46
@@ -7440,6 +7459,8 @@ categories:
         index: E64
         name: E64
       docs: Other nutritional deficiencies
+      exclude:
+      - diabetes
       index:
       - E50
       - E64
@@ -7490,6 +7511,8 @@ categories:
         index: E68
         name: E68
       docs: Obesity and other hyperalimentation
+      exclude:
+      - diabetes
       index:
       - E65
       - E68
@@ -7900,6 +7923,8 @@ categories:
         index: E90
         name: E90
       docs: Metabolic disorders
+      exclude:
+      - diabetes
       index:
       - E70
       - E90
@@ -7915,6 +7940,7 @@ categories:
     - acs_bezin
     - ihd_bezin
     - ckd
+    - cancer
     index:
     - E00
     - E90
@@ -9647,6 +9673,8 @@ categories:
     docs: Diseases of the circulatory system
     exclude:
     - ckd
+    - diabetes
+    - cancer
     index:
     - I00
     - I99
@@ -11190,6 +11218,8 @@ categories:
     - acs_bezin
     - ihd_bezin
     - ckd
+    - diabetes
+    - cancer
     index:
     - F00
     - F99
@@ -12497,6 +12527,8 @@ categories:
     - acs_bezin
     - ihd_bezin
     - ckd
+    - diabetes
+    - cancer
     index:
     - G00
     - G99
@@ -13545,6 +13577,8 @@ categories:
     - acs_bezin
     - ihd_bezin
     - ckd
+    - diabetes
+    - cancer
     index:
     - H00
     - H59
@@ -14012,6 +14046,8 @@ categories:
     - acs_bezin
     - ihd_bezin
     - ckd
+    - diabetes
+    - cancer
     index:
     - H60
     - H95
@@ -14970,6 +15006,8 @@ categories:
     - acs_bezin
     - ihd_bezin
     - ckd
+    - diabetes
+    - cancer
     index:
     - J00
     - J99
@@ -16919,6 +16957,8 @@ categories:
     - acs_bezin
     - ihd_bezin
     - ckd
+    - diabetes
+    - cancer
     index:
     - K00
     - K93
@@ -18241,6 +18281,8 @@ categories:
     - acs_bezin
     - ihd_bezin
     - ckd
+    - diabetes
+    - cancer
     index:
     - L00
     - L99
@@ -20318,6 +20360,8 @@ categories:
     - acs_bezin
     - ihd_bezin
     - ckd
+    - diabetes
+    - cancer
     index:
     - M00
     - M99
@@ -22078,6 +22122,8 @@ categories:
     - mi_schnier
     - acs_bezin
     - ihd_bezin
+    - diabetes
+    - cancer
     index:
     - N00
     - N99
@@ -26863,6 +26909,8 @@ categories:
     - acs_bezin
     - ihd_bezin
     - ckd
+    - diabetes
+    - cancer
     index:
     - S00
     - T98
@@ -28497,6 +28545,8 @@ categories:
     - acs_bezin
     - ihd_bezin
     - ckd
+    - diabetes
+    - cancer
     index:
     - O00
     - O99
@@ -29788,6 +29838,8 @@ categories:
     - acs_bezin
     - ihd_bezin
     - ckd
+    - diabetes
+    - cancer
     index:
     - P00
     - P96
@@ -32071,6 +32123,8 @@ categories:
     - acs_bezin
     - ihd_bezin
     - ckd
+    - diabetes
+    - cancer
     index:
     - Q00
     - Q99
@@ -33521,6 +33575,8 @@ categories:
     - acs_bezin
     - ihd_bezin
     - ckd
+    - diabetes
+    - cancer
     index:
     - R00
     - R99
@@ -38483,6 +38539,8 @@ categories:
     - acs_bezin
     - ihd_bezin
     - ckd
+    - diabetes
+    - cancer
     index:
     - V01
     - Y98
@@ -40759,6 +40817,8 @@ categories:
     - acs_bezin
     - ihd_bezin
     - ckd
+    - diabetes
+    - cancer
     index:
     - Z00
     - Z99
@@ -40931,6 +40991,8 @@ categories:
     - acs_bezin
     - ihd_bezin
     - ckd
+    - diabetes
+    - cancer
     index:
     - U00
     - U85

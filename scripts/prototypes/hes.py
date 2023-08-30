@@ -3,6 +3,7 @@ import pandas as pd
 import polars as pl
 import time
 import re
+from code_group_counts import normalise_code
 
 # Fixed query for getting spells data from HES (BNSSG-ICB).
 query = """select AIMTC_Pseudo_NHS as nhs_number,
@@ -79,14 +80,6 @@ def get_spells_hes_polars():
     print(f"Time to fetch spells data: {stop - start}")
     return raw_data
 
-def normalise_code(code):
-    '''
-    Remove all whitespace and any dot character,
-    and convert characters in the code to lower case.
-    '''
-    alpha_num = re.sub(r'\W+', '', code)
-    return alpha_num.lower()
-
 def convert_codes_to_long(df):
     '''
     df is a table containing the diagnosis and procedure columns returned
@@ -124,3 +117,4 @@ def make_linear_position_scale(long_codes, N = 23):
     df = long_codes.copy()
     df.position = N + 1 - df.position
     return df
+

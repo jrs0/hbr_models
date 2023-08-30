@@ -33,7 +33,7 @@ raw_data = hes.get_spells_hes_pandas()
 # Copy in order to not modify raw_data (to use
 # inplace=True later). Want to keep the raw
 # data to avoid SQL fetch time.
-reduced = raw_data.head(500).copy()
+reduced = raw_data.head(40000).copy()
 
 # Remove irrelevant columns
 cols_to_remove = ["nhs_number", "spell_start_date", "spell_end_date"]
@@ -141,15 +141,13 @@ If these questions give positive answers, then the reduction to a higher number 
 
 ## Overview of Method
 
-```{python}
-
-```
-
 ## Dimension reduction to two dimensions
 
 The following sections show how different medical conditions or types of spells appear in the reduced dimensional HES data. In these plots, the yellow highlighted points are the spells that contain a diagnosis or a procedure code from the corresponding group. The purpose is to show whether or not different regions of the reduction map to different medical conditions or interactions.
 
 ### PCI Procedures
+
+The location of PCI procedures is plotted below.
 
 ```{python}
 #| echo: false
@@ -160,6 +158,8 @@ umap.plot.points(dummy_fit, values = dummy_ordered_code_group, theme='viridis')
 
 ### ACS Spells
 
+Notes: uses Bezin et al., 2015 group, which excludes the "old myocardial infarction" code that dominates the results when using the Schnier et al., 2017 group. The group is basically all MI but without this code.
+
 ```{python}
 #| echo: false
 #| warning: false
@@ -167,12 +167,51 @@ dummy_ordered_code_group = get_code_group_labels(reduced, "acs_bezin", "../codes
 umap.plot.points(dummy_fit, values = dummy_ordered_code_group, theme='viridis')
 ```
 
+When including the wider myocardial infarction group, the plot changes to this:
+
+```{python}
+#| echo: false
+#| warning: false
+dummy_ordered_code_group = get_code_group_labels(reduced, "mi_schnier", "../codes_files/icd10.yaml")
+umap.plot.points(dummy_fit, values = dummy_ordered_code_group, theme='viridis')
+```
+
+The location of STEMI and NSTEMI MI in this plot is as follows (STEMI first):
+
+```{python}
+#| echo: false
+#| warning: false
+dummy_ordered_code_group = get_code_group_labels(reduced, "mi_stemi_schnier", "../codes_files/icd10.yaml")
+umap.plot.points(dummy_fit, values = dummy_ordered_code_group, theme='viridis')
+```
+
+```{python}
+#| echo: false
+#| warning: false
+dummy_ordered_code_group = get_code_group_labels(reduced, "mi_nstemi_schnier", "../codes_files/icd10.yaml")
+umap.plot.points(dummy_fit, values = dummy_ordered_code_group, theme='viridis')
+```
+
 ### Bleeding Diagnoses
+
+Given the wide variety of different origins of bleeding (this uses the Al Ani et al., 2015 group), it is interesting that there is a region of quite high concentration. The most likely explanation is this region corresponds to a condition that frequently causes bleeding, rather than the dimension reduction having somehow identified the characteristics of bleeding spells.
 
 ```{python}
 #| echo: false
 #| warning: false
 dummy_ordered_code_group = get_code_group_labels(reduced, "bleeding_al_ani", "../codes_files/icd10.yaml")
+umap.plot.points(dummy_fit, values = dummy_ordered_code_group, theme='viridis')
+```
+
+### Chronic Kidney Disease
+
+The code group is only N18.* (CKD stages 1 through 5). The most interesting thing about this plot is the large concentrated cluster of CKD, which is some kind of artefact of the dimension reduction. One possible explanation is that there are so many CKD episodes (e.g. weekly dialysis) that they form a kind of degenerate point.
+
+
+```{python}
+#| echo: false
+#| warning: false
+dummy_ordered_code_group = get_code_group_labels(reduced, "ckd", "../codes_files/icd10.yaml")
 umap.plot.points(dummy_fit, values = dummy_ordered_code_group, theme='viridis')
 ```
 
