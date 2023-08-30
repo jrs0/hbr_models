@@ -96,6 +96,8 @@ def get_code_group_labels(reduced, code_group, filepath):
     group = df.groupby("spell_id").ingroup.any()
     return dummy_encoded.merge(group, on="spell_id").ingroup
 
+
+
 # UMAP has the following parameters:
 #
 # - n_neighbors: this is the number of nearest neighbors to
