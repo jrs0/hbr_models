@@ -183,6 +183,42 @@ fn get_codes_in_group(
     return codes_in_group;
 }
 
+/// Return the category in the supplied vector that contains the code,
+/// or return the error variant "not found" if the code is not present
+/// in any category. The search is performed using the index of the 
+/// category.
+fn locate_code_in_categories(
+    code: String,
+    categories: &Vec<Categories>,
+) -> &Result<Category, &'static str> {
+
+    // Look through the index keys at the current level
+    // and find the position of the code. Inside the codes
+    // structure, the index keys provide an array to search
+    // (using binary search) for the ICD code in str.
+
+    // auto position = std::upper_bound(categories.begin(),
+    // 			     categories.end(),
+    // 			     code);
+    // const bool found = (position != std::begin(categories)) &&
+    // ((position-1)->contains(code));
+
+    // If found == false, then a match was not found. This
+    // means that the code is not a valid member of any member
+    // of this level, so it is not a valid code. TODO it still
+    // may be possible to return the category above as a fuzzy
+    // match -- consider implementing
+    // if (!found) {
+    // throw ParserException::CodeNotFound {};
+    // }
+
+    // Decrement the position to point to the largest category
+    // c such that c <= code
+    // position--;
+
+    // return *position;
+}
+
 /// Return the name and docs field of a code (depending on the bool argument)
 /// if it exists in the categories tree, or return an error variant if the
 /// code is not present in the list of categories.
@@ -192,7 +228,7 @@ fn get_codes_in_group(
 /// /src/category.cpp#L192. In that case, you need to return a type that wraps
 /// the ClinicalCodeRef and also some reference to the groups.
 ///
-fn get_code_prop(
+fn locate_code_in_tree(
     code: String,
     categories: &Vec<Categories>,
     code_store: &mut ClinicalCodeStore,
@@ -210,7 +246,7 @@ fn get_code_prop(
         // There are sub-categories -- parse the code at the next level
         // down (put a try catch here for the case where the next level
         // down isn't better)
-        get_code_prop(code, cat.categories(), code_store)
+        locate_code_in_tree(code, cat.categories(), code_store)
     } else {
         Ok(code_store.clinical_code_ref_from(ClinicalCode::from(cat)))
     }
