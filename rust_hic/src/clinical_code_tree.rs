@@ -211,7 +211,10 @@ fn locate_code_in_categories<'a>(
     };
 
     match categories.binary_search_by(compare_code_with_category) {
-        Ok(position) => Ok(&categories[position]),
+        Ok(position) => {
+            println!("Position {position}");
+            Ok(&categories[position])
+        }
         Err(_) => Err("not found"),
     }
 
