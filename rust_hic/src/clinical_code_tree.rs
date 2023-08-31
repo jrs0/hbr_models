@@ -394,12 +394,8 @@ impl ClinicalCodeTree {
         code: String,
         code_store: &mut ClinicalCodeStore,
     ) -> Result<ClinicalCodeRef, &'static str> {
-
-        
-        let name = String::from("I21.0");
-        let docs = String::from("What the code means...");
-        let code = ClinicalCode::new(name, docs);
-        Ok(code_store.clinical_code_ref_from(code))
+        let normalised_code = normalise_code(code);
+        locate_code_in_tree(normalised_code, &self.categories, code_store)
     }
 }
 
