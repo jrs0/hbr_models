@@ -184,37 +184,36 @@ fn get_codes_in_group(
 }
 
 /// Return the name and docs field of a code (depending on the bool argument)
-/// if it exists in the categories tree, or throw a runtime error for an
-/// invalid code. The final argument is the set of groups that might contains
-/// this code. Groups are dropped as exclude tags are encountered while
-/// descending through the tree. 
-CacheEntry get_code_prop(const std::string code,
-    const std::vector<Category> & categories,
-    std::set<std::string> groups) {
+/// if it exists in the categories tree, or return an error variant if the
+/// code is not present in the list of categories.
+///
+/// Note: You can also use this function to find the groups that a code is in.
+/// See the corresponding C++ function https://github.com/jrs0/rdb/blob/main
+/// /src/category.cpp#L192. In that case, you need to return a type that wraps
+/// the ClinicalCodeRef and also some reference to the groups.
+///
+fn get_code_prop(
+    code: String,
+    categories: &Vec<Categories>,
+    code_store: &mut ClinicalCodeStore,
+) -> Result<ClinicalCodeRef, &'static str> {
+    // Locate the category containing the code at the current level
+    let cat = locate_code_in_categories(code, categories);
 
-// Locate the category containing the code at the current level
-auto & cat{locate_code_in_categories(code, categories)};
-
-// Check for any group exclusions at this level and remove
-// them from the current group list
-for (const auto & excluded_group : cat.exclude()) {
-groups.erase(excluded_group);
-}
-
-// If there is a subcategory, make a call to this function
-// to process the next category down. Otherwise you are
-// at a leaf node, so start returning up the call graph.
-// TODO: since this function is linearly recursive,
-// there should be a tail-call optimisation available here
-// somewhere.
-if (not cat.is_leaf()) {
-// There are sub-categories -- parse the code at the next level
-// down (put a try catch here for the case where the next level
-// down isn't better)
-return get_code_prop(code, cat.categories(), groups);
-} else {
-return CacheEntry{cat, groups};
-}
+    // If there is a subcategory, make a call to this function
+    // to process the next category down. Otherwise you are
+    // at a leaf node, so start returning up the call graph.
+    // TODO: since this function is linearly recursive,
+    // there should be a tail-call optimisation available here
+    // somewhere.
+    if !cat.is_leaf() {
+        // There are sub-categories -- parse the code at the next level
+        // down (put a try catch here for the case where the next level
+        // down isn't better)
+        get_code_prop(code, cat.categories(), code_store)
+    } else {
+        Ok(code_store.clinical_code_ref_from(ClinicalCode::from(cat)))
+    }
 }
 
 /// The code definition file structure
@@ -330,17 +329,18 @@ impl ClinicalCodeTree {
     ///
     /// Each call to this function will search the entire tree, which is
     /// slow (even though it is a binary search). In code that repeatedly
-    /// searches for exact code matches, you should cache the result of 
+    /// searches for exact code matches, you should cache the result of
     /// this function in a map from the code String argument to ClinicalCodeRef.
+    ///
+    /// Note: traversing the tree looking for a code also gives you the groups
+    /// the code is in for free (that operation also requires a tree traversal).
+    /// So it might be a good idea to store the groups too, instead of having
+    /// to traverse the tree twice.
     pub fn find_exact(
         &self,
         code: String,
         code_store: &mut ClinicalCodeStore,
     ) -> Result<ClinicalCodeRef, &'static str> {
-
-        
-
-
         let name = String::from("I21.0");
         let docs = String::from("What the code means...");
         let code = ClinicalCode::new(name, docs);
