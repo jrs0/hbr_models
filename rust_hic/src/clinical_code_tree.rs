@@ -470,19 +470,19 @@ mod tests {
                 category!(
                     "cat1",
                     "category 1",
-                    Index::make_category("cat11", "cat12"),
+                    Index::make_dual("cat11", "cat12"),
                     vec![
-                        leaf!("cat11", "sub cat 11", Index::make_leaf("cat11")),
-                        leaf!("cat12", "sub cat 12", Index::make_leaf("cat12")),
+                        leaf!("cat11", "sub cat 11", Index::make_single("cat11")),
+                        leaf!("cat12", "sub cat 12", Index::make_single("cat12")),
                     ]
                 ),
                 category!(
                     "cat2",
                     "category 2",
-                    Index::make_category("cat2", "cat2"),
+                    Index::make_dual("cat2", "cat2"),
                     vec![
-                        leaf!("cat21", "sub cat 21", Index::make_leaf("cat21")),
-                        leaf!("cat22", "sub cat 22", Index::make_leaf("cat22")),
+                        leaf!("cat21", "sub cat 21", Index::make_single("cat21")),
+                        leaf!("cat22", "sub cat 22", Index::make_single("cat22")),
                     ]
                 ),
             ],
