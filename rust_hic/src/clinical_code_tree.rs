@@ -139,6 +139,12 @@ impl Categories {
     pub fn docs(&self) -> &String {
         &self.docs
     }
+
+    /// Get the index of this code or category
+    pub fn index(&self) -> &Index {
+        &self.index
+    }
+
 }
 
 /// Remove whitespace, dots and convert all characters
@@ -206,8 +212,10 @@ fn locate_code_in_categories<'a>(
 
     // Determine whether a code is in the category by comparing
     let compare_code_with_category = |cat: &Categories| -> Ordering {
-        // Todo implement
-        Ordering::Equal
+        let cat_name = cat.name();
+        let cat_index = cat.index();
+        println!("Comparing {code} to category {cat_name} with index {:?}", cat_index);
+        cat.index().compare(code)
     };
 
     match categories.binary_search_by(compare_code_with_category) {
@@ -215,7 +223,10 @@ fn locate_code_in_categories<'a>(
             println!("Position {position}");
             Ok(&categories[position])
         }
-        Err(_) => Err("not found"),
+        Err(position) => {
+            println!("Failed at position {position}");
+            Err("not found")
+        },
     }
 
     // If found == false, then a match was not found. This
@@ -260,6 +271,13 @@ fn locate_code_in_tree(
             let sub_categories = cat
                 .categories()
                 .expect("Expecting sub-categories for non-leaf node");
+            
+            println!("Subcats:");
+            for cat in sub_categories {
+                let cat_name = cat.name();
+                println!("- {cat_name}");
+            }
+
             // There are sub-categories -- parse the code at the next level
             // down (put a try catch here for the case where the next level
             // down isn't better)

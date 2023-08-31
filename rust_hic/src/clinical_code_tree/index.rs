@@ -36,28 +36,30 @@ impl Index {
     /// with no dots or white space.
     ///
     /// The function returns Equal if the code lies in the Index range.
-    /// Otherwise it returns Less or Greater depending if the code is
-    /// above this index or below it.
-    ///
+    /// Otherwise it returns Less if the Index (self) is strictly below 
+    /// the code, and Greater if self is strictly above the code. This 
+    /// is consistent with the direction of std::cmp.
+    /// 
     /// Note: due to a discrepancy in the Index format (letters are
     /// upper case), letters in the normalised code are converted back
     /// to upper case before comparison with Index. This should be fixed
     /// in the Index (and therefore in the codes files too), so that all
     /// codes are in the lower case format.
-    fn compare(&self, code: &String) -> Ordering {
+    pub fn compare(&self, code: &String) -> Ordering {
         let code = code.to_ascii_uppercase();
         match self {
             Index::Leaf(index_code) => code.cmp(index_code),
             Index::Category(start, end) => {
                 if code.cmp(start) == Ordering::Less {
                     // If the code is less than start, then
-                    // the code is strictly below self
-                    Ordering::Less
+                    // the code is strictly below self (so
+                    // self is above the code)
+                    Ordering::Greater
                 } else if code[..end.len()].cmp(end) == Ordering::Greater {
                     // Else, if the code is greater than the
                     // _truncated_ upper index, then the code
-                    // lies above self.
-                    Ordering::Greater
+                    // lies above self (so self is below the code)
+                    Ordering::Less
                 } else {
                     // Otherwise, the code is contained within the
                     // index.
