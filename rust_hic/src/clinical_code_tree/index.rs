@@ -4,22 +4,31 @@ use serde::{Deserialize, Serialize};
 
 /// Index used to sort the code categories.
 ///
-/// The index contains one or two string values.
-/// The first value, which is required, is the
-/// lexicographical start point for the category.
-/// For example, the top level ICD-10 code category
-/// begins with index A00. The second value, which
-/// is present only for proper categories, defines
-/// the end-point of the category. For example,
-/// the category ending B99 includes all categories
-/// and codes whose name (without the dot) truncated
-/// to three characters is lexicographically less than
-/// or equal to B99.
+/// An index is a pair of String (A, B), where
+/// A <= B lexicographically. It represents
+/// the range of a Category, and is used for
+/// sorting categories into order or comparing
+/// a code with a category for binary search purposes.
+/// Both A and B are the same length, and A may equal B.
+/// 
+/// The rule which determines whether a code C is in
+/// the range (A, B) is as follows:
+/// - truncate C to the length of A and B to produce C';
+/// - compare C' with A and B lexicographically.
+/// 
+/// If A <= C' <= B, then C lies in the range defined by
+/// (A, B). Otherwise, C is above (A, B) if C' > B, or
+/// below (A, B) if C' < A.
+/// 
+/// In the case where A = B, only A needs to be stored,
+/// and the Single enum variant is used. Else the Dual
+/// variant is used, which stores (A, B).
+///
 #[derive(PartialEq, Eq, PartialOrd, Ord, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Index {
-    Leaf(String),
-    Category(String, String),
+    Single(String),
+    Dual(String, String),
 }
 
 impl Index {
