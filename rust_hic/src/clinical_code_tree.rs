@@ -22,8 +22,8 @@ use index::Index;
 use rand::seq::SliceRandom;
 use rand_chacha::ChaCha8Rng;
 use serde::{Deserialize, Serialize};
-use std::collections::HashSet;
 use std::io::Read;
+use std::{cmp::Ordering, collections::HashSet};
 
 use crate::clinical_code::{ClinicalCode, ClinicalCodeRef, ClinicalCodeStore};
 
@@ -35,6 +35,8 @@ mod index;
 /// The distinction is whether the categories field is
 /// None -- if it is, it is a leaf node (a code), and if
 /// not, it is a category.
+///
+/// TODO: RENAME TO CATEGORY
 ///
 #[derive(PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub struct Categories {
@@ -144,9 +146,9 @@ impl Categories {
 /// characters are retained
 fn normalise_code(code: String) -> String {
     code.to_lowercase()
+        .replace(".", "")
         .split_whitespace()
         .collect()
-        .replace(".", "")
 }
 
 fn get_codes_in_group(
@@ -185,13 +187,12 @@ fn get_codes_in_group(
 
 /// Return the category in the supplied vector that contains the code,
 /// or return the error variant "not found" if the code is not present
-/// in any category. The search is performed using the index of the 
+/// in any category. The search is performed using the index of the
 /// category.
-fn locate_code_in_categories(
-    code: String,
-    categories: &Vec<Categories>,
-) -> &Result<Category, &'static str> {
-
+fn locate_code_in_categories<'a>(
+    code: &String,
+    categories: &'a Vec<Categories>,
+) -> Result<&'a Categories, &'static str> {
     // Look through the index keys at the current level
     // and find the position of the code. Inside the codes
     // structure, the index keys provide an array to search
@@ -202,6 +203,17 @@ fn locate_code_in_categories(
     // 			     code);
     // const bool found = (position != std::begin(categories)) &&
     // ((position-1)->contains(code));
+
+    // Determine whether a code is in the category by comparing
+    let compare_code_with_category = |cat: &Categories| -> Ordering {
+        // Todo implement
+        Ordering::Equal
+    };
+
+    match categories.binary_search_by(compare_code_with_category) {
+        Ok(position) => Ok(&categories[position]),
+        Err(_) => Err("not found"),
+    }
 
     // If found == false, then a match was not found. This
     // means that the code is not a valid member of any member
@@ -234,21 +246,26 @@ fn locate_code_in_tree(
     code_store: &mut ClinicalCodeStore,
 ) -> Result<ClinicalCodeRef, &'static str> {
     // Locate the category containing the code at the current level
-    let cat = locate_code_in_categories(code, categories);
-
-    // If there is a subcategory, make a call to this function
-    // to process the next category down. Otherwise you are
-    // at a leaf node, so start returning up the call graph.
-    // TODO: since this function is linearly recursive,
-    // there should be a tail-call optimisation available here
-    // somewhere.
-    if !cat.is_leaf() {
-        // There are sub-categories -- parse the code at the next level
-        // down (put a try catch here for the case where the next level
-        // down isn't better)
-        locate_code_in_tree(code, cat.categories(), code_store)
+    if let Ok(cat) = locate_code_in_categories(&code, categories) {
+        // If there is a subcategory, make a call to this function
+        // to process the next category down. Otherwise you are
+        // at a leaf node, so start returning up the call graph.
+        // TODO: since this function is linearly recursive,
+        // there should be a tail-call optimisation available here
+        // somewhere.
+        if !cat.is_leaf() {
+            let sub_categories = cat
+                .categories()
+                .expect("Expecting sub-categories for non-leaf node");
+            // There are sub-categories -- parse the code at the next level
+            // down (put a try catch here for the case where the next level
+            // down isn't better)
+            locate_code_in_tree(code, sub_categories, code_store)
+        } else {
+            Ok(code_store.clinical_code_ref_from(ClinicalCode::from(cat)))
+        }
     } else {
-        Ok(code_store.clinical_code_ref_from(ClinicalCode::from(cat)))
+        Err("not found")
     }
 }
 
@@ -377,6 +394,8 @@ impl ClinicalCodeTree {
         code: String,
         code_store: &mut ClinicalCodeStore,
     ) -> Result<ClinicalCodeRef, &'static str> {
+
+        
         let name = String::from("I21.0");
         let docs = String::from("What the code means...");
         let code = ClinicalCode::new(name, docs);
