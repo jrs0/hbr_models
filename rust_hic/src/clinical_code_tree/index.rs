@@ -37,8 +37,10 @@ impl Index {
     ///
     /// The function returns Equal if the code lies in the Index range.
     /// Otherwise it returns Less if the Index (self) is strictly below 
-    /// the code, and Greater if self is strictly above the code. This 
-    /// is consistent with the direction of std::cmp.
+    /// the code, and Greater if self is strictly above the code. This
+    /// might feel the wrong way round, but think of it like "how does 
+    /// self compare with the argument" (it is consistent with the 
+    /// direction of std::cmp).
     /// 
     /// Note: due to a discrepancy in the Index format (letters are
     /// upper case), letters in the normalised code are converted back
@@ -48,7 +50,7 @@ impl Index {
     pub fn compare(&self, code: &String) -> Ordering {
         let code = code.to_ascii_uppercase();
         match self {
-            Index::Leaf(index_code) => code.cmp(index_code),
+            Index::Leaf(index_code) => index_code.cmp(&code),
             Index::Category(start, end) => {
                 if code.cmp(start) == Ordering::Less {
                     // If the code is less than start, then
@@ -140,25 +142,25 @@ mod tests {
     }
 
     #[test]
-    fn check_codes_lie_below_index_range() {
+    fn check_index_range_lies_above_codes() {
         let i = Index::make_category("I00", "I02");
         // Check the upper boundary edge case
         let code = format!("h999");
-        assert_eq!(i.compare(&code), Ordering::Less);
+        assert_eq!(i.compare(&code), Ordering::Greater);
         // Check internal code
         let code = format!("a001");
-        assert_eq!(i.compare(&code), Ordering::Less);
+        assert_eq!(i.compare(&code), Ordering::Greater);
     }
 
     #[test]
-    fn check_codes_lie_above_index_range() {
+    fn check_index_range_lies_below_codes() {
         let i = Index::make_category("I00", "I02");
         // Check the lower boundary edge case
         let code = format!("i030");
-        assert_eq!(i.compare(&code), Ordering::Greater);
+        assert_eq!(i.compare(&code), Ordering::Less);
         // Check internal code
         let code = format!("z001");
-        assert_eq!(i.compare(&code), Ordering::Greater);
+        assert_eq!(i.compare(&code), Ordering::Less);
     }
 
 }
