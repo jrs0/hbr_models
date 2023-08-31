@@ -18,6 +18,7 @@ import re
 import scipy
 from py_hic.clinical_codes import get_codes_in_group
 import code_group_counts as codes
+import datetime as dt
 
 import hes
 
@@ -25,14 +26,17 @@ importlib.reload(hes)
 importlib.reload(codes)
 
 # Get raw data
-raw_data = hes.get_spells_hes_pandas()
+
+start_date = dt.date(2023,1,1)
+end_date = dt.date(2023,2,1)
+raw_data = hes.get_spells_hes_pandas(start_date, end_date)
 
 # Reduce the data to a size UMAP can handle.
 # Copy in order to not modify raw_data (to use
 # inplace=True later). Want to keep the raw
 # data to avoid SQL fetch time.
 #reduced = raw_data.head(50000).copy()
-reduced = raw_data.head(50000).copy()
+reduced = raw_data.copy()
 
 # Remove irrelevant columns
 cols_to_remove = ["nhs_number", "spell_start_date", "spell_end_date"]
@@ -76,8 +80,11 @@ reduced = hes.make_linear_position_scale(reduced, 23)
 # can cope. This is a prototype which can be extended (with more
 # high performance code) later if it is worthwhile to do so.
 
-# This line takes a long time to run, so make copies and modify them.
+# This line takes a long time to run, so make copies and modify them. This
+# array has values that are ordered the same as the final embedding
 dummy_encoded = pd.get_dummies(reduced, columns=["full_code"]).groupby("spell_id").max()
+
+
 
 # Get just the columns that will be dimension-reduced
 dummy_data_to_reduce = dummy_encoded.filter(regex="(icd10|opcs4)")
@@ -180,10 +187,27 @@ linear_ordered_age = linear_encoded.merge(age_and_gender, on="spell_id").age
 dummy_mapper = umap.UMAP(metric="hamming", random_state=1, verbose=True)
 embedding = dummy_mapper.fit_transform(dummy_data_to_reduce)
 
+mapper3 = umap.UMAP(metric="hamming", random_state=1, verbose=True, n_components = 3)
+embedding3 = mapper3.fit_transform(dummy_data_to_reduce)
+
+# Helper for plotting distributions (3D)
+def plot_discrete_groups(embedding, reduced, groups, colour_map, title):
+    ordered_groups = get_ordered_group_labels(reduced, groups, code_groups)
+    fig, ax = plt.subplots(projection = "3d")
+    for g in ordered_groups.group.unique():
+        ix = np.where(ordered_groups.group == g)
+        ax.scatter(
+            embedding[ix, 2], embedding[ix, 1], embedding[ix, 0], marker=".", s=10, c=colour_map[g], label=g
+        )
+    plt.title(title, fontsize=24)
+    plt.legend()
+    plt.show()
+
 # Helper for plotting distributions
 def plot_discrete_groups(embedding, reduced, groups, colour_map, title):
     ordered_groups = get_ordered_group_labels(reduced, groups, code_groups)
-    fig, ax = plt.subplots()
+    fig = plt.figure() 
+    ax = fig.add_subplot(projection="3d")
     for g in ordered_groups.group.unique():
         ix = np.where(ordered_groups.group == g)
         ax.scatter(
@@ -193,18 +217,37 @@ def plot_discrete_groups(embedding, reduced, groups, colour_map, title):
     plt.legend()
     plt.show()
 
-# Plot basic embedding
-fig, ax = plt.subplots()
+# Plot basic embedding###################
+fig = plt.figure()
+ax = fig.add_subplot()
 ax.scatter(
     embedding[:, 1], embedding[:, 0], marker=".", s=5,
+    picker = True
     )
 plt.title(f"{embedding.shape[0]} Spells, {dummy_data_to_reduce.shape[1]} Code Dimensions (one per ICD-10/OPCS-4)", fontsize=24)
+
+
+def onpick(event):
+    # Can return a list if multiple points are clicked
+    ind = event.ind
+    n = ind[0]
+    spell = dummy_encoded.index[n]
+    print(f"Clicked {len(ind)} points, the first of which is spell {spell}")
+    codes = reduced[reduced.spell_id == spell]
+    print(codes)
+
+    
+
+fig.canvas.mpl_connect('pick_event', onpick)
+
 plt.show()
+
+########################
 
 # Plot PCI
 colour_map = {"pci": "r", "none": "lightgray"}
 plot_discrete_groups(
-    embedding,
+    embedding3,
     reduced,
     ["pci"],
     colour_map,
@@ -269,6 +312,7 @@ points = ax.scatter(
 fig.colorbar(points, label="Age")
 plt.title("Age Distribution", fontsize=24)
 plt.show()
+
 
 
 
