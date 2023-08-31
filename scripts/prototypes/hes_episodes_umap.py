@@ -226,14 +226,13 @@ ax.scatter(
     )
 plt.title(f"{embedding.shape[0]} Spells, {dummy_data_to_reduce.shape[1]} Code Dimensions (one per ICD-10/OPCS-4)", fontsize=24)
 
-
 def onpick(event):
     # Can return a list if multiple points are clicked
     ind = event.ind
     n = ind[0]
     spell = dummy_encoded.index[n]
     print(f"Clicked {len(ind)} points, the first of which is spell {spell}")
-    codes = reduced[reduced.spell_id == spell]
+    codes = reduced[reduced.spell_id == spell].sort_values(["full_code", "position"], ascending = False)
     print(codes)
 
     
