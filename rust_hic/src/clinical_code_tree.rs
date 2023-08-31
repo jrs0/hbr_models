@@ -6,7 +6,17 @@
 //! be a yaml file or yaml string. This function sorts the
 //! categories by index even if they are not sorted in the
 //! original file, meaning the parser can assume the categories
-//! are sorted.
+//! are sorted. The original file is one of icd10.yaml or opcs4.yaml
+//! (or anything else in that format -- it should serialize/
+//! deserialize correctly.
+//!
+//! The ClinicalCodeTree defines a tree of Categories, where each
+//! leaf node is (for example) an ICD-10 code and each non-leaf
+//! node is a  category of codes. Once the structure is available,
+//! various operations can be performed using it, for example,
+//! picking a (uniform) random code, identifying whether a code
+//! exists or not and fetching its documentation, or fetching all
+//! the codes in a given code group.
 
 use index::Index;
 use rand::seq::SliceRandom;
@@ -129,18 +139,14 @@ impl Categories {
     }
 }
 
-/// The code definition file structure
-///
-/// This struct maps to the contents of a code file
-/// for ICD-10 and OPCS-4 codes. It includes the code
-/// tree itself, a list of code groups, and tags embedded
-/// in the tree indicating which codes are in which group.
-#[derive(PartialEq, Eq, Serialize, Deserialize, Debug)]
-pub struct ClinicalCodeTree {
-    categories: Vec<Categories>,
-    /// The list of clinical code group names that are
-    /// present in this code tree
-    groups: HashSet<String>,
+/// Remove whitespace, dots and convert all characters
+/// to lowercase. Note that other (non-dot) non-alphanumeric
+/// characters are retained
+fn normalise_code(code: String) -> String {
+    code.to_lowercase()
+        .split_whitespace()
+        .collect()
+        .replace(".", "")
 }
 
 fn get_codes_in_group(
@@ -175,6 +181,54 @@ fn get_codes_in_group(
 
     // Return the current list of codes
     return codes_in_group;
+}
+
+/// Return the name and docs field of a code (depending on the bool argument)
+/// if it exists in the categories tree, or throw a runtime error for an
+/// invalid code. The final argument is the set of groups that might contains
+/// this code. Groups are dropped as exclude tags are encountered while
+/// descending through the tree. 
+CacheEntry get_code_prop(const std::string code,
+    const std::vector<Category> & categories,
+    std::set<std::string> groups) {
+
+// Locate the category containing the code at the current level
+auto & cat{locate_code_in_categories(code, categories)};
+
+// Check for any group exclusions at this level and remove
+// them from the current group list
+for (const auto & excluded_group : cat.exclude()) {
+groups.erase(excluded_group);
+}
+
+// If there is a subcategory, make a call to this function
+// to process the next category down. Otherwise you are
+// at a leaf node, so start returning up the call graph.
+// TODO: since this function is linearly recursive,
+// there should be a tail-call optimisation available here
+// somewhere.
+if (not cat.is_leaf()) {
+// There are sub-categories -- parse the code at the next level
+// down (put a try catch here for the case where the next level
+// down isn't better)
+return get_code_prop(code, cat.categories(), groups);
+} else {
+return CacheEntry{cat, groups};
+}
+}
+
+/// The code definition file structure
+///
+/// This struct maps to the contents of a code file
+/// for ICD-10 and OPCS-4 codes. It includes the code
+/// tree itself, a list of code groups, and tags embedded
+/// in the tree indicating which codes are in which group.
+#[derive(PartialEq, Eq, Serialize, Deserialize, Debug)]
+pub struct ClinicalCodeTree {
+    categories: Vec<Categories>,
+    /// The list of clinical code group names that are
+    /// present in this code tree
+    groups: HashSet<String>,
 }
 
 impl ClinicalCodeTree {
@@ -254,6 +308,43 @@ impl ClinicalCodeTree {
     /// Get the list of groups defined in the clinical code tree
     pub fn groups(&self) -> &HashSet<String> {
         &self.groups
+    }
+
+    /// Find a particular code in the tree, or return an error
+    /// if it is not present.
+    ///
+    /// Apart from converting the input code into a normalised
+    /// form (no whitespace, no dot, and all lower case characters),
+    /// and compared with the normalised form of the code in the
+    /// code tree. The code is only considered a match if the two
+    /// normalised codes match exactly. The code will not match
+    /// if (for example)
+    /// - The code is simply invalid (does not fall within any category)
+    /// - The code has trailing material at the end
+    /// - The code has any of the standard uses of X, D or A (or other
+    ///   modifiers) which would make the match not exact.
+    ///
+    /// If the match succeeds, then a reference to the code is returned.
+    /// If the match fails, an error variant is returned with the error
+    /// string "no match", or another error (if it occurred).
+    ///
+    /// Each call to this function will search the entire tree, which is
+    /// slow (even though it is a binary search). In code that repeatedly
+    /// searches for exact code matches, you should cache the result of 
+    /// this function in a map from the code String argument to ClinicalCodeRef.
+    pub fn find_exact(
+        &self,
+        code: String,
+        code_store: &mut ClinicalCodeStore,
+    ) -> Result<ClinicalCodeRef, &'static str> {
+
+        
+
+
+        let name = String::from("I21.0");
+        let docs = String::from("What the code means...");
+        let code = ClinicalCode::new(name, docs);
+        Ok(code_store.clinical_code_ref_from(code))
     }
 }
 
@@ -405,6 +496,22 @@ mod tests {
 
         let code_tree = ClinicalCodeTree::from_reader(yaml.as_bytes());
         assert_eq!(code_tree, code_tree_example_1());
+    }
+
+    #[test]
+    fn check_code_normalisation() {
+        let string = format!("A00.0");
+        assert_eq!(normalise_code(string), "a000");
+        let string = format!(" A 00.0 ");
+        assert_eq!(normalise_code(string), "a000");
+        let string = format!("i21.1x ");
+        assert_eq!(normalise_code(string), "i211x");
+        let string = format!("     j10.x ");
+        assert_eq!(normalise_code(string), "j10x");
+        // Note non-dot non-alphanuemric character are
+        // currently kept
+        let string = format!("A00.0|");
+        assert_eq!(normalise_code(string), "a000|");
     }
 
     #[test]

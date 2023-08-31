@@ -13,3 +13,4 @@ datasets
 # Python-related
 __pycache__
 *.pyc
+*.pkl

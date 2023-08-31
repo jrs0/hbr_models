@@ -59,7 +59,7 @@ impl ClinicalCode {
 
 }
 
-/// An opaque reference to a clinincal code, which can be used to obtain information
+/// An opaque reference to a clinical code, which can be used to obtain information
 /// about the code from a ClinicalCodeStore. 
 /// 
 /// Using a type instead of a raw u64 to make it clear what it is for. The struct is

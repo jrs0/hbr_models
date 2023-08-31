@@ -60,19 +60,19 @@ fn main() {
     //     );
     // }
 
-    let df_reduced = df
-    .lazy()
-        .select([
-            "subject",
-            "order_name",
-            "test_name",
-            "test_result",
-            "test_result_unit",
-            "sample_collected_date_time",
-            "result_available_date_time",
-        ])
-        .collect()
-        .unwrap();
+    // let df_reduced = df
+    // .lazy()
+    //     .select([
+    //         "subject",
+    //         "order_name",
+    //         "test_name",
+    //         "test_result",
+    //         "test_result_unit",
+    //         "sample_collected_date_time",
+    //         "result_available_date_time",
+    //     ])
+    //     .collect()
+    //     .unwrap();
 
-    println!("{}", df_reduced);
+    // println!("{}", df_reduced);
 }

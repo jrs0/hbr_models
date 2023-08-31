@@ -35,4 +35,14 @@ fn main() {
             .expect("Should be able to pick a valid code");
         printcode!(random_code, code_store);
     }
+
+    // Parse a code
+    if let Ok(matched_code) = code_tree.find_exact(format!("A00.0"), &mut code_store) {
+        print!("Matched code: ");
+        printcode!(matched_code, code_store);
+    } else {
+        println!("Failed to match code");
+    }
+
+
 }
