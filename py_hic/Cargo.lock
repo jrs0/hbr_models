@@ -3627,7 +3627,7 @@ dependencies = [
 [[package]]
 name = "rust_hic"
 version = "0.1.0"
-source = "git+https://github.com/jrs0/hic_arc_hbr#eff03a5ccacbf224f1c934db3e832409494daf1f"
+source = "git+https://github.com/jrs0/hic_arc_hbr#f76484c8a49d50bd2f940aa0bc8f892f8206bb06"
 dependencies = [
  "anyhow",
  "bimap",
