@@ -809,11 +809,11 @@ mod tests {
 
         let mut code_store = ClinicalCodeStore::new();
 
-        // Generate 100 random codes, then search for them for
+        // Generate 1000 random codes, then search for them for
         // an exact match, and expect the result to match the
         // random code.
         let mut rng = make_rng(222, "clinical_code_test_id");
-        for _ in 0..100 {
+        for _ in 0..1000 {
             let random_code = code_tree
                 .random_clinical_code(&mut rng, &mut code_store);
 
