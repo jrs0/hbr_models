@@ -49,7 +49,7 @@ class ClinicalCode:
         self.docs = docs
 
 class ClinicalCodeParser:
-    def __init__(diagnosis_codes_file_path, procedure_codes_file_path):
+    def __init__(self, diagnosis_codes_file_path, procedure_codes_file_path):
         """
         Create a new code parser for diagnosis and procedure codes using
         the code trees provided in the two file paths
@@ -65,7 +65,7 @@ class ClinicalCodeParser:
         anything in the diagnosis code tree.
         '''
         code = self._parser.find_exact_diagnosis(code)
-        return ClinicalCode(code.name, code.docs)
+        return ClinicalCode(code[0], code[1])
 
 
 
