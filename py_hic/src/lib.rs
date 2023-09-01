@@ -1,7 +1,7 @@
 //! The main Rust-language interface layer between rust_hic (the Rust crate)
 //! and py_hic (the Python package).
 
-use pyo3::prelude::*;
+use pyo3::{exceptions::PyValueError, prelude::*};
 use rust_hic::{clinical_code::ClinicalCodeStore, clinical_code_tree::ClinicalCodeTree};
 use std::collections::HashMap;
 
@@ -19,17 +19,17 @@ struct RustClinicalCodeParser {
 impl RustClinicalCodeParser {
     #[new]
     fn new(diagnosis_codes_file_path: &str, procedure_codes_file_path: &str) -> PyResult<Self> {
-        let f = std::fs::File::open(diagnosis_file_path);
-        if f.is_err() {
+        let diagnosis_code_tree = if let Ok(f) = std::fs::File::open(diagnosis_codes_file_path) {
+            ClinicalCodeTree::from_reader(f)
+        } else {
             return Err(PyValueError::new_err("Failed to open diagnosis codes file"));
-        }
-        let diagnosis_code_tree = ClinicalCodeTree::from_reader(f);
+        };
 
-        let f = std::fs::File::open(diagnosis_file_path);
-        if f.is_err() {
+        let procedure_code_tree = if let Ok(f) = std::fs::File::open(procedure_codes_file_path) {
+            ClinicalCodeTree::from_reader(f)
+        } else {
             return Err(PyValueError::new_err("Failed to open procedure codes file"));
-        }
-        let procedure_code_tree = ClinicalCodeTree::from_reader(f);
+        };
 
         let mut code_store = ClinicalCodeStore::new();
 
@@ -48,13 +48,18 @@ impl RustClinicalCodeParser {
             .diagnosis_code_tree
             .find_exact(code.to_string(), &mut self.code_store)
         {
-            let matched_code = self.code_store.clinical_code_from(matched_code_ref);
+            let matched_code = self
+                .code_store
+                .clinical_code_from(&matched_code_ref)
+                .expect("If code was matched, expected code ref to be valid");
             Ok((
                 matched_code.name().to_string(),
                 matched_code.docs().to_string(),
             ))
         } else {
-            Err(PyValueError::new_err(format!("No match for {code} found in diagnosis tree")))
+            Err(PyValueError::new_err(format!(
+                "No match for {code} found in diagnosis tree"
+            )))
         }
     }
 }
