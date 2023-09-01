@@ -40,7 +40,7 @@ def get_codes_in_group(codes_file_path, group):
     return pandas.DataFrame(_lib_name.rust_get_codes_in_group(codes_file_path, group))
 
 class ClinicalCode:
-    def __init__(name, docs):
+    def __init__(self, name, docs):
         '''
         Create a new clinical code storing the code name (e.g. I21.0) and docs
         (e.g. Acute transmural myocardial infarction of anterior wall).
