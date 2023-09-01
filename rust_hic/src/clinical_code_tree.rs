@@ -144,7 +144,6 @@ impl Categories {
     pub fn index(&self) -> &Index {
         &self.index
     }
-
 }
 
 /// Remove whitespace, dots and convert all characters
@@ -214,7 +213,10 @@ fn locate_code_in_categories<'a>(
     let compare_code_with_category = |cat: &Categories| -> Ordering {
         let cat_name = cat.name();
         let cat_index = cat.index();
-        println!("Comparing {code} to category {cat_name} with index {:?}", cat_index);
+        println!(
+            "Comparing {code} to category {cat_name} with index {:?}",
+            cat_index
+        );
         cat.index().compare(code)
     };
 
@@ -226,7 +228,7 @@ fn locate_code_in_categories<'a>(
         Err(position) => {
             println!("Failed at position {position}");
             Err("not found")
-        },
+        }
     }
 
     // If found == false, then a match was not found. This
@@ -271,7 +273,7 @@ fn locate_code_in_tree(
             let sub_categories = cat
                 .categories()
                 .expect("Expecting sub-categories for non-leaf node");
-            
+
             println!("Subcats:");
             for cat in sub_categories {
                 let cat_name = cat.name();
@@ -790,6 +792,41 @@ mod tests {
                 .expect("Should be able to pick a valid code");
 
             assert!(codes_in_group.contains(name!(random_code, code_store)))
+        }
+    }
+
+    #[test]
+    fn check_random_code_find_match_roundtrip() {
+        let mut file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        file_path.push("resources");
+        file_path.push("test");
+        file_path.push("icd10_example.yaml");
+
+        let f = std::fs::File::open(file_path).expect("Failed to open icd10 file");
+
+        // Should execute without panic
+        let code_tree = ClinicalCodeTree::from_reader(f);
+
+        let mut code_store = ClinicalCodeStore::new();
+
+        // Generate 100 random codes, then search for them for
+        // an exact match, and expect the result to match the
+        // random code.
+        let mut rng = make_rng(222, "clinical_code_test_id");
+        for _ in 0..100 {
+            let random_code = code_tree
+                .random_clinical_code(&mut rng, &mut code_store);
+
+            let code = code_store
+                .clinical_code_from(&random_code)
+                .expect("Expecting a valid code");
+
+            // Now search for the code
+            let found_code = code_tree
+                .find_exact(code.name().clone(), &mut code_store)
+                .expect("The code should be an exact match");
+
+            assert_eq!(random_code, found_code);
         }
     }
 }
