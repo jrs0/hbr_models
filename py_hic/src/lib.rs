@@ -39,6 +39,24 @@ impl RustClinicalCodeParser {
             procedure_code_tree,
         })
     }
+
+    /// Find an exact match for the provided diagnosis code and return
+    /// the code name and docs as a tuple, or a python error if the code
+    /// does not match anything in the code tree.
+    fn find_exact_diagnosis(&mut self, code: &str) -> PyResult<(String, String)> {
+        if let Ok(matched_code_ref) = self
+            .diagnosis_code_tree
+            .find_exact(code.to_string(), &mut self.code_store)
+        {
+            let matched_code = self.code_store.clinical_code_from(matched_code_ref);
+            Ok((
+                matched_code.name().to_string(),
+                matched_code.docs().to_string(),
+            ))
+        } else {
+            Err(PyValueError::new_err(format!("No match for {code} found in diagnosis tree")))
+        }
+    }
 }
 
 /// Get the clinical codes in a particular code group defined
