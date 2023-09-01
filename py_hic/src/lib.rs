@@ -117,5 +117,6 @@ fn rust_get_groups_in_codes_file(codes_file_path: &str) -> Vec<String> {
 fn my_lib_name(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(rust_get_codes_in_group, m)?)?;
     m.add_function(wrap_pyfunction!(rust_get_groups_in_codes_file, m)?)?;
+    m.add_class::<RustClinicalCodeParser>()?;
     Ok(())
 }

@@ -39,8 +39,16 @@ def get_codes_in_group(codes_file_path, group):
 
     return pandas.DataFrame(_lib_name.rust_get_codes_in_group(codes_file_path, group))
 
+class ClinicalCode:
+    def __init__(name, docs):
+        '''
+        Create a new clinical code storing the code name (e.g. I21.0) and docs
+        (e.g. Acute transmural myocardial infarction of anterior wall).
+        '''
+        self.name = name
+        self.docs = docs
 
-class ClinincalCodeParser:
+class ClinicalCodeParser:
     def __init__(diagnosis_codes_file_path, procedure_codes_file_path):
         """
         Create a new code parser for diagnosis and procedure codes using
@@ -50,4 +58,14 @@ class ClinincalCodeParser:
             diagnosis_codes_file_path, procedure_codes_file_path
         )
 
-    def 
+    def find_exact_diagnosis(self, code):
+        '''
+        Find an exact match for the diagnosis code provided in the
+        argument, or raise a ValueError if the code does not match
+        anything in the diagnosis code tree.
+        '''
+        code = self._parser.find_exact_diagnosis(code)
+        return ClinicalCode(code.name, code.docs)
+
+
+
