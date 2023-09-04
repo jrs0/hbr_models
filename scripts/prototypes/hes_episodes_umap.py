@@ -16,7 +16,7 @@ import umap
 import umap.plot
 import re
 import scipy
-from py_hic.clinical_codes import get_codes_in_group
+from py_hic.clinical_codes import get_codes_in_group, ClinicalCodeParser
 import code_group_counts as codes
 import datetime as dt
 
@@ -83,8 +83,6 @@ reduced = hes.make_linear_position_scale(reduced, 23)
 # This line takes a long time to run, so make copies and modify them. This
 # array has values that are ordered the same as the final embedding
 dummy_encoded = pd.get_dummies(reduced, columns=["full_code"]).groupby("spell_id").max()
-
-
 
 # Get just the columns that will be dimension-reduced
 dummy_data_to_reduce = dummy_encoded.filter(regex="(icd10|opcs4)")
@@ -218,24 +216,38 @@ def plot_discrete_groups(embedding, reduced, groups, colour_map, title):
     plt.show()
 
 # Plot basic embedding###################
-fig = plt.figure()
-ax = fig.add_subplot()
-ax.scatter(
-    embedding[:, 1], embedding[:, 0], marker=".", s=5,
-    picker = True
-    )
-plt.title(f"{embedding.shape[0]} Spells, {dummy_data_to_reduce.shape[1]} Code Dimensions (one per ICD-10/OPCS-4)", fontsize=24)
+# fig = plt.figure()
+# ax = fig.add_subplot()
+# ax.scatter(
+#     embedding[:, 1], embedding[:, 0], marker=".", s=5,
+#     picker = True
+#     )
+# plt.title(f"{embedding.shape[0]} Spells, {dummy_data_to_reduce.shape[1]} Code Dimensions (one per ICD-10/OPCS-4)", fontsize=24)
+fig, ax = plt.subplots()
+points = ax.scatter(
+    embedding[:, 1], embedding[:, 0], marker=".", s=5, c=dummy_ordered_age, picker=True
+)
+fig.colorbar(points, label="Age")
+plt.title("Age Distribution", fontsize=24)
+
+code_parser = ClinicalCodeParser("../codes_files/icd10.yaml", "../codes_files/opcs4.yaml")
+
+# Make a function for parsing ICD10 or OPCS4 codes
+def parse_code(full_code):
+    if "icd10" in full_code:
+        return code_parser.find_exact_diagnosis(full_code.replace("icd10_","")).docs
+    else:
+        return "not implemented"
 
 def onpick(event):
     # Can return a list if multiple points are clicked
     ind = event.ind
-    n = ind[0]
-    spell = dummy_encoded.index[n]
-    print(f"Clicked {len(ind)} points, the first of which is spell {spell}")
-    codes = reduced[reduced.spell_id == spell].sort_values(["full_code", "position"], ascending = False)
-    print(codes)
+    spells = [dummy_encoded.index[n] for n in ind]
+    print(f"Clicked {len(ind)} points")
+    codes = reduced[reduced.spell_id.isin(spells)]["full_code"].value_counts().reset_index()
+    codes["docs"] = codes["full_code"].apply(lambda x: parse_code(x))
+    print(codes[["docs","count"]])
 
-    
 
 fig.canvas.mpl_connect('pick_event', onpick)
 
