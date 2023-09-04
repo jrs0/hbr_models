@@ -253,6 +253,7 @@ def onpick(event):
     fig, ax = plt.subplots()
 
     colour_map = {"diagnosis": "b", "procedure": "r"}
+    print(codes)
     ax.barh(codes.index, codes["count"], color = codes["diagnosis_or_procedure"].map(colour_map), align='center')
     ax.set_yticks(codes.index, labels=codes["docs"])
     ax.invert_yaxis()  # labels read top-to-bottom

@@ -50,7 +50,7 @@ impl RustClinicalCodeParser {
         let code_tree = if diagnosis_or_procedure == "diagnosis" {
             &self.diagnosis_code_tree
         } else if diagnosis_or_procedure == "procedure" {
-            &self.diagnosis_code_tree
+            &self.procedure_code_tree
         } else {
             return Err(PyValueError::new_err(format!(
                 "Must pass one of 'diagnosis' or 'procedure', not '{diagnosis_or_procedure}'"
