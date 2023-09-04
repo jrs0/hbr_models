@@ -58,7 +58,7 @@ def encode_sparse(long_codes):
     # spells
     spell_ids = []
 
-    for _, row in sorted_by_spell.head(50000).iterrows():
+    for _, row in sorted_by_spell.iterrows():
         
         spell_id = row["spell_id"]
 
@@ -103,7 +103,8 @@ def encode_sparse(long_codes):
         # Append the column data. This is either the
         # linear code position, or just a TRUE/FALSE
         # marker if dummy encoding. (TODO)
-        current_lil_matrix_data.append(position)
+        #current_lil_matrix_data.append(position)
+        current_lil_matrix_data.append(True)
 
     # The last set of rows/data will not have been pushed
     # to the main arrays at the end of the for loop. Do it

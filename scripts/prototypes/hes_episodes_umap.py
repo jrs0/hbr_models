@@ -20,12 +20,14 @@ import py_hic
 from py_hic.clinical_codes import get_codes_in_group, ClinicalCodeParser
 import code_group_counts as codes
 import datetime as dt
+import sparse_encode as spe
 
 import hes
 
 importlib.reload(hes)
 importlib.reload(codes)
 importlib.reload(py_hic)
+importlib.reload(spe)
 
 # Get raw data
 start_date = dt.date(2023,1,1)
@@ -84,6 +86,8 @@ reduced = hes.make_linear_position_scale(reduced, 23)
 # This line takes a long time to run, so make copies and modify them. This
 # array has values that are ordered the same as the final embedding
 dummy_encoded = pd.get_dummies(reduced, columns=["full_code"]).groupby("spell_id").max()
+
+dummy_data_to_reduce2, ordered_spells = spe.encode_sparse(reduced)
 
 # Get just the columns that will be dimension-reduced
 dummy_data_to_reduce = dummy_encoded.filter(regex="(icd10|opcs4)")
