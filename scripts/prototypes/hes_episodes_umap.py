@@ -28,7 +28,6 @@ importlib.reload(codes)
 importlib.reload(py_hic)
 
 # Get raw data
-
 start_date = dt.date(2023,1,1)
 end_date = dt.date(2023,2,1)
 raw_data = hes.get_spells_hes_pandas(start_date, end_date)
