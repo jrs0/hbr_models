@@ -217,6 +217,8 @@ def plot_discrete_groups(embedding, reduced, groups, colour_map, title):
     plt.legend()
     plt.show()
 
+code_parser = ClinicalCodeParser("../codes_files/icd10.yaml", "../codes_files/opcs4.yaml")
+
 # Plot basic embedding###################
 # fig = plt.figure()
 # ax = fig.add_subplot()
@@ -232,35 +234,31 @@ points = ax.scatter(
 fig.colorbar(points, label="Age")
 plt.title("Age Distribution", fontsize=24)
 
-code_parser = py_hic.clinical_codes.ClinicalCodeParser("../codes_files/icd10.yaml", "../codes_files/opcs4.yaml")
-
-# Make a function for parsing ICD10 or OPCS4 codes
-def parse_code(full_code):
+def parse_code(code, diagnosis_or_procedure):
     try:
-        if "icd10" in full_code:
-            return code_parser.find_exact(full_code.replace("icd10_",""), "diagnosis").docs
-        else:
-            return code_parser.find_exact(full_code.replace("icd10_",""), "procedure").docs
-    except ValueError as e:
-        return f"Invalid code: {e.what}"
-    
+        return code_parser.find_exact(code, diagnosis_or_procedure).docs
+    except:
+        return f"Invalid {diagnosis_or_procedure} code {code}"
+
 def onpick(event):
     # Can return a list if multiple points are clicked
     ind = event.ind
     spells = [dummy_encoded.index[n] for n in ind]
     print(f"Clicked {len(ind)} points")
     codes = reduced[reduced.spell_id.isin(spells)]["full_code"].value_counts().reset_index().head(20)
-    codes["docs"] = codes["full_code"].apply(lambda x: parse_code(x))
-    print(codes[["docs","count"]])
 
+    codes[["diagnosis_or_procedure", "code"]] = codes["full_code"].str.split("_", expand = True)
+    codes["diagnosis_or_procedure"] = codes["diagnosis_or_procedure"].map({"icd10": "diagnosis", "opcs4": "procedure"})
+    codes["docs"] = codes.apply(lambda x: parse_code(x["code"], x["diagnosis_or_procedure"]), axis=1)
     fig, ax = plt.subplots()
 
-    ax.barh(codes.index, codes["count"], align='center')
+    colour_map = {"diagnosis": "b", "procedure": "r"}
+    ax.barh(codes.index, codes["count"], color = codes["diagnosis_or_procedure"].map(colour_map), align='center')
     ax.set_yticks(codes.index, labels=codes["docs"])
     ax.invert_yaxis()  # labels read top-to-bottom
     ax.set_xlabel('Count')
     ax.set_title('Total codes seen at this point')
-    plt.subplots_adjust(left=0.30)
+    plt.subplots_adjust(left=0.50)
     plt.show()
 
 fig.canvas.mpl_connect('pick_event', onpick)
