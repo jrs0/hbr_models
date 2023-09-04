@@ -16,6 +16,7 @@ import umap
 import umap.plot
 import re
 import scipy
+import py_hic
 from py_hic.clinical_codes import get_codes_in_group, ClinicalCodeParser
 import code_group_counts as codes
 import datetime as dt
@@ -24,6 +25,7 @@ import hes
 
 importlib.reload(hes)
 importlib.reload(codes)
+importlib.reload(py_hic)
 
 # Get raw data
 
@@ -230,24 +232,36 @@ points = ax.scatter(
 fig.colorbar(points, label="Age")
 plt.title("Age Distribution", fontsize=24)
 
-code_parser = ClinicalCodeParser("../codes_files/icd10.yaml", "../codes_files/opcs4.yaml")
+code_parser = py_hic.clinical_codes.ClinicalCodeParser("../codes_files/icd10.yaml", "../codes_files/opcs4.yaml")
 
 # Make a function for parsing ICD10 or OPCS4 codes
 def parse_code(full_code):
-    if "icd10" in full_code:
-        return code_parser.find_exact_diagnosis(full_code.replace("icd10_","")).docs
-    else:
-        return "not implemented"
-
+    try:
+        if "icd10" in full_code:
+            return code_parser.find_exact(full_code.replace("icd10_",""), "diagnosis").docs
+        else:
+            return code_parser.find_exact(full_code.replace("icd10_",""), "procedure").docs
+    except ValueError as e:
+        return f"Invalid code: {e.what}"
+    
 def onpick(event):
     # Can return a list if multiple points are clicked
     ind = event.ind
     spells = [dummy_encoded.index[n] for n in ind]
     print(f"Clicked {len(ind)} points")
-    codes = reduced[reduced.spell_id.isin(spells)]["full_code"].value_counts().reset_index()
+    codes = reduced[reduced.spell_id.isin(spells)]["full_code"].value_counts().reset_index().head(20)
     codes["docs"] = codes["full_code"].apply(lambda x: parse_code(x))
     print(codes[["docs","count"]])
 
+    fig, ax = plt.subplots()
+
+    ax.barh(codes.index, codes["count"], align='center')
+    ax.set_yticks(codes.index, labels=codes["docs"])
+    ax.invert_yaxis()  # labels read top-to-bottom
+    ax.set_xlabel('Count')
+    ax.set_title('Total codes seen at this point')
+    plt.subplots_adjust(left=0.30)
+    plt.show()
 
 fig.canvas.mpl_connect('pick_event', onpick)
 

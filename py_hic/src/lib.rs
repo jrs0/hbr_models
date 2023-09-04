@@ -40,12 +40,23 @@ impl RustClinicalCodeParser {
         })
     }
 
-    /// Find an exact match for the provided diagnosis code and return
-    /// the code name and docs as a tuple, or a python error if the code
-    /// does not match anything in the code tree.
-    fn find_exact_diagnosis(&mut self, code: &str) -> PyResult<(String, String)> {
-        if let Ok(matched_code_ref) = self
-            .diagnosis_code_tree
+    /// Find an exact match for the provided diagnosis or procedure code 
+    /// and return the code name and docs as a tuple, or a python error
+    /// if the code does not match anything in the code tree. Pass either
+    /// "diagnosis" or "procedure" in the diagnosis_or_procedure argument
+    /// to determine which tree to use. Throws a python error if you pass
+    /// any other string.
+    fn find_exact_diagnosis(&mut self, code: &str, diagnosis_or_procedure: &str) -> PyResult<(String, String)> {
+        let code_tree = if diagnosis_or_procedure == "diagnosis" {
+            &self.diagnosis_code_tree
+        } else if diagnosis_or_procedure == "procedure" {
+            &self.diagnosis_code_tree
+        } else {
+            return Err(PyValueError::new_err(format!(
+                "Must pass one of 'diagnosis' or 'procedure', not '{diagnosis_or_procedure}'"
+            )))
+        };
+        if let Ok(matched_code_ref) = code_tree
             .find_exact(code.to_string(), &mut self.code_store)
         {
             let matched_code = self

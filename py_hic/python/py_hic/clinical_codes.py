@@ -58,13 +58,15 @@ class ClinicalCodeParser:
             diagnosis_codes_file_path, procedure_codes_file_path
         )
 
-    def find_exact_diagnosis(self, code):
+    def find_exact(self, code, diagnosis_or_procedure):
         '''
-        Find an exact match for the diagnosis code provided in the
-        argument, or raise a ValueError if the code does not match
-        anything in the diagnosis code tree.
+        Find an exact match for the diagnosis or procedure code
+        provided in the argument, or raise a ValueError if the 
+        code does not match anything in the diagnosis code tree.
+        Pass "diagnosis" or "procedure" as the final argument to
+        parse either an ICD-10 or OPCS-4 code.
         '''
-        code = self._parser.find_exact_diagnosis(code)
+        code = self._parser.find_exact_diagnosis(code, diagnosis_or_procedure)
         return ClinicalCode(code[0], code[1])
 
 
