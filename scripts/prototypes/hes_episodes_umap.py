@@ -210,7 +210,7 @@ def plot_discrete_groups(embedding, reduced, groups, colour_map, title):
 def plot_discrete_groups(embedding, reduced, groups, colour_map, title):
     ordered_groups = get_ordered_group_labels(reduced, groups, code_groups)
     fig = plt.figure() 
-    ax = fig.add_subplot(projection="3d")
+    ax = fig.add_subplot()
     for g in ordered_groups.group.unique():
         ix = np.where(ordered_groups.group == g)
         ax.scatter(
@@ -274,7 +274,7 @@ plt.show()
 # Plot PCI
 colour_map = {"pci": "r", "none": "lightgray"}
 plot_discrete_groups(
-    embedding3,
+    embedding,
     reduced,
     ["pci"],
     colour_map,
