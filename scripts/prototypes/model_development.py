@@ -4,8 +4,14 @@
 #
 
 import os
-
 os.chdir("scripts/prototypes")
+
+## To be deleted
+import stability, fit, calibration
+
+importlib.reload(stability)
+importlib.reload(fit)
+importlib.reload(calibration)
 
 from stability import (
     make_bootstrapped_resamples,
@@ -13,22 +19,16 @@ from stability import (
     plot_instability,
 )
 from fit import fit_logistic_regression
+from calibration import get_bootstrapped_calibration, plot_calibration_curves, plot_prediction_distribution
 
 from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
 
-from sklearn.calibration import CalibrationDisplay
+
 
 import matplotlib.pyplot as plt
 
 import importlib
-
-## To be deleted
-import stability, fit
-
-importlib.reload(stability)
-importlib.reload(fit)
-
 
 # Example data for now
 X, y = make_classification(
@@ -49,26 +49,6 @@ X0_train, X_test, y0_train, y_test = train_test_split(
 # stability.py.
 M0 = fit_logistic_regression(X0_train, y0_train)
 
-# Plot (non-stability) calibration curve
-fig, axs = plt.subplots(2,1, figsize=(10,10))
-display = CalibrationDisplay.from_estimator(
-    Mn[13],
-    X_test,
-    y_test,
-    n_bins=10,
-    name="Logistic regression",
-    ax=axs[0],
-)
-axs[1].hist(
-    display.y_prob,
-    range=(0, 1),
-    bins=10,
-    label="Logistic regression",
-)
-axs[1].set(title="Logistic regression", xlabel="Mean predicted probability", ylabel="Count")
-plt.show()
-display.prob_pred
-
 # For the purpose of assessing model stability, obtain bootstrap
 # resamples (Xn_train, yn_train) from the training set.
 Xn_train, yn_train = make_bootstrapped_resamples(X0_train, y0_train, N=200)
@@ -85,4 +65,14 @@ fig, ax = plt.subplots()
 plot_instability(ax, probs)
 plt.show()
 
-#
+# Get the bootstrapped calibration curves
+calibration_curves = get_bootstrapped_calibration(probs, y_test, n_bins = 10)
+
+# Plot the calibration-stability plots
+fig, ax = plt.subplots(2,1)
+plot_calibration_curves(ax[0], calibration_curves)
+# Plot the distribution of predicted probabilities, also
+# showing distribution stability (over the bootstrapped models)
+# as error bars on each bin height
+plot_prediction_distribution(ax[1], probs, n_bins = 10)
+plt.show()

@@ -1,130 +1,82 @@
-# Example script showing how to do calibration plots
-# from classifiers. Lifted straight from the docs.
-# "https://scikit-learn.org/stable/auto_examples/calibration/
-#  plot_compare_calibration.html#sphx-glr-auto-examples-calibration-
-#  plot-compare-calibration-py"
+# Calibration plots
+#
+# A calibration plot is a comparison of the proportion p
+# of events that occur in the subset of those with predicted
+# probability p'. Ideally, p = p' meaning that of the
+# cases predicted to occur with probability p', p of them
+# do occur. Calibration is presented as a plot of p against
+# p'.
+#
+# The stability of the calibration can be investigated, by
+# plotting p against p' for multiple bootstrapped models
+# (see stability.py).
 
-from sklearn.datasets import make_classification
-from sklearn.model_selection import train_test_split
 import numpy as np
-from sklearn.svm import LinearSVC
-from sklearn.calibration import CalibrationDisplay
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.naive_bayes import GaussianNB
-import matplotlib.pyplot as plt
-from matplotlib.gridspec import GridSpec
-from sklearn.metrics import RocCurveDisplay
-from sklearn.metrics import brier_score_loss
-
-# X is the predictors and y is the outcome. Each row
-# is a sample. X and y are numpy arrays
-X, y = make_classification(
-    n_samples=100_000, n_features=20, n_informative=2, n_redundant=2, random_state=42
-)
-
-train_samples = 100  # Samples used for training the models
-X_train, X_test, y_train, y_test = train_test_split(
-    X,
-    y,
-    shuffle=False,
-    test_size=100_000 - train_samples,
-)
+from sklearn.calibration import calibration_curve
 
 
-class NaivelyCalibratedLinearSVC(LinearSVC):
-    """LinearSVC with `predict_proba` method that naively scales
-    `decision_function` output."""
-
-    def fit(self, X, y):
-        super().fit(X, y)
-        df = self.decision_function(X)
-        self.df_min_ = df.min()
-        self.df_max_ = df.max()
-
-    def predict_proba(self, X):
-        """Min-max scale output of `decision_function` to [0,1]."""
-        df = self.decision_function(X)
-        calibrated_df = (df - self.df_min_) / (self.df_max_ - self.df_min_)
-        proba_pos_class = np.clip(calibrated_df, 0, 1)
-        proba_neg_class = 1 - proba_pos_class
-        proba = np.c_[proba_neg_class, proba_pos_class]
-        return proba
+def get_bootstrapped_calibration(probs, y_test, n_bins):
+    """
+    Get the calibration curves for all models (whose probability
+    predictions for the positive class are columns of probs) based
+    on the outcomes in y_test. Rows of y_test correspond to rows of
+    probs. The result is a list of pairs, one for each model (column
+    of probs). Each pair contains the vector of x- and y-coordinates
+    of the calibration curve
+    """
+    curves = []
+    for n in range(probs.shape[1]):
+        # Reverse because it is more convenient to have the x-axis first
+        curves.append(
+            tuple(reversed(calibration_curve(y_test, probs[:, n], n_bins=n_bins)))
+        )
+    return curves
 
 
-# Create classifiers
-lr = LogisticRegression()
-gnb = GaussianNB()
-svc = NaivelyCalibratedLinearSVC(C=1.0, dual="auto")
-rfc = RandomForestClassifier()
+def plot_calibration_curves(ax, curves):
+    """
+    Plot the set of bootstrapped calibration curves (an instability plot),
+    using the data in curves (a list of curves to plot). Assume that the
+    first curve is the model-under-test (which is coloured differently).
+    """
+    ax.axline([0, 0], [1, 1], color="k", linestyle="--")
 
-clf_list = [
-    (lr, "Logistic"),
-    (gnb, "Naive Bayes"),
-    (svc, "SVC"),
-    (rfc, "Random forest"),
-]
-
-# Fit all the models to the training data
-for clf, _ in clf_list:
-    clf.fit(X_train, y_train)
-
-# Everything requires all the models in clf_list to
-# be fitted.
-
-# Calculate the Brier score for each model
-for (clf, name) in clf_list:
-    y_test_prob = clf.predict_proba(X_test)[:,1]
-    score = brier_score_loss(y_test, y_test_prob)
-    print(f"Brier score for {name} = {score} (lower is better)")
-
-# Plot ROC AUC
-fig, axs = plt.subplots(2,2, figsize=(10, 10))
-colors = plt.get_cmap("Dark2")
-
-# Add histogram
-for i, (clf, name) in enumerate(clf_list):
-    RocCurveDisplay.from_estimator(clf, X_test, y_test, ax=axs.flatten()[i], plot_chance_level=True)
-plt.show()
-
-# Plot calibration curves
-fig = plt.figure(figsize=(10, 10))
-gs = GridSpec(4, 2)
-colors = plt.get_cmap("Dark2")
-
-ax_calibration_curve = fig.add_subplot(gs[:2, :2])
-calibration_displays = {}
-markers = ["^", "v", "s", "o"]
-for i, (clf, name) in enumerate(clf_list):
-    display = CalibrationDisplay.from_estimator(
-        clf,
-        X_test,
-        y_test,
-        n_bins=10,
-        name=name,
-        ax=ax_calibration_curve,
-        color=colors(i),
-        marker=markers[i],
+    mut_curve = curves[0]  # model-under-test
+    ax.plot(
+        mut_curve[0],
+        mut_curve[1]
     )
-    calibration_displays[name] = display
+    for curve in curves[1:]:
+        ax.plot(curve[0], curve[1], color="b", linewidth=0.3, alpha=0.2)
+    ax.legend(["Ideal calibration", "Model-under-test", "Bootstrapped models"])
+    ax.set_title("Calibration-stability curves")
+    ax.set_xlabel("Mean predicted probability")
+    ax.set_ylabel("Fraction of positives")
 
-ax_calibration_curve.grid()
-ax_calibration_curve.set_title("Calibration plots")
 
-# Add histogram
-grid_positions = [(2, 0), (2, 1), (3, 0), (3, 1)]
-for i, (_, name) in enumerate(clf_list):
-    row, col = grid_positions[i]
-    ax = fig.add_subplot(gs[row, col])
+def plot_prediction_distribution(ax, probs, n_bins):
+    """
+    Plot the distribution of predicted probabilities over the models as
+    a bar chart, with error bars showing the standard deviation of each
+    model height. All model predictions (columns of probs) are given equal
+    weight in the average; column 0 (the model under test) is not singled
+    out in any way.
 
-    ax.hist(
-        calibration_displays[name].y_prob,
-        range=(0, 1),
-        bins=10,
-        label=name,
-        color=colors(i),
-    )
-    ax.set(title=name, xlabel="Mean predicted probability", ylabel="Count")
+    The function plots vertical error bars that are one standard deviation
+    up and down (so 2*sd in total)
+    """
+    bin_edges = np.linspace(0, 1, n_bins + 1)
+    freqs = []
+    for j in range(probs.shape[1]):
+        f, _ = np.histogram(probs[:, j], bins=bin_edges)
+        freqs.append(f)
+    means = np.mean(freqs, axis=0)
+    sds = np.std(freqs, axis=0)
 
-plt.tight_layout()
-plt.show()
+    bin_centers = (bin_edges[1:] + bin_edges[:-1]) / 2
+    print(bin_centers)
+
+    ax.bar(bin_centers, height=means, width=0.05, yerr=2 * sds)
+    ax.set_title("Distribution of predicted probabilities")
+    ax.set_xlabel("Mean predicted probability")
+    ax.set_ylabel("Count")
