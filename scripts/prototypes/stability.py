@@ -122,6 +122,8 @@ def plot_instability(ax, probs):
     For a stable model M0, the scattered points should be
     close to the M0 line, indicating that the bootstrapped
     models Mn broadly agree with the predictions made by M0.
+
+    Testing: not yet tested
     '''
     
     num_rows = probs.shape[0]
@@ -134,3 +136,4 @@ def plot_instability(ax, probs):
             y.append(probs[i, j])
         
     ax.scatter(x, y)
+    ax.axline([0, 0], [1, 1])
