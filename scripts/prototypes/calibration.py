@@ -69,6 +69,9 @@ clf_list = [
 for clf, _ in clf_list:
     clf.fit(X_train, y_train)
 
+# Everything requires all the models in clf_list to
+# be fitted.
+
 # Calculate the Brier score for each model
 for (clf, name) in clf_list:
     y_test_prob = clf.predict_proba(X_test)[:,1]
