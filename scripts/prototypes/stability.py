@@ -37,16 +37,21 @@
 # What is required is a function that wraps the entire model
 # into one call, taking as input the bootstrapped resample Pn and
 # providing as output the bootstrapped model Mn. This function can
-# then be called N times to generate the bootstrapped models.
+# then be called N times to generate the bootstrapped models. This
+# function is not defined in this file
 #
 # An aggregating function will then take all the models Mn, the 
 # model-under-test M0, and the test set T, and make predictions
 # using all the models for each sample in the test set. It should
 # return all these predictions (probabilities) in a 2D array, where
 # each row corresponds to a test-set sample, column 0 is the probability
-# from M0, and columns 1 through M are the probabilites from each Mn.
+# from M0, and columns 1 through M are the probabilities from each Mn.
 #
-# This 2D array may be used as the basis of instability plots.
+# This 2D array may be used as the basis of instability plots. Paired
+# with information about the true outcomes y_test, this can also be used
+# to plot ROC-curve variability (i.e. plotting the ROC curve for all
+# model M0 and Mn on one graph). Any other accuracy metric of interest
+# can be calculated from this information (i.e. for step 4 above).
 
 
 
