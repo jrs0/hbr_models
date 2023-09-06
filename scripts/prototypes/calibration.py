@@ -15,6 +15,7 @@ from sklearn.naive_bayes import GaussianNB
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 from sklearn.metrics import RocCurveDisplay
+from sklearn.metrics import brier_score_loss
 
 # X is the predictors and y is the outcome. Each row
 # is a sample. X and y are numpy arrays
@@ -67,6 +68,12 @@ clf_list = [
 # Fit all the models to the training data
 for clf, _ in clf_list:
     clf.fit(X_train, y_train)
+
+# Calculate the Brier score for each model
+for (clf, name) in clf_list:
+    y_test_prob = clf.predict_proba(X_test)[:,1]
+    score = brier_score_loss(y_test, y_test_prob)
+    print(f"Brier score for {name} = {score} (lower is better)")
 
 # Plot ROC AUC
 fig, axs = plt.subplots(2,2, figsize=(10, 10))
