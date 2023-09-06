@@ -6,7 +6,7 @@
 import os
 os.chdir("scripts/prototypes")
 
-from stability import make_bootstrapped_resamples
+from stability import make_bootstrapped_resamples, predict_bootstrapped_proba
 from fit import fit_logistic_regression
 
 from sklearn.datasets import make_classification
@@ -45,4 +45,10 @@ Xn_train, yn_train = make_bootstrapped_resamples(X0_train, y0_train, N = 200)
 
 # Develop all the bootstrap models to compare with the model-under-test M0
 Mn = [fit_logistic_regression(X, y) for (X, y) in zip(Xn_train, yn_train)]
+
+# First columns is the probability of 1 in y_test from M0; other columns
+# are the same for the N bootstrapped models Mn.
+bootstrapped_probabilities = predict_bootstrapped_proba(M0, Mn, X_test)
+
+
 

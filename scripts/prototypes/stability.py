@@ -42,7 +42,7 @@
 # into one call, taking as input the bootstrapped resample Pn and
 # providing as output the bootstrapped model Mn. This function can
 # then be called N times to generate the bootstrapped models. This
-# function is not defined in this file.
+# function is not defined in this file (see the fit.py file)
 #
 # An aggregating function will then take all the models Mn, the 
 # model-under-test M0, and the test set T, and make predictions
@@ -87,4 +87,24 @@ def make_bootstrapped_resamples(X0_train, y0_train, N):
 
     return Xn_train, yn_train
 
+def predict_bootstrapped_proba(M0, Mn, X_test):
+    '''
+    Aggregating function which finds the predicted probability
+    from the model-under-test M0 and all the bootstrapped models
+    Mn on each sample of the training set features X_test. The
+    result is a 2D numpy array, where each row corresponds to
+    a test-set sample, the first column is the predicted probabilities
+    from M0, and the following N columns are the predictions from all
+    the other Mn.
+
+    Note: the numbers in the matrix are the probabilities of 1 in the
+    test set y_test.
+
+    Testing: not yet tested
+    '''
+    columns = []
+    for M in [M0] + Mn:
+        columns.append(M.predict_proba(X_test)[:,1])
     
+    return np.column_stack(columns)
+
