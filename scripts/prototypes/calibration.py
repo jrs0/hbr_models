@@ -14,6 +14,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.naive_bayes import GaussianNB
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
+from sklearn.metrics import RocCurveDisplay
 
 # X is the predictors and y is the outcome. Each row
 # is a sample. X and y are numpy arrays
@@ -28,6 +29,7 @@ X_train, X_test, y_train, y_test = train_test_split(
     shuffle=False,
     test_size=100_000 - train_samples,
 )
+
 
 class NaivelyCalibratedLinearSVC(LinearSVC):
     """LinearSVC with `predict_proba` method that naively scales
@@ -47,7 +49,7 @@ class NaivelyCalibratedLinearSVC(LinearSVC):
         proba_neg_class = 1 - proba_pos_class
         proba = np.c_[proba_neg_class, proba_pos_class]
         return proba
-    
+
 
 # Create classifiers
 lr = LogisticRegression()
@@ -62,6 +64,20 @@ clf_list = [
     (rfc, "Random forest"),
 ]
 
+# Fit all the models to the training data
+for clf, _ in clf_list:
+    clf.fit(X_train, y_train)
+
+# Plot ROC AUC
+fig, axs = plt.subplots(2,2, figsize=(10, 10))
+colors = plt.get_cmap("Dark2")
+
+# Add histogram
+for i, (clf, name) in enumerate(clf_list):
+    RocCurveDisplay.from_estimator(clf, X_test, y_test, ax=axs.flatten()[i], plot_chance_level=True)
+plt.show()
+
+# Plot calibration curves
 fig = plt.figure(figsize=(10, 10))
 gs = GridSpec(4, 2)
 colors = plt.get_cmap("Dark2")
@@ -70,7 +86,6 @@ ax_calibration_curve = fig.add_subplot(gs[:2, :2])
 calibration_displays = {}
 markers = ["^", "v", "s", "o"]
 for i, (clf, name) in enumerate(clf_list):
-    clf.fit(X_train, y_train)
     display = CalibrationDisplay.from_estimator(
         clf,
         X_test,
