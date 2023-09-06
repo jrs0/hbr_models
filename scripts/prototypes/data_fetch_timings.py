@@ -149,7 +149,7 @@ def make_query():
         "from ABI.dbo.vw_apc_sem_001"
     )
 
-# 751 s from home
+# 751 s from home, 11,051,315 rows
 start = time.time()
 raw_episodes = pd.read_sql(make_query(), con)
 stop = time.time()
