@@ -6,11 +6,13 @@
 import os
 os.chdir("scripts/prototypes")
 
-from stability import make_bootstrapped_resamples, predict_bootstrapped_proba
+from stability import make_bootstrapped_resamples, predict_bootstrapped_proba, plot_instability
 from fit import fit_logistic_regression
 
 from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
+
+import matplotlib.pyplot as plt
 
 import importlib
 
@@ -22,7 +24,7 @@ importlib.reload(fit)
 
 # Example data for now
 X, y = make_classification(
-    n_samples=100_000, n_features=20, n_informative=2, n_redundant=2, random_state=42
+    n_samples=1000, n_features=20, n_informative=2, n_redundant=2, random_state=42
 )
 
 train_samples = 100  # Samples used for training the models
@@ -30,7 +32,7 @@ X0_train, X_test, y0_train, y_test = train_test_split(
     X,
     y,
     shuffle=False,
-    test_size=100_000 - train_samples,
+    test_size=0.25,
 )
 
 # Develop a single model from the training set (X0_train, y0_train),
@@ -48,7 +50,9 @@ Mn = [fit_logistic_regression(X, y) for (X, y) in zip(Xn_train, yn_train)]
 
 # First columns is the probability of 1 in y_test from M0; other columns
 # are the same for the N bootstrapped models Mn.
-bootstrapped_probabilities = predict_bootstrapped_proba(M0, Mn, X_test)
+probs = predict_bootstrapped_proba(M0, Mn, X_test)
 
-
-
+# Plot the basic instability curve
+fig, ax = plt.subplots()
+plot_instability(ax, probs)
+plt.show()

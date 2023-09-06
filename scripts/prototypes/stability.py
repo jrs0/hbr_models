@@ -108,3 +108,29 @@ def predict_bootstrapped_proba(M0, Mn, X_test):
     
     return np.column_stack(columns)
 
+def plot_instability(ax, probs):
+    '''
+    This function plots a scatter graph of one point
+    per value in the test set (row of probs), where the
+    x-axis is the value of the model under test (the
+    first column of probs), and the y-axis is every other
+    probability predicted from the bootstrapped models Mn
+    (the other columns of probs). The predictions from
+    the model-under-test corresponds to the straight line
+    at 45 degrees through the origin
+
+    For a stable model M0, the scattered points should be
+    close to the M0 line, indicating that the bootstrapped
+    models Mn broadly agree with the predictions made by M0.
+    '''
+    
+    num_rows = probs.shape[0]
+    num_cols = probs.shape[1]
+    x = []
+    y = []
+    for i in range(num_rows):    
+        for j in range(1, num_cols):
+            x.append(probs[i, 0])
+            y.append(probs[i, j])
+        
+    ax.scatter(x, y)
