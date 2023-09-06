@@ -34,11 +34,15 @@
 #
 # Implementation
 #
-# What is required is a function that wraps the entire model
+# A function is required that takes the original training set P0
+# and generates N bootstrapped resamples Pn that are the same size
+# as P.
+#
+# A function is required that wraps the entire model
 # into one call, taking as input the bootstrapped resample Pn and
 # providing as output the bootstrapped model Mn. This function can
 # then be called N times to generate the bootstrapped models. This
-# function is not defined in this file
+# function is not defined in this file.
 #
 # An aggregating function will then take all the models Mn, the 
 # model-under-test M0, and the test set T, and make predictions
@@ -53,6 +57,34 @@
 # model M0 and Mn on one graph). Any other accuracy metric of interest
 # can be calculated from this information (i.e. for step 4 above).
 
+import numpy as np
+from sklearn.utils import resample
 
+def make_bootstrapped_resamples(X0_train, y0_train, N):
+    '''
+    Makes N boostrapped resamples of P0 that are the same
+    size as P0. N must be at least 200 (as per recommendation).
+    P0 is specified by its features X0_train and its outcome
+    y0_train, which must both be the same height (same number
+    of rows). 
 
+    Note: not yet reproducible from random_state.
 
+    Testing: not yet tested.
+    '''
+    num_samples = X0_train.shape[0]
+    if num_samples != len(y0_train):
+        raise ValueError("Number of rows in X0_train and y0_train must match")
+    if N < 200:
+        raise ValueError("N must be at least 200; see Riley and Collins, 2022")
+    
+    Xn_train = []
+    yn_train = []
+    for i in range(N):
+        X, y = resample(X0_train, y0_train)
+        Xn_train.append(X)
+        yn_train.append(y)
+
+    return Xn_train, yn_train
+
+    
