@@ -1,16 +1,23 @@
 # Full model development process
 #
-# This file contains 
+# This file contains
 #
 
 import os
+
 os.chdir("scripts/prototypes")
 
-from stability import make_bootstrapped_resamples, predict_bootstrapped_proba, plot_instability
+from stability import (
+    make_bootstrapped_resamples,
+    predict_bootstrapped_proba,
+    plot_instability,
+)
 from fit import fit_logistic_regression
 
 from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
+
+from sklearn.calibration import CalibrationDisplay
 
 import matplotlib.pyplot as plt
 
@@ -18,6 +25,7 @@ import importlib
 
 ## To be deleted
 import stability, fit
+
 importlib.reload(stability)
 importlib.reload(fit)
 
@@ -28,7 +36,7 @@ X, y = make_classification(
 )
 
 train_samples = 100  # Samples used for training the models
-X0_train, X_test, y0_train, y_test = train_test_split(  
+X0_train, X_test, y0_train, y_test = train_test_split(
     X,
     y,
     shuffle=False,
@@ -37,13 +45,33 @@ X0_train, X_test, y0_train, y_test = train_test_split(
 
 # Develop a single model from the training set (X0_train, y0_train),
 # using any method (e.g. including cross validation and hyperparameter
-# tuning) using training set data. This is referred to as D in 
+# tuning) using training set data. This is referred to as D in
 # stability.py.
 M0 = fit_logistic_regression(X0_train, y0_train)
 
+# Plot (non-stability) calibration curve
+fig, axs = plt.subplots(2,1, figsize=(10,10))
+display = CalibrationDisplay.from_estimator(
+    Mn[13],
+    X_test,
+    y_test,
+    n_bins=10,
+    name="Logistic regression",
+    ax=axs[0],
+)
+axs[1].hist(
+    display.y_prob,
+    range=(0, 1),
+    bins=10,
+    label="Logistic regression",
+)
+axs[1].set(title="Logistic regression", xlabel="Mean predicted probability", ylabel="Count")
+plt.show()
+display.prob_pred
+
 # For the purpose of assessing model stability, obtain bootstrap
 # resamples (Xn_train, yn_train) from the training set.
-Xn_train, yn_train = make_bootstrapped_resamples(X0_train, y0_train, N = 200)
+Xn_train, yn_train = make_bootstrapped_resamples(X0_train, y0_train, N=200)
 
 # Develop all the bootstrap models to compare with the model-under-test M0
 Mn = [fit_logistic_regression(X, y) for (X, y) in zip(Xn_train, yn_train)]
@@ -56,3 +84,5 @@ probs = predict_bootstrapped_proba(M0, Mn, X_test)
 fig, ax = plt.subplots()
 plot_instability(ax, probs)
 plt.show()
+
+#
