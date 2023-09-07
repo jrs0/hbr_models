@@ -6,12 +6,14 @@
 import os
 os.chdir("scripts/prototypes")
 
-## To be deleted
-import stability, fit, calibration
-
+###### To be deleted
+import stability, fit, calibration, roc
+import importlib
 importlib.reload(stability)
 importlib.reload(fit)
 importlib.reload(calibration)
+importlib.reload(roc)
+######
 
 from stability import (
     make_bootstrapped_resamples,
@@ -20,15 +22,14 @@ from stability import (
 )
 from fit import fit_logistic_regression
 from calibration import get_bootstrapped_calibration, plot_calibration_curves, plot_prediction_distribution
+from roc import get_bootstrapped_roc, get_bootstrapped_auc, plot_roc_curves
 
 from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
 
-
-
 import matplotlib.pyplot as plt
 
-import importlib
+
 
 # Example data for now
 X, y = make_classification(
@@ -75,4 +76,13 @@ plot_calibration_curves(ax[0], calibration_curves)
 # showing distribution stability (over the bootstrapped models)
 # as error bars on each bin height
 plot_prediction_distribution(ax[1], probs, n_bins = 10)
+plt.show()
+
+# Get the bootstrapped ROC curves
+roc_curves = get_bootstrapped_roc(probs, y_test)
+roc_auc = get_bootstrapped_auc(probs, y_test)
+
+# Plot the ROC-stability curves
+fig, ax = plt.subplots()
+plot_roc_curves(ax, roc_curves, roc_auc)
 plt.show()

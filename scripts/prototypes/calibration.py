@@ -22,7 +22,9 @@ def get_bootstrapped_calibration(probs, y_test, n_bins):
     on the outcomes in y_test. Rows of y_test correspond to rows of
     probs. The result is a list of pairs, one for each model (column
     of probs). Each pair contains the vector of x- and y-coordinates
-    of the calibration curve
+    of the calibration curve.
+
+    Testing: not yet tested
     """
     curves = []
     for n in range(probs.shape[1]):
