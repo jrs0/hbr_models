@@ -66,7 +66,7 @@ def diagnosis_and_procedure_columns():
 
 def make_episodes_query(start_date, end_date):
     return (
-        "select aimtc_pseudo_nhs as nhs_number"
+        "select aimtc_pseudo_nhs as patient_id"
         ",aimtc_age as age"
         ",sex as gender"
         ",pbrspellid as spell_id"
@@ -82,7 +82,7 @@ def make_episodes_query(start_date, end_date):
 
 def make_spells_query(start_date, end_date):
     return (
-        "select aimtc_pseudo_nhs as nhs_number"
+        "select aimtc_pseudo_nhs as patient_id"
         ",aimtc_age as age"
         ",sex as gender"
         ",pbrspellid as spell_id"

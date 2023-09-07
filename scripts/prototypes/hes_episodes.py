@@ -44,3 +44,8 @@ right_censor_date = raw_episodes_data["episode_start_date"].max()
 # Also helpful to know the earliest date in the dataset. This is important
 # for whether it is possible to know predictors a certain time in advance.
 left_censor_date = raw_episodes_data["episode_start_date"].min()
+
+# Mapping from episode_id to patient. Required later for joining
+# episodes together from different tables by patient. The order
+# matches the raw_episode_data order.
+patients = raw_episodes_data[["patient_id"]]
