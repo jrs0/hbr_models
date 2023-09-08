@@ -35,7 +35,7 @@ import numpy as np
 # episodes data from the database. Use these variables to
 # reduce the total amount of data to something the script
 # can handle
-start_date = dt.date(2017, 1, 1)
+start_date = dt.date(2022, 1, 1)  # dt.date(2017, 1, 1)
 end_date = dt.date(2023, 1, 1)
 
 # Fetch the raw data. 6 years of data takes 283 s to fetch (from home),
@@ -53,10 +53,11 @@ right_censor_date = raw_episodes_data["episode_start_date"].max()
 # for whether it is possible to know predictors a certain time in advance.
 left_censor_date = raw_episodes_data["episode_start_date"].min()
 
-# Mapping from episode_id to patient. Required later for joining
-# episodes together from different tables by patient. The order
-# matches the raw_episode_data order.
-patients = raw_episodes_data[["patient_id"]]
+# Also need to know the episode start times for comparison of different
+# episodes
+episode_start_dates = raw_episodes_data[
+    ["episode_id", "episode_start_date", "patient_id"]
+]
 
 # Get all the clinical codes in long format, with a column to indicate
 # whether it is a diagnosis or a procedure code. Note that this is
@@ -110,7 +111,98 @@ idx_episodes = (
 df = idx_episodes.merge(
     code_group_counts, how="left", left_on="idx_episode_id", right_on="episode_id"
 )
-idx_episodes["pci_performed"] = (df["pci"] > 0)
-idx_episodes["stemi"] = (df["mi_stemi_schnier"] > 0)
-idx_episodes["nstemi"] = (df["mi_nstemi_schnier"] > 0)
-idx_episodes["acs"] = (df["acs_bezin"] > 0)
+idx_episodes["pci_performed"] = df["pci"] > 0
+idx_episodes["stemi"] = df["mi_stemi_schnier"] > 0
+idx_episodes["nstemi"] = df["mi_nstemi_schnier"] > 0
+idx_episodes["acs"] = df["acs_bezin"] > 0
+idx_episodes = idx_episodes.merge(
+    episode_start_dates, how="left", left_on="idx_episode_id", right_on="episode_id"
+).rename(columns={"episode_start_date": "idx_date"})[
+    [
+        "idx_episode_id",
+        "patient_id",
+        "idx_date",
+        "pci_performed",
+        "stemi",
+        "nstemi",
+        "acs",
+    ]
+]
+
+# Join all episode start dates by patient to get a table of index events paired
+# up with all the patient's other episodes. This cab be used to find which other
+# episodes are inside an appropriate window before and after the index event
+df = idx_episodes.merge(episode_start_dates, how="left", on="patient_id")
+df["index_to_episode_time"] = df["episode_start_date"] - df["idx_date"]
+time_from_index_to_episode = df[
+    ["idx_episode_id", "episode_id", "index_to_episode_time"]
+]
+
+# This table contains the total number of each diagnosis and procedure
+# group in a period before the index event. This could be the previous
+# 12 months, excluding the month before the index event (to account for
+# lack of coding data in that period)
+max_period_before = dt.timedelta(days=365)  # Limit count to previous 12 months
+min_period_before = dt.timedelta(days=31)  # Exclude month before index (not coded yet)
+
+# These are the episodes whose clinical code counts should contribute
+# to predictors.
+df = time_from_index_to_episode[
+    (time_from_index_to_episode["index_to_episode_time"] < -min_period_before)
+    & (-max_period_before < time_from_index_to_episode["index_to_episode_time"])
+]
+episodes_before = df[["idx_episode_id", "episode_id"]]
+
+# Compute the total count for each index event that has an episode
+# in the valid window before the index. Note that this excludes
+# index events with zero episodes before the index.
+code_counts_before = (
+    episodes_before.merge(code_group_counts, how="left", on="episode_id")
+    .drop(columns="episode_id")
+    .groupby("idx_episode_id")
+    .sum()
+    .add_suffix("_before")
+    .merge(idx_episodes["idx_episode_id"], how="right", on="idx_episode_id")
+    .fillna(0)
+)
+
+# This table contains the total number of each diagnosis and procedure
+# group in a period after the index event. A fixed window immediately
+# after the index event is excluded, to filter out peri-procedural
+# outcomes or outcomes that occur in the index event itself. A follow-up
+# date is defined that becomes the "outcome_occurred" column in the
+# dataset, for classification models.
+follow_up = dt.timedelta(days=365)  # Limit "occurred" column to 12 months
+min_period_after = dt.timedelta(days=31)  # Exclude the subsequent 72 hours after index
+
+# These are the subsequent episodes after the index, with
+# the index row also retained. They are not limited to the follow-up
+# period yet, because survival analysis can make use of times that are
+# longer than the fixed follow-up. The follow_up is used later to create
+# a classification outcome column
+episodes_after = time_from_index_to_episode[
+    # Exclude a short window after the index
+    (time_from_index_to_episode["index_to_episode_time"] > min_period_before)
+    # Retain the index events in the table
+    | (
+        time_from_index_to_episode["episode_id"]
+        == time_from_index_to_episode["idx_episode_id"]
+    )
+][["idx_episode_id", "episode_id", "index_to_episode_time"]]
+
+# Compute the outcome columns: outcome status (whether it
+# occurred or not), time-to-outcome (or right-censored time),
+# and an outcome occurred flag derived from the previous two
+# columns, which is NA if it cannot be determined whether the
+# outcome occurred or not.
+outcome_groups = ["bleeding_al_ani", "acs_bezin"]
+code_counts_after = (
+    episodes_after.merge(code_group_counts, how="left", on="episode_id")
+    .drop(columns="episode_id")
+    .groupby("idx_episode_id")
+    .sum()
+    .filter(outcome_groups + ["index_to_episode_time"])
+    # .add_suffix("_before")
+    # .merge(idx_episodes["idx_episode_id"], how="right", on="idx_episode_id")
+    # .fillna(0)
+)

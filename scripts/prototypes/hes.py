@@ -65,6 +65,12 @@ def diagnosis_and_procedure_columns():
 
 
 def make_episodes_query(start_date, end_date):
+    '''
+    You have to go really careful to add the nhs_number not
+    null condition, otherwise pandas will convert the column
+    to floating point (with the associated undefined equality
+    comparison which comes along with it).
+    '''
     return (
         "select aimtc_pseudo_nhs as patient_id"
         ",aimtc_age as age"
@@ -77,6 +83,7 @@ def make_episodes_query(start_date, end_date):
         + diagnosis_and_procedure_columns()
         + " from abi.dbo.vw_apc_sem_001"
         f" where startdate_consultantepisode between '{start_date}' and '{end_date}'"
+        " and aimtc_pseudo_nhs is not null"
     )
 
 
@@ -91,6 +98,7 @@ def make_spells_query(start_date, end_date):
         + diagnosis_and_procedure_columns()
         + " from abi.dbo.vw_apc_sem_spell_001"
         f" where aimtc_providerspell_start_date between '{start_date}' and '{end_date}'"
+        " and aimtc_pseudo_nhs is not null"
     )
 
 
