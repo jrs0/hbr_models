@@ -129,7 +129,7 @@ def convert_codes_to_long(df, record_id):
 
     The record_id is either "spell_id" or "episode_id", depending on whether
     the table contains spells or episodes.
-    
+
     Testing: not yet tested
     """
     pattern = re.compile("(diagnosis|procedure)")
@@ -140,13 +140,12 @@ def convert_codes_to_long(df, record_id):
     # melt-uneven-data-in-columns-and-ignore-nans-using-pandas
     # for speed.
 
-    if record_id == "spell_id":
-        long_codes = pd.melt(df, id_vars=["spell_id"], value_vars=code_cols).dropna()
-    elif record_id == "episode_id":
-        # Implicitly use index as the record_id
-        long_codes = pd.melt(df, value_vars=code_cols).dropna()
-    else:
-        print(f"Unrecognised record_id {record_id}, should be 'spell_id' or 'episode_id'")
+    if record_id not in ["episode_id", "spell_id"]:
+        raise ValueError(
+            f"Unrecognised record_id {record_id}; should be 'spell_id' or 'episode_id'"
+        )
+
+    long_codes = pd.melt(df, id_vars=[record_id], value_vars=code_cols).dropna()
 
     long_codes.value = long_codes.value.apply(normalise_code)
     # Prepend icd10 or opc4 to the codes to indicate which are which
