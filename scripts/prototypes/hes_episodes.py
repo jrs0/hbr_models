@@ -59,31 +59,58 @@ left_censor_date = raw_episodes_data["episode_start_date"].min()
 patients = raw_episodes_data[["patient_id"]]
 
 # Get all the clinical codes in long format, with a column to indicate
-# whether it is a diagnosis or a procedure code. Note that this is 
-# currently returning slightly less rows than raw_episode_data, 
+# whether it is a diagnosis or a procedure code. Note that this is
+# currently returning slightly less rows than raw_episode_data,
 # maybe if some rows contain no codes at all? More likely a bug -- to check.
 long_clinical_codes = hes.convert_codes_to_long(raw_episodes_data, "episode_id")
-
 
 code_groups = codes.get_code_groups(
     "../codes_files/icd10.yaml", "../codes_files/opcs4.yaml"
 )
 
 # Count the total number of clinical code groups in each episode. This is
-# achieved by joining the names of the code groups onto the long codes 
+# achieved by joining the names of the code groups onto the long codes
 # where the type (diagnosis or procedure) matches and also the normalised
 # code (e.g. i211) matches. The groups are pivoted to become columns,
 # with values equal to the number of occurrences of each group in each
 # episode. Due to the inner join of groups onto episodes, any episode with
 # not group will be dropped. These must be added back on at the end as
 # zero rows.
-code_group_counts = long_clinical_codes.merge(
-    code_groups,
-    how="inner",
-    left_on=["clinical_code_type", "clinical_code"],
-    right_on=["type", "name"],
-)[["episode_id", "group"]].pivot_table(
-    index="episode_id", columns="group", aggfunc=len, fill_value=0
+code_group_counts = (
+    long_clinical_codes.merge(
+        code_groups,
+        how="inner",
+        left_on=["clinical_code_type", "clinical_code"],
+        right_on=["type", "name"],
+    )[["episode_id", "group"]]
+    .pivot_table(index="episode_id", columns="group", aggfunc=len, fill_value=0)
+    .merge(raw_episodes_data["episode_id"], how="right", on="episode_id")
+    .fillna(0)
 )
 
-idx_episodes = code_group_counts.join(raw_episodes_data, how = "left", on = "episode_id")
+# Find the index episodes, which are the ones that contain an ACS or PCI and
+# are also the first episode of the spell.
+df = (
+    code_group_counts.merge(
+        raw_episodes_data[["episode_id", "spell_id", "episode_start_date"]],
+        how="left",
+        on="episode_id",
+    )
+    .sort_values("episode_start_date")
+    .groupby("spell_id")
+    .first()
+)
+idx_episodes = (
+    df[(df["acs_bezin"] > 0) | (df["pci"] > 0)]
+    .reset_index()[["episode_id", "spell_id"]]
+    .rename(columns={"episode_id": "idx_episode_id", "spell_id": "idx_spell_id"})
+)
+
+# Calculate information about the index event
+df = idx_episodes.merge(
+    code_group_counts, how="left", left_on="idx_episode_id", right_on="episode_id"
+)
+idx_episodes["pci_performed"] = (df["pci"] > 0)
+idx_episodes["stemi"] = (df["mi_stemi_schnier"] > 0)
+idx_episodes["nstemi"] = (df["mi_nstemi_schnier"] > 0)
+idx_episodes["acs"] = (df["acs_bezin"] > 0)
