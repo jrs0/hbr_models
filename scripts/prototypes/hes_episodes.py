@@ -182,27 +182,23 @@ min_period_after = dt.timedelta(days=31)  # Exclude the subsequent 72 hours afte
 # a classification outcome column
 episodes_after = time_from_index_to_episode[
     # Exclude a short window after the index
-    (time_from_index_to_episode["index_to_episode_time"] > min_period_before)
-    # Retain the index events in the table
-    | (
-        time_from_index_to_episode["episode_id"]
-        == time_from_index_to_episode["idx_episode_id"]
-    )
-][["idx_episode_id", "episode_id", "index_to_episode_time"]]
+    (time_from_index_to_episode["index_to_episode_time"] > min_period_after)
+    # Drop events after the follow up period
+    & (follow_up > time_from_index_to_episode["index_to_episode_time"])
+][["idx_episode_id", "episode_id"]]
 
-# Compute the outcome columns: outcome status (whether it
-# occurred or not), time-to-outcome (or right-censored time),
-# and an outcome occurred flag derived from the previous two
-# columns, which is NA if it cannot be determined whether the
-# outcome occurred or not.
+# Compute the outcome columns -- just classification for now
 outcome_groups = ["bleeding_al_ani", "acs_bezin"]
 code_counts_after = (
     episodes_after.merge(code_group_counts, how="left", on="episode_id")
     .drop(columns="episode_id")
     .groupby("idx_episode_id")
     .sum()
-    .filter(outcome_groups + ["index_to_episode_time"])
-    # .add_suffix("_before")
-    # .merge(idx_episodes["idx_episode_id"], how="right", on="idx_episode_id")
-    # .fillna(0)
+    .filter(outcome_groups)
+    .add_suffix("_outcome")
+    .merge(idx_episodes["idx_episode_id"], how="right", on="idx_episode_id")
+    .fillna(0)
 )
+
+# Reduce the outcome to a 1 if the evnt occurred and zero otherwise TODO
+
