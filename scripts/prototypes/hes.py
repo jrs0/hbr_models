@@ -119,33 +119,43 @@ def get_spells_hes_polars():
     return raw_data
 
 
-def convert_codes_to_long(df):
+def convert_codes_to_long(df, record_id):
     """
     df is a table containing the diagnosis and procedure columns returned
-    from get_spells_hes_pandas(). The result is a table with index column
-    spell_id, a column of normalised diagnosis or procedure codes with the
+    from get_hes_data(). The result is a table with index column
+    record_id, a column of normalised diagnosis or procedure codes with the
     prefix icd10_ or opcs4_, and a position column indicating the code
     position (0 for primary, increasing for more secondary).
 
+    The record_id is either "spell_id" or "episode_id", depending on whether
+    the table contains spells or episodes.
+    
     Testing: not yet tested
     """
     pattern = re.compile("(diagnosis|procedure)")
     code_cols = [s for s in df.columns if pattern.search(s)]
-    index_cols = ["spell_id"]
 
     # Pivot all the diagnosis and procedure codes into one
     # columns. Consider https://stackoverflow.com/questions/47684961/
     # melt-uneven-data-in-columns-and-ignore-nans-using-pandas
     # for speed.
-    long_codes = pd.melt(df, id_vars=index_cols, value_vars=code_cols).dropna()
+
+    if record_id == "spell_id":
+        long_codes = pd.melt(df, id_vars=["spell_id"], value_vars=code_cols).dropna()
+    elif record_id == "episode_id":
+        # Implicitly use index as the record_id
+        long_codes = pd.melt(df, value_vars=code_cols).dropna()
+    else:
+        print(f"Unrecognised record_id {record_id}, should be 'spell_id' or 'episode_id'")
+
     long_codes.value = long_codes.value.apply(normalise_code)
     # Prepend icd10 or opc4 to the codes to indicate which are which
     # (because some codes appear in both ICD-10 and OPCS-4)
     pattern = re.compile("diagnosis")
-    diagnosis_or_procedure = [
-        "icd10_" if pattern.search(s) else "opcs4_" for s in long_codes.variable
+    long_codes["clinical_code_type"] = [
+        "diagnosis" if pattern.search(s) else "procedure" for s in long_codes.variable
     ]
-    long_codes["full_code"] = diagnosis_or_procedure + long_codes.value
+    long_codes["clinical_code"] = long_codes.value
     long_codes["position"] = (
         long_codes["variable"]
         .replace("(diagnosis|procedure)_", "", regex=True)

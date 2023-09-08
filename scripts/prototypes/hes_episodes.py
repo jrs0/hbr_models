@@ -1,8 +1,8 @@
-# HES episodes-only dataset 
+# HES episodes-only dataset
 #
 # This script contains functions which convert the
 # raw data retrieved from a hospital episode statistics
-# table to a feature and outcome matrix (X,Y) which 
+# table to a feature and outcome matrix (X,Y) which
 # contains acute coronary syndrome index events (one per
 # row of X and Y), counts of which diagnosis code groups
 # occur before the index event (columns of X), other
@@ -13,6 +13,7 @@
 #
 
 import os
+
 os.chdir("scripts/prototypes")
 
 import importlib
@@ -22,20 +23,26 @@ from py_hic.clinical_codes import get_codes_in_group, ClinicalCodeParser
 import code_group_counts as codes
 
 import hes
+
 importlib.reload(hes)
 importlib.reload(codes)
+
+import re
+import numpy as np
 
 
 # Define the start and end date for collection of raw
 # episodes data from the database. Use these variables to
 # reduce the total amount of data to something the script
 # can handle
-start_date = dt.date(2017,1,1)
-end_date = dt.date(2023,1,1)
+start_date = dt.date(2017, 1, 1)
+end_date = dt.date(2023, 1, 1)
 
 # Fetch the raw data. 6 years of data takes 283 s to fetch (from home),
-# so estimating full datasets takes about 1132 s.
+# so estimating full datasets takes about 1132 s. Same query took 217 s
+# in ICB.
 raw_episodes_data = hes.get_hes_data(start_date, end_date, "episodes")
+raw_episodes_data.replace("", np.nan, inplace=True)
 
 # Find the last date seen in the dataset to use as an approximation for
 # the right-censor date for the purpose of survival analysis.
@@ -49,3 +56,19 @@ left_censor_date = raw_episodes_data["episode_start_date"].min()
 # episodes together from different tables by patient. The order
 # matches the raw_episode_data order.
 patients = raw_episodes_data[["patient_id"]]
+
+# Convert the clinical codes into long format 
+long_clinical_codes = hes.convert_codes_to_long(raw_episodes_data, "episode_id")
+
+
+pattern = re.compile("(diagnosis|procedure)")
+code_cols = [s for s in raw_episodes_data.columns if pattern.search(s)]
+long_clinical_codes = (
+    raw_episodes_data.filter(regex="(diagnosis|procedure)")
+    .melt(value_vars=code_cols)
+    .dropna()
+)
+
+code_groups = codes.get_code_groups(
+    "../codes_files/icd10.yaml", "../codes_files/opcs4.yaml"
+)
