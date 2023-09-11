@@ -80,7 +80,7 @@ def load_dataset(name):
 
     # Pick the most recent file to read and return
     recent_first = files.sort_values(by="timestamp", ascending=False)
-    full_path = os.path.join(datasets_dir, recent_first.loc[0, "path"])
+    full_path = os.path.join(datasets_dir, recent_first.reset_index().loc[0, "path"])
     dataset = pd.read_pickle(full_path)
     return dataset
 
