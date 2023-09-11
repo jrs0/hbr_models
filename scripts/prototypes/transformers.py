@@ -56,6 +56,8 @@ class RemoveMajorityZero(BaseEstimator, TransformerMixin):
             return f"RemoveMajorityZero is fitted and will keep columns {self._columns_to_keep}"
 
 
-t = RemoveMajorityZero(0.1)
-t.fit_transform(X).shape
-t.transform(X).shape
+if __name__ == "__main__":
+    X = 
+    t = RemoveMajorityZero(0.1)
+    t.fit_transform(X).shape
+    t.transform(X).shape

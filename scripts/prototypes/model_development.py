@@ -3,22 +3,6 @@
 # This file contains
 #
 
-import os
-
-os.chdir("scripts/prototypes")
-
-###### To be deleted
-import stability, fit, calibration, roc
-import importlib
-import save_datasets as ds
-
-importlib.reload(stability)
-importlib.reload(fit)
-importlib.reload(calibration)
-importlib.reload(roc)
-importlib.reload(ds)
-######
-
 from stability import (
     make_bootstrapped_resamples,
     predict_bootstrapped_proba,
@@ -37,6 +21,7 @@ from sklearn.model_selection import train_test_split
 
 import matplotlib.pyplot as plt
 import pandas as pd
+import save_datasets as ds
 
 # Example data for now. X is the feature matrix (each column is a feature)
 # and y is the classification outcome (1 for event occurred). Both must have
@@ -70,6 +55,7 @@ X0_train, X_test, y0_train, y_test = train_test_split(
 # tuning) using training set data. This is referred to as D in
 # stability.py.
 M0 = fit_logistic_regression(X0_train, y0_train)
+exit()
 
 # For the purpose of assessing model stability, obtain bootstrap
 # resamples (Xn_train, yn_train) from the training set (X0, y0).
