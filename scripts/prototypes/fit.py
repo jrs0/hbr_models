@@ -77,7 +77,7 @@ def fit_logistic_regression(X_train, y_train):
     majority_zero = RemoveMajorityZero(0.1)
     scale = StandardScaler()
     model = LogisticRegression()
-    pipe = make_pipeline(scale, model)
+    pipe = make_pipeline(model)
     pipe.fit(X_train, y_train)
     return pipe
 
