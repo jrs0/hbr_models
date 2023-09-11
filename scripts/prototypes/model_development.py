@@ -10,11 +10,13 @@ os.chdir("scripts/prototypes")
 ###### To be deleted
 import stability, fit, calibration, roc
 import importlib
+import save_datasets as ds
 
 importlib.reload(stability)
 importlib.reload(fit)
 importlib.reload(calibration)
 importlib.reload(roc)
+importlib.reload(ds)
 ######
 
 from stability import (
@@ -34,15 +36,23 @@ from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
 
 import matplotlib.pyplot as plt
-
+import pandas as pd
 
 # Example data for now. X is the feature matrix (each column is a feature)
 # and y is the classification outcome (1 for event occurred). Both must have
 # the same number of rows (the number of samples). Both are numerical,
 # (X is floating point and y is integer).
-X, y = make_classification(
-    n_samples=1000, n_features=20, n_informative=2, n_redundant=2, random_state=42
-)
+#X, y = make_classification(
+#    n_samples=1000, n_features=20, n_informative=2, n_redundant=2, random_state=42
+#)
+
+# Get real dataset. The bleeding outcome column is called bleeding_al_ani_outcome
+# (becomes y) and the other columns except 
+outcome_column = ["bleeding_al_ani_outcome"]
+non_predictors = ["bleeding_al_ani_outcome", "acs_bezin_outcome"]
+dataset = ds.load_dataset("hes_episodes_dataset")
+X = dataset.drop(columns = non_predictors).to_numpy()
+y = dataset[outcome_column].to_numpy()
 
 # Split (X,y) into a testing set (X_test, y_test), which is not used for
 # any model training, and a training set (X0,y0), which is used to develop
