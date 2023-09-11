@@ -55,7 +55,6 @@ X0_train, X_test, y0_train, y_test = train_test_split(
 # tuning) using training set data. This is referred to as D in
 # stability.py.
 M0 = fit_logistic_regression(X0_train, y0_train)
-exit()
 
 # For the purpose of assessing model stability, obtain bootstrap
 # resamples (Xn_train, yn_train) from the training set (X0, y0).

@@ -49,7 +49,7 @@ class RemoveMajorityZero(BaseEstimator, TransformerMixin):
 
         return X[:, self._columns_to_keep]
 
-    def __repr__(self):
+    def __str__(self):
         if self._columns_to_keep is None:
             return "RemoveMajorityZero is not fitted yet"
         else:
@@ -57,7 +57,7 @@ class RemoveMajorityZero(BaseEstimator, TransformerMixin):
 
 
 if __name__ == "__main__":
-    X = 
+    #X = a numpy array
     t = RemoveMajorityZero(0.1)
     t.fit_transform(X).shape
     t.transform(X).shape

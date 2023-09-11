@@ -54,7 +54,6 @@
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
-from sklearn.feature_selection import VarianceThreshold
 from sklearn.pipeline import make_pipeline
 
 from transformers import RemoveMajorityZero
@@ -78,7 +77,7 @@ def fit_logistic_regression(X_train, y_train):
     majority_zero = RemoveMajorityZero(0.1)
     scale = StandardScaler()
     model = LogisticRegression()
-    pipe = make_pipeline([majority_zero, scale, model])
+    pipe = make_pipeline(scale, model)
     pipe.fit(X_train, y_train)
     return pipe
 
