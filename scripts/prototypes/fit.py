@@ -42,6 +42,7 @@
 # 
 # Examples of preprocessing that must not be performed
 # on X before passing it to the fit functions
+
 #
 # - Any imputing of data which involves a global 
 #   computation (such as imputing an age column based
@@ -68,6 +69,6 @@ def fit_logistic_regression(X_train, y_train):
 
     Testing: not yet tested
     '''
-    m = LogisticRegression()
+    m = LogisticRegression(max_iter=1000)
     m.fit(X_train, y_train) 
     return m

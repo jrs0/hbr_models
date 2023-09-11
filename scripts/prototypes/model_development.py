@@ -48,7 +48,7 @@ import pandas as pd
 
 # Get real dataset. The bleeding outcome column is called bleeding_al_ani_outcome
 # (becomes y) and the other columns except 
-outcome_column = ["bleeding_al_ani_outcome"]
+outcome_column = "bleeding_al_ani_outcome"
 non_predictors = ["bleeding_al_ani_outcome", "acs_bezin_outcome"]
 dataset = ds.load_dataset("hes_episodes_dataset")
 X = dataset.drop(columns = non_predictors).to_numpy()
