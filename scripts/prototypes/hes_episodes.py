@@ -220,5 +220,7 @@ dataset = idx_episodes.merge(code_counts_before, how="left", on="idx_episode_id"
 ).drop(columns=["idx_episode_id", "patient_id", "idx_date"])
 
 # Save the resulting dataset
-ds.save_dataset(dataset, "hes_episodes_dataset")
+ds.save_dataset(dataset.head(30), "hes_episodes_dataset")
+
+d1 = ds.load_dataset("hes_episodes_dataset")
 

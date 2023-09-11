@@ -57,6 +57,10 @@ def load_dataset(name):
     # Remove all the files whose name does not match, and drop
     # the name from the path
     files = files[files["path"].str.contains(name)]
+    if files.shape[0] == 0:
+        raise ValueError(
+            f"There is not dataset with the name '{name}' in the datasets directory"
+        )
     files["commit_and_timestamp"] = files["path"].str.replace(name + "_", "")
 
     # Split the commit and timestamp up (note also the extension)
@@ -75,9 +79,10 @@ def load_dataset(name):
         )
 
     # Pick the most recent file to read and return
-    recent_first = files.sort_values(by = "timestamp", ascending=False)
+    recent_first = files.sort_values(by="timestamp", ascending=False)
     full_path = os.path.join(datasets_dir, recent_first.loc[0, "path"])
     dataset = pd.read_pickle(full_path)
     return dataset
+
 
 load_dataset("hes_episodes_dataset")
