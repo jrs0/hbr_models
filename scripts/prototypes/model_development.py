@@ -54,13 +54,16 @@ X0_train, X_test, y0_train, y_test = train_test_split(
 # using any method (e.g. including cross validation and hyperparameter
 # tuning) using training set data. This is referred to as D in
 # stability.py.
+print("Fitting the main model")
 M0 = fit_logistic_regression(X0_train, y0_train)
 
 # For the purpose of assessing model stability, obtain bootstrap
 # resamples (Xn_train, yn_train) from the training set (X0, y0).
+print("Creating bootstrap resamples of X0 for stability checking")
 Xn_train, yn_train = make_bootstrapped_resamples(X0_train, y0_train, N=200)
 
 # Develop all the bootstrap models to compare with the model-under-test M0
+print("Fitting bootstrapped models")
 Mn = [fit_logistic_regression(X, y) for (X, y) in zip(Xn_train, yn_train)]
 
 # First columns is the probability of 1 in y_test from M0; other columns

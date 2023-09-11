@@ -74,10 +74,10 @@ def fit_logistic_regression(X_train, y_train):
 
     Testing: not yet tested
     """
-    majority_zero = RemoveMajorityZero(0.1)
+    #majority_zero = RemoveMajorityZero(0.1)
     scale = StandardScaler()
     model = LogisticRegression()
-    pipe = make_pipeline(model)
+    pipe = make_pipeline(scale, model)
     pipe.fit(X_train, y_train)
     return pipe
 
