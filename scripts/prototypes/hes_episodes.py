@@ -19,6 +19,8 @@ os.chdir("scripts/prototypes")
 import importlib
 import datetime as dt
 
+import pandas as pd
+
 from py_hic.clinical_codes import get_codes_in_group, ClinicalCodeParser
 import code_group_counts as codes
 
@@ -35,13 +37,18 @@ import numpy as np
 # episodes data from the database. Use these variables to
 # reduce the total amount of data to something the script
 # can handle
-start_date = dt.date(2022, 1, 1)  # dt.date(2017, 1, 1)
+start_date = dt.date(2017, 1, 1)
 end_date = dt.date(2023, 1, 1)
 
 # Fetch the raw data. 6 years of data takes 283 s to fetch (from home),
 # so estimating full datasets takes about 1132 s. Same query took 217 s
 # in ICB.
 raw_episodes_data = hes.get_hes_data(start_date, end_date, "episodes")
+raw_episodes_data.to_pickle("datasets/raw_episodes_dataset.pkl")
+
+# Optional, read from pickle instead of sql fetch
+raw_episodes_data = pd.read_pickle("datasets/raw_episodes_dataset.pkl")
+
 raw_episodes_data.replace("", np.nan, inplace=True)
 raw_episodes_data["episode_id"] = raw_episodes_data.index
 
@@ -130,13 +137,11 @@ idx_episodes = idx_episodes.merge(
 ]
 
 # Join all episode start dates by patient to get a table of index events paired
-# up with all the patient's other episodes. This cab be used to find which other
+# up with all the patient's other episodes. This can be used to find which other
 # episodes are inside an appropriate window before and after the index event
 df = idx_episodes.merge(episode_start_dates, how="left", on="patient_id")
 df["index_to_episode_time"] = df["episode_start_date"] - df["idx_date"]
-time_from_index_to_episode = df[
-    ["idx_episode_id", "episode_id", "index_to_episode_time"]
-]
+time_to_episode = df[["idx_episode_id", "episode_id", "index_to_episode_time"]]
 
 # This table contains the total number of each diagnosis and procedure
 # group in a period before the index event. This could be the previous
@@ -147,9 +152,9 @@ min_period_before = dt.timedelta(days=31)  # Exclude month before index (not cod
 
 # These are the episodes whose clinical code counts should contribute
 # to predictors.
-df = time_from_index_to_episode[
-    (time_from_index_to_episode["index_to_episode_time"] < -min_period_before)
-    & (-max_period_before < time_from_index_to_episode["index_to_episode_time"])
+df = time_to_episode[
+    (time_to_episode["index_to_episode_time"] < -min_period_before)
+    & (-max_period_before < time_to_episode["index_to_episode_time"])
 ]
 episodes_before = df[["idx_episode_id", "episode_id"]]
 
@@ -180,11 +185,11 @@ min_period_after = dt.timedelta(days=31)  # Exclude the subsequent 72 hours afte
 # period yet, because survival analysis can make use of times that are
 # longer than the fixed follow-up. The follow_up is used later to create
 # a classification outcome column
-episodes_after = time_from_index_to_episode[
+episodes_after = time_to_episode[
     # Exclude a short window after the index
-    (time_from_index_to_episode["index_to_episode_time"] > min_period_after)
+    (time_to_episode["index_to_episode_time"] > min_period_after)
     # Drop events after the follow up period
-    & (follow_up > time_from_index_to_episode["index_to_episode_time"])
+    & (follow_up > time_to_episode["index_to_episode_time"])
 ][["idx_episode_id", "episode_id"]]
 
 # Compute the outcome columns -- just classification for now
@@ -200,5 +205,6 @@ code_counts_after = (
     .fillna(0)
 )
 
-# Reduce the outcome to a 1 if the evnt occurred and zero otherwise TODO
-
+# Reduce the outcome to a True if > 0 or False if == 0
+code_counts_after["bleeding_al_ani_outcome"] = code_counts_after["bleeding_al_ani_outcome"].astype(bool)
+code_counts_after["acs_bezin_outcome"] = code_counts_after["acs_bezin_outcome"].astype(bool)
