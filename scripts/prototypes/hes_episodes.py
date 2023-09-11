@@ -25,13 +25,14 @@ from py_hic.clinical_codes import get_codes_in_group, ClinicalCodeParser
 import code_group_counts as codes
 
 import hes
+import save_datasets as ds
 
 importlib.reload(hes)
 importlib.reload(codes)
+importlib.reload(ds)
 
 import re
 import numpy as np
-
 
 # Define the start and end date for collection of raw
 # episodes data from the database. Use these variables to
@@ -206,5 +207,18 @@ code_counts_after = (
 )
 
 # Reduce the outcome to a True if > 0 or False if == 0
-code_counts_after["bleeding_al_ani_outcome"] = code_counts_after["bleeding_al_ani_outcome"].astype(bool)
-code_counts_after["acs_bezin_outcome"] = code_counts_after["acs_bezin_outcome"].astype(bool)
+code_counts_after["bleeding_al_ani_outcome"] = code_counts_after[
+    "bleeding_al_ani_outcome"
+].astype(bool)
+code_counts_after["acs_bezin_outcome"] = code_counts_after["acs_bezin_outcome"].astype(
+    bool
+)
+
+# Now combine the information into a final dataset containing both X and y
+dataset = idx_episodes.merge(code_counts_before, how="left", on="idx_episode_id").merge(
+    code_counts_after, how="left", on="idx_episode_id"
+).drop(columns=["idx_episode_id", "patient_id", "idx_date"])
+
+# Save the resulting dataset
+ds.save_dataset(dataset, "hes_episodes_dataset")
+
