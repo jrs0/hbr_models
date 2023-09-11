@@ -27,8 +27,17 @@ def save_dataset(dataset, name):
     '''
     datasets_dir = "datasets"
 
+    if not os.path.isdir(datasets_dir):
+        print("Creating missing folder '{datasets_dir}' for storing dataset")
+        os.mkdir(datasets_dir)
+
     # Make the file suffix out of the current git
     # commit hash and the current time
     filename = f"{name}_{current_commit()}_{current_timestamp()}.pkl"
     path = os.path.join(datasets_dir, filename)
-    return path
+    
+    dataset.to_pickle(path)
+
+def load_dataset(name):
+    pass
+
