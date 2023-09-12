@@ -23,6 +23,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import save_datasets as ds
 
+import seaborn as sns
+
 # Example data for now. X is the feature matrix (each column is a feature)
 # and y is the classification outcome (1 for event occurred). Both must have
 # the same number of rows (the number of samples). Both are numerical,
@@ -38,6 +40,16 @@ non_predictors = ["bleeding_al_ani_outcome", "acs_bezin_outcome"]
 dataset = ds.load_dataset("hes_episodes_dataset")
 X = dataset.drop(columns = non_predictors).to_numpy()
 y = dataset[outcome_column].to_numpy()
+
+print(dataset.isna().sum())
+
+# Calculate correlations
+corr = dataset.corr()
+print(corr)
+sns.heatmap(corr)
+plt.tight_layout()
+plt.show()
+exit()
 
 # Split (X,y) into a testing set (X_test, y_test), which is not used for
 # any model training, and a training set (X0,y0), which is used to develop

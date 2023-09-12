@@ -74,7 +74,7 @@ It was found that the MI group is too large to identify index events of acute co
 * I25 for chronic ischaemic heart disease, with the exception of I25.2 for old MI (citing French clinical coding manuals)
 * (I23 was not considered because it refers to complications following MI)
 
-This group is a "wide" classification that contains more codes, and is therefore more likely to identify ACS at the expense of PPV. Bezin et al. go on to identify I20.0, I21.* and I24.* as the "best compromise between validated ACS events and PPV" (84.2%, athough note N = 100) in the French hospital database they studied. This group is called `acs_bezin` in this analysis. Note that this includes the code I24.0, "Coronary thrombosis not resulting in myocardial infarction", which may or may not be treated with PCI (and be put on DAPT).
+This group is a "wide" classification that contains more codes, and is therefore more likely to identify ACS at the expense of PPV. Bezin et al. go on to identify I20.0, I21.* and I24.* as the "best compromise between validated ACS events and PPV" (84.2%, athough note N = 100) in the French hospital database they studied. This group is called `acs_bezin` in this analysis. Note that this includes the code I24.0, "Coronary thrombosis not resulting in myocardial infarction", which may or may not be treated with PCI (and may not involve DAPT).
 
 ## Percutaneous Coronary Intervention (PCI) Procedures Definition
 

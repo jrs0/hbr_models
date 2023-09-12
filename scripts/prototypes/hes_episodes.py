@@ -11,6 +11,12 @@
 # cardiovascular event occurred after the index (columns
 # of Y).
 #
+#
+# NOTE: this script is not working yet. Two things are odd:
+# firstly, there seem way too many index events, which might
+# be an error with the code groups/pivoting the code columns
+# to long format. Secondly, the models for bleeding are way
+# too good (AUC 90), so there is an issue with the predictors.
 
 import os
 
