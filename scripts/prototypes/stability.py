@@ -60,10 +60,10 @@
 import numpy as np
 from sklearn.utils import resample
 
-def make_bootstrapped_resamples(X0_train, y0_train, N):
+def make_bootstrapped_resamples(X0_train, y0_train, M):
     '''
-    Makes N boostrapped resamples of P0 that are the same
-    size as P0. N must be at least 200 (as per recommendation).
+    Makes M boostrapped resamples of P0 that are the same
+    size as P0. M must be at least 200 (as per recommendation).
     P0 is specified by its features X0_train and its outcome
     y0_train, which must both be the same height (same number
     of rows). 
@@ -80,7 +80,7 @@ def make_bootstrapped_resamples(X0_train, y0_train, N):
     
     Xn_train = []
     yn_train = []
-    for i in range(N):
+    for _ in range(M):
         X, y = resample(X0_train, y0_train)
         Xn_train.append(X)
         yn_train.append(y)

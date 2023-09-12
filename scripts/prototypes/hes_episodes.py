@@ -115,6 +115,7 @@ df = (
         how="left",
         on="episode_id",
     )
+    # Is this an issue?
     .sort_values("episode_start_date")
     .groupby("spell_id")
     .first()

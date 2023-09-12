@@ -40,6 +40,13 @@ non_predictors = ["bleeding_al_ani_outcome", "acs_bezin_outcome"]
 dataset = ds.load_dataset("hes_episodes_dataset")
 X = dataset.drop(columns = non_predictors).to_numpy()
 y = dataset[outcome_column].to_numpy()
+pd.set_option('display.max_rows', 500)
+print(dataset[["bleeding_al_ani_outcome", "bleeding_al_ani_before", "bleeding_adaptt_before", "bleeding_cadth_before"]].head(100))
+print(dataset.columns)
+exit()
+
+print(X.shape)
+print(dataset.shape)
 
 print(dataset.isna().sum())
 
@@ -49,7 +56,7 @@ print(corr)
 sns.heatmap(corr)
 plt.tight_layout()
 plt.show()
-exit()
+#exit()
 
 # Split (X,y) into a testing set (X_test, y_test), which is not used for
 # any model training, and a training set (X0,y0), which is used to develop
@@ -68,11 +75,22 @@ X0_train, X_test, y0_train, y_test = train_test_split(
 # stability.py.
 print("Fitting the main model")
 M0 = fit_logistic_regression(X0_train, y0_train)
+print(M0["logisticregression"].coef_)
+
+
+print(y_test.mean())
+exit()
+
+from sklearn.metrics import RocCurveDisplay
+
+RocCurveDisplay.from_estimator(M0, X_test, y_test)
+plt.show()
+exit()
 
 # For the purpose of assessing model stability, obtain bootstrap
 # resamples (Xn_train, yn_train) from the training set (X0, y0).
 print("Creating bootstrap resamples of X0 for stability checking")
-Xn_train, yn_train = make_bootstrapped_resamples(X0_train, y0_train, N=200)
+Xn_train, yn_train = make_bootstrapped_resamples(X0_train, y0_train, M=200)
 
 # Develop all the bootstrap models to compare with the model-under-test M0
 print("Fitting bootstrapped models")
