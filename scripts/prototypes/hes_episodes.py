@@ -13,7 +13,6 @@
 #
 
 import os
-
 os.chdir("scripts/prototypes")
 
 import importlib
@@ -82,8 +81,8 @@ code_groups = codes.get_code_groups(
 # code (e.g. i211) matches. The groups are pivoted to become columns,
 # with values equal to the number of occurrences of each group in each
 # episode. Due to the inner join of groups onto episodes, any episode with
-# not group will be dropped. These must be added back on at the end as
-# zero rows.
+# no codes in a group will be dropped. These must be added back on at 
+# the end as zero rows.
 code_group_counts = (
     long_clinical_codes.merge(
         code_groups,
@@ -95,6 +94,8 @@ code_group_counts = (
     .merge(raw_episodes_data["episode_id"], how="right", on="episode_id")
     .fillna(0)
 )
+
+### Visually checked the datasets up to here ###
 
 # Find the index episodes, which are the ones that contain an ACS or PCI and
 # are also the first episode of the spell.
