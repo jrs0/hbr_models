@@ -43,7 +43,7 @@ y = dataset[outcome_column].to_numpy()
 pd.set_option('display.max_rows', 500)
 print(dataset[["bleeding_al_ani_outcome", "bleeding_al_ani_before", "bleeding_adaptt_before", "bleeding_cadth_before"]].head(100))
 print(dataset.columns)
-exit()
+#exit()
 
 print(X.shape)
 print(dataset.shape)
@@ -56,7 +56,7 @@ print(corr)
 sns.heatmap(corr)
 plt.tight_layout()
 plt.show()
-#exit()
+exit()
 
 # Split (X,y) into a testing set (X_test, y_test), which is not used for
 # any model training, and a training set (X0,y0), which is used to develop

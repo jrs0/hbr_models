@@ -109,13 +109,18 @@ code_group_counts = (
 
 # Find the index episodes, which are the ones that contain an ACS or PCI and
 # are also the first episode of the spell.
+# NOTE: there appear to be duplicate spell IDs; i.e., episodes separated
+# by like 5 years, with the same spell ID, but no other intervening episodes.
+# Doesn't sound likely that someone is in hospital for 5 years with only two
+# consultant episodes. 
 df = (
     code_group_counts.merge(
         raw_episodes_data[["episode_id", "spell_id", "episode_start_date"]],
         how="left",
         on="episode_id",
-    )
-    # Is this an issue?
+    ).sort_values(["spell_id", "episode_start_date"])
+    # Is this an issue? Looks like these three lines really are picking out
+    # the first episode. 
     .sort_values("episode_start_date")
     .groupby("spell_id")
     .first()
