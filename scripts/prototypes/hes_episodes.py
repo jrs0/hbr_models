@@ -13,6 +13,7 @@
 #
 
 import os
+
 os.chdir("scripts/prototypes")
 
 import importlib
@@ -48,6 +49,9 @@ raw_episodes_data.to_pickle("datasets/raw_episodes_dataset.pkl")
 # Optional, read from pickle instead of sql fetch
 raw_episodes_data = pd.read_pickle("datasets/raw_episodes_dataset.pkl")
 
+# TODO remove NaNs in the spell_id column. There aren't that many,
+# but it could mess up the logic later on.
+
 raw_episodes_data.replace("", np.nan, inplace=True)
 raw_episodes_data["episode_id"] = raw_episodes_data.index
 
@@ -81,7 +85,7 @@ code_groups = codes.get_code_groups(
 # code (e.g. i211) matches. The groups are pivoted to become columns,
 # with values equal to the number of occurrences of each group in each
 # episode. Due to the inner join of groups onto episodes, any episode with
-# no codes in a group will be dropped. These must be added back on at 
+# no codes in a group will be dropped. These must be added back on at
 # the end as zero rows.
 code_group_counts = (
     long_clinical_codes.merge(
@@ -109,6 +113,9 @@ df = (
     .groupby("spell_id")
     .first()
 )
+assert (
+    df.shape[0] == raw_episodes_data.spell_id.nunique()
+), "Expecting df to have one row per spell in the original dataset"
 idx_episodes = (
     df[(df["acs_bezin"] > 0) | (df["pci"] > 0)]
     .reset_index()[["episode_id", "spell_id"]]
@@ -215,12 +222,13 @@ code_counts_after["acs_bezin_outcome"] = code_counts_after["acs_bezin_outcome"].
 )
 
 # Now combine the information into a final dataset containing both X and y
-dataset = idx_episodes.merge(code_counts_before, how="left", on="idx_episode_id").merge(
-    code_counts_after, how="left", on="idx_episode_id"
-).drop(columns=["idx_episode_id", "patient_id", "idx_date"])
+dataset = (
+    idx_episodes.merge(code_counts_before, how="left", on="idx_episode_id")
+    .merge(code_counts_after, how="left", on="idx_episode_id")
+    .drop(columns=["idx_episode_id", "patient_id", "idx_date"])
+)
 
 # Save the resulting dataset
 ds.save_dataset(dataset, "hes_episodes_dataset")
 
 d1 = ds.load_dataset("hes_episodes_dataset")
-
