@@ -35,29 +35,11 @@ import seaborn as sns
 
 # Get real dataset. The bleeding outcome column is called bleeding_al_ani_outcome
 # (becomes y) and the other columns except the *_outcome ones become predictors
-outcome_column = "bleeding_al_ani_outcome"
-non_predictors = [
-    "bleeding_al_ani_outcome",
-    "bleeding_cadth_outcome",
-    "bleeding_adaptt_outcome",
-    "acs_bezin_outcome",
-]
 dataset = ds.load_dataset_interactive("hes_episodes_dataset")
-X = dataset.drop(columns=non_predictors).to_numpy()
+outcome_column = "bleeding_al_ani_outcome"
+X = dataset.loc[:, ~dataset.columns.str.contains("outcome")].to_numpy()
 y = dataset[outcome_column].to_numpy()
 pd.set_option("display.max_rows", 500)
-print(
-    dataset[
-        [
-            "bleeding_al_ani_outcome",
-            "bleeding_al_ani_before",
-            "bleeding_adaptt_before",
-            "bleeding_cadth_before",
-        ]
-    ].head(100)
-)
-print(dataset.columns)
-# exit()
 
 print(X.shape)
 print(dataset.shape)
