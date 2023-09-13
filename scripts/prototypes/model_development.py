@@ -29,21 +29,35 @@ import seaborn as sns
 # and y is the classification outcome (1 for event occurred). Both must have
 # the same number of rows (the number of samples). Both are numerical,
 # (X is floating point and y is integer).
-#X, y = make_classification(
+# X, y = make_classification(
 #    n_samples=1000, n_features=20, n_informative=2, n_redundant=2, random_state=42
-#)
+# )
 
 # Get real dataset. The bleeding outcome column is called bleeding_al_ani_outcome
 # (becomes y) and the other columns except the *_outcome ones become predictors
 outcome_column = "bleeding_al_ani_outcome"
-non_predictors = ["bleeding_al_ani_outcome", "acs_bezin_outcome"]
+non_predictors = [
+    "bleeding_al_ani_outcome",
+    "bleeding_cadth_outcome",
+    "bleeding_adaptt_outcome",
+    "acs_bezin_outcome",
+]
 dataset = ds.load_dataset("hes_episodes_dataset")
-X = dataset.drop(columns = non_predictors).to_numpy()
+X = dataset.drop(columns=non_predictors).to_numpy()
 y = dataset[outcome_column].to_numpy()
-pd.set_option('display.max_rows', 500)
-print(dataset[["bleeding_al_ani_outcome", "bleeding_al_ani_before", "bleeding_adaptt_before", "bleeding_cadth_before"]].head(100))
+pd.set_option("display.max_rows", 500)
+print(
+    dataset[
+        [
+            "bleeding_al_ani_outcome",
+            "bleeding_al_ani_before",
+            "bleeding_adaptt_before",
+            "bleeding_cadth_before",
+        ]
+    ].head(100)
+)
 print(dataset.columns)
-#exit()
+# exit()
 
 print(X.shape)
 print(dataset.shape)
@@ -56,7 +70,6 @@ print(corr)
 sns.heatmap(corr)
 plt.tight_layout()
 plt.show()
-exit()
 
 # Split (X,y) into a testing set (X_test, y_test), which is not used for
 # any model training, and a training set (X0,y0), which is used to develop
@@ -73,13 +86,7 @@ X0_train, X_test, y0_train, y_test = train_test_split(
 # using any method (e.g. including cross validation and hyperparameter
 # tuning) using training set data. This is referred to as D in
 # stability.py.
-print("Fitting the main model")
 M0 = fit_logistic_regression(X0_train, y0_train)
-print(M0["logisticregression"].coef_)
-
-
-print(y_test.mean())
-exit()
 
 from sklearn.metrics import RocCurveDisplay
 

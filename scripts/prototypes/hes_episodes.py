@@ -112,15 +112,16 @@ code_group_counts = (
 # NOTE: there appear to be duplicate spell IDs; i.e., episodes separated
 # by like 5 years, with the same spell ID, but no other intervening episodes.
 # Doesn't sound likely that someone is in hospital for 5 years with only two
-# consultant episodes. 
+# consultant episodes.
 df = (
     code_group_counts.merge(
         raw_episodes_data[["episode_id", "spell_id", "episode_start_date"]],
         how="left",
         on="episode_id",
-    ).sort_values(["spell_id", "episode_start_date"])
+    )
+    .sort_values(["spell_id", "episode_start_date"])
     # Is this an issue? Looks like these three lines really are picking out
-    # the first episode. 
+    # the first episode.
     .sort_values("episode_start_date")
     .groupby("spell_id")
     .first()
@@ -213,7 +214,7 @@ episodes_after = time_to_episode[
 ][["idx_episode_id", "episode_id"]]
 
 # Compute the outcome columns -- just classification for now
-outcome_groups = ["bleeding_al_ani", "acs_bezin"]
+outcome_groups = ["bleeding_al_ani", "bleeding_cadth", "bleeding_adaptt", "acs_bezin"]
 code_counts_after = (
     episodes_after.merge(code_group_counts, how="left", on="episode_id")
     .drop(columns="episode_id")
@@ -229,6 +230,12 @@ code_counts_after = (
 code_counts_after["bleeding_al_ani_outcome"] = code_counts_after[
     "bleeding_al_ani_outcome"
 ].astype(bool)
+code_counts_after["bleeding_cadth_outcome"] = code_counts_after[
+    "bleeding_cadth_outcome"
+].astype(bool)
+code_counts_after["bleeding_adaptt_outcome"] = code_counts_after[
+    "bleeding_adaptt_outcome"
+].astype(bool)
 code_counts_after["acs_bezin_outcome"] = code_counts_after["acs_bezin_outcome"].astype(
     bool
 )
@@ -243,4 +250,3 @@ dataset = (
 # Save the resulting dataset
 ds.save_dataset(dataset, "hes_episodes_dataset")
 
-d1 = ds.load_dataset("hes_episodes_dataset")
