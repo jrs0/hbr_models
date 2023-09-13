@@ -23,8 +23,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import save_datasets as ds
 
-import seaborn as sns
-
 # Example data for now. X is the feature matrix (each column is a feature)
 # and y is the classification outcome (1 for event occurred). Both must have
 # the same number of rows (the number of samples). Both are numerical,
@@ -41,17 +39,10 @@ X = dataset.loc[:, ~dataset.columns.str.contains("outcome")].to_numpy()
 y = dataset[outcome_column].to_numpy()
 pd.set_option("display.max_rows", 500)
 
-# Calculate correlations
-# corr = dataset.corr()
-# print(corr)
-# sns.heatmap(corr)
-# plt.tight_layout()
-# plt.show()
-
 # Split (X,y) into a testing set (X_test, y_test), which is not used for
 # any model training, and a training set (X0,y0), which is used to develop
-# the model. Later, (X0,y0) is resampled to generate N additional training
-# sets (Xn,yn) which are used to assess the stability of the developed model
+# the model. Later, (X0,y0) is resampled to generate M additional training
+# sets (Xm,ym) which are used to assess the stability of the developed model
 # (see stability.py). All models are tested using the testing set.
 train_test_split_seed = 22
 test_set_proportion = 0.25
@@ -65,24 +56,18 @@ X0_train, X_test, y0_train, y_test = train_test_split(
 # stability.py.
 M0 = fit_logistic_regression(X0_train, y0_train)
 
-# from sklearn.metrics import RocCurveDisplay
-
-# RocCurveDisplay.from_estimator(M0, X_test, y_test)
-# plt.show()
-# exit()
-
 # For the purpose of assessing model stability, obtain bootstrap
-# resamples (Xn_train, yn_train) from the training set (X0, y0).
+# resamples (Xm_train, ym_train) from the training set (X0, y0).
 print("Creating bootstrap resamples of X0 for stability checking")
-Xn_train, yn_train = make_bootstrapped_resamples(X0_train, y0_train, M=200)
+Xm_train, ym_train = make_bootstrapped_resamples(X0_train, y0_train, M=200)
 
 # Develop all the bootstrap models to compare with the model-under-test M0
 print("Fitting bootstrapped models")
-Mn = [fit_logistic_regression(X, y) for (X, y) in zip(Xn_train, yn_train)]
+Mm = [fit_logistic_regression(X, y) for (X, y) in zip(Xm_train, ym_train)]
 
 # First columns is the probability of 1 in y_test from M0; other columns
 # are the same for the N bootstrapped models Mn.
-probs = predict_bootstrapped_proba(M0, Mn, X_test)
+probs = predict_bootstrapped_proba(M0, Mm, X_test)
 
 # Plot the basic instability curve
 fig, ax = plt.subplots()
