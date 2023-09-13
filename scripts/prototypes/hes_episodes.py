@@ -32,7 +32,10 @@
 # Identified that the erroneous file came from commit 213adc33035;
 # however, looking at the diff doesn't show anything obvious that is
 # wrong. Going to checkout to that commit and rerun the dataset to
-# see if it does contain a problem.
+# see if it does contain a problem. Unfortunately, that commit appears
+# to generate data correctly, which means the issue was probably
+# some spurious way the script was run interactively at the time. 
+# Going to stop investigating. 
 
 import os
 
