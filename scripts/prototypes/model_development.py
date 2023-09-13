@@ -42,7 +42,7 @@ non_predictors = [
     "bleeding_adaptt_outcome",
     "acs_bezin_outcome",
 ]
-dataset = ds.load_dataset("hes_episodes_dataset")
+dataset = ds.load_dataset_interactive("hes_episodes_dataset")
 X = dataset.drop(columns=non_predictors).to_numpy()
 y = dataset[outcome_column].to_numpy()
 pd.set_option("display.max_rows", 500)
