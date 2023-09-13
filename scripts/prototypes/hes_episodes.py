@@ -29,6 +29,10 @@
 # are tagged by timestamp and commit, so I am going to find
 # which one caused the problem. Hopefully this will point to
 # a commit with the error, which I can diff with this one.
+# Identified that the erroneous file came from commit 213adc33035;
+# however, looking at the diff doesn't show anything obvious that is
+# wrong. Going to checkout to that commit and rerun the dataset to
+# see if it does contain a problem.
 
 import os
 
