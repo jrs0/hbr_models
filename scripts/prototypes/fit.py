@@ -54,7 +54,7 @@
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import make_pipeline
+from sklearn.pipeline import Pipeline
 
 from transformers import RemoveMajorityZero
 
@@ -74,15 +74,16 @@ def fit_logistic_regression(X_train, y_train):
 
     Testing: not yet tested
     """
-    #majority_zero = RemoveMajorityZero(0.1)
-    scale = StandardScaler()
-    model = LogisticRegression()
-    pipe = make_pipeline(scale, model)
+    # majority_zero = RemoveMajorityZero(0.1)
+    scaler = StandardScaler()
+    logreg = LogisticRegression()
+    pipe = Pipeline([("scaler", scaler), ("logreg", logreg)])
     pipe.fit(X_train, y_train)
     return pipe
 
+
 def get_nonzero_proportion(df):
-    '''
+    """
     Utility function to (interactively) show the proportion
     of each feature that is non-zero. Pass a pandas dataframe
     df. A low result means that a column is mostly zero. Used
@@ -90,5 +91,5 @@ def get_nonzero_proportion(df):
     on high proportion of zeros.
 
     Testing: not yet tested
-    '''
+    """
     return df.astype(bool).mean()

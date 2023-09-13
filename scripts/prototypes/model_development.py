@@ -35,7 +35,13 @@ import save_datasets as ds
 # (becomes y) and the other columns except the *_outcome ones become predictors
 dataset = ds.load_dataset_interactive("hes_episodes_dataset")
 outcome_column = "bleeding_al_ani_outcome"
-X = dataset.loc[:, ~dataset.columns.str.contains("outcome")].to_numpy()
+
+# Get the features matrix X, and store the feature names
+df = dataset.loc[:, ~dataset.columns.str.contains("outcome")]
+feature_names = df.columns
+X = df.to_numpy()
+
+# Get the outcome vector y
 y = dataset[outcome_column].to_numpy()
 pd.set_option("display.max_rows", 500)
 
@@ -55,6 +61,23 @@ X0_train, X_test, y0_train, y_test = train_test_split(
 # tuning) using training set data. This is referred to as D in
 # stability.py.
 M0 = fit_logistic_regression(X0_train, y0_train)
+
+# Collect the information about each feature into a table for easy
+# viewing. This should be a function of a class that contains the
+# logistic regression fitted object.
+means = M0["scaler"].mean_
+variances = M0["scaler"].var_
+coefs = M0["logreg"].coef_[0, :]
+model_params = pd.DataFrame(
+    {
+        "feature": feature_names,
+        "scaling_mean": means,
+        "scaling_variance": variances,
+        "logreg_coef": coefs,
+    }
+)
+print(model_params)
+exit()
 
 # For the purpose of assessing model stability, obtain bootstrap
 # resamples (Xm_train, ym_train) from the training set (X0, y0).
