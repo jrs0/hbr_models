@@ -135,5 +135,8 @@ def plot_instability(ax, probs):
             x.append(probs[i, 0])
             y.append(probs[i, j])
         
-    ax.scatter(x, y)
+    ax.scatter(x, y, alpha=0.2, marker=".")
     ax.axline([0, 0], [1, 1])
+    ax.set_title("Probability stability")
+    ax.set_xlabel("Prediction from model-under-test")
+    ax.set_ylabel("Predictions from bootstrapped models")
