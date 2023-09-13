@@ -41,7 +41,7 @@
 # A function is required that wraps the entire model
 # into one call, taking as input the bootstrapped resample Pn and
 # providing as output the bootstrapped model Mn. This function can
-# then be called N times to generate the bootstrapped models. This
+# then be called M times to generate the bootstrapped models. This
 # function is not defined in this file (see the fit.py file)
 #
 # An aggregating function will then take all the models Mn, the 
@@ -75,7 +75,7 @@ def make_bootstrapped_resamples(X0_train, y0_train, M):
     num_samples = X0_train.shape[0]
     if num_samples != len(y0_train):
         raise ValueError("Number of rows in X0_train and y0_train must match")
-    if N < 200:
+    if M < 200:
         raise ValueError("N must be at least 200; see Riley and Collins, 2022")
     
     Xn_train = []

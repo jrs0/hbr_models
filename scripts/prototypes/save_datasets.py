@@ -147,5 +147,5 @@ def load_dataset_interactive(name):
         break
 
     full_path = os.path.join(datasets_dir, recent_first.loc[choice, "path"])
-    print("Loading {full_path}")
+    print(f"Loading {full_path}")
     return pd.read_pickle(full_path)

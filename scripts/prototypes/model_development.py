@@ -41,17 +41,12 @@ X = dataset.loc[:, ~dataset.columns.str.contains("outcome")].to_numpy()
 y = dataset[outcome_column].to_numpy()
 pd.set_option("display.max_rows", 500)
 
-print(X.shape)
-print(dataset.shape)
-
-print(dataset.isna().sum())
-
 # Calculate correlations
-corr = dataset.corr()
-print(corr)
-sns.heatmap(corr)
-plt.tight_layout()
-plt.show()
+# corr = dataset.corr()
+# print(corr)
+# sns.heatmap(corr)
+# plt.tight_layout()
+# plt.show()
 
 # Split (X,y) into a testing set (X_test, y_test), which is not used for
 # any model training, and a training set (X0,y0), which is used to develop
@@ -70,11 +65,11 @@ X0_train, X_test, y0_train, y_test = train_test_split(
 # stability.py.
 M0 = fit_logistic_regression(X0_train, y0_train)
 
-from sklearn.metrics import RocCurveDisplay
+# from sklearn.metrics import RocCurveDisplay
 
-RocCurveDisplay.from_estimator(M0, X_test, y_test)
-plt.show()
-exit()
+# RocCurveDisplay.from_estimator(M0, X_test, y_test)
+# plt.show()
+# exit()
 
 # For the purpose of assessing model stability, obtain bootstrap
 # resamples (Xn_train, yn_train) from the training set (X0, y0).
