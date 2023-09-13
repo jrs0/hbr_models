@@ -17,6 +17,18 @@
 # be an error with the code groups/pivoting the code columns
 # to long format. Secondly, the models for bleeding are way
 # too good (AUC 90), so there is an issue with the predictors.
+# Now I've found that there doesn't appear to be any issue --
+# at least in this commit (93002f42), rerunning this script and
+# generating new saved data (in datasets/) produces models that
+# are back to normal (ROC 0.64). However, I changed nothing in
+# this commit, so I went back and regenerated data in older
+# commits. I found by checking commits 04feda130ed17 and 
+# 53e3810b381bc and regenerating the data in those commits that
+# the bug was never present. That means that the bug was in an
+# earlier version of the dataset saved in datasets/, but they
+# are tagged by timestamp and commit, so I am going to find
+# which one caused the problem. Hopefully this will point to
+# a commit with the error, which I can diff with this one.
 
 import os
 
