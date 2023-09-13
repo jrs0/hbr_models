@@ -131,9 +131,6 @@ df = (
         how="left",
         on="episode_id",
     )
-    .sort_values(["spell_id", "episode_start_date"])
-    # Is this an issue? Looks like these three lines really are picking out
-    # the first episode.
     .sort_values("episode_start_date")
     .groupby("spell_id")
     .first()
