@@ -62,7 +62,9 @@ Model = SimpleDecisionTree
 M0, Mm = fit_model(Model, X0_train, y0_train, M = 200)
 
 # Plot the model
-M0.plot()
+fig, ax = plt.subplots()
+M0.plot(ax, feature_names.to_list())
+plt.show()
 
 # First columns is the probability of 1 in y_test from M0; other columns
 # are the same for the N bootstrapped models Mn.

@@ -70,15 +70,22 @@ class SimpleDecisionTree:
         self.pipe = Pipeline([("tree", tree)])
         self.pipe.fit(X, y)
 
-    def plot(self):
-        plot_tree(self.pipe["tree"])
-
+    def plot(self, ax, feature_names):
+        plot_tree(
+            self.pipe["tree"],
+            feature_names=feature_names,
+            class_names=["bleed", "no_bleed"],
+            filled=True,
+            rounded=True,
+            fontsize=10,
+            ax=ax
+        )
 
 class SimpleLogisticRegression:
     def __init__(self, X, y):
         """
         Logistic regress class that centers and scales the features
-        and applies logistic regression to the result. The pipe 
+        and applies logistic regression to the result. The pipe
         comprises a StandardScaler() followed by LogisticRegression().
         There is no hyperparameter tuning or cross-validation.
 
@@ -112,7 +119,6 @@ class SimpleLogisticRegression:
             }
         )
         return model_params
-
 
 
 def get_nonzero_proportion(df):
