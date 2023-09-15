@@ -76,7 +76,6 @@ class SimpleDecisionTree:
         self._search = GridSearchCV(self._pipe, self._param_grid, cv=5).fit(X, y)
         print(self._search.best_params_)
 
-
     def model(self):
         """
         Get the best fitted model from the hyperparameter search results

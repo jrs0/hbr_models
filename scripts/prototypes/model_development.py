@@ -49,7 +49,7 @@ y = dataset[outcome_column].to_numpy()
 # the model. Later, (X0,y0) is resampled to generate M additional training
 # sets (Xm,ym) which are used to assess the stability of the developed model
 # (see stability.py). All models are tested using the testing set.
-train_test_split_seed = 22
+train_test_split_seed = 24
 test_set_proportion = 0.25
 X0_train, X_test, y0_train, y_test = train_test_split(
     X, y, test_size=test_set_proportion, random_state=train_test_split_seed
