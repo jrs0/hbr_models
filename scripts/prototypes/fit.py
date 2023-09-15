@@ -53,33 +53,62 @@
 #
 
 from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
-
+import pandas as pd
+from sklearn import tree
 from transformers import RemoveMajorityZero
 
 
-def fit_logistic_regression(X_train, y_train):
-    """
-    Example fitting function (in this case LR).
-    Stand-in for a more complicated function that
-    performs cross-validation, hyperparameter tuning
-    etc. This kind of function is clearly model
-    specific, so there is going to be a function like
-    this for each model. However, all of them have to
-    output a fitted object. In addition, they may want
-    to output addition information specific to that model,
-    (such as hyperparameter tuning results), so we may
-    want to output a class eventually.
+class SimpleDecisionTree:
+    def __init__(self, X, y):
+        """
+        Simple decision tree model with no feature preprocessing.
+        """
+        clf = DecisionTreeClassifier()
+        self.pipe = Pipeline([("clf", clf)])
+        self.pipe.fit(X, y)
 
-    Testing: not yet tested
-    """
-    # majority_zero = RemoveMajorityZero(0.1)
-    scaler = StandardScaler()
-    logreg = LogisticRegression()
-    pipe = Pipeline([("scaler", scaler), ("logreg", logreg)])
-    pipe.fit(X_train, y_train)
-    return pipe
+class SimpleLogisticRegression:
+    def __init__(self, X, y):
+        """
+        Logistic regress class that centers and scales the features
+        and applies logistic regression to the result. The pipe 
+        comprises a StandardScaler() followed by LogisticRegression().
+        There is no hyperparameter tuning or cross-validation.
+
+        Testing: not yet tested
+        """
+
+        # majority_zero = RemoveMajorityZero(0.1)
+        scaler = StandardScaler()
+        clf = LogisticRegression()
+        self.pipe = Pipeline([("scaler", scaler), ("clf", clf)])
+        self.pipe.fit(X, y)
+
+    def get_model_parameters(self, feature_names):
+        """
+        Get the fitted model parameters as a dataframe with one
+        row per feature. Two columns for the scaler contain the
+        mean and variance, and the final column contains the
+        logistic regression coefficient. You must pass the vector
+        of feature names in the same order as columns of X in the
+        constructor.
+        """
+        means = self.pipe["scaler"].mean_
+        variances = self.pipe["scaler"].var_
+        coefs = self.pipe["clf"].coef_[0, :]
+        model_params = pd.DataFrame(
+            {
+                "feature": feature_names,
+                "scaling_mean": means,
+                "scaling_variance": variances,
+                "logreg_coef": coefs,
+            }
+        )
+        return model_params
+
 
 
 def get_nonzero_proportion(df):

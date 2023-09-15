@@ -104,7 +104,7 @@ def predict_bootstrapped_proba(M0, Mn, X_test):
     '''
     columns = []
     for M in [M0] + Mn:
-        columns.append(M.predict_proba(X_test)[:,1])
+        columns.append(M.pipe.predict_proba(X_test)[:,1])
     
     return np.column_stack(columns)
 
@@ -140,3 +140,28 @@ def plot_instability(ax, probs):
     ax.set_title("Probability stability")
     ax.set_xlabel("Prediction from model-under-test")
     ax.set_ylabel("Predictions from bootstrapped models")
+
+def fit_model(Model, X0_train, y0_train, M):
+    """
+    Fit the model given in the first argument to the training data
+    (X0_train, y0_train) to produce M0. Then resample the training data M times
+    (with replacement) to obtain M new training sets (Xm_train, ym_train), and
+    fit M other models Mn. return the pair (M0, Mm) (the second element is a list
+    of length M).
+    """
+    # Develop a single model from the training set (X0_train, y0_train),
+    # using any method (e.g. including cross validation and hyperparameter
+    # tuning) using training set data. This is referred to as D in
+    # stability.py.
+    M0 = Model(X0_train, y0_train)
+
+    # For the purpose of assessing model stability, obtain bootstrap
+    # resamples (Xm_train, ym_train) from the training set (X0, y0).
+    print("Creating bootstrap resamples of X0 for stability checking")
+    Xm_train, ym_train = make_bootstrapped_resamples(X0_train, y0_train, M=200)
+
+    # Develop all the bootstrap models to compare with the model-under-test M0
+    print("Fitting bootstrapped models")
+    Mm = [Model(X, y) for (X, y) in zip(Xm_train, ym_train)]
+
+    return (M0, Mm)

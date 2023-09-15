@@ -4,11 +4,11 @@
 #
 
 from stability import (
-    make_bootstrapped_resamples,
+    fit_model,
     predict_bootstrapped_proba,
     plot_instability,
 )
-from fit import fit_logistic_regression
+from fit import SimpleLogisticRegression, SimpleDecisionTree
 from calibration import (
     get_bootstrapped_calibration,
     plot_calibration_curves,
@@ -43,7 +43,6 @@ X = df.to_numpy()
 
 # Get the outcome vector y
 y = dataset[outcome_column].to_numpy()
-pd.set_option("display.max_rows", 500)
 
 # Split (X,y) into a testing set (X_test, y_test), which is not used for
 # any model training, and a training set (X0,y0), which is used to develop
@@ -56,37 +55,11 @@ X0_train, X_test, y0_train, y_test = train_test_split(
     X, y, test_size=test_set_proportion, random_state=train_test_split_seed
 )
 
-# Develop a single model from the training set (X0_train, y0_train),
-# using any method (e.g. including cross validation and hyperparameter
-# tuning) using training set data. This is referred to as D in
-# stability.py.
-M0 = fit_logistic_regression(X0_train, y0_train)
+Model = SimpleDecisionTree
 
-# Collect the information about each feature into a table for easy
-# viewing. This should be a function of a class that contains the
-# logistic regression fitted object.
-means = M0["scaler"].mean_
-variances = M0["scaler"].var_
-coefs = M0["logreg"].coef_[0, :]
-model_params = pd.DataFrame(
-    {
-        "feature": feature_names,
-        "scaling_mean": means,
-        "scaling_variance": variances,
-        "logreg_coef": coefs,
-    }
-)
-print(model_params)
-exit()
-
-# For the purpose of assessing model stability, obtain bootstrap
-# resamples (Xm_train, ym_train) from the training set (X0, y0).
-print("Creating bootstrap resamples of X0 for stability checking")
-Xm_train, ym_train = make_bootstrapped_resamples(X0_train, y0_train, M=200)
-
-# Develop all the bootstrap models to compare with the model-under-test M0
-print("Fitting bootstrapped models")
-Mm = [fit_logistic_regression(X, y) for (X, y) in zip(Xm_train, ym_train)]
+# Fit the model-under-test M0 to the training set (X0_train, y0_train), and
+# fit M other models to M other bootstrap resamples of (X0_train, y0_train).
+M0, Mm = fit_model(Model, X0_train, y0_train, M = 200)
 
 # First columns is the probability of 1 in y_test from M0; other columns
 # are the same for the N bootstrapped models Mn.
