@@ -59,7 +59,7 @@ Model = SimpleDecisionTree
 
 # Fit the model-under-test M0 to the training set (X0_train, y0_train), and
 # fit M other models to M other bootstrap resamples of (X0_train, y0_train).
-M0, Mm = fit_model(Model, X0_train, y0_train, M = 200)
+M0, Mm = fit_model(Model, X0_train, y0_train, M = 10)
 
 # Plot the model
 fig, ax = plt.subplots()

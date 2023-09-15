@@ -59,6 +59,7 @@
 
 import numpy as np
 from sklearn.utils import resample
+import warnings
 
 def make_bootstrapped_resamples(X0_train, y0_train, M):
     '''
@@ -76,7 +77,7 @@ def make_bootstrapped_resamples(X0_train, y0_train, M):
     if num_samples != len(y0_train):
         raise ValueError("Number of rows in X0_train and y0_train must match")
     if M < 200:
-        raise ValueError("N must be at least 200; see Riley and Collins, 2022")
+        warnings.warn("M should be at least 200; see Riley and Collins, 2022")
     
     Xn_train = []
     yn_train = []
@@ -104,7 +105,7 @@ def predict_bootstrapped_proba(M0, Mn, X_test):
     '''
     columns = []
     for M in [M0] + Mn:
-        columns.append(M.pipe.predict_proba(X_test)[:,1])
+        columns.append(M.model().predict_proba(X_test)[:,1])
     
     return np.column_stack(columns)
 
@@ -158,7 +159,7 @@ def fit_model(Model, X0_train, y0_train, M):
     # For the purpose of assessing model stability, obtain bootstrap
     # resamples (Xm_train, ym_train) from the training set (X0, y0).
     print("Creating bootstrap resamples of X0 for stability checking")
-    Xm_train, ym_train = make_bootstrapped_resamples(X0_train, y0_train, M=200)
+    Xm_train, ym_train = make_bootstrapped_resamples(X0_train, y0_train, M)
 
     # Develop all the bootstrap models to compare with the model-under-test M0
     print("Fitting bootstrapped models")

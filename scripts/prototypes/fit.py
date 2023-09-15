@@ -59,6 +59,7 @@ from sklearn.pipeline import Pipeline
 import pandas as pd
 from sklearn import tree
 from transformers import RemoveMajorityZero
+from sklearn.model_selection import GridSearchCV
 
 
 class SimpleDecisionTree:
@@ -66,20 +67,34 @@ class SimpleDecisionTree:
         """
         Simple decision tree model with no feature preprocessing.
         """
-        tree = DecisionTreeClassifier(max_depth=3)
-        self.pipe = Pipeline([("tree", tree)])
-        self.pipe.fit(X, y)
+        tree = DecisionTreeClassifier()
+        self._pipe = Pipeline([("tree", tree)])
+
+        self._param_grid = {
+            "tree__max_depth": [2, 4, 6, 8],
+        }
+        self._search = GridSearchCV(self._pipe, self._param_grid, cv=5).fit(X, y)
+        print(self._search.best_params_)
+
+
+    def model(self):
+        """
+        Get the best fitted model from the hyperparameter search results
+        """
+        return self._search.best_estimator_
+
 
     def plot(self, ax, feature_names):
         plot_tree(
-            self.pipe["tree"],
+            self.model()["tree"],
             feature_names=feature_names,
             class_names=["bleed", "no_bleed"],
             filled=True,
             rounded=True,
             fontsize=10,
-            ax=ax
+            ax=ax,
         )
+
 
 class SimpleLogisticRegression:
     def __init__(self, X, y):
@@ -95,8 +110,14 @@ class SimpleLogisticRegression:
         # majority_zero = RemoveMajorityZero(0.1)
         scaler = StandardScaler()
         logreg = LogisticRegression()
-        self.pipe = Pipeline([("scaler", scaler), ("logreg", logreg)])
-        self.pipe.fit(X, y)
+        self._pipe_ = Pipeline([("scaler", scaler), ("logreg", logreg)])
+        self._pipe.fit(X, y)
+
+    def model(self):
+        """
+        Get the fitted logistic regression model
+        """
+        return self._pipe
 
     def get_model_parameters(self, feature_names):
         """
@@ -107,9 +128,9 @@ class SimpleLogisticRegression:
         of feature names in the same order as columns of X in the
         constructor.
         """
-        means = self.pipe["scaler"].mean_
-        variances = self.pipe["scaler"].var_
-        coefs = self.pipe["logreg"].coef_[0, :]
+        means = self._pipe["scaler"].mean_
+        variances = self._pipe["scaler"].var_
+        coefs = self._pipe["logreg"].coef_[0, :]
         model_params = pd.DataFrame(
             {
                 "feature": feature_names,
