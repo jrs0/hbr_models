@@ -61,6 +61,9 @@ Model = SimpleDecisionTree
 # fit M other models to M other bootstrap resamples of (X0_train, y0_train).
 M0, Mm = fit_model(Model, X0_train, y0_train, M = 200)
 
+# Plot the model
+M0.plot()
+
 # First columns is the probability of 1 in y_test from M0; other columns
 # are the same for the N bootstrapped models Mn.
 probs = predict_bootstrapped_proba(M0, Mm, X_test)

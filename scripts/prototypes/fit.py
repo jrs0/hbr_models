@@ -53,7 +53,7 @@
 #
 
 from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.tree import DecisionTreeClassifier, plot_tree
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 import pandas as pd
@@ -66,9 +66,13 @@ class SimpleDecisionTree:
         """
         Simple decision tree model with no feature preprocessing.
         """
-        clf = DecisionTreeClassifier()
-        self.pipe = Pipeline([("clf", clf)])
+        tree = DecisionTreeClassifier(max_depth=3)
+        self.pipe = Pipeline([("tree", tree)])
         self.pipe.fit(X, y)
+
+    def plot(self):
+        plot_tree(self.pipe["tree"])
+
 
 class SimpleLogisticRegression:
     def __init__(self, X, y):
@@ -83,8 +87,8 @@ class SimpleLogisticRegression:
 
         # majority_zero = RemoveMajorityZero(0.1)
         scaler = StandardScaler()
-        clf = LogisticRegression()
-        self.pipe = Pipeline([("scaler", scaler), ("clf", clf)])
+        logreg = LogisticRegression()
+        self.pipe = Pipeline([("scaler", scaler), ("logreg", logreg)])
         self.pipe.fit(X, y)
 
     def get_model_parameters(self, feature_names):
@@ -98,7 +102,7 @@ class SimpleLogisticRegression:
         """
         means = self.pipe["scaler"].mean_
         variances = self.pipe["scaler"].var_
-        coefs = self.pipe["clf"].coef_[0, :]
+        coefs = self.pipe["logreg"].coef_[0, :]
         model_params = pd.DataFrame(
             {
                 "feature": feature_names,
