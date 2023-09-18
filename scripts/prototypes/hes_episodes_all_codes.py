@@ -185,23 +185,25 @@ episodes_before = df[["idx_episode_id", "episode_id"]]
 # gives groups that show all the codes that occurred in any episode before the index
 # event. Currently, diagnosis/procedure code position is not considered in generating
 # columns; i.e. the features represent a "bag of codes". Duplicate codes in the window
-# before the index event are dropped, and no temporal information is retained about 
+# before the index event are dropped, and no temporal information is retained about
 # when the code occurred. This is the simplest thing to start with.
-df = (
-    episodes_before.merge(long_clinical_codes, on="episode_id")
-)
+df = episodes_before.merge(long_clinical_codes, on="episode_id")
 df["full_code"] = df["clinical_code_type"] + "_" + df["clinical_code"]
 long_codes_before = df[["idx_episode_id", "full_code"]].drop_duplicates()
-sparse_df = spe.sparse_encode(long_codes_before, "idx_episode_id")
-any_code_before = df[["idx_episode_id", "full_code"]]
+any_code_before = spe.sparse_encode(long_codes_before, "idx_episode_id")
 
 # Plot the distribution of codes over the index episodes. The envelope on the
 # right follows from assigning column indices in order of code-first-seen, which
-# naturally biases in favour of more common codes. 
+# naturally biases in favour of more common codes.
 import seaborn as sns
 import matplotlib.pyplot as plt
+
 s = sns.heatmap(sparse_df)
-s = s.set(xlabel = "Diagnosis/Procedure Codes", ylabel = "Index Episode ID", title = "Distribution of Diagnosis/Procedure Codes")
+s = s.set(
+    xlabel="Diagnosis/Procedure Codes",
+    ylabel="Index Episode ID",
+    title="Distribution of Diagnosis/Procedure Codes",
+)
 plt.show()
 
 # This table contains the total number of each diagnosis and procedure
@@ -253,11 +255,9 @@ code_counts_after["acs_bezin_outcome"] = code_counts_after["acs_bezin_outcome"].
 )
 
 # Now combine the information into a final dataset containing both X and y
-dataset = (
-    idx_episodes.merge(code_counts_before, how="left", on="idx_episode_id")
-    .merge(code_counts_after, how="left", on="idx_episode_id")
-    .drop(columns=["idx_episode_id", "patient_id", "idx_date"])
-)
+dataset = any_code_before.merge(
+    code_counts_after, how="left", left_index=True, right_on="idx_episode_id"
+).drop(columns=["idx_episode_id"])
 
 # Save the resulting dataset
-ds.save_dataset(dataset, "hes_episodes_dataset")
+ds.save_dataset(dataset, "hes_episodes_any_code_dataset")
