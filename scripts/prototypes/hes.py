@@ -86,6 +86,9 @@ def make_episodes_query(start_date, end_date):
         # Don't think it makes any difference, but would be safer probably.
         f" where startdate_consultantepisode between '{start_date}' and '{end_date}'"
         " and aimtc_pseudo_nhs is not null"
+        # Brace yourself -- this specific NHS number is used to mean "NHS number 
+        # is not valid".
+        " and aimtc_pseudo_nhs != '9000219621'"
     )
 
 
@@ -101,6 +104,8 @@ def make_spells_query(start_date, end_date):
         + " from abi.dbo.vw_apc_sem_spell_001"
         f" where aimtc_providerspell_start_date between '{start_date}' and '{end_date}'"
         " and aimtc_pseudo_nhs is not null"
+        # See comment above
+        " and aimtc_pseudo_nhs != '9000219621'"
     )
 
 
