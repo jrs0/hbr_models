@@ -21,15 +21,6 @@ import pandas as pd
 from py_hic.clinical_codes import get_codes_in_group, ClinicalCodeParser
 import code_group_counts as codes
 
-parser = ClinicalCodeParser("../codes_files/icd10.yaml", "../codes_files/opcs4.yaml")
-
-docs = set()
-for _, row in long_clinical_codes[long_clinical_codes.episode_id.isin(a)].iterrows():
-    try:
-        docs.add(parser.find_exact(row["clinical_code"], row["clinical_code_type"]).docs)
-    except:
-        continue
-
 import hes
 import save_datasets as ds
 import sparse_encode as spe
@@ -204,12 +195,14 @@ long_codes_before = df[["idx_episode_id", "full_code"]].drop_duplicates()
 sparse_df = spe.sparse_encode(long_codes_before, "idx_episode_id")
 any_code_before = df[["idx_episode_id", "full_code"]]
 
+# Plot the distribution of codes over the index episodes. The envelope on the
+# right follows from assigning column indices in order of code-first-seen, which
+# naturally biases in favour of more common codes. 
 import seaborn as sns
 import matplotlib.pyplot as plt
 s = sns.heatmap(sparse_df)
 s = s.set(xlabel = "Diagnosis/Procedure Codes", ylabel = "Index Episode ID", title = "Distribution of Diagnosis/Procedure Codes")
 plt.show()
-
 
 # This table contains the total number of each diagnosis and procedure
 # group in a period after the index event. A fixed window immediately
