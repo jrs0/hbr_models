@@ -82,6 +82,8 @@ def make_episodes_query(start_date, end_date):
         ",enddate_consultantepisode as episode_end_date"
         + diagnosis_and_procedure_columns()
         + " from abi.dbo.vw_apc_sem_001"
+        # Consider adding parentheses around the between .. and construction.,
+        # Don't think it makes any difference, but would be safer probably.
         f" where startdate_consultantepisode between '{start_date}' and '{end_date}'"
         " and aimtc_pseudo_nhs is not null"
     )

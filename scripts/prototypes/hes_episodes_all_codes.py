@@ -21,6 +21,15 @@ import pandas as pd
 from py_hic.clinical_codes import get_codes_in_group, ClinicalCodeParser
 import code_group_counts as codes
 
+parser = ClinicalCodeParser("../codes_files/icd10.yaml", "../codes_files/opcs4.yaml")
+
+docs = set()
+for _, row in long_clinical_codes[long_clinical_codes.episode_id.isin(a)].iterrows():
+    try:
+        docs.add(parser.find_exact(row["clinical_code"], row["clinical_code_type"]).docs)
+    except:
+        continue
+
 import hes
 import save_datasets as ds
 import sparse_encode as spe
@@ -183,15 +192,23 @@ episodes_before = df[["idx_episode_id", "episode_id"]]
 # Instead of computing code counts, join the long_clinical_codes to episodes_before
 # by episode id (i.e. on the episode before), and then group by index episode. This
 # gives groups that show all the codes that occurred in any episode before the index
-# event. 
+# event. Currently, diagnosis/procedure code position is not considered in generating
+# columns; i.e. the features represent a "bag of codes". Duplicate codes in the window
+# before the index event are dropped, and no temporal information is retained about 
+# when the code occurred. This is the simplest thing to start with.
 df = (
     episodes_before.merge(long_clinical_codes, on="episode_id")
 )
 df["full_code"] = df["clinical_code_type"] + "_" + df["clinical_code"]
-long_codes_before = df[["idx_episode_id", "full_code", "position"]]
+long_codes_before = df[["idx_episode_id", "full_code"]].drop_duplicates()
 sparse_df = spe.sparse_encode(long_codes_before, "idx_episode_id")
 any_code_before = df[["idx_episode_id", "full_code"]]
 
+import seaborn as sns
+import matplotlib.pyplot as plt
+s = sns.heatmap(sparse_df)
+s = s.set(xlabel = "Diagnosis/Procedure Codes", ylabel = "Index Episode ID", title = "Distribution of Diagnosis/Procedure Codes")
+plt.show()
 
 
 # This table contains the total number of each diagnosis and procedure
