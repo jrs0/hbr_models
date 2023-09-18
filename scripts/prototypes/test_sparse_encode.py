@@ -24,3 +24,4 @@ def test_get_column_index():
     index = spe.get_column_index(code_to_index, "abc")
     assert index == 0
     assert code_to_index["abc"] == 0  
+

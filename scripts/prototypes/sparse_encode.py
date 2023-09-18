@@ -1,5 +1,6 @@
 import scipy.sparse
 import numpy as np
+import pandas as pd
 
 def get_column_index(code_to_column, code):
     '''
@@ -22,20 +23,22 @@ def get_column_index(code_to_column, code):
 
     return column_index
 
-def encode_sparse(long_codes):
+def sparse_encode(long_codes, record_id):
     '''
     The input is a table of codes (full_code
-    column) in long format, by the spell_id,
+    column) in long format, by the record_id,
     and containing the clinical code position
     in the position column. The output is a
-    sparse matrix.
+    sparse matrix, a list of record_id which label
+    the rows, and a list of column names which label
+    the columns.
 
     The reason for doing this manually is that I 
     could not figure out how to make pandas pivot
     into a wide sparse format. If that is possible,
     this function is not needed.
     '''
-    sorted_by_spell = long_codes.sort_values("spell_id")
+    sorted_by_record = long_codes.sort_values(record_id)
 
     lil_matrix_rows = []
     lil_matrix_data = []
@@ -49,21 +52,21 @@ def encode_sparse(long_codes):
     # indicates when a particular row is finished. Note
     # min is still required as index has not changed by
     # sort
-    current_spell_id = sorted_by_spell.spell_id.min()
+    current_id = sorted_by_record[record_id].min()
     current_lil_matrix_row = []
     current_lil_matrix_data = []
 
     # Will be returned as the "row order", so that the
     # caller can determine which rows correspond to which
     # spells
-    spell_ids = []
+    record_ids = []
 
-    for _, row in sorted_by_spell.iterrows():
+    for _, row in sorted_by_record.iterrows():
         
-        spell_id = row["spell_id"]
+        id = row[record_id]
 
         #print(current_spell_id, spell_id)
-        if current_spell_id != spell_id:
+        if current_id != id:
             #print("Next spell")
             # Append the row for this spell (constructed
             # in previous iterations of the for loop) to
@@ -71,7 +74,7 @@ def encode_sparse(long_codes):
             #print(current_lil_matrix_row, current_lil_matrix_data)
 
             # Record the spell id as a row identifier
-            spell_ids.append(current_spell_id)
+            record_ids.append(current_id)
 
             lil_matrix_rows.append(current_lil_matrix_row)
             lil_matrix_data.append(current_lil_matrix_data)
@@ -81,7 +84,7 @@ def encode_sparse(long_codes):
             current_lil_matrix_data = []
 
             # Update the current spell
-            current_spell_id = spell_id
+            current_id = id
 
         #print("Normal")
         # Get the code and position data
@@ -95,7 +98,7 @@ def encode_sparse(long_codes):
         # before. If it has, then there is a duplicate value
         # in the data -- raise a value error
         if column_index in current_lil_matrix_row:
-            raise ValueError(f"Found duplicate code {full_code} in spell {spell_id}")
+            raise ValueError(f"Found duplicate code {full_code} in record {id}")
 
         # Append the column index and data to the current
         # list
@@ -109,7 +112,7 @@ def encode_sparse(long_codes):
     # The last set of rows/data will not have been pushed
     # to the main arrays at the end of the for loop. Do it
     # here.
-    spell_ids.append(current_spell_id)
+    record_ids.append(current_id)
     lil_matrix_rows.append(current_lil_matrix_row)
     lil_matrix_data.append(current_lil_matrix_data)
 
@@ -127,4 +130,6 @@ def encode_sparse(long_codes):
     mat.rows = np.array(lil_matrix_rows, dtype=object)
     mat.data = np.array(lil_matrix_data, dtype=object)
 
-    return mat, spell_ids 
+    return pd.DataFrame.sparse.from_spmatrix(mat)
+
+    #return mat, record_ids
