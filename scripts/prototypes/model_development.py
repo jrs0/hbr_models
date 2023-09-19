@@ -8,7 +8,7 @@ from stability import (
     predict_bootstrapped_proba,
     plot_instability,
 )
-from fit import SimpleLogisticRegression, SimpleDecisionTree
+from fit import SimpleLogisticRegression, SimpleDecisionTree, UmapLogisticRegression
 from calibration import (
     get_bootstrapped_calibration,
     plot_calibration_curves,
@@ -55,7 +55,7 @@ X0_train, X_test, y0_train, y_test = train_test_split(
     X, y, test_size=test_set_proportion, random_state=train_test_split_seed
 )
 
-Model = SimpleDecisionTree
+Model = UmapLogisticRegression
 
 # Fit the model-under-test M0 to the training set (X0_train, y0_train), and
 # fit M other models to M other bootstrap resamples of (X0_train, y0_train).
