@@ -43,7 +43,7 @@ end_date = dt.date(2023, 1, 1)
 # so estimating full datasets takes about 1132 s. Same query took 217 s
 # in ICB.
 raw_episodes_data = hes.get_hes_data(start_date, end_date, "episodes")
-raw_episodes_data.to_pickle("datasets/raw_episodes_dataset.pkl")
+raw_episodes_data.to_pickle("datasets/raw_episodes_dataset_bad.pkl")
 
 # Optional, read from pickle instead of sql fetch
 raw_episodes_data = pd.read_pickle("datasets/raw_episodes_dataset.pkl")
@@ -198,7 +198,7 @@ any_code_before = spe.sparse_encode(long_codes_before, "idx_episode_id")
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-s = sns.heatmap(sparse_df)
+s = sns.heatmap(any_code_before)
 s = s.set(
     xlabel="Diagnosis/Procedure Codes",
     ylabel="Index Episode ID",

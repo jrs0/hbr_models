@@ -109,7 +109,7 @@ class SimpleLogisticRegression:
         # majority_zero = RemoveMajorityZero(0.1)
         scaler = StandardScaler()
         logreg = LogisticRegression()
-        self._pipe_ = Pipeline([("scaler", scaler), ("logreg", logreg)])
+        self._pipe = Pipeline([("scaler", scaler), ("logreg", logreg)])
         self._pipe.fit(X, y)
 
     def model(self):
