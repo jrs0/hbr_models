@@ -61,6 +61,7 @@ from sklearn import tree
 from transformers import RemoveMajorityZero
 from sklearn.model_selection import GridSearchCV
 import umap
+from sklearn.decomposition import TruncatedSVD
 
 
 class SimpleDecisionTree:
@@ -157,7 +158,7 @@ class UmapLogisticRegression:
         scaler = StandardScaler()
         logreg = LogisticRegression()
         self._pipe = Pipeline(
-            [("umap", reducer), ("scaler", scaler), ("logreg", logreg)]
+            [("reducer", reducer), ("scaler", scaler), ("logreg", logreg)]
         )
         self._pipe.fit(X, y)
 
@@ -189,6 +190,61 @@ class UmapLogisticRegression:
         )
         return model_params
 
+
+class TruncSvdLogisticRegression:
+    def __init__(self, X, y):
+        """
+        Model which applies dimension reduction to the features before
+        centering, scaling, and fitting logistic regression to the results.
+        The pipe comprises a StandardScaler() followed by LogisticRegression().
+        There is no hyperparameter tuning or cross-validation.
+
+        Testing: not yet tested
+        """
+
+        # majority_zero = RemoveMajorityZero(0.1)
+        reducer = TruncatedSVD(n_iter=7)
+        scaler = StandardScaler()
+        logreg = LogisticRegression()
+        self._pipe = Pipeline(
+            [("reducer", reducer), ("scaler", scaler), ("logreg", logreg)]
+        )
+
+        self._param_grid = {
+            "reducer__n_components": [2, 4, 8, 16, 32, 64, 128, 256],
+        }
+        self._search = GridSearchCV(self._pipe, self._param_grid, cv=5).fit(X, y)
+        print(self._search.best_params_)
+
+        self._pipe.fit(X, y)
+
+    def model(self):
+        """
+        Get the fitted logistic regression model
+        """
+        return self._search.best_estimator_
+
+    def get_model_parameters(self, feature_names):
+        """
+        Get the fitted model parameters as a dataframe with one
+        row per feature. Two columns for the scaler contain the
+        mean and variance, and the final column contains the
+        logistic regression coefficient. You must pass the vector
+        of feature names in the same order as columns of X in the
+        constructor.
+        """
+        means = self._pipe["scaler"].mean_
+        variances = self._pipe["scaler"].var_
+        coefs = self._pipe["logreg"].coef_[0, :]
+        model_params = pd.DataFrame(
+            {
+                "feature": feature_names,
+                "scaling_mean": means,
+                "scaling_variance": variances,
+                "logreg_coef": coefs,
+            }
+        )
+        return model_params
 
 def get_nonzero_proportion(df):
     """
