@@ -54,6 +54,7 @@
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
@@ -203,7 +204,7 @@ class UmapMultiLayerPerceptron:
         """
         Model which applies dimension reduction to the features before
         centering, scaling, and fitting a neural network to the results.
-        The pipe comprises a StandardScaler() followed by LogisticRegression().
+        The pipe comprises a StandardScaler() followed by MLPClassifier().
         There is no hyperparameter tuning or cross-validation.
 
         Notes:
@@ -249,7 +250,107 @@ class UmapMultiLayerPerceptron:
             }
         )
         return model_params
+    
+class UmapDecisionTree:
+    def __init__(self, X, y):
+        """
+        Model which applies dimension reduction to the features before
+        centering, scaling, and fitting a neural network to the results.
+        The pipe comprises a StandardScaler() followed by DecisionTreeCl().
+        There is no hyperparameter tuning or cross-validation.
 
+        Notes:
+
+        Testing: not yet tested
+        """
+
+        # majority_zero = RemoveMajorityZero(0.1)
+        reducer = umap.UMAP(metric="hamming", n_components=50, verbose=True)
+        scaler = StandardScaler()
+        tree = DecisionTreeClassifier(max_depth = 8)
+        self._pipe = Pipeline(
+            [("reducer", reducer), ("scaler", scaler), ("tree", tree)]
+        )
+        self._pipe.fit(X, y)
+
+    def model(self):
+        """
+        Get the fitted logistic regression model
+        """
+        return self._pipe
+
+    def get_model_parameters(self, feature_names):
+        """
+        Get the fitted model parameters as a dataframe with one
+        row per feature. Two columns for the scaler contain the
+        mean and variance, and the final column contains the
+        logistic regression coefficient. You must pass the vector
+        of feature names in the same order as columns of X in the
+        constructor.
+        """
+        means = self._pipe["scaler"].mean_
+        variances = self._pipe["scaler"].var_
+        coefs = self._pipe["logreg"].coef_[0, :]
+        model_params = pd.DataFrame(
+            {
+                "feature": feature_names,
+                "scaling_mean": means,
+                "scaling_variance": variances,
+                "logreg_coef": coefs,
+            }
+        )
+        return model_params
+
+class UmapGradientBoostedTree:
+    def __init__(self, X, y):
+        """
+        Model which applies dimension reduction to the features before
+        centering, scaling, and fitting a neural network to the results.
+        The pipe comprises a StandardScaler() followed by DecisionTreeCl().
+        There is no hyperparameter tuning or cross-validation.
+
+        Notes:
+
+        Testing: not yet tested
+        """
+
+        # majority_zero = RemoveMajorityZero(0.1)
+        reducer = umap.UMAP(metric="hamming", n_components=50, verbose=True)
+        scaler = StandardScaler()
+        gbdt = DecisionTreeClassifier(max_depth = 8)
+        self._pipe = Pipeline(
+            [("reducer", reducer), ("scaler", scaler), ("gbdt", gbdt)]
+        )
+        self._pipe.fit(X, y)
+
+    def model(self):
+        """
+        Get the fitted logistic regression model
+        """
+        return self._pipe
+
+    def get_model_parameters(self, feature_names):
+        """
+        Get the fitted model parameters as a dataframe with one
+        row per feature. Two columns for the scaler contain the
+        mean and variance, and the final column contains the
+        logistic regression coefficient. You must pass the vector
+        of feature names in the same order as columns of X in the
+        constructor.
+        """
+        means = self._pipe["scaler"].mean_
+        variances = self._pipe["scaler"].var_
+        coefs = self._pipe["logreg"].coef_[0, :]
+        model_params = pd.DataFrame(
+            {
+                "feature": feature_names,
+                "scaling_mean": means,
+                "scaling_variance": variances,
+                "logreg_coef": coefs,
+            }
+        )
+        return model_params
+    
 
 class TruncSvdLogisticRegression:
     def __init__(self, X, y):
