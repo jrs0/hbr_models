@@ -54,14 +54,16 @@
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 import pandas as pd
 from sklearn import tree
 from transformers import RemoveMajorityZero
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 import umap
 from sklearn.decomposition import TruncatedSVD
+from scipy.stats import uniform
 
 
 class SimpleDecisionTree:
@@ -72,10 +74,8 @@ class SimpleDecisionTree:
         tree = DecisionTreeClassifier()
         self._pipe = Pipeline([("tree", tree)])
 
-        self._param_grid = {
-            "tree__max_depth": [2, 4, 6, 8],
-        }
-        self._search = GridSearchCV(self._pipe, self._param_grid, cv=5).fit(X, y)
+        self._param_grid = {"tree__max_depth": range(10)}
+        self._search = RandomizedSearchCV(self._pipe, self._param_grid, cv=5).fit(X, y)
         print(self._search.best_params_)
 
     def model(self):
@@ -150,15 +150,75 @@ class UmapLogisticRegression:
         The pipe comprises a StandardScaler() followed by LogisticRegression().
         There is no hyperparameter tuning or cross-validation.
 
+        Notes: Logistic regression after UMAP basically doesn't work (tried with
+        n_components = 2, 5, 10, 25 and 50). I think the issue is that UAMP is
+        coming out with random (very nonlinear) reductions, which something
+        linear like logistic regression cannot deal with. A tree or a NN that
+        can handle non-linearity may do better after UMAP. The model performance
+        does improve a bit at n_components = 50, but the calibration is dreadful.
+
         Testing: not yet tested
         """
 
         # majority_zero = RemoveMajorityZero(0.1)
-        reducer = umap.UMAP(metric="hamming", verbose=True)
+        reducer = umap.UMAP(metric="hamming", n_components=50, verbose=True)
         scaler = StandardScaler()
         logreg = LogisticRegression()
         self._pipe = Pipeline(
             [("reducer", reducer), ("scaler", scaler), ("logreg", logreg)]
+        )
+        self._pipe.fit(X, y)
+
+    def model(self):
+        """
+        Get the fitted logistic regression model
+        """
+        return self._pipe
+
+    def get_model_parameters(self, feature_names):
+        """
+        Get the fitted model parameters as a dataframe with one
+        row per feature. Two columns for the scaler contain the
+        mean and variance, and the final column contains the
+        logistic regression coefficient. You must pass the vector
+        of feature names in the same order as columns of X in the
+        constructor.
+        """
+        means = self._pipe["scaler"].mean_
+        variances = self._pipe["scaler"].var_
+        coefs = self._pipe["logreg"].coef_[0, :]
+        model_params = pd.DataFrame(
+            {
+                "feature": feature_names,
+                "scaling_mean": means,
+                "scaling_variance": variances,
+                "logreg_coef": coefs,
+            }
+        )
+        return model_params
+
+
+class UmapMultiLayerPerceptron:
+    def __init__(self, X, y):
+        """
+        Model which applies dimension reduction to the features before
+        centering, scaling, and fitting a neural network to the results.
+        The pipe comprises a StandardScaler() followed by LogisticRegression().
+        There is no hyperparameter tuning or cross-validation.
+
+        Notes:
+
+        Testing: not yet tested
+        """
+
+        # majority_zero = RemoveMajorityZero(0.1)
+        reducer = umap.UMAP(metric="hamming", n_components=50, verbose=True)
+        scaler = StandardScaler()
+        mlp = MLPClassifier(
+            solver="lbfgs", alpha=1e-5, hidden_layer_sizes=(5, 2), verbose=True
+        )
+        self._pipe = Pipeline(
+            [("reducer", reducer), ("scaler", scaler), ("mlp", mlp)]
         )
         self._pipe.fit(X, y)
 
@@ -211,9 +271,15 @@ class TruncSvdLogisticRegression:
         )
 
         self._param_grid = {
-            "reducer__n_components": [2, 4, 8, 16, 32, 64, 128, 256],
+            "reducer__n_components": range(1, 200),
         }
-        self._search = GridSearchCV(self._pipe, self._param_grid, cv=5).fit(X, y)
+        self._search = RandomizedSearchCV(
+            self._pipe,
+            self._param_grid,
+            cv=5,
+            verbose=3,
+            scoring="roc_auc",
+        ).fit(X, y)
         print(self._search.best_params_)
 
         self._pipe.fit(X, y)
@@ -245,6 +311,79 @@ class TruncSvdLogisticRegression:
             }
         )
         return model_params
+
+
+class TruncSvdDecisionTree:
+    def __init__(self, X, y):
+        """
+        Model which applies dimension reduction to the features before
+        centering, scaling, and fitting a decision tree to the results.
+        The pipe comprises a StandardScaler() followed by LogisticRegression().
+        There is no hyperparameter tuning or cross-validation.
+
+        Testing: not yet tested
+        """
+
+        # majority_zero = RemoveMajorityZero(0.1)
+        reducer = TruncatedSVD(n_iter=7)
+        scaler = StandardScaler()
+        tree = DecisionTreeClassifier()
+        self._pipe = Pipeline(
+            [("reducer", reducer), ("scaler", scaler), ("tree", tree)]
+        )
+
+        self._param_grid = {
+            "reducer__n_components": range(1, 200),
+            "tree__max_depth": range(1, 20),
+        }
+        self._search = RandomizedSearchCV(
+            self._pipe, self._param_grid, cv=5, verbose=3, scoring="roc_auc"
+        ).fit(X, y)
+        print(self._search.best_params_)
+
+        self._pipe.fit(X, y)
+
+    def model(self):
+        """
+        Get the fitted logistic regression model
+        """
+        return self._search.best_estimator_
+
+    def get_model_parameters(self, feature_names):
+        """
+        Get the fitted model parameters as a dataframe with one
+        row per feature. Two columns for the scaler contain the
+        mean and variance, and the final column contains the
+        logistic regression coefficient. You must pass the vector
+        of feature names in the same order as columns of X in the
+        constructor.
+        """
+        means = self._pipe["scaler"].mean_
+        variances = self._pipe["scaler"].var_
+        coefs = self._pipe["logreg"].coef_[0, :]
+        model_params = pd.DataFrame(
+            {
+                "feature": feature_names,
+                "scaling_mean": means,
+                "scaling_variance": variances,
+                "logreg_coef": coefs,
+            }
+        )
+        return model_params
+
+
+def get_nonzero_proportion(df):
+    """
+    Utility function to (interactively) show the proportion
+    of each feature that is non-zero. Pass a pandas dataframe
+    df. A low result means that a column is mostly zero. Used
+    to decide it it might be helpful to remove features based
+    on high proportion of zeros.
+
+    Testing: not yet tested
+    """
+    return df.astype(bool).mean()
+
 
 def get_nonzero_proportion(df):
     """
