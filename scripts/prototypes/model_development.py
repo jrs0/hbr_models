@@ -43,7 +43,7 @@ import save_datasets as ds
 
 # Get real dataset. The bleeding outcome column is called bleeding_al_ani_outcome
 # (becomes y) and the other columns except the *_outcome ones become predictors
-dataset = ds.load_dataset_interactive("hes_episodes_dataset")
+dataset = ds.load_dataset_interactive("hes_episodes_any_code_dataset")
 outcome_column = "bleeding_al_ani_outcome"
 
 # Get the features matrix X, and store the feature names
@@ -65,7 +65,7 @@ X0_train, X_test, y0_train, y_test = train_test_split(
     X, y, test_size=test_set_proportion, random_state=train_test_split_seed
 )
 
-Model = SimpleGradientBoostedTree
+Model = TruncSvdLogisticRegression
 
 # Fit the model-under-test M0 to the training set (X0_train, y0_train), and
 # fit M other models to M other bootstrap resamples of (X0_train, y0_train).
