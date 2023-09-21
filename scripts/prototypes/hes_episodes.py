@@ -62,12 +62,15 @@ import numpy as np
 # episodes data from the database. Use these variables to
 # reduce the total amount of data to something the script
 # can handle
-start_date = dt.date(2017, 1, 1)
-end_date = dt.date(2023, 1, 1)
+start_date = dt.date(1990, 1, 1) # Before the start of the data
+end_date = dt.date(2024, 1, 1) # After the end of the data
 
 # Fetch the raw data. 6 years of data takes 283 s to fetch (from home),
 # so estimating full datasets takes about 1132 s. Same query took 217 s
-# in ICB.
+# in ICB. Fetching the full dataset takes 1185 s (measured at home),
+# and returns about 10.8m rows. However, excluding rows according to
+# documented exclusions results in about 4m rows, and takes about 
+# 230 s to fetch (from home)
 raw_episodes_data = hes.get_hes_data(start_date, end_date, "episodes")
 raw_episodes_data.to_pickle("datasets/raw_episodes_dataset.pkl")
 

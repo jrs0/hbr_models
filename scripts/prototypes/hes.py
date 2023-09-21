@@ -89,6 +89,8 @@ def make_episodes_query(start_date, end_date):
         # Brace yourself -- this specific NHS number is used to mean "NHS number 
         # is not valid".
         " and aimtc_pseudo_nhs != '9000219621'"
+        # Records are also invalid if the commissioner code is not in this list
+        " and aimtc_organisationcode_codeofcommissioner not in ('5M8','11T','5QJ','11H','5A3','12A','15C','14F','Q65')"
     )
 
 
@@ -104,8 +106,9 @@ def make_spells_query(start_date, end_date):
         + " from abi.dbo.vw_apc_sem_spell_001"
         f" where aimtc_providerspell_start_date between '{start_date}' and '{end_date}'"
         " and aimtc_pseudo_nhs is not null"
-        # See comment above
+        # See comments above for exclusions
         " and aimtc_pseudo_nhs != '9000219621'"
+        " and aimtc_organisationcode_codeofcommissioner not in ('5M8','11T','5QJ','11H','5A3','12A','15C','14F','Q65')"
     )
 
 
