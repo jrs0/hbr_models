@@ -69,8 +69,8 @@ end_date = dt.date(2024, 1, 1) # After the end of the data
 # so estimating full datasets takes about 1132 s. Same query took 217 s
 # in ICB. Fetching the full dataset takes 1185 s (measured at home),
 # and returns about 10.8m rows. However, excluding rows according to
-# documented exclusions results in about 4m rows, and takes about 
-# 230 s to fetch (from home)
+# documented exclusions results in about 6.7m rows, and takes about 
+# 434 s to fetch (from home)
 raw_episodes_data = hes.get_hes_data(start_date, end_date, "episodes")
 raw_episodes_data.to_pickle("datasets/raw_episodes_dataset.pkl")
 

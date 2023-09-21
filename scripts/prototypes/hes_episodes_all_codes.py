@@ -254,10 +254,17 @@ code_counts_after["acs_bezin_outcome"] = code_counts_after["acs_bezin_outcome"].
     bool
 )
 
-# Now combine the information into a final dataset containing both X and y
-dataset = any_code_before.merge(
-    code_counts_after, how="left", left_index=True, right_on="idx_episode_id"
-).drop(columns=["idx_episode_id"])
+# Now combine the information into a final dataset containing both X and y.
+# Right join code_counts_after, because that has one row per index event,
+# whereas any_code_before only has rows where there exists as episode before.
+# Fill NaN rows with 0.
+dataset = (
+    any_code_before.merge(
+        code_counts_after, how="right", left_index=True, right_on="idx_episode_id"
+    )
+    .fillna(0)
+    .drop(columns=["idx_episode_id"])
+)
 
 # Save the resulting dataset
 ds.save_dataset(dataset, "hes_episodes_any_code_dataset")

@@ -11,6 +11,7 @@ from stability import (
 from fit import (
     SimpleLogisticRegression,
     SimpleDecisionTree,
+    SimpleGradientBoostedTree,
     UmapLogisticRegression,
     TruncSvdLogisticRegression,
     TruncSvdDecisionTree,
@@ -64,7 +65,7 @@ X0_train, X_test, y0_train, y_test = train_test_split(
     X, y, test_size=test_set_proportion, random_state=train_test_split_seed
 )
 
-Model = SimpleLogisticRegression
+Model = SimpleGradientBoostedTree
 
 # Fit the model-under-test M0 to the training set (X0_train, y0_train), and
 # fit M other models to M other bootstrap resamples of (X0_train, y0_train).
