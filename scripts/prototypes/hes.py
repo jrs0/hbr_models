@@ -90,7 +90,7 @@ def make_episodes_query(start_date, end_date):
         # is not valid".
         " and aimtc_pseudo_nhs != '9000219621'"
         # Records are also invalid if the commissioner code is not in this list
-        " and aimtc_organisationcode_codeofcommissioner not in ('5M8','11T','5QJ','11H','5A3','12A','15C','14F','Q65')"
+        " and aimtc_organisationcode_codeofcommissioner in ('5M8','11T','5QJ','11H','5A3','12A','15C','14F','Q65')"
     )
 
 
@@ -108,7 +108,7 @@ def make_spells_query(start_date, end_date):
         " and aimtc_pseudo_nhs is not null"
         # See comments above for exclusions
         " and aimtc_pseudo_nhs != '9000219621'"
-        " and aimtc_organisationcode_codeofcommissioner not in ('5M8','11T','5QJ','11H','5A3','12A','15C','14F','Q65')"
+        " and aimtc_organisationcode_codeofcommissioner in ('5M8','11T','5QJ','11H','5A3','12A','15C','14F','Q65')"
     )
 
 

@@ -8,7 +8,16 @@ from stability import (
     predict_bootstrapped_proba,
     plot_instability,
 )
-from fit import SimpleLogisticRegression, SimpleDecisionTree, UmapLogisticRegression, TruncSvdLogisticRegression, TruncSvdDecisionTree, UmapMultiLayerPerceptron, UmapDecisionTree, UmapGradientBoostedTree
+from fit import (
+    SimpleLogisticRegression,
+    SimpleDecisionTree,
+    UmapLogisticRegression,
+    TruncSvdLogisticRegression,
+    TruncSvdDecisionTree,
+    UmapMultiLayerPerceptron,
+    UmapDecisionTree,
+    UmapGradientBoostedTree,
+)
 from calibration import (
     get_bootstrapped_calibration,
     plot_calibration_curves,
@@ -55,17 +64,17 @@ X0_train, X_test, y0_train, y_test = train_test_split(
     X, y, test_size=test_set_proportion, random_state=train_test_split_seed
 )
 
-Model = SimpleDecisionTree
+Model = SimpleLogisticRegression
 
 # Fit the model-under-test M0 to the training set (X0_train, y0_train), and
 # fit M other models to M other bootstrap resamples of (X0_train, y0_train).
-M0, Mm = fit_model(Model, X0_train, y0_train, M = 3)
+M0, Mm = fit_model(Model, X0_train, y0_train, M=3)
 
 # Plot the model
 # fig, ax = plt.subplots()
 # M0.plot(ax, feature_names.to_list())
 # plt.show()
-#print(M0.get_model_parameters(feature_names))
+# print(M0.get_model_parameters(feature_names))
 
 # First columns is the probability of 1 in y_test from M0; other columns
 # are the same for the N bootstrapped models Mn.
