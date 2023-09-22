@@ -33,6 +33,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import save_datasets as ds
 
+from sklearn.preprocessing import StandardScaler
+from sklearn.compose import ColumnTransformer
+
 # Example data for now. X is the feature matrix (each column is a feature)
 # and y is the classification outcome (1 for event occurred). Both must have
 # the same number of rows (the number of samples). Both are numerical,
@@ -63,11 +66,15 @@ X0_train, X_test, y0_train, y_test = train_test_split(
     X, y, test_size=test_set_proportion, random_state=train_test_split_seed
 )
 
+preprocess = ColumnTransformer(
+    [("demographics_scaler", StandardScaler(), feature_groups["demographics"]),
+     ("index_data_scaler", StandardScaler(), feature_groups["index_data"])]
+)
 Model = SimpleLogisticRegression
 
 # Fit the model-under-test M0 to the training set (X0_train, y0_train), and
 # fit M other models to M other bootstrap resamples of (X0_train, y0_train).
-M0, Mm = fit_model(Model, X0_train, y0_train, M=3)
+M0, Mm = fit_model(Model, preprocess, X0_train, y0_train, M=5)
 
 # Plot the model
 # fig, ax = plt.subplots()

@@ -160,8 +160,8 @@ def match_feature_list(feature_columns, feature_groups):
     by regex patterns. feature_columns is the list of columns names
     to be matched, and feature_groups is a dictionary of group names
     to regex expressions. The result is a dictionary mapping group
-    names to lists of feature columns, with a special group _none
-    to indicate unmatched columns.
+    names to lists of feature columns. ValueError is raised if there
+    are columns which are not contained in any group.
     """
     feature_group_lists = {}
     for group, regex in feature_groups.items():
@@ -173,7 +173,10 @@ def match_feature_list(feature_columns, feature_groups):
         feature_columns = list(set(feature_columns) - set(matching_columns))
 
     # Create the set of unmatched columns
-    feature_group_lists["_none"] = feature_columns
+    if len(feature_columns) > 0:
+        raise ValueError(
+            f"Features {feature_columns} are not in any group. Update config file."
+        )
 
     return feature_group_lists
 
@@ -266,20 +269,13 @@ class Dataset:
     def outcome_columns(self):
         """Get the list of outcome column names for use with get_y()"""
         return list(self._outcome_to_index.keys())
-        
+
     def feature_groups(self):
-        """Get the list of valid feature groups"""
-        return list(self._feature_groups.keys())
-
-    def feature_group_indices(self, group):
-        """Get the list of column indices in the feature group.
-
-        Raises a ValueError if the group is not present.
-        """
-
-        if group not in self._feature_groups:
-            raise ValueError(
-                f"'{group}' is not present in feature groups {self._feature_groups}"
-            )
-        else:
-            return list(self._feature_groups[group].values())
+        """Get a map from feature groups to lists of columns in that
+        group"""
+        result = {}
+        for group, feature_column_list in self._feature_groups.items():
+            result[group] = [
+                self.feature_names.get_loc(col) for col in feature_column_list
+            ]
+        return result

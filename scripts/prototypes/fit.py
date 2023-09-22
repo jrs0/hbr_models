@@ -154,20 +154,22 @@ class SimpleGradientBoostedTree:
         return model_params
 
 class SimpleLogisticRegression:
-    def __init__(self, X, y):
+    def __init__(self, X, y, preprocess):
         """
-        Logistic regress class that centers and scales the features
-        and applies logistic regression to the result. The pipe
-        comprises a StandardScaler() followed by LogisticRegression().
-        There is no hyperparameter tuning or cross-validation.
+        Fit basic logistic regression with not hyperparameter
+        tuning or cross-validation (because basic logistic regression
+        has no tuning parameters). Expects X to be preprocessed by
+        the preprocess argument into a matrix of features ready for
+        logistic regression.
+        
+        preprocess is a list of pairs mapping preprocessing step
+        names to preprocessing steps, in the format suitable for
+        use in Pipeline.
 
         Testing: not yet tested
         """
-
-        # majority_zero = RemoveMajorityZero(0.1)
-        scaler = StandardScaler()
         logreg = LogisticRegression()
-        self._pipe = Pipeline([("scaler", scaler), ("logreg", logreg)])
+        self._pipe = Pipeline([("preprocess", preprocess), ("logreg", logreg)])
         self._pipe.fit(X, y)
 
     def model(self):
@@ -185,14 +187,10 @@ class SimpleLogisticRegression:
         of feature names in the same order as columns of X in the
         constructor.
         """
-        means = self._pipe["scaler"].mean_
-        variances = self._pipe["scaler"].var_
         coefs = self._pipe["logreg"].coef_[0, :]
         model_params = pd.DataFrame(
             {
-                "feature": feature_names,
-                "scaling_mean": means,
-                "scaling_variance": variances,
+                #"feature": feature_names,
                 "logreg_coef": coefs,
             }
         )

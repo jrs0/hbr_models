@@ -22,7 +22,7 @@
 # generating new saved data (in datasets/) produces models that
 # are back to normal (ROC 0.64). However, I changed nothing in
 # this commit, so I went back and regenerated data in older
-# commits. I found by checking commits 04feda130ed17 and 
+# commits. I found by checking commits 04feda130ed17 and
 # 53e3810b381bc and regenerating the data in those commits that
 # the bug was never present. That means that the bug was in an
 # earlier version of the dataset saved in datasets/, but they
@@ -34,8 +34,8 @@
 # wrong. Going to checkout to that commit and rerun the dataset to
 # see if it does contain a problem. Unfortunately, that commit appears
 # to generate data correctly, which means the issue was probably
-# some spurious way the script was run interactively at the time. 
-# Going to stop investigating. 
+# some spurious way the script was run interactively at the time.
+# Going to stop investigating.
 
 import os
 
@@ -62,14 +62,14 @@ import numpy as np
 # episodes data from the database. Use these variables to
 # reduce the total amount of data to something the script
 # can handle
-start_date = dt.date(1990, 1, 1) # Before the start of the data
-end_date = dt.date(2024, 1, 1) # After the end of the data
+start_date = dt.date(1990, 1, 1)  # Before the start of the data
+end_date = dt.date(2024, 1, 1)  # After the end of the data
 
 # Fetch the raw data. 6 years of data takes 283 s to fetch (from home),
 # so estimating full datasets takes about 1132 s. Same query took 217 s
 # in ICB. Fetching the full dataset takes 1185 s (measured at home),
 # and returns about 10.8m rows. However, excluding rows according to
-# documented exclusions results in about 6.7m rows, and takes about 
+# documented exclusions results in about 6.7m rows, and takes about
 # 434 s to fetch (from home)
 raw_episodes_data = hes.get_hes_data(start_date, end_date, "episodes")
 raw_episodes_data.to_pickle("datasets/raw_episodes_dataset.pkl")
@@ -96,6 +96,8 @@ left_censor_date = raw_episodes_data["episode_start_date"].min()
 episode_start_dates = raw_episodes_data[
     ["episode_id", "episode_start_date", "patient_id"]
 ]
+
+age_and_gender = raw_episodes_data[["episode_id", "age", "gender"]]
 
 # Get all the clinical codes in long format, with a column to indicate
 # whether it is a diagnosis or a procedure code. Note that this is
@@ -158,23 +160,23 @@ idx_episodes = (
 df = idx_episodes.merge(
     code_group_counts, how="left", left_on="idx_episode_id", right_on="episode_id"
 )
-idx_episodes["pci_performed"] = df["pci"] > 0
-idx_episodes["stemi"] = df["mi_stemi_schnier"] > 0
-idx_episodes["nstemi"] = df["mi_nstemi_schnier"] > 0
-idx_episodes["acs"] = df["acs_bezin"] > 0
-idx_episodes = idx_episodes.merge(
-    episode_start_dates, how="left", left_on="idx_episode_id", right_on="episode_id"
-).rename(columns={"episode_start_date": "idx_date"})[
-    [
-        "idx_episode_id",
-        "patient_id",
-        "idx_date",
-        "pci_performed",
-        "stemi",
-        "nstemi",
-        "acs",
-    ]
-]
+idx_episodes["idx_pci_performed"] = df["pci"] > 0
+idx_episodes["idx_stemi"] = df["mi_stemi_schnier"] > 0
+idx_episodes["idx_nstemi"] = df["mi_nstemi_schnier"] > 0
+idx_episodes["idx_acs"] = df["acs_bezin"] > 0
+idx_episodes = (
+    idx_episodes.merge(
+        episode_start_dates, how="left", left_on="idx_episode_id", right_on="episode_id"
+    )
+    .merge(age_and_gender, how="left", left_on="idx_episode_id", right_on="episode_id")
+    .rename(
+        columns={
+            "episode_start_date": "idx_date",
+            "age": "dem_age",
+            "gender": "dem_gender",
+        }
+    ).filter(regex="(idx_|dem_|patient_id)")
+)
 
 # Join all episode start dates by patient to get a table of index events paired
 # up with all the patient's other episodes. This can be used to find which other
@@ -263,9 +265,8 @@ code_counts_after["acs_bezin_outcome"] = code_counts_after["acs_bezin_outcome"].
 dataset = (
     idx_episodes.merge(code_counts_before, how="left", on="idx_episode_id")
     .merge(code_counts_after, how="left", on="idx_episode_id")
-    .drop(columns=["idx_episode_id", "patient_id", "idx_date"])
+    .drop(columns=["idx_episode_id", "idx_spell_id", "patient_id", "idx_date"])
 )
 
 # Save the resulting dataset
 ds.save_dataset(dataset, "hes_episodes_dataset")
-

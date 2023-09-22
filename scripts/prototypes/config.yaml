@@ -11,7 +11,8 @@ features:
     "^(diagnosis|procedure)_"
   code_counts_before:
     "_before"
-# Outcome columns are should match unique columns
+# Outcome columns are should match unique columns.
+# Consider just a single match for _outcome
 outcomes:
   bleeding_al_ani:
     bleeding_al_ani_outcome
@@ -19,3 +20,5 @@ outcomes:
     bleeding_cadth_outcome
   bleeding_adaptt:
     bleeding_adaptt_outcome
+  acs_bezin:
+    acs_bezin_outcome

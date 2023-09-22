@@ -143,7 +143,7 @@ def plot_instability(ax, probs):
     ax.set_xlabel("Prediction from model-under-test")
     ax.set_ylabel("Predictions from bootstrapped models")
 
-def fit_model(Model, X0_train, y0_train, M):
+def fit_model(Model, preprocess, X0_train, y0_train, M):
     """
     Fit the model given in the first argument to the training data
     (X0_train, y0_train) to produce M0. Then resample the training data M times
@@ -155,7 +155,7 @@ def fit_model(Model, X0_train, y0_train, M):
     # using any method (e.g. including cross validation and hyperparameter
     # tuning) using training set data. This is referred to as D in
     # stability.py.
-    M0 = Model(X0_train, y0_train)
+    M0 = Model(X0_train, y0_train, preprocess)
 
     # For the purpose of assessing model stability, obtain bootstrap
     # resamples (Xm_train, ym_train) from the training set (X0, y0).
@@ -164,6 +164,6 @@ def fit_model(Model, X0_train, y0_train, M):
 
     # Develop all the bootstrap models to compare with the model-under-test M0
     print("Fitting bootstrapped models")
-    Mm = [Model(X, y) for (X, y) in zip(Xm_train, ym_train)]
+    Mm = [Model(X, y, preprocess) for (X, y) in zip(Xm_train, ym_train)]
 
     return (M0, Mm)
