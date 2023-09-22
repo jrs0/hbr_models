@@ -1,0 +1,12 @@
+# Feature columns matching the regular expressions
+# below correspond to the named groups. The intention
+# is to perform different kinds of preprocessing on 
+# these groups
+features:
+  demographics:
+    "^dem_"
+  index_data:
+    "^idx_*"
+  clinical_codes:
+    "^(diagnosis|procedure)_"
+  
