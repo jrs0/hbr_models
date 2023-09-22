@@ -49,7 +49,7 @@ print(dataset)
 
 # Get the feature matrix X and outcome vector y
 X = dataset.get_X()
-y = dataset.get_y("bleeding_adaptt_outcome")
+y = dataset.get_y("bleeding_al_ani_outcome")
 
 feature_groups = dataset.feature_groups()
 print(f"Feature groups {feature_groups}")
@@ -66,10 +66,11 @@ X0_train, X_test, y0_train, y_test = train_test_split(
     X, y, test_size=test_set_proportion, random_state=train_test_split_seed
 )
 
-preprocess = ColumnTransformer(
-    [("demographics_scaler", StandardScaler(), feature_groups["demographics"]),
-     ("index_data_scaler", StandardScaler(), feature_groups["index_data"])]
-)
+# Center and scale all the features, preserving the column order
+preprocess = StandardScaler()
+
+# Reduce 
+
 Model = SimpleLogisticRegression
 
 # Fit the model-under-test M0 to the training set (X0_train, y0_train), and

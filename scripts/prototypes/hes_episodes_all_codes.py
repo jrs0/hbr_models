@@ -68,6 +68,8 @@ episode_start_dates = raw_episodes_data[
     ["episode_id", "episode_start_date", "patient_id"]
 ]
 
+age_and_gender = raw_episodes_data[["episode_id", "age", "gender"]]
+
 # Get all the clinical codes in long format, with a column to indicate
 # whether it is a diagnosis or a procedure code. Note that this is
 # currently returning slightly less rows than raw_episode_data,
@@ -127,23 +129,23 @@ idx_episodes = (
 df = idx_episodes.merge(
     code_group_counts, how="left", left_on="idx_episode_id", right_on="episode_id"
 )
-idx_episodes["pci_performed"] = df["pci"] > 0
-idx_episodes["stemi"] = df["mi_stemi_schnier"] > 0
-idx_episodes["nstemi"] = df["mi_nstemi_schnier"] > 0
-idx_episodes["acs"] = df["acs_bezin"] > 0
-idx_episodes = idx_episodes.merge(
-    episode_start_dates, how="left", left_on="idx_episode_id", right_on="episode_id"
-).rename(columns={"episode_start_date": "idx_date"})[
-    [
-        "idx_episode_id",
-        "patient_id",
-        "idx_date",
-        "pci_performed",
-        "stemi",
-        "nstemi",
-        "acs",
-    ]
-]
+idx_episodes["idx_pci_performed"] = df["pci"] > 0
+idx_episodes["idx_stemi"] = df["mi_stemi_schnier"] > 0
+idx_episodes["idx_nstemi"] = df["mi_nstemi_schnier"] > 0
+idx_episodes["idx_acs"] = df["acs_bezin"] > 0
+idx_episodes = (
+    idx_episodes.merge(
+        episode_start_dates, how="left", left_on="idx_episode_id", right_on="episode_id"
+    )
+    .merge(age_and_gender, how="left", left_on="idx_episode_id", right_on="episode_id")
+    .rename(
+        columns={
+            "episode_start_date": "idx_date",
+            "age": "dem_age",
+            "gender": "dem_gender",
+        }
+    ).filter(regex="(idx_|dem_|patient_id)")
+)
 
 # Join all episode start dates by patient to get a table of index events paired
 # up with all the patient's other episodes. This can be used to find which other
