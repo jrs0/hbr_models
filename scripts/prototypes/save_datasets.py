@@ -1,6 +1,8 @@
 import time, git
 import os
 import pandas as pd
+import yaml
+import re
 
 
 def current_commit():
@@ -85,11 +87,13 @@ def load_dataset(name):
     return dataset
 
 
-def load_dataset_interactive(name):
+def pick_dataset_interactive(name):
     """
     Print a list of the datasets in the datasets/ folder, along
     with the date and time it was generated, and the commit hash,
     and let the user pick which dataset should be loaded interactively.
+    The full filename of the resulting file is returned, which can
+    then be read by the user.
     """
     # Check for missing datasets directory
     datasets_dir = "datasets"
@@ -147,5 +151,135 @@ def load_dataset_interactive(name):
         break
 
     full_path = os.path.join(datasets_dir, recent_first.loc[choice, "path"])
-    print(f"Loading {full_path}")
-    return pd.read_pickle(full_path)
+    return full_path
+
+
+def match_feature_list(feature_columns, feature_groups):
+    """
+    Helper function to group feature columns into groups defined
+    by regex patterns. feature_columns is the list of columns names
+    to be matched, and feature_groups is a dictionary of group names
+    to regex expressions. The result is a dictionary mapping group
+    names to lists of feature columns, with a special group _none
+    to indicate unmatched columns.
+    """
+    feature_group_lists = {}
+    for group, regex in feature_groups.items():
+        p = re.compile(regex)
+        matching_columns = [s for s in feature_columns if p.search(s)]
+        if len(matching_columns) > 0:
+            feature_group_lists[group] = matching_columns
+        # Drop the matched columns from the set
+        feature_columns = list(set(feature_columns) - set(matching_columns))
+
+    # Create the set of unmatched columns
+    feature_group_lists["_none"] = feature_columns
+
+    return feature_group_lists
+
+
+class Dataset:
+    def __init__(self, name, config_file):
+        """
+        Contains a dataset as a feature matrix X and outcome
+        vector y, along with information about the dataset
+        (such as what file it was loaded from, the feature
+        names, feature groups, etc.)
+
+        The file will be loaded from a folder called datasets/
+        relative to the current working directory. Pass the
+        name (the first part of the filename) to interactively
+        pick which to load (displayed by timestamp and commit
+        hash).
+
+        Feature and outcome column names are loaded from
+        config_file. This allows the dataset to be partitioned
+        into X and y (which are converted to numpy arrays), and
+        keeps track of which column indices correspond to which
+        feature groups.
+        """
+
+        # Load a dataset interactively
+        self.dataset_path = pick_dataset_interactive(name)
+        print(f"Loading {self.dataset_path}")
+        dataset = pd.read_pickle(self.dataset_path)
+
+        # Load the configuration file
+        with open(config_file, "r") as stream:
+            try:
+                self.config = yaml.safe_load(stream)
+            except yaml.YAMLError as e:
+                raise RuntimeError(f"Unable to load config file: {e}")
+
+        # Get the outcome columns
+        outcome_columns = self.config["outcomes"].values()
+        try:
+            dataset_outcomes = dataset.loc[:, outcome_columns]
+        except KeyError as e:
+            raise ValueError(
+                "Could not find outcome column specified "
+                + f"in '{config_file}' in dataset: {e}"
+            )
+        # Convert the outcome columns to a matrix and store the indices.
+        # (use get_y() to get an outcome column)
+        self._outcome_to_index = {
+            col: dataset_outcomes.columns.get_loc(col) for col in outcome_columns
+        }
+        self._Y = dataset_outcomes.to_numpy()
+
+        # Get the feature matrix
+        dataset_features = dataset.drop(columns=outcome_columns)
+        self.feature_names = dataset_features.columns
+        self._X = dataset_features.to_numpy()
+
+        # Store the map from feature name to column index in _X
+        self._feature_to_index = {
+            col: dataset_features.columns.get_loc(col) for col in self.feature_names
+        }
+
+        # Store the map from group names to lists of feature columns
+        self._feature_groups = match_feature_list(
+            self.feature_names, self.config["features"]
+        )
+
+    def __str__(self):
+        return f"Dataset {self.dataset_path} ({self._X.shape[0]} rows) with feature groups {self.feature_groups()} and outcomes {self.outcome_columns()}"
+
+    def get_X(self):
+        """Get the numpy matrix of features"""
+        return self._X
+
+    def get_y(self, outcome_name):
+        """Get a particular outcome vector y
+
+        Args:
+            outcome_name (str): the name of the outcome vector.
+            if the outcome_name is not an outcome column name,
+            ValueError is raised
+
+        """
+        if outcome_name not in self._outcome_to_index:
+            raise ValueError(f"Outcome column '{outcome_name}' not present in dataset")
+        else:
+            return self._Y[:, self._outcome_to_index[outcome_name]]
+
+    def outcome_columns(self):
+        """Get the list of outcome column names for use with get_y()"""
+        return list(self._outcome_to_index.keys())
+        
+    def feature_groups(self):
+        """Get the list of valid feature groups"""
+        return list(self._feature_groups.keys())
+
+    def feature_group_indices(self, group):
+        """Get the list of column indices in the feature group.
+
+        Raises a ValueError if the group is not present.
+        """
+
+        if group not in self._feature_groups:
+            raise ValueError(
+                f"'{group}' is not present in feature groups {self._feature_groups}"
+            )
+        else:
+            return list(self._feature_groups[group].values())

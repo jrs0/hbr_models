@@ -6,7 +6,16 @@ features:
   demographics:
     "^dem_"
   index_data:
-    "^idx_*"
+    "^idx_"
   clinical_codes:
     "^(diagnosis|procedure)_"
-  
+  code_counts_before:
+    "_before"
+# Outcome columns are should match unique columns
+outcomes:
+  bleeding_al_ani:
+    bleeding_al_ani_outcome
+  bleeding_cadth:
+    bleeding_cadth_outcome
+  bleeding_adaptt:
+    bleeding_adaptt_outcome

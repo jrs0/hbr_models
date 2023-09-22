@@ -41,19 +41,16 @@ import save_datasets as ds
 #    n_samples=1000, n_features=20, n_informative=2, n_redundant=2, random_state=42
 # )
 
-# Get real dataset. The bleeding outcome column is called bleeding_al_ani_outcome
-# (becomes y) and the other columns except the *_outcome ones become predictors
-dataset = ds.load_dataset_interactive("hes_episodes_any_code_dataset")
-outcome_column = "bleeding_al_ani_outcome"
-print(dataset.columns)
-exit()
-# Get the features matrix X, and store the feature names
-df = dataset.loc[:, ~dataset.columns.str.contains("outcome")]
-feature_names = df.columns
-X = df.to_numpy()
+dataset = ds.Dataset("hes_episodes_dataset", "config.yaml")
+print(dataset)
 
-# Get the outcome vector y
-y = dataset[outcome_column].to_numpy()
+# Get the feature matrix X and outcome vector y
+X = dataset.get_X()
+y = dataset.get_y("bleeding_adaptt_outcome")
+
+feature_groups = dataset.feature_groups()
+print(f"Feature groups {feature_groups}")
+feature_names = dataset.feature_names
 
 # Split (X,y) into a testing set (X_test, y_test), which is not used for
 # any model training, and a training set (X0,y0), which is used to develop
@@ -66,7 +63,7 @@ X0_train, X_test, y0_train, y_test = train_test_split(
     X, y, test_size=test_set_proportion, random_state=train_test_split_seed
 )
 
-Model = TruncSvdDecisionTree
+Model = SimpleLogisticRegression
 
 # Fit the model-under-test M0 to the training set (X0_train, y0_train), and
 # fit M other models to M other bootstrap resamples of (X0_train, y0_train).
@@ -76,7 +73,7 @@ M0, Mm = fit_model(Model, X0_train, y0_train, M=3)
 # fig, ax = plt.subplots()
 # M0.plot(ax, feature_names.to_list())
 # plt.show()
-# print(M0.get_model_parameters(feature_names))
+print(M0.get_model_parameters(feature_names))
 
 # First columns is the probability of 1 in y_test from M0; other columns
 # are the same for the N bootstrapped models Mn.
