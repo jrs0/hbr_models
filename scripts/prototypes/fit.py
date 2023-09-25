@@ -57,8 +57,10 @@ from sklearn.tree import DecisionTreeClassifier, plot_tree
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import StandardScaler
+
 from imblearn.over_sampling import RandomOverSampler
-#from sklearn.pipeline import Pipeline
+
+# from sklearn.pipeline import Pipeline
 from imblearn.pipeline import Pipeline
 import pandas as pd
 from sklearn import tree
@@ -70,15 +72,17 @@ from scipy.stats import uniform
 
 
 class SimpleDecisionTree:
-    def __init__(self, X, y):
+    def __init__(self, X, y, preprocess):
         """
         Simple decision tree model with no feature preprocessing.
         """
         tree = DecisionTreeClassifier()
-        self._pipe = Pipeline([("tree", tree)])
+        self._pipe = Pipeline(preprocess + [("tree", tree)])
 
-        self._param_grid = {"tree__max_depth": range(10)}
-        self._search = RandomizedSearchCV(self._pipe, self._param_grid, cv=5).fit(X, y)
+        self._param_grid = {"tree__max_depth": range(1, 50)}
+        self._search = RandomizedSearchCV(
+            self._pipe, self._param_grid, cv=5, verbose=3
+        ).fit(X, y)
         print(self._search.best_params_)
 
     def model(self):
@@ -102,7 +106,7 @@ class SimpleDecisionTree:
 class SimpleGradientBoostedTree:
     def __init__(self, X, y):
         """
-        The pipe comprises a StandardScaler() followed by 
+        The pipe comprises a StandardScaler() followed by
         GradientBoostingClassifier().
 
         Notes:
@@ -112,10 +116,8 @@ class SimpleGradientBoostedTree:
 
         # majority_zero = RemoveMajorityZero(0.1)
         scaler = StandardScaler()
-        gbdt = GradientBoostingClassifier(max_depth = 8)
-        self._pipe = Pipeline(
-            [("scaler", scaler), ("gbdt", gbdt)]
-        )
+        gbdt = GradientBoostingClassifier(max_depth=8)
+        self._pipe = Pipeline([("scaler", scaler), ("gbdt", gbdt)])
         self._param_grid = {
             "gbdt__max_depth": range(1, 50),
         }
@@ -155,6 +157,7 @@ class SimpleGradientBoostedTree:
         )
         return model_params
 
+
 class SimpleLogisticRegression:
     def __init__(self, X, y, preprocess):
         """
@@ -163,7 +166,7 @@ class SimpleLogisticRegression:
         has no tuning parameters). Expects X to be preprocessed by
         the preprocess argument into a matrix of features ready for
         logistic regression.
-        
+
         preprocess is a list of pairs mapping preprocessing step
         names to preprocessing steps, in the format suitable for
         use in Pipeline.
@@ -192,7 +195,7 @@ class SimpleLogisticRegression:
         coefs = self._pipe["logreg"].coef_[0, :]
         model_params = pd.DataFrame(
             {
-                #"feature": feature_names,
+                # "feature": feature_names,
                 "logreg_coef": coefs,
             }
         )
@@ -274,9 +277,7 @@ class UmapMultiLayerPerceptron:
         mlp = MLPClassifier(
             solver="lbfgs", alpha=1e-5, hidden_layer_sizes=(5, 2), verbose=True
         )
-        self._pipe = Pipeline(
-            [("reducer", reducer), ("scaler", scaler), ("mlp", mlp)]
-        )
+        self._pipe = Pipeline([("reducer", reducer), ("scaler", scaler), ("mlp", mlp)])
         self._pipe.fit(X, y)
 
     def model(self):
@@ -306,7 +307,8 @@ class UmapMultiLayerPerceptron:
             }
         )
         return model_params
-    
+
+
 class UmapDecisionTree:
     def __init__(self, X, y):
         """
@@ -323,7 +325,7 @@ class UmapDecisionTree:
         # majority_zero = RemoveMajorityZero(0.1)
         reducer = umap.UMAP(metric="hamming", n_components=50, verbose=True)
         scaler = StandardScaler()
-        tree = DecisionTreeClassifier(max_depth = 8)
+        tree = DecisionTreeClassifier(max_depth=8)
         self._pipe = Pipeline(
             [("reducer", reducer), ("scaler", scaler), ("tree", tree)]
         )
@@ -357,6 +359,7 @@ class UmapDecisionTree:
         )
         return model_params
 
+
 class UmapGradientBoostedTree:
     def __init__(self, X, y):
         """
@@ -373,7 +376,7 @@ class UmapGradientBoostedTree:
         # majority_zero = RemoveMajorityZero(0.1)
         reducer = umap.UMAP(metric="hamming", n_components=50, verbose=True)
         scaler = StandardScaler()
-        gbdt = DecisionTreeClassifier(max_depth = 8)
+        gbdt = DecisionTreeClassifier(max_depth=8)
         self._pipe = Pipeline(
             [("reducer", reducer), ("scaler", scaler), ("gbdt", gbdt)]
         )
@@ -406,7 +409,7 @@ class UmapGradientBoostedTree:
             }
         )
         return model_params
-    
+
 
 class TruncSvdLogisticRegression:
     def __init__(self, X, y):
