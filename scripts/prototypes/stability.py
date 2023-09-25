@@ -82,7 +82,7 @@ def make_bootstrapped_resamples(X0_train, y0_train, M):
     Xn_train = []
     yn_train = []
     for _ in range(M):
-        X, y = resample(X0_train, y0_train, stratify=y0_train)
+        X, y = resample(X0_train, y0_train)
         Xn_train.append(X)
         yn_train.append(y)
 
@@ -161,6 +161,13 @@ def fit_model(Model, preprocess, X0_train, y0_train, M):
     # resamples (Xm_train, ym_train) from the training set (X0, y0).
     print("Creating bootstrap resamples of X0 for stability checking")
     Xm_train, ym_train = make_bootstrapped_resamples(X0_train, y0_train, M)
+
+    # Print information about the resamples
+    print(f"Training dataset contains {X0_train.shape[0]} rows")
+    print(f"Outcome vector has mean {np.mean(y0_train)}")
+    for (X,y) in zip(Xm_train, ym_train):
+        print(f"Rs Training dataset contains {X.shape[0]} rows")
+        print(f"Rs Outcome vector has mean {np.mean(y)}")        
 
     #M0 = Model(Xm_train[0], ym_train[0], preprocess)
 

@@ -54,6 +54,7 @@
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import StandardScaler
@@ -79,8 +80,8 @@ class SimpleDecisionTree:
         tree = DecisionTreeClassifier()
         self._pipe = Pipeline([("tree", tree)])
 
-        self._param_grid = {"tree__max_depth": range(1, 50)}
-        self._search = RandomizedSearchCV(
+        self._param_grid = {"tree__max_depth": range(1, 15)}
+        self._search = GridSearchCV(
             self._pipe, self._param_grid, cv=5, verbose=3, scoring="roc_auc"
         ).fit(X, y)
         print(self._search.best_params_)
@@ -101,6 +102,26 @@ class SimpleDecisionTree:
             fontsize=10,
             ax=ax,
         )
+
+class SimpleRandomForest:
+    def __init__(self, X, y, preprocess):
+        """
+        Simple decision tree model with no feature preprocessing.
+        """
+        tree = RandomForestClassifier()
+        self._pipe = Pipeline([("tree", tree)])
+
+        self._param_grid = {"tree__max_depth": range(1, 15)}
+        self._search = GridSearchCV(
+            self._pipe, self._param_grid, cv=5, verbose=3, scoring="roc_auc"
+        ).fit(X, y)
+        print(self._search.best_params_)
+
+    def model(self):
+        """
+        Get the best fitted model from the hyperparameter search results
+        """
+        return self._search.best_estimator_
 
 
 class SimpleGradientBoostedTree:

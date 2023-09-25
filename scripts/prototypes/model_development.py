@@ -18,6 +18,7 @@ from fit import (
     UmapMultiLayerPerceptron,
     UmapDecisionTree,
     UmapGradientBoostedTree,
+    SimpleRandomForest
 )
 from calibration import (
     get_bootstrapped_calibration,
@@ -75,6 +76,9 @@ X0_train, X_test, y0_train, y_test = train_test_split(
     X, y, test_size=test_set_proportion, random_state=train_test_split_rng
 )
 
+print(f"Training dataset contains {X0_train.shape[0]} rows")
+print(f"Outcome vector has mean {np.mean(y0_train)}")
+
 resampler = []#[("oversample", RandomOverSampler()), ("scaler", StandardScaler())]
 reducer = []#("reducer", TruncatedSVD())]
 scaler = [("scaler", StandardScaler())]
@@ -82,7 +86,7 @@ scaler = [("scaler", StandardScaler())]
 preprocess = resampler + reducer + scaler
 
 
-Model = SimpleDecisionTree
+Model = SimpleRandomForest
 
 # Fit the model-under-test M0 to the training set (X0_train, y0_train), and
 # fit M other models to M other bootstrap resamples of (X0_train, y0_train).
