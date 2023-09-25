@@ -57,7 +57,9 @@ from sklearn.tree import DecisionTreeClassifier, plot_tree
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import Pipeline
+from imblearn.over_sampling import RandomOverSampler
+#from sklearn.pipeline import Pipeline
+from imblearn.pipeline import Pipeline
 import pandas as pd
 from sklearn import tree
 from transformers import RemoveMajorityZero
@@ -169,7 +171,8 @@ class SimpleLogisticRegression:
         Testing: not yet tested
         """
         logreg = LogisticRegression()
-        self._pipe = Pipeline([("preprocess", preprocess), ("logreg", logreg)])
+        #self._pipe = Pipeline([("preprocess", preprocess), ("logreg", logreg)])
+        self._pipe = Pipeline([("balance", RandomOverSampler()), ("scaler", StandardScaler()), ("logreg", logreg)])
         self._pipe.fit(X, y)
 
     def model(self):

@@ -33,7 +33,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import save_datasets as ds
 
+from imblearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
+from imblearn.over_sampling import RandomOverSampler
 from sklearn.compose import ColumnTransformer
 
 # Example data for now. X is the feature matrix (each column is a feature)
@@ -67,9 +69,7 @@ X0_train, X_test, y0_train, y_test = train_test_split(
 )
 
 # Center and scale all the features, preserving the column order
-preprocess = StandardScaler()
-
-# Reduce 
+preprocess = Pipeline([("rebalance", RandomOverSampler()), ("scaler", StandardScaler())])
 
 Model = SimpleLogisticRegression
 
