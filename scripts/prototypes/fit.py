@@ -171,8 +171,7 @@ class SimpleLogisticRegression:
         Testing: not yet tested
         """
         logreg = LogisticRegression()
-        #self._pipe = Pipeline([("preprocess", preprocess), ("logreg", logreg)])
-        self._pipe = Pipeline([("balance", RandomOverSampler()), ("scaler", StandardScaler()), ("logreg", logreg)])
+        self._pipe = Pipeline(preprocess + [("logreg", logreg)])
         self._pipe.fit(X, y)
 
     def model(self):
