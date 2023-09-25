@@ -82,7 +82,7 @@ def make_bootstrapped_resamples(X0_train, y0_train, M):
     Xn_train = []
     yn_train = []
     for _ in range(M):
-        X, y = resample(X0_train, y0_train)
+        X, y = resample(X0_train, y0_train, stratify=y0_train)
         Xn_train.append(X)
         yn_train.append(y)
 

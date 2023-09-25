@@ -9,15 +9,24 @@ def test_bootstrap_resamples():
     correct number of resulting sets, they are the right
     size, and they contain values from the original
     datasets
-    
+
     TODO: this test is more complicated to understand
     than the function itself! fix.
     """
-    X = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]])
-    y = np.array([0, 1, 2, 3])
+
+    # X is first 10 columns, y is last column
+    num_features = 3
+    Xy = np.random.rand(5, num_features + 1)
+    X = Xy[:, :-1]
+    y = Xy[:, -1]
+    print(f"X = {X}")
+    print(f"y = {y}")
 
     M = 5
     Xm, ym = make_bootstrapped_resamples(X, y, M)
+
+    print(f"X0 = {Xm[0]}")
+    print(f"y0 = {ym[0]}")
 
     # Check the number of resampled arrays
     assert len(Xm) == M
@@ -31,8 +40,8 @@ def test_bootstrap_resamples():
     # Check that all the values in every resampled
     # (X_rs,y_rs) combination were present in the
     # original (X,y)
-    Xy = np.concatenate((X, y.reshape(-1, 1)), axis=1)
     for X_rs, y_rs in zip(Xm, ym):
-        Xy_rs = np.concatenate((X_rs, y_rs.reshape(-1, 1)), axis=1)
-        for row in Xy_rs:
-            assert np.isin(row, Xy).all()
+        Xy_rs = np.column_stack((X, y))
+        assert np.all(
+            [(row in Xy) for row in Xy_rs]
+        ), "Expected all rows to come from original dataset"
