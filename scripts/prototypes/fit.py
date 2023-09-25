@@ -81,7 +81,7 @@ class SimpleDecisionTree:
 
         self._param_grid = {"tree__max_depth": range(1, 50)}
         self._search = RandomizedSearchCV(
-            self._pipe, self._param_grid, cv=5, verbose=3
+            self._pipe, self._param_grid, cv=5, verbose=3, scoring="roc_auc"
         ).fit(X, y)
         print(self._search.best_params_)
 

@@ -162,6 +162,8 @@ def fit_model(Model, preprocess, X0_train, y0_train, M):
     print("Creating bootstrap resamples of X0 for stability checking")
     Xm_train, ym_train = make_bootstrapped_resamples(X0_train, y0_train, M)
 
+    #M0 = Model(Xm_train[0], ym_train[0], preprocess)
+
     # Develop all the bootstrap models to compare with the model-under-test M0
     print("Fitting bootstrapped models")
     Mm = [Model(X, y, preprocess) for (X, y) in zip(Xm_train, ym_train)]
