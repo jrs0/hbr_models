@@ -77,7 +77,7 @@ class SimpleDecisionTree:
         Simple decision tree model with no feature preprocessing.
         """
         tree = DecisionTreeClassifier()
-        self._pipe = Pipeline(preprocess + [("tree", tree)])
+        self._pipe = Pipeline([("tree", tree)])
 
         self._param_grid = {"tree__max_depth": range(1, 50)}
         self._search = RandomizedSearchCV(
