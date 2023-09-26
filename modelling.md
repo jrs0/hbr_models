@@ -38,7 +38,13 @@ This repository will focus on the ARC-HBR[^2] consensus-based definition of blee
 
 The ARC-HBR score for the purpose of this work is described [here](arc_hbr.md).
 
-## Acute Coronoary Syndrome (ACS) Inclusion Definition
+## Index Event Definition
+
+Models will be developed to predict the risk of adverse events in patients who have been prescribed blood-thinning medication due to an acute coronary syndrome or percutaneous coronary intervention procedure. The intent is to capture as wide a group as possible who may be on DAPT, without having direct access to hospital prescribing information. These two cases are described below. 
+
+Modelling is not restricted to patients who are at high bleeding risk, unlike in 2021 Urban et al. This is because identifying patients at high bleeding risk itself requires a model, or a valid calculation of the ARC-HBR score, which is not possible because the information is not present in the target datasets. A model that applies uniformly across all patients would also be more helpful because there would be less need to ensure that a patient is eligible before applying it. On the other hand, models developed in this way will be inevitably less performant, not least because of the low prevalence of bleeding in the ACS/PCI population.
+
+### Acute Coronoary Syndrome (ACS) Inclusion Definition
 
 Patients with a myocardial infarction (MI) defined by the following ICD-10 codes are included in the analysis[^8]:
 
@@ -76,7 +82,7 @@ It was found that the MI group is too large to identify index events of acute co
 
 This group is a "wide" classification that contains more codes, and is therefore more likely to identify ACS at the expense of PPV. Bezin et al. go on to identify I20.0, I21.* and I24.* as the "best compromise between validated ACS events and PPV" (84.2%, athough note N = 100) in the French hospital database they studied. This group is called `acs_bezin` in this analysis. Note that this includes the code I24.0, "Coronary thrombosis not resulting in myocardial infarction", which may or may not be treated with PCI (and may not involve DAPT).
 
-## Percutaneous Coronary Intervention (PCI) Procedures Definition
+### Percutaneous Coronary Intervention (PCI) Procedures Definition
 
 The following OPCS-4 codes were used to identify PCI procedures:
 
@@ -88,7 +94,13 @@ The following OPCS-4 codes were used to identify PCI procedures:
 
 This group is called `pci` in the codes file.
 
-## Bleeding Outcome Definition
+## Adverse outcome definitions.
+
+Two types of adverse events are to be modelled, both of which can be fatal. 
+* Further adverse cardiac events and other ischaemic events. 
+* Bleeding complications
+
+### Bleeding Outcome Definition
 
 The clinically relevant bleeding definition is BARC 3 or 5, as used in the ARC HBR definition. However, this definition is not readily available in the datasets used here, because it requires expert judgement (which is often performed manually in studies). However, it is possible to find proxies for major bleeding. For example, in hospital episode statistics, ICD-10 codes have been found to approximate major bleeding events. Here, two groups of ICD-10 codes will be used as a stand-in for major bleeding, for model development purposes:
 
@@ -226,6 +238,28 @@ The clinically relevant bleeding definition is BARC 3 or 5, as used in the ARC H
 
 It is important to recognise that no group of ICD-10 codes corresponds exactly to major bleeding events, because ICD-10 codes are predominantly used for financial and administrative purposes, rather than provision of care.
 
+### Adverse cardiovascular events
+
+2021 Bosco et al. [^10] review the use of ICD-10 diagnosis codes to identify MACE (major adverse cardiac events) composite endpoints, and find considerable heterogeneity in the definitions used. We follow the codes used by 2018 Hussain et al.[^11], because they utilise a more common[^10] 3-point MACE definition (acute myocardial infarction, stroke, and all-cause death), they use ICD-10 codes, and they validated the precision of the code group (see refs 17 and 18 of [^10]). 
+
+* **AMI/Stroke group** `hussain_ami_stroke`:
+| Category | ICD-10 | Description |
+|----------|--------|-------------|
+| AMI | I21.* | Acute myocardial infarction |
+|| I22.* | Subsequent myocardial infarction |
+|Stroke|I60.*|Subarachnoid haemorrhage|
+||I61.*|Intracerebral haemorrhage|
+||I62.*|Other nontraumatic intracranial haemorrhage|
+||I63.* (exclude I63.6) |Cerebral infarction|
+||I64 |Stroke, not specified as haemorrhage or infarction|
+||H34.1|Central retinal artery occlusion|
+
+Notes: I64 is referred to as 164.x in the reference, but it has no subcategories.
+
+The group `hussain_ami_stroke` contains the non-all-cause-death components of the 3-point MACE definition. All-cause death is considered separately.
+
+
+
 ## Other ICD-10 and OPCS-4 Code Groups
 
 Other groups of codes are used to define predictors or otherwise identify different types of hospital spells in datasets with clinical code information. The code groups used are documented here.
@@ -273,3 +307,7 @@ Each row of the dataset will be a patient with an index event which is either AC
 [^8]: [2017 Schnier et al., Definitions of Acute Myocardial Infarction and Main Myocardial Infarction Pathological Types UK schnier Phase 1 Outcomes Adjudication](https://schnier.ndph.ox.ac.uk/showcase/showcase/docs/alg_outcome_mi.pdf)
 
 [^9]: [2015 Bezin et al., Choice of ICD-10 codes for the identification of acute coronary syndrome in the French hospitalization database](https://onlinelibrary.wiley.com/doi/abs/10.1111/fcp.12143).
+
+[^10]: [2021 Bosco et al., Major adverse cardiovascular event definitions used in observational analysis of administrative databases: a systematic review](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8571870/)
+
+[^11]: [2018 Hussain et al., Association Between Statin Use and Cardiovascular Events After Carotid Artery Revascularization](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6201401/)
