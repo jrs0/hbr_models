@@ -243,20 +243,20 @@ It is important to recognise that no group of ICD-10 codes corresponds exactly t
 2021 Bosco et al. [^10] review the use of ICD-10 diagnosis codes to identify MACE (major adverse cardiac events) composite endpoints, and find considerable heterogeneity in the definitions used. We follow the codes used by 2018 Hussain et al.[^11], because they utilise a more common[^10] 3-point MACE definition (acute myocardial infarction, stroke, and all-cause death), they use ICD-10 codes, and they validated the precision of the code group (see refs 17 and 18 of [^10]). 
 
 * **AMI/Stroke group** `hussain_ami_stroke`:
-| Category | ICD-10 | Description |
-|----------|--------|-------------|
-| AMI | I21.* | Acute myocardial infarction |
-|| I22.* | Subsequent myocardial infarction |
-|Stroke|I60.*|Subarachnoid haemorrhage|
-||I61.*|Intracerebral haemorrhage|
-||I62.*|Other nontraumatic intracranial haemorrhage|
-||I63.* (exclude I63.6) |Cerebral infarction|
-||I64 |Stroke, not specified as haemorrhage or infarction|
-||H34.1|Central retinal artery occlusion|
+    | Category | ICD-10 | Description |
+    |----------|--------|-------------|
+    | AMI | I21.* | Acute myocardial infarction |
+    || I22.* | Subsequent myocardial infarction |
+    |Stroke|I60.*|Subarachnoid haemorrhage|
+    ||I61.*|Intracerebral haemorrhage|
+    ||I62.*|Other nontraumatic intracranial haemorrhage|
+    ||I63.* (exclude I63.6) |Cerebral infarction|
+    ||I64 |Stroke, not specified as haemorrhage or infarction|
+    ||H34.1|Central retinal artery occlusion|
 
-Notes: I64 is referred to as 164.x in the reference, but it has no subcategories.
+    Notes: I64 is referred to as 164.x in the reference, but it has no subcategories.
 
-The group `hussain_ami_stroke` contains the non-all-cause-death components of the 3-point MACE definition. All-cause death is considered separately.
+    The group `hussain_ami_stroke` contains the non-all-cause-death components of the 3-point MACE definition. All-cause death is considered separately.
 
 
 
