@@ -66,7 +66,7 @@ def diagnosis_and_procedure_columns():
 
 def make_episodes_query(start_date, end_date):
     '''
-    You have to go really careful to add the nhs_number not
+    You have to add the nhs_number not
     null condition, otherwise pandas will convert the column
     to floating point (with the associated undefined equality
     comparison which comes along with it).

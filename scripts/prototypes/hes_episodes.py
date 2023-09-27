@@ -50,9 +50,11 @@ from py_hic.clinical_codes import get_codes_in_group, ClinicalCodeParser
 import code_group_counts as codes
 
 import hes
+import mortality
 import save_datasets as ds
 
 importlib.reload(hes)
+importlib.reload(mortality)
 importlib.reload(codes)
 importlib.reload(ds)
 
@@ -83,31 +85,15 @@ raw_episodes_data = pd.read_pickle("datasets/raw_episodes_dataset.pkl")
 raw_episodes_data.replace("", np.nan, inplace=True)
 raw_episodes_data["episode_id"] = raw_episodes_data.index
 
-# Find the last date seen in the dataset to use as an approximation for
-# the right-censor date for the purpose of survival analysis.
-right_censor_date = raw_episodes_data["episode_start_date"].max()
-
-# Also helpful to know the earliest date in the dataset. This is important
-# for whether it is possible to know predictors a certain time in advance.
-left_censor_date = raw_episodes_data["episode_start_date"].min()
-
-# Also need to know the episode start times for comparison of different
-# episodes
-episode_start_dates = raw_episodes_data[
-    ["episode_id", "episode_start_date", "patient_id"]
-]
-
-age_and_gender = raw_episodes_data[["episode_id", "age", "gender"]]
+code_groups = codes.get_code_groups(
+    "../codes_files/icd10.yaml", "../codes_files/opcs4.yaml"
+)
 
 # Get all the clinical codes in long format, with a column to indicate
 # whether it is a diagnosis or a procedure code. Note that this is
 # currently returning slightly less rows than raw_episode_data,
 # maybe if some rows contain no codes at all? More likely a bug -- to check.
 long_clinical_codes = hes.convert_codes_to_long(raw_episodes_data, "episode_id")
-
-code_groups = codes.get_code_groups(
-    "../codes_files/icd10.yaml", "../codes_files/opcs4.yaml"
-)
 
 # Count the total number of clinical code groups in each episode. This is
 # achieved by joining the names of the code groups onto the long codes
@@ -129,7 +115,41 @@ code_group_counts = (
     .fillna(0)
 )
 
-### Visually checked the datasets up to here ###
+del long_clinical_codes
+
+# Find the last date seen in the dataset to use as an approximation for
+# the right-censor date for the purpose of survival analysis.
+right_censor_date = raw_episodes_data["episode_start_date"].max()
+
+# Also helpful to know the earliest date in the dataset. This is important
+# for whether it is possible to know predictors a certain time in advance.
+left_censor_date = raw_episodes_data["episode_start_date"].min()
+
+# Also need to know the episode start times for comparison of different
+# episodes
+episode_start_dates = raw_episodes_data[
+    ["episode_id", "episode_start_date", "patient_id"]
+]
+
+age_and_gender = raw_episodes_data[["episode_id", "age", "gender"]]
+
+raw_mortality_data = mortality.get_mortality_data(start_date, end_date)
+raw_mortality_data.replace("", np.nan, inplace=True)
+
+# To find out whether a patient has died in the follow-up period
+mortality_dates = raw_mortality_data[["patient_id", "date_of_death"]]
+
+# Convert the wide primary/secondary cause of death columns
+# to a long format of normalised ICD-10 codes (with position
+# column indicating primary/secondary position).
+long_mortality = mortality.convert_codes_to_long(raw_mortality_data)
+
+# Drop duplicate ICD-10 cause of death values by retaining only
+# the highest priority value (the one with the lowest position).
+# This information is used to find the cause of death if necessary
+long_mortality = long_mortality.loc[
+    long_mortality.groupby(["patient_id", "cause_of_death"])["position"].idxmin()
+].reset_index(drop=True)
 
 # Find the index episodes, which are the ones that contain an ACS or PCI and
 # are also the first episode of the spell.
@@ -175,7 +195,8 @@ idx_episodes = (
             "age": "dem_age",
             "gender": "dem_gender",
         }
-    ).filter(regex="(idx_|dem_|patient_id)")
+    )
+    .filter(regex="(idx_|dem_|patient_id)")
 )
 
 # Join all episode start dates by patient to get a table of index events paired
