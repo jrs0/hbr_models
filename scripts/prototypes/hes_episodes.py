@@ -64,7 +64,7 @@ import numpy as np
 # episodes data from the database. Use these variables to
 # reduce the total amount of data to something the script
 # can handle
-start_date = dt.date(1990, 1, 1)  # Before the start of the data
+start_date = dt.date(2014, 1, 1)  # Before the start of the data
 end_date = dt.date(2024, 1, 1)  # After the end of the data
 
 # Fetch the raw data. 6 years of data takes 283 s to fetch (from home),
@@ -74,10 +74,10 @@ end_date = dt.date(2024, 1, 1)  # After the end of the data
 # documented exclusions results in about 6.7m rows, and takes about
 # 434 s to fetch (from home)
 raw_episodes_data = hes.get_hes_data(start_date, end_date, "episodes")
-raw_episodes_data.to_pickle("datasets/raw_episodes_dataset.pkl")
+raw_episodes_data.to_pickle("datasets/raw_episodes_dataset_small.pkl")
 
 # Optional, read from pickle instead of sql fetch
-raw_episodes_data = pd.read_pickle("datasets/raw_episodes_dataset.pkl")
+raw_episodes_data = pd.read_pickle("datasets/raw_episodes_dataset_small.pkl")
 
 # TODO remove NaNs in the spell_id column. There aren't that many,
 # but it could mess up the logic later on.
@@ -256,7 +256,13 @@ episodes_after = time_to_episode[
 ][["idx_episode_id", "episode_id"]]
 
 # Compute the outcome columns -- just classification for now
-outcome_groups = ["bleeding_al_ani", "bleeding_cadth", "bleeding_adaptt", "acs_bezin"]
+outcome_groups = [
+    "bleeding_al_ani",
+    "bleeding_cadth",
+    "bleeding_adaptt",
+    "acs_bezin",
+    "hussain_ami_stroke",
+]
 code_counts_after = (
     episodes_after.merge(code_group_counts, how="left", on="episode_id")
     .drop(columns="episode_id")
@@ -281,6 +287,9 @@ code_counts_after["bleeding_adaptt_outcome"] = code_counts_after[
 code_counts_after["acs_bezin_outcome"] = code_counts_after["acs_bezin_outcome"].astype(
     bool
 )
+code_counts_after["hussain_ami_stroke_outcome"] = code_counts_after[
+    "hussain_ami_stroke_outcome"
+].astype(bool)
 
 # Now combine the information into a final dataset containing both X and y
 dataset = (
