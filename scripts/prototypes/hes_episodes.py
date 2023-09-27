@@ -135,6 +135,8 @@ age_and_gender = raw_episodes_data[["episode_id", "age", "gender"]]
 
 raw_mortality_data = mortality.get_mortality_data(start_date, end_date)
 raw_mortality_data.replace("", np.nan, inplace=True)
+# Not sure why this is necessary, it doesn't seem necessary with the episodes
+raw_mortality_data["patient_id"] = raw_mortality_data["patient_id"].astype(np.int64)
 
 # To find out whether a patient has died in the follow-up period
 mortality_dates = raw_mortality_data[["patient_id", "date_of_death"]]
@@ -243,6 +245,14 @@ code_counts_before = (
 follow_up = dt.timedelta(days=365)  # Limit "occurred" column to 12 months
 min_period_after = dt.timedelta(days=31)  # Exclude the subsequent 72 hours after index
 
+# Find which index episodes were followed by all-cause death within
+# the follow-up period
+df = idx_episodes.merge(mortality_dates, how="left", on="patient_id")
+df["all_cause_death_outcome"] = ~df["date_of_death"].isna() & (
+    pd.to_datetime(df["date_of_death"]) - df["idx_date"] < follow_up
+)
+all_cause_death = df[["idx_episode_id", "all_cause_death_outcome"]]
+
 # These are the subsequent episodes after the index, with
 # the index row also retained. They are not limited to the follow-up
 # period yet, because survival analysis can make use of times that are
@@ -295,8 +305,9 @@ code_counts_after["hussain_ami_stroke_outcome"] = code_counts_after[
 dataset = (
     idx_episodes.merge(code_counts_before, how="left", on="idx_episode_id")
     .merge(code_counts_after, how="left", on="idx_episode_id")
+    .merge(all_cause_death)
     .drop(columns=["idx_episode_id", "idx_spell_id", "patient_id", "idx_date"])
 )
 
 # Save the resulting dataset
-ds.save_dataset(dataset, "hes_episodes_dataset")
+ds.save_dataset(dataset, "hes_episodes_dataset_small")
