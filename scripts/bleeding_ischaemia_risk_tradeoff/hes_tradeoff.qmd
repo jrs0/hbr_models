@@ -1,0 +1,11 @@
+---
+title: "Bleeding/Ischaemia Risk Trade-off Models Using Hospital Episode Statistics"
+project:
+  output-dir: _output
+format:
+  html:
+    code-fold: true
+jupyter: python3
+---
+
+Hello
