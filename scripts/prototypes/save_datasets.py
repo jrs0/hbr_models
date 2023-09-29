@@ -43,50 +43,6 @@ def save_dataset(dataset, name):
 
     dataset.to_pickle(path)
 
-
-def load_dataset(name):
-    # Check for missing datasets directory
-    datasets_dir = "datasets"
-
-    if not os.path.isdir(datasets_dir):
-        raise RuntimeError(
-            f"Missing folder '{datasets_dir}'. Check your working directory."
-        )
-
-    # Read all the .pkl files in the directory
-    files = pd.DataFrame({"path": os.listdir(datasets_dir)})
-
-    # Remove all the files whose name does not match, and drop
-    # the name from the path
-    files = files[files["path"].str.contains(name)]
-    if files.shape[0] == 0:
-        raise ValueError(
-            f"There is not dataset with the name '{name}' in the datasets directory"
-        )
-    files["commit_and_timestamp"] = files["path"].str.replace(name + "_", "")
-
-    # Split the commit and timestamp up (note also the extension)
-    try:
-        files[["commit", "timestamp", "extension"]] = files[
-            "commit_and_timestamp"
-        ].str.split(r"_|\.", expand=True)
-    except:
-        raise RuntimeError(
-            "Failed to parse files in the datasets folder. "
-            "Ensure that all files have the correct format "
-            "name_commit_timestamp.(rds|pkl), and "
-            "remove any files not matching this "
-            "poattern. TODO handle this error properly, "
-            "see save_datasets.py."
-        )
-
-    # Pick the most recent file to read and return
-    recent_first = files.sort_values(by="timestamp", ascending=False)
-    full_path = os.path.join(datasets_dir, recent_first.reset_index().loc[0, "path"])
-    dataset = pd.read_pickle(full_path)
-    return dataset
-
-
 def pick_dataset_interactive(name):
     """
     Print a list of the datasets in the datasets/ folder, along
@@ -153,7 +109,16 @@ def pick_dataset_interactive(name):
     full_path = os.path.join(datasets_dir, recent_first.loc[choice, "path"])
     return full_path
 
-
+def load_dataset_interactive(name):
+    """
+    Load a dataset from the datasets/ folder by name,
+    letting the user interactively pick between different
+    timestamps and commits
+    """
+    dataset_path = pick_dataset_interactive(name)
+    print(f"Loading {dataset_path}")
+    return pd.read_pickle(dataset_path)
+    
 def match_feature_list(feature_columns, feature_groups):
     """
     Helper function to group feature columns into groups defined
@@ -202,10 +167,7 @@ class Dataset:
         feature groups.
         """
 
-        # Load a dataset interactively
-        self.dataset_path = pick_dataset_interactive(name)
-        print(f"Loading {self.dataset_path}")
-        dataset = pd.read_pickle(self.dataset_path)
+        dataset = load_dataset_interactive(name)
 
         # Load the configuration file
         with open(config_file, "r") as stream:

@@ -178,14 +178,15 @@ idx_episodes = (
     .rename(columns={"episode_id": "idx_episode_id", "spell_id": "idx_spell_id"})
 )
 
-# Calculate information about the index event
+# Calculate information about the index event. All index events are
+# ACS or PCI, so if PCI is not performed then the case is medically
+# managed.
 df = idx_episodes.merge(
     code_group_counts, how="left", left_on="idx_episode_id", right_on="episode_id"
 )
 idx_episodes["idx_pci_performed"] = df["pci"] > 0
 idx_episodes["idx_stemi"] = df["mi_stemi_schnier"] > 0
 idx_episodes["idx_nstemi"] = df["mi_nstemi_schnier"] > 0
-idx_episodes["idx_acs"] = df["acs_bezin"] > 0
 idx_episodes = (
     idx_episodes.merge(
         episode_start_dates, how="left", left_on="idx_episode_id", right_on="episode_id"

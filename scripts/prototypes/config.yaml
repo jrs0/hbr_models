@@ -22,3 +22,7 @@ outcomes:
     bleeding_adaptt_outcome
   acs_bezin:
     acs_bezin_outcome
+  hussain_ami_stroke:
+    hussain_ami_stroke_outcome
+  all_cause_death:
+    all_cause_death_outcome
