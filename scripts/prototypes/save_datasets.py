@@ -3,6 +3,7 @@ import os
 import pandas as pd
 import yaml
 import re
+import pickle
 
 
 def current_commit():
@@ -24,6 +25,35 @@ def current_timestamp():
     return int(time.time())
 
 
+def save_fit_info(model, name):
+    """
+    Save fitted model information for creating graphs
+    of model goodness-of-fit. Accepts a dictionary
+    containing at least "probs" (a 2D numpy array of model
+    predicted probabilities on the test set), and a
+    "y_test" (a 1D numpy array with the actual test values).
+    Other model-specific information may also be stored.
+
+    TODO: This function duplicates most of the process in
+    save_dataset, and the two should be combined.
+    """
+    datasets_dir = "datasets"
+
+    if not os.path.isdir(datasets_dir):
+        print("Creating missing folder '{datasets_dir}' for storing dataset")
+        os.mkdir(datasets_dir)
+
+    # Make the file suffix out of the current git
+    # commit hash and the current time
+    filename = f"{name}_{current_commit()}_{current_timestamp()}.pkl"
+    path = os.path.join(datasets_dir, filename)
+
+    with open(path, "wb") as handle:
+        pickle.dump(model, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+
+
+
 def save_dataset(dataset, name):
     """
     Saves a pandas dataframe to a file in the datasets/
@@ -43,13 +73,12 @@ def save_dataset(dataset, name):
 
     dataset.to_pickle(path)
 
-def pick_dataset_interactive(name):
+def get_file_list(name):
     """
-    Print a list of the datasets in the datasets/ folder, along
-    with the date and time it was generated, and the commit hash,
-    and let the user pick which dataset should be loaded interactively.
-    The full filename of the resulting file is returned, which can
-    then be read by the user.
+    Get the list of files in the datasets/ folder matching
+    name. Return the result as a table of file path, commit
+    hash, and saved date. The table is sorted by timestamp,
+    with the most recent file first.
     """
     # Check for missing datasets directory
     datasets_dir = "datasets"
@@ -91,6 +120,21 @@ def pick_dataset_interactive(name):
     recent_first = files.sort_values(by="timestamp", ascending=False).reset_index()[
         ["path", "commit", "created_date"]
     ]
+    return recent_first
+
+def pick_file_interactive(name):
+    """
+    Print a list of the datasets in the datasets/ folder, along
+    with the date and time it was generated, and the commit hash,
+    and let the user pick which dataset should be loaded interactively.
+    The full filename of the resulting file is returned, which can
+    then be read by the user.
+    """
+    
+    # Check for missing datasets directory
+    datasets_dir = "datasets"
+    
+    recent_first = get_file_list(name)
     print(recent_first)
 
     num_datasets = recent_first.shape[0]
@@ -109,16 +153,30 @@ def pick_dataset_interactive(name):
     full_path = os.path.join(datasets_dir, recent_first.loc[choice, "path"])
     return full_path
 
+
 def load_dataset_interactive(name):
     """
     Load a dataset from the datasets/ folder by name,
     letting the user interactively pick between different
     timestamps and commits
     """
-    dataset_path = pick_dataset_interactive(name)
+    dataset_path = pick_file_interactive(name)
     print(f"Loading {dataset_path}")
     return pd.read_pickle(dataset_path)
-    
+
+def load_fit_info(name):
+    """
+    Load the most recent version of fit info (the
+    one with the latest timestamp).
+    """
+    datasets_dir="datasets"
+    recent_first = get_file_list(name)
+    full_path = os.path.join(datasets_dir, recent_first.loc[0, "path"])
+
+    # Read and return the fit info dictionary
+    with open(full_path, 'rb') as handle:
+        return pickle.load(handle)
+
 def match_feature_list(feature_columns, feature_groups):
     """
     Helper function to group feature columns into groups defined
@@ -167,7 +225,9 @@ class Dataset:
         feature groups.
         """
 
-        dataset = load_dataset_interactive(name)
+        self.dataset_path = pick_file_interactive(name)
+        print(f"Loading {self.dataset_path}")
+        dataset = pd.read_pickle(self.dataset_path)
 
         # Load the configuration file
         with open(config_file, "r") as stream:

@@ -54,7 +54,7 @@ from sklearn.compose import ColumnTransformer
 #    n_samples=1000, n_features=20, n_informative=2, n_redundant=2, random_state=42
 # )
 
-dataset = ds.Dataset("hes_episodes_dataset", "config.yaml")
+dataset = ds.Dataset("hes_episodes_dataset_small", "config.yaml")
 print(dataset)
 
 # Get the feature matrix X and outcome vector y
@@ -85,8 +85,7 @@ scaler = [("scaler", StandardScaler())]
 
 preprocess = resampler + reducer + scaler
 
-
-Model = SimpleRandomForest
+Model = SimpleLogisticRegression
 
 # Fit the model-under-test M0 to the training set (X0_train, y0_train), and
 # fit M other models to M other bootstrap resamples of (X0_train, y0_train).
@@ -104,15 +103,24 @@ probs = predict_bootstrapped_proba(M0, Mm, X_test)
 
 # At this point, all you need to save is probs, y_test, and any information
 # about the best model fit that you want (i.e. params, preprocessing steps, etc.)
+fit_data = {
+    "model": "simple_logistic_regression",
+    "probs": probs,
+    "y_test": y_test,
+    "other_data": "anything else you want..."
+}
 
+ds.save_fit_info(fit_data, "simple_logistic_regression")
+
+d = ds.load_fit_info("simple_logistic_regression")
 
 # Plot the basic instability curve
 fig, ax = plt.subplots()
-plot_instability(ax, probs)
+plot_instability(ax, d["probs"])
 plt.show()
 
 # Get the bootstrapped calibration curves
-calibration_curves = get_bootstrapped_calibration(probs, y_test, n_bins=10)
+calibration_curves = get_bootstrapped_calibration(probs, d["y_test"], n_bins=10)
 
 # Plot the calibration-stability plots
 fig, ax = plt.subplots(2, 1)
@@ -120,12 +128,12 @@ plot_calibration_curves(ax[0], calibration_curves)
 # Plot the distribution of predicted probabilities, also
 # showing distribution stability (over the bootstrapped models)
 # as error bars on each bin height
-plot_prediction_distribution(ax[1], probs, n_bins=10)
+plot_prediction_distribution(ax[1], d["probs"], n_bins=10)
 plt.show()
 
 # Get the bootstrapped ROC curves
-roc_curves = get_bootstrapped_roc(probs, y_test)
-roc_auc = get_bootstrapped_auc(probs, y_test)
+roc_curves = get_bootstrapped_roc(d["probs"], d["y_test"])
+roc_auc = get_bootstrapped_auc(d["probs"], d["y_test"])
 
 # Plot the ROC-stability curves
 fig, ax = plt.subplots()

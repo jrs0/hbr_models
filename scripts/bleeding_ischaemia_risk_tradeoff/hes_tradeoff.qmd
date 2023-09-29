@@ -2,10 +2,38 @@
 title: "Bleeding/Ischaemia Risk Trade-off Models Using Hospital Episode Statistics"
 project:
   output-dir: _output
+execute:
+  echo: false
 format:
-  html:
-    code-fold: true
+  pdf
 jupyter: python3
 ---
 
-Hello
+```{python}
+import os 
+os.chdir("../prototypes")
+
+import save_datasets as ds
+```
+
+# Introduction
+
+# Literature
+
+# Dataset Definitions
+
+```{python}
+
+```
+
+# Bleeding Models
+
+
+
+# Ischaemia Models
+
+# Risk Trade-off Model
+
+# Discussion
+
+# Conclusion
