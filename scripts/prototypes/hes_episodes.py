@@ -47,7 +47,6 @@ import datetime as dt
 import pandas as pd
 
 from py_hic.clinical_codes import get_codes_in_group, ClinicalCodeParser
-import code_group_counts as codes
 
 import hes
 import mortality
@@ -66,28 +65,12 @@ import numpy as np
 # can handle
 start_date = dt.date(2014, 1, 1)  # Before the start of the data
 end_date = dt.date(2024, 1, 1)  # After the end of the data
+from_file = True
 
-# Fetch the raw data. 6 years of data takes 283 s to fetch (from home),
-# so estimating full datasets takes about 1132 s. Same query took 217 s
-# in ICB. Fetching the full dataset takes 1185 s (measured at home),
-# and returns about 10.8m rows. However, excluding rows according to
-# documented exclusions results in about 6.7m rows, and takes about
-# 434 s to fetch (from home)
-raw_episodes_data = hes.get_hes_data(start_date, end_date, "episodes")
-raw_episodes_data.to_pickle("datasets/raw_episodes_dataset_small.pkl")
-
-# Optional, read from pickle instead of sql fetch
-raw_episodes_data = pd.read_pickle("datasets/raw_episodes_dataset_small.pkl")
-
-# TODO remove NaNs in the spell_id column. There aren't that many,
-# but it could mess up the logic later on.
-
-raw_episodes_data.replace("", np.nan, inplace=True)
-raw_episodes_data["episode_id"] = raw_episodes_data.index
-
-code_groups = codes.get_code_groups(
-    "../codes_files/icd10.yaml", "../codes_files/opcs4.yaml"
-)
+# Dataset containing one row per episode, grouped into spells by
+# spell_id, with some patient demographic information (age and gender)
+# and (predominantly) diagnosis and procedure columns   
+raw_episodes_data = hes.get_raw_episodes_data(start_date, end_date, from_file)
 
 # Get all the clinical codes in long format, with a column to indicate
 # whether it is a diagnosis or a procedure code. Note that this is
@@ -95,27 +78,8 @@ code_groups = codes.get_code_groups(
 # maybe if some rows contain no codes at all? More likely a bug -- to check.
 long_clinical_codes = hes.convert_codes_to_long(raw_episodes_data, "episode_id")
 
-# Count the total number of clinical code groups in each episode. This is
-# achieved by joining the names of the code groups onto the long codes
-# where the type (diagnosis or procedure) matches and also the normalised
-# code (e.g. i211) matches. The groups are pivoted to become columns,
-# with values equal to the number of occurrences of each group in each
-# episode. Due to the inner join of groups onto episodes, any episode with
-# no codes in a group will be dropped. These must be added back on at
-# the end as zero rows.
-code_group_counts = (
-    long_clinical_codes.merge(
-        code_groups,
-        how="inner",
-        left_on=["clinical_code_type", "clinical_code"],
-        right_on=["type", "name"],
-    )[["episode_id", "group"]]
-    .pivot_table(index="episode_id", columns="group", aggfunc=len, fill_value=0)
-    .merge(raw_episodes_data["episode_id"], how="right", on="episode_id")
-    .fillna(0)
-)
-
-del long_clinical_codes
+# Convert the diagnosis and procedure columns into 
+code_group_counts = hes.make_code_group_counts(long_clinical_codes, raw_episodes_data)
 
 # Find the last date seen in the dataset to use as an approximation for
 # the right-censor date for the purpose of survival analysis.

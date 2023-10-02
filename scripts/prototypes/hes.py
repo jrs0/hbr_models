@@ -4,6 +4,7 @@ import polars as pl
 import time
 import re
 from code_group_counts import normalise_code
+import numpy as np
 
 
 def diagnosis_and_procedure_columns():
@@ -194,3 +195,87 @@ def make_linear_position_scale(long_codes, N=23):
     df = long_codes.copy()
     df.position = N + 1 - df.position
     return df
+
+def make_code_group_counts(long_clinical_codes, raw_episodes_data):
+    """
+    Convert the episodes data into code counts
+    
+    Use the approximately 50 diagnosis and procedure
+    columns in raw_episodes_data to count the number of
+    each code occurring in a code group in each episode.
+    Code groups are currently hard coded to point to the
+    files in ../codes_files/.
+    
+    The input dataset needs an episode_id column and columns
+    of the form diagnosis_n, procedure_n where n runs from
+    0 (primary) to N. 
+    """
+    code_groups = codes.get_code_groups(
+        "../codes_files/icd10.yaml", "../codes_files/opcs4.yaml"
+    )
+
+    # Count the total number of clinical code groups in each episode. This is
+    # achieved by joining the names of the code groups onto the long codes
+    # where the type (diagnosis or procedure) matches and also the normalised
+    # code (e.g. i211) matches. The groups are pivoted to become columns,
+    # with values equal to the number of occurrences of each group in each
+    # episode. Due to the inner join of groups onto episodes, any episode with
+    # no codes in a group will be dropped. These must be added back on at
+    # the end as zero rows.
+    code_group_counts = (
+        long_clinical_codes.merge(
+            code_groups,
+            how="inner",
+            left_on=["clinical_code_type", "clinical_code"],
+            right_on=["type", "name"],
+        )[["episode_id", "group"]]
+        .pivot_table(index="episode_id", columns="group", aggfunc=len, fill_value=0)
+        .merge(raw_episodes_data["episode_id"], how="right", on="episode_id")
+        .fillna(0)
+    )
+    
+    return code_group_counts
+
+def get_raw_episodes_data(start_date, end_date, from_file):
+    """
+    Fetch the raw episodes data (one row per episode), with
+    patient_id, age, gender, spell_id, spell and episode start
+    and end dates, and diagnosis and procedure columns.
+    
+    NOTE: if you read from file, then start_date and end_date will
+    be ignored.
+    
+    Use start_date and end_date to limit the range of data 
+    returned. The dataset is saved in datasets/raw_episodes_data.pkl.
+    Set from_file = True to read from this file instead of SQL.
+    """
+
+    # Fetch the raw data. 6 years of data takes 283 s to fetch (from home),
+    # so estimating full datasets takes about 1132 s. Same query took 217 s
+    # in ICB. Fetching the full dataset takes 1185 s (measured at home),
+    # and returns about 10.8m rows. However, excluding rows according to
+    # documented exclusions results in about 6.7m rows, and takes about
+    # 434 s to fetch (from home)
+    if not from_file:
+        print("Fetching episodes dataset from SQL")
+        raw_episodes_data = get_hes_data(start_date, end_date, "episodes")
+        raw_episodes_data.to_pickle("datasets/raw_episodes_dataset.pkl")
+    else:
+        print("Reading episodes dataset from file")
+        raw_episodes_data = pd.read_pickle("datasets/raw_episodes_dataset.pkl")
+    
+    num_rows = len(raw_episodes_data["index"])
+    print(f"Dataset from contains {num_rows} rows")
+    
+    # Replace empty string with NaN across the dataset
+    raw_episodes_data.replace("", np.nan, inplace=True)
+    
+    # Store the episode id explicitly as a column
+    raw_episodes_data["episode_id"] = raw_episodes_data
+    
+    # Ensure that the spell_id column does not contain NaN
+    num_empty_spell_id = raw_episodes_data["spell_id"].isnull().sum()
+    print(f"Dropping {num_empty_spell_id} rows with missing spell_id")
+    raw_episodes_data.dropna(subset="spell_id", inplace=True)
+    
+    return raw_episodes_data

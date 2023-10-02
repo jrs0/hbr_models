@@ -24,7 +24,6 @@ from calibration import (
     plot_prediction_distribution,
 )
 from roc import get_bootstrapped_roc, get_bootstrapped_auc, plot_roc_curves
-
 ```
 
 # Introduction
