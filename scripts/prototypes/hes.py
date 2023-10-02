@@ -264,18 +264,26 @@ def get_raw_episodes_data(start_date, end_date, from_file):
         print("Reading episodes dataset from file")
         raw_episodes_data = pd.read_pickle("datasets/raw_episodes_dataset.pkl")
     
-    num_rows = len(raw_episodes_data["index"])
-    print(f"Dataset from contains {num_rows} rows")
+    num_rows = len(raw_episodes_data.index)
+    print(f"Dataset contains {num_rows} rows")
     
     # Replace empty string with NaN across the dataset
     raw_episodes_data.replace("", np.nan, inplace=True)
     
     # Store the episode id explicitly as a column
-    raw_episodes_data["episode_id"] = raw_episodes_data
+    raw_episodes_data["episode_id"] = raw_episodes_data.index
     
     # Ensure that the spell_id column does not contain NaN
     num_empty_spell_id = raw_episodes_data["spell_id"].isnull().sum()
     print(f"Dropping {num_empty_spell_id} rows with missing spell_id")
     raw_episodes_data.dropna(subset="spell_id", inplace=True)
+    
+    # Exclude rows where all of the diagnosis/procedure columns are NULL
+    rows_before_dropping_empty_codes = len(raw_episodes_data.index)
+    pattern = re.compile("(diagnosis|procedure)")
+    code_cols = [s for s in raw_episodes_data.columns if pattern.search(s)]
+    raw_episodes_data.dropna(subset=code_cols, how="all", inplace=True)
+    num_empty_codes = rows_before_dropping_empty_codes - len(raw_episodes_data.index)
+    print(f"Dropped {num_empty_codes} rows missing any diagnosis or procedure code")
     
     return raw_episodes_data
