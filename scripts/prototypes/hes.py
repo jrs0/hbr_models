@@ -5,6 +5,7 @@ import time
 import re
 import code_group_counts as codes
 import numpy as np
+import sparse_encode as spe
 
 def diagnosis_and_procedure_columns():
     """
@@ -374,7 +375,7 @@ def calculate_time_to_episode(idx_episodes, raw_episodes_data):
     df["index_to_episode_time"] = df["episode_start_date"] - df["idx_date"]
     return df[["idx_episode_id", "episode_id", "index_to_episode_time"]]
     
-def get_code_counts_before_index(episodes_before_idx, code_group_counts, idx_episodes):
+def get_code_groups_before_index(episodes_before_idx, code_group_counts, idx_episodes):
     """
     Compute the total count for each index event that has an episode
     in the valid window before the index.
@@ -385,6 +386,27 @@ def get_code_counts_before_index(episodes_before_idx, code_group_counts, idx_epi
         .groupby("idx_episode_id")
         .sum()
         .add_suffix("_before")
+        .merge(idx_episodes["idx_episode_id"], how="right", on="idx_episode_id")
+        .fillna(0)
+    )
+    
+def get_all_codes_before_index(episodes_before_idx, long_clinical_codes, idx_episodes):
+    """
+    Instead of computing code counts, join the long_clinical_codes to episodes_before
+    by episode id (i.e. on the episode before), and then group by index episode. This
+    gives groups that show all the codes that occurred in any episode before the index
+    event. Currently, diagnosis/procedure code position is not considered in generating
+    columns; i.e. the features represent a "bag of codes". Duplicate codes in the window
+    before the index event are dropped, and no temporal information is retained about
+    when the code occurred. This is the simplest thing to start with.
+    """
+    df = episodes_before_idx.merge(long_clinical_codes, on="episode_id")
+    df["full_code"] = df["clinical_code_type"] + "_" + df["clinical_code"]
+    long_codes_before = df[["idx_episode_id", "full_code"]].drop_duplicates()
+    return (
+        spe.sparse_encode(long_codes_before, "idx_episode_id")
+        .rename_axis("idx_episode_id")
+        .reset_index()
         .merge(idx_episodes["idx_episode_id"], how="right", on="idx_episode_id")
         .fillna(0)
     )
