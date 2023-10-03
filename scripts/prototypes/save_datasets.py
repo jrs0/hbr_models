@@ -236,6 +236,9 @@ class Dataset:
             except yaml.YAMLError as e:
                 raise RuntimeError(f"Unable to load config file: {e}")
 
+        # Drop columns that are in the ignore list
+        dataset.drop(columns=self.config["ignore"], inplace=True)
+
         # Get the outcome columns
         outcome_columns = self.config["outcomes"].values()
         try:

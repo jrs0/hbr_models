@@ -54,7 +54,7 @@ from sklearn.compose import ColumnTransformer
 #    n_samples=1000, n_features=20, n_informative=2, n_redundant=2, random_state=42
 # )
 
-dataset = ds.Dataset("hes_episodes_dataset_small", "config.yaml")
+dataset = ds.Dataset("hes_code_groups_dataset", "config.yaml")
 print(dataset)
 
 # Get the feature matrix X and outcome vector y

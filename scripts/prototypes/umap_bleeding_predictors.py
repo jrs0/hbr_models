@@ -8,10 +8,6 @@
 # then it might be useful as a preprocessor step in building models
 # for bleeding.
 
-import os
-
-os.chdir("scripts/prototypes")
-
 import save_datasets as ds
 import umap
 import matplotlib.pyplot as plt
@@ -21,6 +17,9 @@ import seaborn as sns
 # predictors. You will need to pick these interactively
 df_code_groups = ds.load_dataset_interactive("hes_code_groups_dataset")
 df_all_codes = ds.load_dataset_interactive("hes_all_codes_dataset")
+
+print(df_code_groups.columns)
+exit()
 
 # Need these two to be in sync; i.e. they need the same number
 # of rows, consistently indexed by idx_episode_id
