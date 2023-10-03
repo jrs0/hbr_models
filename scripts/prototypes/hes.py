@@ -377,8 +377,7 @@ def calculate_time_to_episode(idx_episodes, raw_episodes_data):
 def get_code_counts_before_index(episodes_before_idx, code_group_counts, idx_episodes):
     """
     Compute the total count for each index event that has an episode
-    in the valid window before the index. Note that this excludes
-    index events with zero episodes before the index.
+    in the valid window before the index.
     """
     return (
         episodes_before_idx.merge(code_group_counts, how="left", on="episode_id")
@@ -442,15 +441,17 @@ def make_outcomes(outcome_groups, idx_episodes, episodes_after_index, code_group
         
     return code_counts_after
 
-def make_code_groups_dataset(idx_episodes, feature_counts, outcome_counts, all_cause_death):
+def make_dataset_from_features(idx_episodes, features, outcome_counts, all_cause_death):
     """
     Make the dataset whose features are code groups counts and whose outcomes
     are code group counts in outcome_counts and all_cause_death. Distinct
     from the dataset which uses all codes as features.
     """
+    # Note: it is important to have the features dataframe first, because it
+    # might be sparse, and we want to preserve the sparsity.
     return (
-        idx_episodes.merge(feature_counts, how="left", on="idx_episode_id")
+        features.merge(idx_episodes, how="left", on="idx_episode_id")
         .merge(outcome_counts, how="left", on="idx_episode_id")
-        .merge(all_cause_death)
-        .drop(columns=["idx_episode_id", "idx_spell_id", "patient_id", "idx_date"])
+        .merge(all_cause_death, how="left", on="idx_episode_id")
+        .drop(columns=["idx_episode_id", "idx_spell_id", "patient_id"])
     )

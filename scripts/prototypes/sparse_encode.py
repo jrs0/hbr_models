@@ -144,5 +144,3 @@ def sparse_encode(long_codes, record_id):
     return pd.DataFrame.sparse.from_spmatrix(
         mat, index=record_ids, columns=column_names
     )
-
-    # return mat, record_ids
