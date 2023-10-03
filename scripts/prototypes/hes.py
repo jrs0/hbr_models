@@ -475,5 +475,6 @@ def make_dataset_from_features(idx_episodes, features, outcome_counts, all_cause
         features.merge(idx_episodes, how="left", on="idx_episode_id")
         .merge(outcome_counts, how="left", on="idx_episode_id")
         .merge(all_cause_death, how="left", on="idx_episode_id")
-        .drop(columns=["idx_episode_id", "idx_spell_id", "patient_id"])
+        .set_index("idx_episode_id")
+        .drop(columns=["idx_spell_id", "patient_id"])
     )

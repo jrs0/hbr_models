@@ -165,4 +165,4 @@ ds.save_dataset(hes_code_groups_dataset, "hes_code_groups_dataset")
 hes_all_codes_dataset = hes.make_dataset_from_features(
     idx_episodes, feature_any_code, outcome_counts, all_cause_death
 )
-ds.save_dataset(hes_code_groups_dataset, "hes_all_codes_dataset")
+ds.save_dataset(hes_all_codes_dataset, "hes_all_codes_dataset")
