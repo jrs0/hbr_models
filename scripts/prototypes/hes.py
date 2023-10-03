@@ -287,3 +287,68 @@ def get_raw_episodes_data(start_date, end_date, from_file):
     print(f"Dropped {num_empty_codes} rows missing any diagnosis or procedure code")
     
     return raw_episodes_data
+
+
+def get_episode_start_dates(raw_episodes_data):
+    """
+    Also need to know the episode start times for comparison of different
+    episodes
+    """
+    return raw_episodes_data[
+        ["episode_id", "episode_start_date", "patient_id"]
+    ]
+
+def get_age_and_gender(raw_episodes_data):
+    """
+    Get the age and gender columns
+    """
+    return raw_episodes_data[["episode_id", "age", "gender"]]
+
+def get_index_episodes(code_group_counts, raw_episodes_data):
+    """
+    Find the index episodes, which are the ones that contain an ACS or PCI and
+    are also the first episode of the spell.
+    """
+    df = (
+        code_group_counts.merge(
+            raw_episodes_data[["episode_id", "spell_id", "episode_start_date"]],
+            how="left",
+            on="episode_id",
+        )
+        .sort_values("episode_start_date")
+        .groupby("spell_id")
+        .first()
+    )
+    assert (
+        df.shape[0] == raw_episodes_data.spell_id.nunique()
+    ), "Expecting df to have one row per spell in the original dataset"
+    idx_episodes = (
+        df[(df["acs_bezin"] > 0) | (df["pci"] > 0)]
+        .reset_index()[["episode_id", "spell_id"]]
+        .rename(columns={"episode_id": "idx_episode_id", "spell_id": "idx_spell_id"})
+    )
+
+    # Calculate information about the index event. All index events are
+    # ACS or PCI, so if PCI is not performed then the case is medically
+    # managed.
+    df = idx_episodes.merge(
+        code_group_counts, how="left", left_on="idx_episode_id", right_on="episode_id"
+    )
+    idx_episodes["idx_pci_performed"] = df["pci"] > 0
+    idx_episodes["idx_stemi"] = df["mi_stemi_schnier"] > 0
+    idx_episodes["idx_nstemi"] = df["mi_nstemi_schnier"] > 0
+    idx_episodes = (
+        idx_episodes.merge(
+            get_episode_start_dates(raw_episodes_data), how="left", left_on="idx_episode_id", right_on="episode_id"
+        )
+        .merge(get_age_and_gender(raw_episodes_data), how="left", left_on="idx_episode_id", right_on="episode_id")
+        .rename(
+            columns={
+                "episode_start_date": "idx_date",
+                "age": "dem_age",
+                "gender": "dem_gender",
+            }
+        )
+        .filter(regex="(idx_|dem_|patient_id)")
+    )
+    return idx_episodes

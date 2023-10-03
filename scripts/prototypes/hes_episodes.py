@@ -89,14 +89,6 @@ right_censor_date = raw_episodes_data["episode_start_date"].max()
 # for whether it is possible to know predictors a certain time in advance.
 left_censor_date = raw_episodes_data["episode_start_date"].min()
 
-# Also need to know the episode start times for comparison of different
-# episodes
-episode_start_dates = raw_episodes_data[
-    ["episode_id", "episode_start_date", "patient_id"]
-]
-
-age_and_gender = raw_episodes_data[["episode_id", "age", "gender"]]
-
 raw_mortality_data = mortality.get_mortality_data(start_date, end_date)
 raw_mortality_data.replace("", np.nan, inplace=True)
 # Not sure why this is necessary, it doesn't seem necessary with the episodes
@@ -119,52 +111,7 @@ long_mortality = long_mortality.loc[
 
 # Find the index episodes, which are the ones that contain an ACS or PCI and
 # are also the first episode of the spell.
-# NOTE: there appear to be duplicate spell IDs; i.e., episodes separated
-# by like 5 years, with the same spell ID, but no other intervening episodes.
-# Doesn't sound likely that someone is in hospital for 5 years with only two
-# consultant episodes.
-df = (
-    code_group_counts.merge(
-        raw_episodes_data[["episode_id", "spell_id", "episode_start_date"]],
-        how="left",
-        on="episode_id",
-    )
-    .sort_values("episode_start_date")
-    .groupby("spell_id")
-    .first()
-)
-assert (
-    df.shape[0] == raw_episodes_data.spell_id.nunique()
-), "Expecting df to have one row per spell in the original dataset"
-idx_episodes = (
-    df[(df["acs_bezin"] > 0) | (df["pci"] > 0)]
-    .reset_index()[["episode_id", "spell_id"]]
-    .rename(columns={"episode_id": "idx_episode_id", "spell_id": "idx_spell_id"})
-)
-
-# Calculate information about the index event. All index events are
-# ACS or PCI, so if PCI is not performed then the case is medically
-# managed.
-df = idx_episodes.merge(
-    code_group_counts, how="left", left_on="idx_episode_id", right_on="episode_id"
-)
-idx_episodes["idx_pci_performed"] = df["pci"] > 0
-idx_episodes["idx_stemi"] = df["mi_stemi_schnier"] > 0
-idx_episodes["idx_nstemi"] = df["mi_nstemi_schnier"] > 0
-idx_episodes = (
-    idx_episodes.merge(
-        episode_start_dates, how="left", left_on="idx_episode_id", right_on="episode_id"
-    )
-    .merge(age_and_gender, how="left", left_on="idx_episode_id", right_on="episode_id")
-    .rename(
-        columns={
-            "episode_start_date": "idx_date",
-            "age": "dem_age",
-            "gender": "dem_gender",
-        }
-    )
-    .filter(regex="(idx_|dem_|patient_id)")
-)
+idx_episodes = hes.get_index_episodes(code_group_counts, raw_episodes_data)
 
 # Join all episode start dates by patient to get a table of index events paired
 # up with all the patient's other episodes. This can be used to find which other
