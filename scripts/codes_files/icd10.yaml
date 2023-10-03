@@ -3030,6 +3030,12 @@ categories:
     - bleeding_adaptt
     - acs_bezin
     - ihd_bezin
+    - ckd
+    - diabetes
+    - cancer
+    - diabetes_type1
+    - diabetes_type2
+    - hussain_ami_stroke
     index:
     - A00
     - B99
@@ -5902,6 +5908,11 @@ categories:
     - bleeding_adaptt
     - acs_bezin
     - ihd_bezin
+    - ckd
+    - diabetes
+    - diabetes_type1
+    - diabetes_type2
+    - hussain_ami_stroke
     index:
     - C00
     - D48
@@ -6556,6 +6567,12 @@ categories:
     - bleeding_adaptt
     - acs_bezin
     - ihd_bezin
+    - ckd
+    - diabetes
+    - cancer
+    - diabetes_type1
+    - diabetes_type2
+    - hussain_ami_stroke
     index:
     - D50
     - D89
@@ -6714,6 +6731,10 @@ categories:
         index: E07
         name: E07
       docs: Disorders of thyroid gland
+      exclude:
+      - diabetes
+      - diabetes_type1
+      - diabetes_type2
       index:
       - E00
       - E07
@@ -6751,6 +6772,8 @@ categories:
           index: E109
           name: E10.9
         docs: Type 1 diabetes mellitus
+        exclude:
+        - diabetes_type2
         index: E10
         name: E10
       - categories:
@@ -6785,6 +6808,8 @@ categories:
           index: E119
           name: E11.9
         docs: Type 2 diabetes mellitus
+        exclude:
+        - diabetes_type1
         index: E11
         name: E11
       - categories:
@@ -6819,6 +6844,10 @@ categories:
           index: E129
           name: E12.9
         docs: Malnutrition-related diabetes mellitus
+        exclude:
+        - diabetes
+        - diabetes_type1
+        - diabetes_type2
         index: E12
         name: E12
       - categories:
@@ -6853,6 +6882,10 @@ categories:
           index: E139
           name: E13.9
         docs: Other specified diabetes mellitus
+        exclude:
+        - diabetes
+        - diabetes_type1
+        - diabetes_type2
         index: E13
         name: E13
       - categories:
@@ -6887,6 +6920,10 @@ categories:
           index: E149
           name: E14.9
         docs: Unspecified diabetes mellitus
+        exclude:
+        - diabetes
+        - diabetes_type1
+        - diabetes_type2
         index: E14
         name: E14
       docs: Diabetes mellitus
@@ -6924,6 +6961,10 @@ categories:
         index: E16
         name: E16
       docs: Other disorders of glucose regulation and pancreatic internal secretion
+      exclude:
+      - diabetes
+      - diabetes_type1
+      - diabetes_type2
       index:
       - E15
       - E16
@@ -7218,6 +7259,10 @@ categories:
         index: E35
         name: E35
       docs: Disorders of other endocrine glands
+      exclude:
+      - diabetes
+      - diabetes_type1
+      - diabetes_type2
       index:
       - E20
       - E35
@@ -7252,6 +7297,10 @@ categories:
         index: E46
         name: E46
       docs: Malnutrition
+      exclude:
+      - diabetes
+      - diabetes_type1
+      - diabetes_type2
       index:
       - E40
       - E46
@@ -7437,6 +7486,10 @@ categories:
         index: E64
         name: E64
       docs: Other nutritional deficiencies
+      exclude:
+      - diabetes
+      - diabetes_type1
+      - diabetes_type2
       index:
       - E50
       - E64
@@ -7487,6 +7540,10 @@ categories:
         index: E68
         name: E68
       docs: Obesity and other hyperalimentation
+      exclude:
+      - diabetes
+      - diabetes_type1
+      - diabetes_type2
       index:
       - E65
       - E68
@@ -7897,6 +7954,10 @@ categories:
         index: E90
         name: E90
       docs: Metabolic disorders
+      exclude:
+      - diabetes
+      - diabetes_type1
+      - diabetes_type2
       index:
       - E70
       - E90
@@ -7911,6 +7972,9 @@ categories:
     - bleeding_adaptt
     - acs_bezin
     - ihd_bezin
+    - ckd
+    - cancer
+    - hussain_ami_stroke
     index:
     - E00
     - E90
@@ -7959,6 +8023,7 @@ categories:
       - bleeding_adaptt
       - acs_bezin
       - ihd_bezin
+      - hussain_ami_stroke
       index:
       - I00
       - I02
@@ -8072,6 +8137,7 @@ categories:
       - bleeding_adaptt
       - acs_bezin
       - ihd_bezin
+      - hussain_ami_stroke
       index:
       - I05
       - I09
@@ -8145,6 +8211,7 @@ categories:
       - bleeding_adaptt
       - acs_bezin
       - ihd_bezin
+      - hussain_ami_stroke
       index:
       - I10
       - I15
@@ -8175,6 +8242,7 @@ categories:
         - mi_nstemi_schnier
         - mi_schnier
         - bleeding_adaptt
+        - hussain_ami_stroke
         index: I20
         name: I20
       - categories:
@@ -8285,6 +8353,7 @@ categories:
         - mi_nstemi_schnier
         - acs_bezin
         - ihd_bezin
+        - hussain_ami_stroke
         index: I23
         name: I23
       - categories:
@@ -8311,6 +8380,7 @@ categories:
         - mi_stemi_schnier
         - mi_nstemi_schnier
         - bleeding_adaptt
+        - hussain_ami_stroke
         index: I24
         name: I24
       - categories:
@@ -8365,6 +8435,7 @@ categories:
         - mi_nstemi_schnier
         - bleeding_adaptt
         - acs_bezin
+        - hussain_ami_stroke
         index: I25
         name: I25
       docs: Ischaemic heart diseases
@@ -8431,6 +8502,7 @@ categories:
       - bleeding_adaptt
       - acs_bezin
       - ihd_bezin
+      - hussain_ami_stroke
       index:
       - I26
       - I28
@@ -8888,6 +8960,7 @@ categories:
       - bleeding_adaptt
       - acs_bezin
       - ihd_bezin
+      - hussain_ami_stroke
       index:
       - I30
       - I52
@@ -8999,6 +9072,8 @@ categories:
           index: I635
           name: I63.5
         - docs: Cerebral infarction due to cerebral venous thrombosis, nonpyogenic
+          exclude:
+          - hussain_ami_stroke
           index: I636
           name: I63.6
         - docs: Other cerebral infarction
@@ -9045,6 +9120,7 @@ categories:
         - bleeding_al_ani
         - bleeding_cadth
         - bleeding_adaptt
+        - hussain_ami_stroke
         index: I65
         name: I65
       - categories:
@@ -9074,6 +9150,7 @@ categories:
         - bleeding_al_ani
         - bleeding_cadth
         - bleeding_adaptt
+        - hussain_ami_stroke
         index: I66
         name: I66
       - categories:
@@ -9112,6 +9189,7 @@ categories:
         - bleeding_al_ani
         - bleeding_cadth
         - bleeding_adaptt
+        - hussain_ami_stroke
         index: I67
         name: I67
       - categories:
@@ -9132,6 +9210,7 @@ categories:
         - bleeding_al_ani
         - bleeding_cadth
         - bleeding_adaptt
+        - hussain_ami_stroke
         index: I68
         name: I68
       - categories:
@@ -9163,6 +9242,7 @@ categories:
         exclude:
         - bleeding_al_ani
         - bleeding_cadth
+        - hussain_ami_stroke
         index: I69
         name: I69
       docs: Cerebrovascular diseases
@@ -9375,6 +9455,7 @@ categories:
       - bleeding_adaptt
       - acs_bezin
       - ihd_bezin
+      - hussain_ami_stroke
       index:
       - I70
       - I79
@@ -9561,6 +9642,7 @@ categories:
       - bleeding_adaptt
       - acs_bezin
       - ihd_bezin
+      - hussain_ami_stroke
       index:
       - I80
       - I89
@@ -9636,11 +9718,18 @@ categories:
       - bleeding_adaptt
       - acs_bezin
       - ihd_bezin
+      - hussain_ami_stroke
       index:
       - I95
       - I99
       name: I95-I99
     docs: Diseases of the circulatory system
+    exclude:
+    - ckd
+    - diabetes
+    - cancer
+    - diabetes_type1
+    - diabetes_type2
     index:
     - I00
     - I99
@@ -11183,6 +11272,12 @@ categories:
     - bleeding_adaptt
     - acs_bezin
     - ihd_bezin
+    - ckd
+    - diabetes
+    - cancer
+    - diabetes_type1
+    - diabetes_type2
+    - hussain_ami_stroke
     index:
     - F00
     - F99
@@ -12489,6 +12584,12 @@ categories:
     - bleeding_adaptt
     - acs_bezin
     - ihd_bezin
+    - ckd
+    - diabetes
+    - cancer
+    - diabetes_type1
+    - diabetes_type2
+    - hussain_ami_stroke
     index:
     - G00
     - G99
@@ -12644,6 +12745,8 @@ categories:
         index: H06
         name: H06
       docs: Disorders of eyelid, lacrimal system and orbit
+      exclude:
+      - hussain_ami_stroke
       index:
       - H00
       - H06
@@ -12722,6 +12825,8 @@ categories:
         index: H13
         name: H13
       docs: Disorders of conjunctiva
+      exclude:
+      - hussain_ami_stroke
       index:
       - H10
       - H13
@@ -12898,6 +13003,8 @@ categories:
         index: H22
         name: H22
       docs: Disorders of sclera, cornea, iris and ciliary body
+      exclude:
+      - hussain_ami_stroke
       index:
       - H15
       - H22
@@ -12980,6 +13087,8 @@ categories:
         index: H28
         name: H28
       docs: Disorders of lens
+      exclude:
+      - hussain_ami_stroke
       index:
       - H25
       - H28
@@ -13002,6 +13111,8 @@ categories:
           index: H309
           name: H30.9
         docs: Chorioretinal inflammation
+        exclude:
+        - hussain_ami_stroke
         index: H30
         name: H30
       - categories:
@@ -13027,6 +13138,8 @@ categories:
           index: H319
           name: H31.9
         docs: Other disorders of choroid
+        exclude:
+        - hussain_ami_stroke
         index: H31
         name: H31
       - categories:
@@ -13037,6 +13150,8 @@ categories:
           index: H328
           name: H32.8
         docs: Chorioretinal disorders in diseases classified elsewhere
+        exclude:
+        - hussain_ami_stroke
         index: H32
         name: H32
       - categories:
@@ -13059,22 +13174,32 @@ categories:
           index: H335
           name: H33.5
         docs: Retinal detachments and breaks
+        exclude:
+        - hussain_ami_stroke
         index: H33
         name: H33
       - categories:
         - docs: Transient retinal artery occlusion
+          exclude:
+          - hussain_ami_stroke
           index: H340
           name: H34.0
         - docs: Central retinal artery occlusion
           index: H341
           name: H34.1
         - docs: Other retinal artery occlusions
+          exclude:
+          - hussain_ami_stroke
           index: H342
           name: H34.2
         - docs: Other retinal vascular occlusions
+          exclude:
+          - hussain_ami_stroke
           index: H348
           name: H34.8
         - docs: Retinal vascular occlusion, unspecified
+          exclude:
+          - hussain_ami_stroke
           index: H349
           name: H34.9
         docs: Retinal vascular occlusions
@@ -13112,6 +13237,8 @@ categories:
           index: H359
           name: H35.9
         docs: Other retinal disorders
+        exclude:
+        - hussain_ami_stroke
         index: H35
         name: H35
       - categories:
@@ -13122,6 +13249,8 @@ categories:
           index: H368
           name: H36.8
         docs: Retinal disorders in diseases classified elsewhere
+        exclude:
+        - hussain_ami_stroke
         index: H36
         name: H36
       docs: Disorders of choroid and retina
@@ -13172,6 +13301,8 @@ categories:
         index: H42
         name: H42
       docs: Glaucoma
+      exclude:
+      - hussain_ami_stroke
       index:
       - H40
       - H42
@@ -13247,6 +13378,8 @@ categories:
         index: H45
         name: H45
       docs: Disorders of vitreous body and globe
+      exclude:
+      - hussain_ami_stroke
       index:
       - H43
       - H45
@@ -13297,6 +13430,8 @@ categories:
         index: H48
         name: H48
       docs: Disorders of optic nerve and visual pathways
+      exclude:
+      - hussain_ami_stroke
       index:
       - H46
       - H48
@@ -13406,6 +13541,8 @@ categories:
         index: H52
         name: H52
       docs: Disorders of ocular muscles, binocular movement, accommodation and refraction
+      exclude:
+      - hussain_ami_stroke
       index:
       - H49
       - H52
@@ -13471,6 +13608,8 @@ categories:
         index: H54
         name: H54
       docs: Visual disturbances and blindness
+      exclude:
+      - hussain_ami_stroke
       index:
       - H53
       - H54
@@ -13522,6 +13661,8 @@ categories:
         index: H59
         name: H59
       docs: Other disorders of eye and adnexa
+      exclude:
+      - hussain_ami_stroke
       index:
       - H55
       - H59
@@ -13536,6 +13677,11 @@ categories:
     - bleeding_adaptt
     - acs_bezin
     - ihd_bezin
+    - ckd
+    - diabetes
+    - cancer
+    - diabetes_type1
+    - diabetes_type2
     index:
     - H00
     - H59
@@ -14002,6 +14148,12 @@ categories:
     - bleeding_adaptt
     - acs_bezin
     - ihd_bezin
+    - ckd
+    - diabetes
+    - cancer
+    - diabetes_type1
+    - diabetes_type2
+    - hussain_ami_stroke
     index:
     - H60
     - H95
@@ -14959,6 +15111,12 @@ categories:
     - bleeding_adaptt
     - acs_bezin
     - ihd_bezin
+    - ckd
+    - diabetes
+    - cancer
+    - diabetes_type1
+    - diabetes_type2
+    - hussain_ami_stroke
     index:
     - J00
     - J99
@@ -16907,6 +17065,12 @@ categories:
     - mi_schnier
     - acs_bezin
     - ihd_bezin
+    - ckd
+    - diabetes
+    - cancer
+    - diabetes_type1
+    - diabetes_type2
+    - hussain_ami_stroke
     index:
     - K00
     - K93
@@ -18228,6 +18392,12 @@ categories:
     - bleeding_adaptt
     - acs_bezin
     - ihd_bezin
+    - ckd
+    - diabetes
+    - cancer
+    - diabetes_type1
+    - diabetes_type2
+    - hussain_ami_stroke
     index:
     - L00
     - L99
@@ -20304,6 +20474,12 @@ categories:
     - bleeding_adaptt
     - acs_bezin
     - ihd_bezin
+    - ckd
+    - diabetes
+    - cancer
+    - diabetes_type1
+    - diabetes_type2
+    - hussain_ami_stroke
     index:
     - M00
     - M99
@@ -20626,6 +20802,7 @@ categories:
       docs: Glomerular diseases
       exclude:
       - bleeding_adaptt
+      - ckd
       index:
       - N00
       - N08
@@ -20751,6 +20928,7 @@ categories:
       exclude:
       - bleeding_cadth
       - bleeding_adaptt
+      - ckd
       index:
       - N10
       - N16
@@ -20773,6 +20951,8 @@ categories:
           index: N179
           name: N17.9
         docs: Acute renal failure
+        exclude:
+        - ckd
         index: N17
         name: N17
       - categories:
@@ -20798,6 +20978,8 @@ categories:
         index: N18
         name: N18
       - docs: Unspecified kidney failure
+        exclude:
+        - ckd
         index: N19
         name: N19
       docs: Renal failure
@@ -20858,6 +21040,7 @@ categories:
       exclude:
       - bleeding_cadth
       - bleeding_adaptt
+      - ckd
       index:
       - N20
       - N23
@@ -20928,6 +21111,7 @@ categories:
       exclude:
       - bleeding_cadth
       - bleeding_adaptt
+      - ckd
       index:
       - N25
       - N29
@@ -21105,6 +21289,7 @@ categories:
       exclude:
       - bleeding_cadth
       - bleeding_adaptt
+      - ckd
       index:
       - N30
       - N39
@@ -21281,6 +21466,7 @@ categories:
       exclude:
       - bleeding_cadth
       - bleeding_adaptt
+      - ckd
       index:
       - N40
       - N51
@@ -21352,6 +21538,7 @@ categories:
       exclude:
       - bleeding_cadth
       - bleeding_adaptt
+      - ckd
       index:
       - N60
       - N64
@@ -21500,6 +21687,7 @@ categories:
       exclude:
       - bleeding_cadth
       - bleeding_adaptt
+      - ckd
       index:
       - N70
       - N77
@@ -22001,6 +22189,7 @@ categories:
       docs: Noninflammatory disorders of female genital tract
       exclude:
       - bleeding_cadth
+      - ckd
       index:
       - N80
       - N98
@@ -22038,6 +22227,7 @@ categories:
       exclude:
       - bleeding_cadth
       - bleeding_adaptt
+      - ckd
       index:
       - N99
       - N99
@@ -22050,6 +22240,11 @@ categories:
     - mi_schnier
     - acs_bezin
     - ihd_bezin
+    - diabetes
+    - cancer
+    - diabetes_type1
+    - diabetes_type2
+    - hussain_ami_stroke
     index:
     - N00
     - N99
@@ -26834,6 +27029,12 @@ categories:
     - bleeding_cadth
     - acs_bezin
     - ihd_bezin
+    - ckd
+    - diabetes
+    - cancer
+    - diabetes_type1
+    - diabetes_type2
+    - hussain_ami_stroke
     index:
     - S00
     - T98
@@ -28467,6 +28668,12 @@ categories:
     - bleeding_adaptt
     - acs_bezin
     - ihd_bezin
+    - ckd
+    - diabetes
+    - cancer
+    - diabetes_type1
+    - diabetes_type2
+    - hussain_ami_stroke
     index:
     - O00
     - O99
@@ -29757,6 +29964,12 @@ categories:
     - bleeding_adaptt
     - acs_bezin
     - ihd_bezin
+    - ckd
+    - diabetes
+    - cancer
+    - diabetes_type1
+    - diabetes_type2
+    - hussain_ami_stroke
     index:
     - P00
     - P96
@@ -32039,6 +32252,12 @@ categories:
     - bleeding_adaptt
     - acs_bezin
     - ihd_bezin
+    - ckd
+    - diabetes
+    - cancer
+    - diabetes_type1
+    - diabetes_type2
+    - hussain_ami_stroke
     index:
     - Q00
     - Q99
@@ -33488,6 +33707,12 @@ categories:
     - mi_schnier
     - acs_bezin
     - ihd_bezin
+    - ckd
+    - diabetes
+    - cancer
+    - diabetes_type1
+    - diabetes_type2
+    - hussain_ami_stroke
     index:
     - R00
     - R99
@@ -38449,6 +38674,12 @@ categories:
     - bleeding_adaptt
     - acs_bezin
     - ihd_bezin
+    - ckd
+    - diabetes
+    - cancer
+    - diabetes_type1
+    - diabetes_type2
+    - hussain_ami_stroke
     index:
     - V01
     - Y98
@@ -40724,6 +40955,12 @@ categories:
     - bleeding_adaptt
     - acs_bezin
     - ihd_bezin
+    - ckd
+    - diabetes
+    - cancer
+    - diabetes_type1
+    - diabetes_type2
+    - hussain_ami_stroke
     index:
     - Z00
     - Z99
@@ -40895,6 +41132,12 @@ categories:
     - bleeding_adaptt
     - acs_bezin
     - ihd_bezin
+    - ckd
+    - diabetes
+    - cancer
+    - diabetes_type1
+    - diabetes_type2
+    - hussain_ami_stroke
     index:
     - U00
     - U85
@@ -40913,3 +41156,9 @@ groups:
 - mi_schnier
 - acs_bezin
 - ihd_bezin
+- ckd
+- cancer
+- diabetes
+- diabetes_type1
+- diabetes_type2
+- hussain_ami_stroke

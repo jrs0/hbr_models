@@ -1,0 +1,28 @@
+# Feature columns matching the regular expressions
+# below correspond to the named groups. The intention
+# is to perform different kinds of preprocessing on 
+# these groups
+features:
+  demographics:
+    "^dem_"
+  index_data:
+    "^idx_"
+  clinical_codes:
+    "^(diagnosis|procedure)_"
+  code_counts_before:
+    "_before"
+# Outcome columns are should match unique columns.
+# Consider just a single match for _outcome
+outcomes:
+  bleeding_al_ani:
+    bleeding_al_ani_outcome
+  bleeding_cadth:
+    bleeding_cadth_outcome
+  bleeding_adaptt:
+    bleeding_adaptt_outcome
+  acs_bezin:
+    acs_bezin_outcome
+  hussain_ami_stroke:
+    hussain_ami_stroke_outcome
+  all_cause_death:
+    all_cause_death_outcome

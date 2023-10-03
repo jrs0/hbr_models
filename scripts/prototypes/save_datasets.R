@@ -42,7 +42,7 @@ save_dataset <- function(dataset, name) {
 ##' multiple files match the filename, then the one
 ##' with the latest timestamp is chosen.
 load_dataset <- function(name) {
-    # Write the dataset to a file
+    # Check for missing datasets directory
     datasets_dir <- "datasets" # No trailing /
     if (!fs::dir_exists(datasets_dir)) {
         stop("Missing folder", datasets_dir, ". Check your working directory")

@@ -59,7 +59,7 @@ impl ClinicalCode {
 
 }
 
-/// An opaque reference to a clinincal code, which can be used to obtain information
+/// An opaque reference to a clinical code, which can be used to obtain information
 /// about the code from a ClinicalCodeStore. 
 /// 
 /// Using a type instead of a raw u64 to make it clear what it is for. The struct is
@@ -112,6 +112,18 @@ macro_rules! name {
 
 /// Stores the data for all the clinical codes that have been seen by the
 /// program.
+/// 
+/// This class is a mapping from integer IDs (wrapped in ClinicalCodeRef) to
+/// ClinicalCodes. Codes can be inserted and converted into IDs, or retrieved 
+/// by ID. If an ID already exists in the store, the corresponding code is 
+/// returned without any modification to the store.
+/// 
+/// Two ClinicalCodes are considered the same if all their data exactly matches,
+/// meaning both the code name and the documentation. This means that a
+/// diagnosis and procedure code with the same name (some ICD-10 and OPCS-4
+/// codes overlap) will get different IDs, and the same store can be used for
+/// both diagnosis and procedure codes.
+/// 
 #[derive(Debug)]
 pub struct ClinicalCodeStore {
     /// The purpose of the bidirectional map is to try to make both inserting

@@ -8,45 +8,224 @@ format:
 jupyter: python3
 ---
 
+```{python}
+#| echo: false
+#| warning: false
+import os
+
+os.chdir("../prototypes")
+
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+import umap
+import umap.plot
+import re
+import scipy
+from py_hic.clinical_codes import get_codes_in_group
+
+import hes
+
+# Get raw data
+raw_data = hes.get_spells_hes_pandas()
+
+# Reduce the data to a size UMAP can handle.
+# Copy in order to not modify raw_data (to use
+# inplace=True later). Want to keep the raw
+# data to avoid SQL fetch time.
+reduced = raw_data.head(40000).copy()
+
+# Remove irrelevant columns
+cols_to_remove = ["nhs_number", "spell_start_date", "spell_end_date"]
+reduced.drop(columns=cols_to_remove, axis=1, inplace=True)
+
+# Replace all empty strings in the table with NA
+reduced.replace("", np.nan, inplace = True)
+
+# Extract the demographic information for use later.
+age_and_gender = reduced[["spell_id", "age", "gender"]].copy()
+
+# Convert the wide codes to long format in place
+reduced = hes.convert_codes_to_long(reduced)
+
+# The same spell can have the same diagnosis or procedure code in
+# multiple positions. Keep onlt the highest priority code (the one
+# with the lowest code position). This might arise due to aggregating
+# the spells from underlying episodes, depending on the method that 
+# was used.
+reduced = reduced.groupby(["spell_id", "full_code"]).min().reset_index()
+
+# Map the position onto the following linear scale: primary diagnosis
+# is 24, through secondary_diagnosis_23 is 1 (same for procedure). The
+# intention is to later create a linear scale where a higher number
+# means a higher priority diagnosis or procedure, and the value 0 is
+# reserved for diagnosis or procedure not present
+reduced = hes.make_linear_position_scale(reduced, 23)
+
+# Trying to keep all the codes as individual columns and using
+# all the spells results in much more data than than pandas can
+# handle (attempting to pivot wider), without writing a custom
+# encoder. One approach is to only keep columns for the most
+# commonly occurring codes. However, doing this results in some
+# kind of degenerate UMAP result, which might result from the 
+# introduction of many spells with all-zero rows (i.e. no codes
+# from the most commonly occurring group). If you see UMAP reduce
+# the data to a set of roughly uniformly distributed points inside
+# a circle in R2, this kind of issue is a likely culprit. Instead
+# of doing this, the current script keeps all the code columns,
+# and instead reduces the amount of spells so that the algorithm
+# can cope. This is a prototype which can be extended (with more
+# high performance code) later if it is worthwhile to do so.
+
+# This line takes a long time to run, so make copies and modify them.
+dummy_encoded = pd.get_dummies(reduced, columns=["full_code"]).groupby("spell_id").max()
+
+# Get just the columns that will be dimension-reduced
+dummy_data_to_reduce = dummy_encoded.filter(regex = "(icd10|opcs4)")
+dummy_data_to_reduce =  scipy.sparse.csr_matrix(dummy_data_to_reduce.values)
+
+# Get the age column in the same order as the data to reduce
+dummy_ordered_age = dummy_encoded.merge(age_and_gender, on="spell_id").age
+
+# ... get other values to plot on embedding here
+def get_code_group_labels(reduced, code_group, filepath):
+    group = get_codes_in_group(filepath, code_group)
+    group = "icd10_" + group.name.apply(hes.normalise_code)
+    df = reduced.copy()
+    df["ingroup"] = df.full_code.isin(group)
+    group = df.groupby("spell_id").ingroup.any()
+    return dummy_encoded.merge(group, on="spell_id").ingroup
+
+
+
+# UMAP has the following parameters:
+#
+# - n_neighbors: this is the number of nearest neighbors to
+#   use in the approximation of a uniform distance around 
+#   each data point in the original manifold. Choosing a
+#   a large number will course-grain the manifold, so that
+#   the uniform distances are approximated over larger groups
+#   of spells. 
+# - min_dist: in the dimension-reduced manifold (after projection
+#   from the original manifold), the local-connectedness condition
+#   which translated to assuming that each data point is 0 distance
+#   away from its nearest neighbour, must translate to an arbitrary
+#   choice for what this minimum distance is in the Euclidean plane.
+#   Making it small will cause more clustering, whereas making it 
+#   large will push points away from each other, which may focus
+#   more on the overall topological structure.
+# - n_components: the n here is the dimension of the reduced space,
+#   which is the manifold R^n with the standard topology arising
+#   from Eucliean distances
+# - metric: which metric is used to measure distance between the
+#   different points of the dataset in the original (ambient)
+#   space R^m (m is the number of columns in the original dataset).
+#   Here, there is one binary column per clinical code, and two rows
+#   (spells) are considered different according to how many of their
+#   clinical codes differ -- this is the Hamming distance.
+
+dummy_mapper = umap.UMAP(metric='hamming', random_state=1)
+dummy_fit = dummy_mapper.fit(dummy_data_to_reduce)
+```
+
 Diagnosis and procedure code data present in the hospital episode statistics (HES) administrative database may provide a wealth of predictive information about patient outcomes, but which is very difficult to access due to the difficulty involved reducing the data to a form suitable for use in predictive modelling. For example, subsequent bleeding following an index event may be predictable by looking at prior bleeding, which amounts to finding instances of bleeding diagnosis codes in the HES data. This amounts to formulating a list of bleeding codes, and reducing the prior spells to a yes/no question of whether one of these codes is present. As more predictors are added (for example, prior cardiovascular conditions, prior cancer, etc.), the number of different groups of codes multiples. In addition, within in group, a complex array of choices are made regarding which codes to include or exclude, which multiply to create a large amount of ad-hoc decisions in the preprocessing of predictors prior to formulating a predictive model.
 
 Ideally, we want to know how well the information (as a whole) in hospital episode data can inform predictive models of future outcomes. We wish to include not only the ad-hoc derived information obtained by reducing spells to presence of code groups, but also any other relationships which may be informative. For example:
 * Diagnosis and procedure codes come with a position (indicating a priority derived from the rules of the coding process), which may provide predictive information, and which is not included by considering code groups.
 * Certain patterns of codes may be standard for certain types of hospital interaction, and deviations from these standard patterns may represent important predictive information.
 
-One approach to trying to automatically capture 
+This document contains a proof-of-principle demonstrating the use of uniform manifold dimension reduction (UMAP) to reduce the clinical code dimensions from approximately 15,000 to two, for the purpose of visualisation of the spell data in two dimensions. Visualisation is not the end result of the computation; the intention is to use the resulting smaller set of variables (here, 2) as predictors in machine learning models, in place of predictors derived from manually-created code groups. However, the visualisation of the dimension reduction allows some initial sanity checks to be performed on the reduction, to help indicate whether it is worthwhile attempting to develop the resulting models. This includes the following qualitative analysis:
+* Does the reduction to two dimensions look as if it contains any structure, or does it just look like uniformly random noise? This may help indicate whether any predictive information is likely contained in the reduction.
+* Do factors of interest (such as bleeding spells, CV spells, or other information such as patient age) display any correlations with the structure of the reduction? If so, then machine learning models may be able to use these patterns. If no patterns exist, then it would seem unlikely the reduction contains any relevant information of interest
+* How does the reduction vary depending on the hyperparameters of the reduction algorithm (UMAP)? Ideally, it should be relatively robust (i.e. the answers to the above two questions should not depend sensitively on the parameters).
 
+If these questions give positive answers, then the reduction to a higher number of dimensions (from 15,000 down to N, where N is larger than 3), which cannot be visualised, may also contain useful information, and may also retain more usable information in machine learning models. These reduced dimensions could then be taken as the starting point for model development that lacks some of the arbitrariness inherent in choosing clinical code groups manually.
 
+## Overview of Method
 
-For a demonstration of a line plot on a polar axis, see @fig-polar.
+## Dimension reduction to two dimensions
 
-```{python}
-#| label: fig-polar
-#| fig-cap: "A line plot on a polar axis"
+The following sections show how different medical conditions or types of spells appear in the reduced dimensional HES data. In these plots, the yellow highlighted points are the spells that contain a diagnosis or a procedure code from the corresponding group. The purpose is to show whether or not different regions of the reduction map to different medical conditions or interactions.
 
-import numpy as np
-import matplotlib.pyplot as plt
+### PCI Procedures
 
-r = np.arange(0, 2, 0.01)
-theta = 2 * np.pi * r
-fig, ax = plt.subplots(
-  subplot_kw = {'projection': 'polar'} 
-)
-ax.plot(theta, r)
-ax.set_rticks([0.5, 1, 1.5, 2])
-ax.grid(True)
-plt.show()
-```
-
-An example calling rust functions:
+The location of PCI procedures is plotted below.
 
 ```{python}
-from py_hic.foo import test
-test()
+#| echo: false
+#| warning: false
+dummy_ordered_code_group = get_code_group_labels(reduced, "pci", "../codes_files/opcs4.yaml")
+umap.plot.points(dummy_fit, values = dummy_ordered_code_group, theme='viridis')
 ```
 
-## Quarto
+### ACS Spells
 
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+Notes: uses Bezin et al., 2015 group, which excludes the "old myocardial infarction" code that dominates the results when using the Schnier et al., 2017 group. The group is basically all MI but without this code.
 
+```{python}
+#| echo: false
+#| warning: false
+dummy_ordered_code_group = get_code_group_labels(reduced, "acs_bezin", "../codes_files/icd10.yaml")
+umap.plot.points(dummy_fit, values = dummy_ordered_code_group, theme='viridis')
+```
+
+When including the wider myocardial infarction group, the plot changes to this:
+
+```{python}
+#| echo: false
+#| warning: false
+dummy_ordered_code_group = get_code_group_labels(reduced, "mi_schnier", "../codes_files/icd10.yaml")
+umap.plot.points(dummy_fit, values = dummy_ordered_code_group, theme='viridis')
+```
+
+The location of STEMI and NSTEMI MI in this plot is as follows (STEMI first):
+
+```{python}
+#| echo: false
+#| warning: false
+dummy_ordered_code_group = get_code_group_labels(reduced, "mi_stemi_schnier", "../codes_files/icd10.yaml")
+umap.plot.points(dummy_fit, values = dummy_ordered_code_group, theme='viridis')
+```
+
+```{python}
+#| echo: false
+#| warning: false
+dummy_ordered_code_group = get_code_group_labels(reduced, "mi_nstemi_schnier", "../codes_files/icd10.yaml")
+umap.plot.points(dummy_fit, values = dummy_ordered_code_group, theme='viridis')
+```
+
+### Bleeding Diagnoses
+
+Given the wide variety of different origins of bleeding (this uses the Al Ani et al., 2015 group), it is interesting that there is a region of quite high concentration. The most likely explanation is this region corresponds to a condition that frequently causes bleeding, rather than the dimension reduction having somehow identified the characteristics of bleeding spells.
+
+```{python}
+#| echo: false
+#| warning: false
+dummy_ordered_code_group = get_code_group_labels(reduced, "bleeding_al_ani", "../codes_files/icd10.yaml")
+umap.plot.points(dummy_fit, values = dummy_ordered_code_group, theme='viridis')
+```
+
+### Chronic Kidney Disease
+
+The code group is only N18.* (CKD stages 1 through 5). The most interesting thing about this plot is the large concentrated cluster of CKD, which is some kind of artefact of the dimension reduction. One possible explanation is that there are so many CKD episodes (e.g. weekly dialysis) that they form a kind of degenerate point.
+
+
+```{python}
+#| echo: false
+#| warning: false
+dummy_ordered_code_group = get_code_group_labels(reduced, "ckd", "../codes_files/icd10.yaml")
+umap.plot.points(dummy_fit, values = dummy_ordered_code_group, theme='viridis')
+```
+
+## Discussion
+
+The observation motivating dimension reduction for diagnosis and procedure code data is that similar hospital episodes may be coded in a similar way, even if the episode involves a complex mix of different codes. Instead of attempting to characterise what codes are present, what is really desirable is being able to characterise the combination of codes. This is what dimension reduction aims to achieve, by combining many different codes (each of which is a single dimension) into fewer variables which better expresses the difference between the spells.
+
+The disadvantage of dimension reduction is that it is not possible to interpret the resulting dimensions. However, a spell containing a similar mix of clinical codes will map to similar points in the reduction. This property may has been investigated in a qualitative way be showing where different types of medical condition lie in a plot of the reduced codes. In many cases, they bunch together into regions, which indicates that they started out with a similar mix set of codes (being close together in the reduced plot means that the original spells shared many clinical codes). This holds to varying degrees for the medical conditions plotted above.
+
+The reduction is not useful if it cannot distinguish between different types of spells; this is only possible if the clusters corresponding to different types of medical condition are far apart. It is also true that different medical conditions often appeared in different regions of the reduced plot in the graphs above, indicating that they have predominantly distinct sets of clinical codes.
+
+It is important to note that, in this version of the application of UMAP, each spell was considered as a set of clinical codes, and similarity between spells was measured by the amount of codes in common. The order of the codes (in terms of primary/secondary positions) was not taken into account. If this were included, further information may be obtainable from each spell. Although this information may not be visible in a plot, it may still improve machine learning algorithms, and should therefore be tested.
+
+The conclusions above, that different types of hospital interaction seem broadly separated by the dimension reduction technique, provides evidence that the same may be true in higher dimensions (e.g. 3, 4. 5, ... N < 15,000). The choice of N here specifies how many variables will be created that can be used as predictors in a machine learning model, and could be used as a tuning parameter. The trade-off in choosing N relates to the desire to retain more information in the predictors (larger N), vs. the ability of the machine learning algorithm to cope with a larger number of predictors (in terms of both computational time and also model stability).
 

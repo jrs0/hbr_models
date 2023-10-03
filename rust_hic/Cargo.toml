@@ -10,13 +10,12 @@ datafusion = "27.0.0"
 rand = "0.8.5"
 rand_chacha = "0.3.1"
 tokio = "1.29.1"
-arrow-odbc = "0.28"
 mongodb = "2.1"
 bson = { version = "2", features = ["chrono-0_4", "serde_with"] }
 chrono = "0.4"
 bimap = "0.6.3"
 connectorx = { version = "0.3", features = ["src_mssql", "dst_arrow2"] }
-polars = { version = "0.31", features = ["dtype-struct"] }
+polars = { version = "0.32", features = ["dtype-struct"] }
 serde = { version = "^1.0", default-features = false, features = [ "derive" ] }
 serde_yaml = "0.9"
 serde_with = "1.0"

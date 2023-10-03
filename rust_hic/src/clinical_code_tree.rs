@@ -6,14 +6,24 @@
 //! be a yaml file or yaml string. This function sorts the
 //! categories by index even if they are not sorted in the
 //! original file, meaning the parser can assume the categories
-//! are sorted.
+//! are sorted. The original file is one of icd10.yaml or opcs4.yaml
+//! (or anything else in that format -- it should serialize/
+//! deserialize correctly.
+//!
+//! The ClinicalCodeTree defines a tree of Categories, where each
+//! leaf node is (for example) an ICD-10 code and each non-leaf
+//! node is a  category of codes. Once the structure is available,
+//! various operations can be performed using it, for example,
+//! picking a (uniform) random code, identifying whether a code
+//! exists or not and fetching its documentation, or fetching all
+//! the codes in a given code group.
 
 use index::Index;
 use rand::seq::SliceRandom;
 use rand_chacha::ChaCha8Rng;
 use serde::{Deserialize, Serialize};
-use std::collections::HashSet;
 use std::io::Read;
+use std::{cmp::Ordering, collections::HashSet};
 
 use crate::clinical_code::{ClinicalCode, ClinicalCodeRef, ClinicalCodeStore};
 
@@ -25,6 +35,8 @@ mod index;
 /// The distinction is whether the categories field is
 /// None -- if it is, it is a leaf node (a code), and if
 /// not, it is a category.
+///
+/// TODO: RENAME TO CATEGORY
 ///
 #[derive(PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub struct Categories {
@@ -127,20 +139,21 @@ impl Categories {
     pub fn docs(&self) -> &String {
         &self.docs
     }
+
+    /// Get the index of this code or category
+    pub fn index(&self) -> &Index {
+        &self.index
+    }
 }
 
-/// The code definition file structure
-///
-/// This struct maps to the contents of a code file
-/// for ICD-10 and OPCS-4 codes. It includes the code
-/// tree itself, a list of code groups, and tags embedded
-/// in the tree indicating which codes are in which group.
-#[derive(PartialEq, Eq, Serialize, Deserialize, Debug)]
-pub struct ClinicalCodeTree {
-    categories: Vec<Categories>,
-    /// The list of clinical code group names that are
-    /// present in this code tree
-    groups: HashSet<String>,
+/// Remove whitespace, dots and convert all characters
+/// to lowercase. Note that other (non-dot) non-alphanumeric
+/// characters are retained
+fn normalise_code(code: String) -> String {
+    code.to_lowercase()
+        .replace(".", "")
+        .split_whitespace()
+        .collect()
 }
 
 fn get_codes_in_group(
@@ -175,6 +188,104 @@ fn get_codes_in_group(
 
     // Return the current list of codes
     return codes_in_group;
+}
+
+/// Return the category in the supplied vector that contains the code,
+/// or return the error variant "not found" if the code is not present
+/// in any category. The search is performed using the index of the
+/// category.
+fn locate_code_in_categories<'a>(
+    code: &String,
+    categories: &'a Vec<Categories>,
+) -> Result<&'a Categories, &'static str> {
+    // Look through the index keys at the current level
+    // and find the position of the code. Inside the codes
+    // structure, the index keys provide an array to search
+    // (using binary search) for the ICD code in str.
+
+    // auto position = std::upper_bound(categories.begin(),
+    // 			     categories.end(),
+    // 			     code);
+    // const bool found = (position != std::begin(categories)) &&
+    // ((position-1)->contains(code));
+
+    // Determine whether a code is in the category by comparing
+    let compare_code_with_category = |cat: &Categories| -> Ordering {
+        cat.index().compare(code)
+    };
+
+    match categories.binary_search_by(compare_code_with_category) {
+        Ok(position) => Ok(&categories[position]),
+        Err(_) =>  Err("not found"),
+    }
+
+    // If found == false, then a match was not found. This
+    // means that the code is not a valid member of any member
+    // of this level, so it is not a valid code. TODO it still
+    // may be possible to return the category above as a fuzzy
+    // match -- consider implementing
+    // if (!found) {
+    // throw ParserException::CodeNotFound {};
+    // }
+
+    // Decrement the position to point to the largest category
+    // c such that c <= code
+    // position--;
+
+    // return *position;
+}
+
+/// Return the name and docs field of a code (depending on the bool argument)
+/// if it exists in the categories tree, or return an error variant if the
+/// code is not present in the list of categories.
+///
+/// Note: You can also use this function to find the groups that a code is in.
+/// See the corresponding C++ function https://github.com/jrs0/rdb/blob/main
+/// /src/category.cpp#L192. In that case, you need to return a type that wraps
+/// the ClinicalCodeRef and also some reference to the groups.
+///
+fn locate_code_in_tree(
+    code: String,
+    categories: &Vec<Categories>,
+    code_store: &mut ClinicalCodeStore,
+) -> Result<ClinicalCodeRef, &'static str> {
+    // Locate the category containing the code at the current level
+    if let Ok(cat) = locate_code_in_categories(&code, categories) {
+        // If there is a subcategory, make a call to this function
+        // to process the next category down. Otherwise you are
+        // at a leaf node, so start returning up the call graph.
+        // TODO: since this function is linearly recursive,
+        // there should be a tail-call optimisation available here
+        // somewhere.
+        if !cat.is_leaf() {
+            let sub_categories = cat
+                .categories()
+                .expect("Expecting sub-categories for non-leaf node");
+
+            // There are sub-categories -- parse the code at the next level
+            // down (put a try catch here for the case where the next level
+            // down isn't better)
+            locate_code_in_tree(code, sub_categories, code_store)
+        } else {
+            Ok(code_store.clinical_code_ref_from(ClinicalCode::from(cat)))
+        }
+    } else {
+        Err("not found")
+    }
+}
+
+/// The code definition file structure
+///
+/// This struct maps to the contents of a code file
+/// for ICD-10 and OPCS-4 codes. It includes the code
+/// tree itself, a list of code groups, and tags embedded
+/// in the tree indicating which codes are in which group.
+#[derive(PartialEq, Eq, Serialize, Deserialize, Debug)]
+pub struct ClinicalCodeTree {
+    categories: Vec<Categories>,
+    /// The list of clinical code group names that are
+    /// present in this code tree
+    groups: HashSet<String>,
 }
 
 impl ClinicalCodeTree {
@@ -255,6 +366,42 @@ impl ClinicalCodeTree {
     pub fn groups(&self) -> &HashSet<String> {
         &self.groups
     }
+
+    /// Find a particular code in the tree, or return an error
+    /// if it is not present.
+    ///
+    /// Apart from converting the input code into a normalised
+    /// form (no whitespace, no dot, and all lower case characters),
+    /// and compared with the normalised form of the code in the
+    /// code tree. The code is only considered a match if the two
+    /// normalised codes match exactly. The code will not match
+    /// if (for example)
+    /// - The code is simply invalid (does not fall within any category)
+    /// - The code has trailing material at the end
+    /// - The code has any of the standard uses of X, D or A (or other
+    ///   modifiers) which would make the match not exact.
+    ///
+    /// If the match succeeds, then a reference to the code is returned.
+    /// If the match fails, an error variant is returned with the error
+    /// string "no match", or another error (if it occurred).
+    ///
+    /// Each call to this function will search the entire tree, which is
+    /// slow (even though it is a binary search). In code that repeatedly
+    /// searches for exact code matches, you should cache the result of
+    /// this function in a map from the code String argument to ClinicalCodeRef.
+    ///
+    /// Note: traversing the tree looking for a code also gives you the groups
+    /// the code is in for free (that operation also requires a tree traversal).
+    /// So it might be a good idea to store the groups too, instead of having
+    /// to traverse the tree twice.
+    pub fn find_exact(
+        &self,
+        code: String,
+        code_store: &mut ClinicalCodeStore,
+    ) -> Result<ClinicalCodeRef, &'static str> {
+        let normalised_code = normalise_code(code);
+        locate_code_in_tree(normalised_code, &self.categories, code_store)
+    }
 }
 
 /// Tests for the code tree
@@ -307,19 +454,19 @@ mod tests {
                 category!(
                     "cat1",
                     "category 1",
-                    Index::make_category("cat11", "cat12"),
+                    Index::make_dual("cat11", "cat12"),
                     vec![
-                        leaf!("cat11", "sub cat 11", Index::make_leaf("cat11")),
-                        leaf!("cat12", "sub cat 12", Index::make_leaf("cat12")),
+                        leaf!("cat11", "sub cat 11", Index::make_single("cat11")),
+                        leaf!("cat12", "sub cat 12", Index::make_single("cat12")),
                     ]
                 ),
                 category!(
                     "cat2",
                     "category 2",
-                    Index::make_category("cat2", "cat2"),
+                    Index::make_dual("cat2", "cat2"),
                     vec![
-                        leaf!("cat21", "sub cat 21", Index::make_leaf("cat21")),
-                        leaf!("cat22", "sub cat 22", Index::make_leaf("cat22")),
+                        leaf!("cat21", "sub cat 21", Index::make_single("cat21")),
+                        leaf!("cat22", "sub cat 22", Index::make_single("cat22")),
                     ]
                 ),
             ],
@@ -405,6 +552,22 @@ mod tests {
 
         let code_tree = ClinicalCodeTree::from_reader(yaml.as_bytes());
         assert_eq!(code_tree, code_tree_example_1());
+    }
+
+    #[test]
+    fn check_code_normalisation() {
+        let string = format!("A00.0");
+        assert_eq!(normalise_code(string), "a000");
+        let string = format!(" A 00.0 ");
+        assert_eq!(normalise_code(string), "a000");
+        let string = format!("i21.1x ");
+        assert_eq!(normalise_code(string), "i211x");
+        let string = format!("     j10.x ");
+        assert_eq!(normalise_code(string), "j10x");
+        // Note non-dot non-alphanuemric character are
+        // currently kept
+        let string = format!("A00.0|");
+        assert_eq!(normalise_code(string), "a000|");
     }
 
     #[test]
@@ -611,6 +774,41 @@ mod tests {
                 .expect("Should be able to pick a valid code");
 
             assert!(codes_in_group.contains(name!(random_code, code_store)))
+        }
+    }
+
+    #[test]
+    fn check_random_code_find_match_roundtrip() {
+        let mut file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        file_path.push("resources");
+        file_path.push("test");
+        file_path.push("icd10_example.yaml");
+
+        let f = std::fs::File::open(file_path).expect("Failed to open icd10 file");
+
+        // Should execute without panic
+        let code_tree = ClinicalCodeTree::from_reader(f);
+
+        let mut code_store = ClinicalCodeStore::new();
+
+        // Generate 1000 random codes, then search for them for
+        // an exact match, and expect the result to match the
+        // random code.
+        let mut rng = make_rng(222, "clinical_code_test_id");
+        for _ in 0..1000 {
+            let random_code = code_tree
+                .random_clinical_code(&mut rng, &mut code_store);
+
+            let code = code_store
+                .clinical_code_from(&random_code)
+                .expect("Expecting a valid code");
+
+            // Now search for the code
+            let found_code = code_tree
+                .find_exact(code.name().clone(), &mut code_store)
+                .expect("The code should be an exact match");
+
+            assert_eq!(random_code, found_code);
         }
     }
 }
