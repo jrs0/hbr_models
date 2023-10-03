@@ -71,3 +71,14 @@ def convert_codes_to_long(df):
     )
     long_codes = long_codes.drop(columns=["variable", "value"])
     return long_codes
+
+def get_all_cause_death(idx_episodes, mortality_dates, follow_up):
+    """
+    Find which index episodes were followed by all-cause death within
+    the follow-up period.
+    """
+    df = idx_episodes.merge(mortality_dates, how="left", on="patient_id")
+    df["all_cause_death_outcome"] = ~df["date_of_death"].isna() & (
+        pd.to_datetime(df["date_of_death"]) - df["idx_date"] < follow_up
+    )
+    return df[["idx_episode_id", "all_cause_death_outcome"]]

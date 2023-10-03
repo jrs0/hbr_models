@@ -3,9 +3,8 @@ import pandas as pd
 import polars as pl
 import time
 import re
-from code_group_counts import normalise_code
+import code_group_counts as codes
 import numpy as np
-
 
 def diagnosis_and_procedure_columns():
     """
@@ -166,7 +165,7 @@ def convert_codes_to_long(df, record_id):
 
     long_codes = pd.melt(df, id_vars=[record_id], value_vars=code_cols).dropna()
 
-    long_codes.value = long_codes.value.apply(normalise_code)
+    long_codes.value = long_codes.value.apply(codes.normalise_code)
     # Prepend icd10 or opc4 to the codes to indicate which are which
     # (because some codes appear in both ICD-10 and OPCS-4)
     pattern = re.compile("diagnosis")
@@ -352,3 +351,106 @@ def get_index_episodes(code_group_counts, raw_episodes_data):
         .filter(regex="(idx_|dem_|patient_id)")
     )
     return idx_episodes
+
+
+def get_episodes_before_index(time_to_episode, min_period_before, max_period_before):
+    """
+    These are the episodes whose clinical code counts should contribute
+    to predictors.
+    """
+    df = time_to_episode[
+        (time_to_episode["index_to_episode_time"] < -min_period_before)
+        & (-max_period_before < time_to_episode["index_to_episode_time"])
+    ]
+    return df[["idx_episode_id", "episode_id"]]
+
+def calculate_time_to_episode(idx_episodes, raw_episodes_data):
+    """
+    Join all episode start dates by patient to get a table of index events paired
+    up with all the patient's other episodes. This can be used to find which other
+    episodes are inside an appropriate window before and after the index event
+    """
+    df = idx_episodes.merge(get_episode_start_dates(raw_episodes_data), how="left", on="patient_id")
+    df["index_to_episode_time"] = df["episode_start_date"] - df["idx_date"]
+    return df[["idx_episode_id", "episode_id", "index_to_episode_time"]]
+    
+def get_code_counts_before_index(episodes_before_idx, code_group_counts, idx_episodes):
+    """
+    Compute the total count for each index event that has an episode
+    in the valid window before the index. Note that this excludes
+    index events with zero episodes before the index.
+    """
+    return (
+        episodes_before_idx.merge(code_group_counts, how="left", on="episode_id")
+        .drop(columns="episode_id")
+        .groupby("idx_episode_id")
+        .sum()
+        .add_suffix("_before")
+        .merge(idx_episodes["idx_episode_id"], how="right", on="idx_episode_id")
+        .fillna(0)
+    )
+    
+def get_censor_dates(raw_episodes_data):
+    """
+    Find the last date seen in the dataset to use as an approximation for
+    the right-censor date for the purpose of survival analysis.
+    Also find the earliest date in the dataset. This is important
+    for whether it is possible to know predictors a certain time in advance.
+    The two are returned as a pair (last_date, earliest_date)
+    
+    """
+    right_censor_date = raw_episodes_data["episode_start_date"].max()
+    left_censor_date = raw_episodes_data["episode_start_date"].min()
+    return (right_censor_date, left_censor_date)
+
+def get_episodes_after_index(time_to_episode, min_period_after, follow_up):
+    """
+    These are the subsequent episodes after the index, with
+    the index row also retained.
+    """
+    return time_to_episode[
+        # Exclude a short window after the index
+        (time_to_episode["index_to_episode_time"] > min_period_after)
+        # Drop events after the follow up period
+        & (follow_up > time_to_episode["index_to_episode_time"])
+    ][["idx_episode_id", "episode_id"]]
+    
+    
+def make_outcomes(outcome_groups, idx_episodes, episodes_after_index, code_group_counts):
+    """
+    Make a table of outcome columns for all episodes after index, defined by
+    the code group counts in the episodes, and a set of outcome groups names
+    (outcome_groups)
+    """
+
+    code_counts_after = (
+        episodes_after_index.merge(code_group_counts, how="left", on="episode_id")
+        .drop(columns="episode_id")
+        .groupby("idx_episode_id")
+        .sum()
+        .filter(outcome_groups)
+        .add_suffix("_outcome")
+        .merge(idx_episodes["idx_episode_id"], how="right", on="idx_episode_id")
+        .fillna(0)
+    )
+
+    for outcome_group in outcome_groups:
+        # Reduce the outcome to a True if > 0 or False if == 0
+        code_counts_after[outcome_group + "_outcome"] = code_counts_after[
+            outcome_group + "_outcome"
+        ].astype(bool)
+        
+    return code_counts_after
+
+def make_code_groups_dataset(idx_episodes, feature_counts, outcome_counts, all_cause_death):
+    """
+    Make the dataset whose features are code groups counts and whose outcomes
+    are code group counts in outcome_counts and all_cause_death. Distinct
+    from the dataset which uses all codes as features.
+    """
+    return (
+        idx_episodes.merge(feature_counts, how="left", on="idx_episode_id")
+        .merge(outcome_counts, how="left", on="idx_episode_id")
+        .merge(all_cause_death)
+        .drop(columns=["idx_episode_id", "idx_spell_id", "patient_id", "idx_date"])
+    )
