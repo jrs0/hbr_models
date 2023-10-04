@@ -259,7 +259,8 @@ class Dataset:
         # Get the feature matrix
         dataset_features = dataset.drop(columns=outcome_columns)
         self.feature_names = dataset_features.columns
-        self._X = dataset_features.to_numpy()
+        print(dataset_features.info())
+        self._X = dataset_features.sparse.to_coo()
 
         # Store the map from feature name to column index in _X
         self._feature_to_index = {

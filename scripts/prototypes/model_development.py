@@ -46,13 +46,13 @@ from sklearn.decomposition import TruncatedSVD
 
 from sklearn.compose import ColumnTransformer
 
-dataset = ds.Dataset("hes_code_groups_dataset", "config.yaml")
+dataset = ds.Dataset("hes_all_codes_dataset", "config.yaml")
 #print(dataset)
 
 # Get the feature matrix X and outcome vector y
 X = dataset.get_X()
-#y = dataset.get_y("bleeding_al_ani_outcome")
-y = dataset.get_y("hussain_ami_stroke_outcome")
+y = dataset.get_y("bleeding_al_ani_outcome")
+#y = dataset.get_y("hussain_ami_stroke_outcome")
 
 feature_groups = dataset.feature_groups()
 print(f"Feature groups {feature_groups}")
@@ -73,7 +73,7 @@ print(f"Training dataset contains {X0_train.shape[0]} rows")
 print(f"Outcome vector has mean {np.mean(y0_train)}")
 
 resampler = []#[("oversample", RandomOverSampler()), ("scaler", StandardScaler())]
-reducer = []#[("reducer", TruncatedSVD())]
+reducer = [("reducer", TruncatedSVD())]
 scaler = [("scaler", StandardScaler())]
 
 preprocess = resampler + reducer + scaler
