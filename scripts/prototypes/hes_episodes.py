@@ -12,7 +12,6 @@
 # of Y).
 #
 
-
 import os
 
 os.chdir("scripts/prototypes")

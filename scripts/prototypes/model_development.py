@@ -46,13 +46,15 @@ from sklearn.decomposition import TruncatedSVD
 
 from sklearn.compose import ColumnTransformer
 
-dataset = ds.Dataset("hes_all_codes_dataset", "config.yaml")
+#dataset = ds.Dataset("hes_all_codes_dataset", "config.yaml")
+dataset = ds.Dataset("hes_code_groups_dataset", "config.yaml")
 #print(dataset)
 
 # Get the feature matrix X and outcome vector y
 X = dataset.get_X()
 y = dataset.get_y("bleeding_al_ani_outcome")
 #y = dataset.get_y("hussain_ami_stroke_outcome")
+
 
 feature_groups = dataset.feature_groups()
 print(f"Feature groups {feature_groups}")
@@ -82,7 +84,7 @@ Model = SimpleLogisticRegression
 
 # Fit the model-under-test M0 to the training set (X0_train, y0_train), and
 # fit M other models to M other bootstrap resamples of (X0_train, y0_train).
-M0, Mm = fit_model(Model, preprocess, X0_train, y0_train, M=10)
+M0, Mm = fit_model(Model, preprocess, X0_train, y0_train, M=100)
 
 # Plot the model
 # fig, ax = plt.subplots()

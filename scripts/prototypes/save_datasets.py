@@ -4,7 +4,7 @@ import pandas as pd
 import yaml
 import re
 import pickle
-
+from scipy.sparse import csr_matrix
 
 def current_commit():
     """
@@ -260,7 +260,8 @@ class Dataset:
         dataset_features = dataset.drop(columns=outcome_columns)
         self.feature_names = dataset_features.columns
         print(dataset_features.info())
-        self._X = dataset_features.sparse.to_coo()
+        #self._X = csr_matrix(dataset_features.to_numpy())
+        self._X = dataset_features.to_numpy()
 
         # Store the map from feature name to column index in _X
         self._feature_to_index = {

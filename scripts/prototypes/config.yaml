@@ -1,6 +1,7 @@
 # Ignore columns with these names
 ignore:
 - idx_date
+- dem_gender
 # Feature columns matching the regular expressions
 # below correspond to the named groups. The intention
 # is to perform different kinds of preprocessing on 
