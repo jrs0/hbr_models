@@ -238,6 +238,7 @@ class Dataset:
 
         # Drop columns that are in the ignore list
         dataset.drop(columns=self.config["ignore"], inplace=True)
+        #dataset = dataset.head(5000)
 
         # Get the outcome columns
         outcome_columns = self.config["outcomes"].values()

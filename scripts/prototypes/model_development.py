@@ -46,28 +46,13 @@ from sklearn.decomposition import TruncatedSVD
 
 from sklearn.compose import ColumnTransformer
 
-# Example data for now. X is the feature matrix (each column is a feature)
-# and y is the classification outcome (1 for event occurred). Both must have
-# the same number of rows (the number of samples). Both are numerical,
-# (X is floating point and y is integer).
-# X, y = make_classification(
-#    n_samples=1000, n_features=20, n_informative=2, n_redundant=2, random_state=42
-# )
-
-#dataset = ds.Dataset("hes_all_codes_dataset", "config.yaml")
+dataset = ds.Dataset("hes_code_groups_dataset", "config.yaml")
 #print(dataset)
 
 # Get the feature matrix X and outcome vector y
-#X = dataset.get_X()
+X = dataset.get_X()
 #y = dataset.get_y("bleeding_al_ani_outcome")
-
-dataset = ds.load_dataset_interactive("hes_all_codes_dataset")
-dataset.drop(columns=["idx_date"], inplace=True)
-
-# Split into features and outcome. Assumes ignored columns are
-# removed
-X = dataset.loc[:,~dataset.columns.str.endswith('_outcome')]
-y = dataset["bleeding_al_ani_outcome"]
+y = dataset.get_y("hussain_ami_stroke_outcome")
 
 feature_groups = dataset.feature_groups()
 print(f"Feature groups {feature_groups}")
@@ -88,14 +73,12 @@ print(f"Training dataset contains {X0_train.shape[0]} rows")
 print(f"Outcome vector has mean {np.mean(y0_train)}")
 
 resampler = []#[("oversample", RandomOverSampler()), ("scaler", StandardScaler())]
-reducer = [("reducer", TruncatedSVD())]
+reducer = []#[("reducer", TruncatedSVD())]
 scaler = [("scaler", StandardScaler())]
 
 preprocess = resampler + reducer + scaler
 
 Model = SimpleLogisticRegression
-
-m = LogisticRegression()
 
 # Fit the model-under-test M0 to the training set (X0_train, y0_train), and
 # fit M other models to M other bootstrap resamples of (X0_train, y0_train).
@@ -105,7 +88,7 @@ M0, Mm = fit_model(Model, preprocess, X0_train, y0_train, M=10)
 # fig, ax = plt.subplots()
 # M0.plot(ax, feature_names.to_list())
 # plt.show()
-#print(M0.get_model_parameters(feature_names))
+print(M0.get_model_parameters(feature_names))
 
 # First columns is the probability of 1 in y_test from M0; other columns
 # are the same for the N bootstrapped models Mm.
@@ -122,7 +105,7 @@ fit_data = {
 
 ds.save_fit_info(fit_data, "simple_logistic_regression")
 
-d = ds.load_fit_info("simple_logistic_regression")
+d = fit_data#ds.load_fit_info("simple_logistic_regression")
 
 # Plot the basic instability curve
 fig, ax = plt.subplots()

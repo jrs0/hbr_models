@@ -105,7 +105,7 @@ def predict_bootstrapped_proba(M0, Mn, X_test):
     '''
     columns = []
     for m, M in enumerate([M0] + Mn):
-        print(f"Fitting bootstrapped model {m}")
+        print(f"Predicting test-set probabilities {m}")
         columns.append(M.model().predict_proba(X_test)[:,1])
     
     return np.column_stack(columns)

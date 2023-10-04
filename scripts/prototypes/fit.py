@@ -216,7 +216,7 @@ class SimpleLogisticRegression:
         coefs = self._pipe["logreg"].coef_[0, :]
         model_params = pd.DataFrame(
             {
-                # "feature": feature_names,
+                "feature": feature_names,
                 "logreg_coef": coefs,
             }
         )
