@@ -74,17 +74,13 @@ X0_train, X_test, y0_train, y_test = train_test_split(
 print(f"Training dataset contains {X0_train.shape[0]} rows")
 print(f"Outcome vector has mean {np.mean(y0_train)}")
 
-resampler = []#[("oversample", RandomOverSampler()), ("scaler", StandardScaler())]
-reducer = [("reducer", TruncatedSVD())]
-scaler = [("scaler", StandardScaler())]
-
-preprocess = resampler + reducer + scaler
+#resampler = []#[("oversample", RandomOverSampler()), ("scaler", StandardScaler())]
 
 Model = SimpleLogisticRegression
 
 # Fit the model-under-test M0 to the training set (X0_train, y0_train), and
 # fit M other models to M other bootstrap resamples of (X0_train, y0_train).
-M0, Mm = fit_model(Model, preprocess, X0_train, y0_train, M=100)
+M0, Mm = fit_model(Model, X0_train, y0_train, M=100)
 
 # Plot the model
 # fig, ax = plt.subplots()

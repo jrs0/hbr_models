@@ -71,6 +71,94 @@ import umap
 from sklearn.decomposition import TruncatedSVD
 from scipy.stats import uniform
 
+class SimpleLogisticRegression:
+    def __init__(self, X, y):
+        """
+        Fit basic logistic regression with not hyperparameter
+        tuning or cross-validation (because basic logistic regression
+        has no tuning parameters). Expects X to be preprocessed by
+        the preprocess argument into a matrix of features ready for
+        logistic regression.
+
+        preprocess is a list of pairs mapping preprocessing step
+        names to preprocessing steps, in the format suitable for
+        use in Pipeline.
+
+        Testing: not yet tested
+        """
+        scaler = StandardScaler()
+        logreg = LogisticRegression()
+        self._pipe = Pipeline([("scaler", scaler), ("logreg", logreg)])
+        self._pipe.fit(X, y)
+
+    def model(self):
+        """
+        Get the fitted logistic regression model
+        """
+        return self._pipe
+
+    def get_model_parameters(self, feature_names):
+        """
+        Get the fitted model parameters as a dataframe with one
+        row per feature. Two columns for the scaler contain the
+        mean and variance, and the final column contains the
+        logistic regression coefficient. You must pass the vector
+        of feature names in the same order as columns of X in the
+        constructor.
+        """
+        coefs = self._pipe["logreg"].coef_[0, :]
+        model_params = pd.DataFrame(
+            {
+                #"feature": feature_names,
+                "logreg_coef": coefs,
+            }
+        )
+        return model_params
+    
+class TruncSvdLogisticRegression:
+    def __init__(self, X, y):
+        """
+        Fit basic logistic regression with not hyperparameter
+        tuning or cross-validation (because basic logistic regression
+        has no tuning parameters). Expects X to be preprocessed by
+        the preprocess argument into a matrix of features ready for
+        logistic regression.
+
+        preprocess is a list of pairs mapping preprocessing step
+        names to preprocessing steps, in the format suitable for
+        use in Pipeline.
+
+        Testing: not yet tested
+        """
+        scaler = StandardScaler()
+        reducer = TruncatedSVD()
+        logreg = LogisticRegression()
+        self._pipe = Pipeline([("scaler", scaler), ("reducer", reducer), ("logreg", logreg)])
+        self._pipe.fit(X, y)
+
+    def model(self):
+        """
+        Get the fitted logistic regression model
+        """
+        return self._pipe
+
+    def get_model_parameters(self, feature_names):
+        """
+        Get the fitted model parameters as a dataframe with one
+        row per feature. Two columns for the scaler contain the
+        mean and variance, and the final column contains the
+        logistic regression coefficient. You must pass the vector
+        of feature names in the same order as columns of X in the
+        constructor.
+        """
+        coefs = self._pipe["logreg"].coef_[0, :]
+        model_params = pd.DataFrame(
+            {
+                #"feature": feature_names,
+                "logreg_coef": coefs,
+            }
+        )
+        return model_params
 
 class SimpleDecisionTree:
     def __init__(self, X, y, preprocess):
@@ -173,50 +261,6 @@ class SimpleGradientBoostedTree:
                 "feature": feature_names,
                 "scaling_mean": means,
                 "scaling_variance": variances,
-                "logreg_coef": coefs,
-            }
-        )
-        return model_params
-
-
-class SimpleLogisticRegression:
-    def __init__(self, X, y, preprocess):
-        """
-        Fit basic logistic regression with not hyperparameter
-        tuning or cross-validation (because basic logistic regression
-        has no tuning parameters). Expects X to be preprocessed by
-        the preprocess argument into a matrix of features ready for
-        logistic regression.
-
-        preprocess is a list of pairs mapping preprocessing step
-        names to preprocessing steps, in the format suitable for
-        use in Pipeline.
-
-        Testing: not yet tested
-        """
-        logreg = LogisticRegression()
-        self._pipe = Pipeline(preprocess + [("logreg", logreg)])
-        self._pipe.fit(X, y)
-
-    def model(self):
-        """
-        Get the fitted logistic regression model
-        """
-        return self._pipe
-
-    def get_model_parameters(self, feature_names):
-        """
-        Get the fitted model parameters as a dataframe with one
-        row per feature. Two columns for the scaler contain the
-        mean and variance, and the final column contains the
-        logistic regression coefficient. You must pass the vector
-        of feature names in the same order as columns of X in the
-        constructor.
-        """
-        coefs = self._pipe["logreg"].coef_[0, :]
-        model_params = pd.DataFrame(
-            {
-                #"feature": feature_names,
                 "logreg_coef": coefs,
             }
         )
