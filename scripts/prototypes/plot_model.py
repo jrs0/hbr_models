@@ -34,7 +34,7 @@ def plot_model_validation_2page(model_name, outcome):
     # Get the bootstrapped calibration curves
     calibration_curves = get_bootstrapped_calibration(d["probs"], d["y_test"], n_bins=10)
 
-    fig, ax = plt.subplots(2,2, figsize=(8,5))
+    fig, ax = plt.subplots(2,2, figsize=(8,5), layout="constrained")
 
     # Plot the basic instability curve
     plot_instability(ax[0][0], d["probs"], d["y_test"])

@@ -17,6 +17,7 @@ import os
 os.chdir("../prototypes")
 
 import matplotlib.pyplot as plt
+from IPython.display import display, Markdown
 
 import save_datasets as ds
 from stability import plot_instability
@@ -28,6 +29,8 @@ from calibration import (
 from plot_model import plot_model_validation_2page
 from roc import get_bootstrapped_roc, get_bootstrapped_auc, plot_roc_curves
 
+
+model_names = ["simple_logistic_regression", "truncsvd_logistic_regression"]
 ```
 
 # Introduction
@@ -40,57 +43,28 @@ The basic dataset used to define the index event, the outcome variable, and a pr
 
 ## Dataset Definitions
 
-```{python}
-
-```
-
-
-
 ## Bleeding Models
 
 ```{python}
+#| output: asis
 outcome = "bleeding_al_ani_outcome"
-```
 
-```{python}
-model_name = "simple_logistic_regression"
-plot_model_validation_2page(model_name, outcome)
-```
-
-```{python}
-#print("{{< pagebreak >}}")
-print(f"### Logistic Regression (Dimension-Reduced Features)")
-
-model_name = "truncsvd_logistic_regression"
-plot_model_validation_2page(model_name, outcome)
+for model_name in model_names:
+  display(Markdown("{{< pagebreak >}}"))
+  display(Markdown(f"### {model_name}"))
+  plot_model_validation_2page(model_name, outcome)
 ```
 
 ## Ischaemia Models
 
 ```{python}
+#| output: asis
 outcome = "hussain_ami_stroke_outcome"
-```
 
-```{python}
-#| output: asis
-print("{{< pagebreak >}}")
-print(f"### Logistic Regression (Code Group Features)")
-```
-
-```{python}
-model_name = "simple_logistic_regression"
-plot_model_validation_2page(model_name, outcome)
-```
-
-```{python}
-#| output: asis
-print("{{< pagebreak >}}")
-print(f"### Logistic Regression (Dimension-Reduced Features)")
-```
-
-```{python}
-model_name = "truncsvd_logistic_regression"
-plot_model_validation_2page(model_name, outcome)
+for model_name in model_names:
+  print("{{< pagebreak >}}")
+  print(f"### {model_name}")
+  plot_model_validation_2page(model_name, outcome)
 ```
 
 ## Risk Trade-off Model
