@@ -12,9 +12,14 @@ from stability import (
 )
 import matplotlib.pyplot as plt
 
-d = ds.load_fit_info("simple_logistic_regression")
+model_name = "simple_logistic_regression"
+outcome = "bleeding_al_ani_outcome"
+
+filename = model_name + "_" + outcome
+d = ds.load_fit_info(filename)
 print(f"Model name: {d['model_name']}")
 print(f"Dataset path: {d['dataset_path']}")
+print(f"Outcome: {d['outcome']}")
 
 # Plot the basic instability curve
 fig, ax = plt.subplots()
