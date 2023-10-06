@@ -1,5 +1,5 @@
 ---
-title: "Bleeding/Ischaemia Risk Trade-off Models Using Hospital Episode Statistics"
+title: "Bleeding/Ischaemia Risk Trade-off Models"
 project:
   output-dir: _output
 execute:
@@ -27,31 +27,70 @@ from calibration import (
 )
 from plot_model import plot_model_validation_2page
 from roc import get_bootstrapped_roc, get_bootstrapped_auc, plot_roc_curves
+
 ```
 
 # Introduction
 
 # Literature
 
-# Dataset Definitions
+# Hospital Episode Statistics
+
+The basic dataset used to define the index event, the outcome variable, and a preliminary set of features is Hospital Episode Statistics. Rows in the raw dataset are episodes (single consultant interactions) collected into spells (single hospital visits). Each episode contains a list of up 26 diagnosis codes (ICD-10) and 26 procedure codes (OPCS-4), which define what happened in the episode.
+
+## Dataset Definitions
 
 ```{python}
 
 ```
 
-# Bleeding
+
+
+## Bleeding Models
+
+```{python}
+outcome = "bleeding_al_ani_outcome"
+```
 
 {{< pagebreak >}}
+### Logistic Regression (Code Group Features)
 
 ```{python}
 model_name = "simple_logistic_regression"
-outcome = "bleeding_al_ani_outcome"
 plot_model_validation_2page(model_name, outcome)
 ```
 
-# Ischaemia Models
+{{< pagebreak >}}
+### Logistic Regression (Dimension-Reduced Features)
 
-# Risk Trade-off Model
+```{python}
+model_name = "truncsvd_logistic_regression"
+plot_model_validation_2page(model_name, outcome)
+```
+
+## Ischaemia Models
+
+```{python}
+outcome = "hussain_ami_stroke_outcome"
+```
+
+{{< pagebreak >}}
+### Logistic Regression (Code Group Features)
+
+```{python}
+model_name = "simple_logistic_regression"
+plot_model_validation_2page(model_name, outcome)
+```
+
+{{< pagebreak >}}
+### Logistic Regression (Dimension-Reduced Features)
+
+```{python}
+model_name = "truncsvd_logistic_regression"
+plot_model_validation_2page(model_name, outcome)
+```
+
+## Risk Trade-off Model
 
 # Discussion
 
