@@ -205,7 +205,7 @@ def match_feature_list(feature_columns, feature_groups):
 
 
 class Dataset:
-    def __init__(self, name, config_file):
+    def __init__(self, name, config_file, sparse_features):
         """
         Contains a dataset as a feature matrix X and outcome
         vector y, along with information about the dataset
@@ -236,9 +236,12 @@ class Dataset:
             except yaml.YAMLError as e:
                 raise RuntimeError(f"Unable to load config file: {e}")
 
+        # Reduce the date range
+        dataset = dataset[(dataset.idx_date > '2018-1-1') & (dataset.idx_date < '2022-1-1')]
+        print(f"Dataset number of rows: {dataset.shape[0]}")
+
         # Drop columns that are in the ignore list
         dataset.drop(columns=self.config["ignore"], inplace=True)
-        #dataset = dataset.head(5000)
 
         # Get the outcome columns
         outcome_columns = self.config["outcomes"].values()
@@ -255,13 +258,15 @@ class Dataset:
             col: dataset_outcomes.columns.get_loc(col) for col in outcome_columns
         }
         self._Y = dataset_outcomes.to_numpy()
-
+        
         # Get the feature matrix
         dataset_features = dataset.drop(columns=outcome_columns)
         self.feature_names = dataset_features.columns
         print(dataset_features.info())
-        #self._X = csr_matrix(dataset_features.to_numpy())
-        self._X = dataset_features.to_numpy()
+        if sparse_features:
+            self._X = csr_matrix(dataset_features.to_numpy())
+        else:
+            self._X = dataset_features.to_numpy()
 
         # Store the map from feature name to column index in _X
         self._feature_to_index = {

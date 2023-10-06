@@ -71,6 +71,9 @@ import umap
 from sklearn.decomposition import TruncatedSVD
 from scipy.stats import uniform
 
+import save_datasets as ds
+import numpy as np
+
 class SimpleLogisticRegression:
     def __init__(self, X, y):
         """
@@ -90,6 +93,9 @@ class SimpleLogisticRegression:
         logreg = LogisticRegression()
         self._pipe = Pipeline([("scaler", scaler), ("logreg", logreg)])
         self._pipe.fit(X, y)
+
+    def name():
+        return "simple_logistic_regression"
 
     def model(self):
         """
@@ -115,32 +121,46 @@ class SimpleLogisticRegression:
         )
         return model_params
     
+
 class TruncSvdLogisticRegression:
     def __init__(self, X, y):
         """
-        Fit basic logistic regression with not hyperparameter
-        tuning or cross-validation (because basic logistic regression
-        has no tuning parameters). Expects X to be preprocessed by
-        the preprocess argument into a matrix of features ready for
-        logistic regression.
-
-        preprocess is a list of pairs mapping preprocessing step
-        names to preprocessing steps, in the format suitable for
-        use in Pipeline.
+        Model which applies dimension reduction to the features before
+        centering, scaling, and fitting logistic regression to the results.
+        The pipe comprises a StandardScaler() followed by LogisticRegression().
+        There is no hyperparameter tuning or cross-validation.
 
         Testing: not yet tested
         """
+
+        reducer = TruncatedSVD(n_iter=7)
         scaler = StandardScaler()
-        reducer = TruncatedSVD()
         logreg = LogisticRegression()
-        self._pipe = Pipeline([("scaler", scaler), ("reducer", reducer), ("logreg", logreg)])
+        self._pipe = Pipeline(
+            [("reducer", reducer), ("scaler", scaler), ("logreg", logreg)]
+        )
+        num_features = X.shape[1]
+        max_components = min(num_features, 200)
+
+        self._param_grid = {
+            "reducer__n_components": range(1, max_components),
+        }
+        self._search = RandomizedSearchCV(
+            self._pipe,
+            self._param_grid,
+            cv=5,
+            verbose=3,
+            scoring="roc_auc",
+        ).fit(X, y)
+        print(self._search.best_params_)
+
         self._pipe.fit(X, y)
 
     def model(self):
         """
         Get the fitted logistic regression model
         """
-        return self._pipe
+        return self._search.best_estimator_
 
     def get_model_parameters(self, feature_names):
         """
@@ -151,14 +171,105 @@ class TruncSvdLogisticRegression:
         of feature names in the same order as columns of X in the
         constructor.
         """
+        means = self._pipe["scaler"].mean_
+        variances = self._pipe["scaler"].var_
         coefs = self._pipe["logreg"].coef_[0, :]
         model_params = pd.DataFrame(
             {
                 #"feature": feature_names,
+                "scaling_mean": means,
+                "scaling_variance": variances,
                 "logreg_coef": coefs,
             }
         )
         return model_params
+
+####### BELOW HERE IS ROUGH WORK
+
+class TruncSvdDecisionTree:
+    def __init__(self, X, y):
+        """
+        Model which applies dimension reduction to the features before
+        centering, scaling, and fitting a decision tree to the results.
+        The pipe comprises a StandardScaler() followed by LogisticRegression().
+        There is no hyperparameter tuning or cross-validation.
+
+        Testing: not yet tested
+        """
+
+        # majority_zero = RemoveMajorityZero(0.1)
+        reducer = TruncatedSVD(n_iter=7)
+        scaler = StandardScaler()
+        tree = DecisionTreeClassifier()
+        self._pipe = Pipeline(
+            [("reducer", reducer), ("scaler", scaler), ("tree", tree)]
+        )
+
+        self._param_grid = {
+            "reducer__n_components": range(1, 200),
+            "tree__max_depth": range(1, 20),
+        }
+        self._search = RandomizedSearchCV(
+            self._pipe, self._param_grid, cv=5, verbose=3, scoring="roc_auc"
+        ).fit(X, y)
+        print(self._search.best_params_)
+
+        self._pipe.fit(X, y)
+
+    def model(self):
+        """
+        Get the fitted logistic regression model
+        """
+        return self._search.best_estimator_
+
+    def get_model_parameters(self, feature_names):
+        """
+        Get the fitted model parameters as a dataframe with one
+        row per feature. Two columns for the scaler contain the
+        mean and variance, and the final column contains the
+        logistic regression coefficient. You must pass the vector
+        of feature names in the same order as columns of X in the
+        constructor.
+        """
+        means = self._pipe["scaler"].mean_
+        variances = self._pipe["scaler"].var_
+        coefs = self._pipe["logreg"].coef_[0, :]
+        model_params = pd.DataFrame(
+            {
+                "feature": feature_names,
+                "scaling_mean": means,
+                "scaling_variance": variances,
+                "logreg_coef": coefs,
+            }
+        )
+        return model_params
+
+
+def get_nonzero_proportion(df):
+    """
+    Utility function to (interactively) show the proportion
+    of each feature that is non-zero. Pass a pandas dataframe
+    df. A low result means that a column is mostly zero. Used
+    to decide it it might be helpful to remove features based
+    on high proportion of zeros.
+
+    Testing: not yet tested
+    """
+    return df.astype(bool).mean()
+
+
+def get_nonzero_proportion(df):
+    """
+    Utility function to (interactively) show the proportion
+    of each feature that is non-zero. Pass a pandas dataframe
+    df. A low result means that a column is mostly zero. Used
+    to decide it it might be helpful to remove features based
+    on high proportion of zeros.
+
+    Testing: not yet tested
+    """
+    return df.astype(bool).mean()
+
 
 class SimpleDecisionTree:
     def __init__(self, X, y, preprocess):
@@ -476,148 +587,54 @@ class UmapGradientBoostedTree:
         return model_params
 
 
-class TruncSvdLogisticRegression:
-    def __init__(self, X, y):
-        """
-        Model which applies dimension reduction to the features before
-        centering, scaling, and fitting logistic regression to the results.
-        The pipe comprises a StandardScaler() followed by LogisticRegression().
-        There is no hyperparameter tuning or cross-validation.
-
-        Testing: not yet tested
-        """
-
-        # majority_zero = RemoveMajorityZero(0.1)
-        reducer = TruncatedSVD(n_iter=7)
-        scaler = StandardScaler()
-        logreg = LogisticRegression()
-        self._pipe = Pipeline(
-            [("reducer", reducer), ("scaler", scaler), ("logreg", logreg)]
-        )
-
-        self._param_grid = {
-            "reducer__n_components": range(1, 200),
-        }
-        self._search = RandomizedSearchCV(
-            self._pipe,
-            self._param_grid,
-            cv=5,
-            verbose=3,
-            scoring="roc_auc",
-        ).fit(X, y)
-        print(self._search.best_params_)
-
-        self._pipe.fit(X, y)
-
-    def model(self):
-        """
-        Get the fitted logistic regression model
-        """
-        return self._search.best_estimator_
-
-    def get_model_parameters(self, feature_names):
-        """
-        Get the fitted model parameters as a dataframe with one
-        row per feature. Two columns for the scaler contain the
-        mean and variance, and the final column contains the
-        logistic regression coefficient. You must pass the vector
-        of feature names in the same order as columns of X in the
-        constructor.
-        """
-        means = self._pipe["scaler"].mean_
-        variances = self._pipe["scaler"].var_
-        coefs = self._pipe["logreg"].coef_[0, :]
-        model_params = pd.DataFrame(
-            {
-                "feature": feature_names,
-                "scaling_mean": means,
-                "scaling_variance": variances,
-                "logreg_coef": coefs,
-            }
-        )
-        return model_params
-
-
-class TruncSvdDecisionTree:
-    def __init__(self, X, y):
-        """
-        Model which applies dimension reduction to the features before
-        centering, scaling, and fitting a decision tree to the results.
-        The pipe comprises a StandardScaler() followed by LogisticRegression().
-        There is no hyperparameter tuning or cross-validation.
-
-        Testing: not yet tested
-        """
-
-        # majority_zero = RemoveMajorityZero(0.1)
-        reducer = TruncatedSVD(n_iter=7)
-        scaler = StandardScaler()
-        tree = DecisionTreeClassifier()
-        self._pipe = Pipeline(
-            [("reducer", reducer), ("scaler", scaler), ("tree", tree)]
-        )
-
-        self._param_grid = {
-            "reducer__n_components": range(1, 200),
-            "tree__max_depth": range(1, 20),
-        }
-        self._search = RandomizedSearchCV(
-            self._pipe, self._param_grid, cv=5, verbose=3, scoring="roc_auc"
-        ).fit(X, y)
-        print(self._search.best_params_)
-
-        self._pipe.fit(X, y)
-
-    def model(self):
-        """
-        Get the fitted logistic regression model
-        """
-        return self._search.best_estimator_
-
-    def get_model_parameters(self, feature_names):
-        """
-        Get the fitted model parameters as a dataframe with one
-        row per feature. Two columns for the scaler contain the
-        mean and variance, and the final column contains the
-        logistic regression coefficient. You must pass the vector
-        of feature names in the same order as columns of X in the
-        constructor.
-        """
-        means = self._pipe["scaler"].mean_
-        variances = self._pipe["scaler"].var_
-        coefs = self._pipe["logreg"].coef_[0, :]
-        model_params = pd.DataFrame(
-            {
-                "feature": feature_names,
-                "scaling_mean": means,
-                "scaling_variance": variances,
-                "logreg_coef": coefs,
-            }
-        )
-        return model_params
-
-
-def get_nonzero_proportion(df):
+def fit_model_bootstraps_and_save(model_data):
     """
-    Utility function to (interactively) show the proportion
-    of each feature that is non-zero. Pass a pandas dataframe
-    df. A low result means that a column is mostly zero. Used
-    to decide it it might be helpful to remove features based
-    on high proportion of zeros.
-
-    Testing: not yet tested
+    Load and split a dataset into testing and training.
+    Fit the model on the training, and also fit the model on
+    resamples of the training for checking stability. Save the
+    resulting model to a file, with enough data to plot results.
     """
-    return df.astype(bool).mean()
+    dataset = ds.Dataset(model_data["dataset_name"], model_data["config_file"], model_data["sparse_features"])
 
+    # Get the feature matrix X and outcome vector y
+    X = dataset.get_X()
 
-def get_nonzero_proportion(df):
-    """
-    Utility function to (interactively) show the proportion
-    of each feature that is non-zero. Pass a pandas dataframe
-    df. A low result means that a column is mostly zero. Used
-    to decide it it might be helpful to remove features based
-    on high proportion of zeros.
+    #outcome = hussain_ami_stroke_outcome
+    y = dataset.get_y(model_data["outcome"])
 
-    Testing: not yet tested
-    """
-    return df.astype(bool).mean()
+    # Split (X,y) into a testing set (X_test, y_test), which is not used for
+    # any model training, and a training set (X0,y0), which is used to develop
+    # the model. Later, (X0,y0) is resampled to generate M additional training
+    # sets (Xm,ym) which are used to assess the stability of the developed model
+    # (see stability.py). All models are tested using the testing set.
+    train_test_split_rng = np.random.RandomState(0)
+    test_set_proportion = 0.25
+    X0_train, X_test, y0_train, y_test = train_test_split(
+        X, y, test_size=test_set_proportion, random_state=train_test_split_rng
+    )
+
+    print(f"Training dataset contains {X0_train.shape[0]} rows")
+    print(f"Outcome vector has mean {np.mean(y0_train)}")
+
+    Model = SimpleLogisticRegression
+
+    # Fit the model-under-test M0 to the training set (X0_train, y0_train), and
+    # fit M other models to M other bootstrap resamples of (X0_train, y0_train).
+    M0, Mm = fit_model(Model, X0_train, y0_train, M=10)
+
+    # First columns is the probability of 1 in y_test from M0; other columns
+    # are the same for the N bootstrapped models Mm.
+    probs = predict_bootstrapped_proba(M0, Mm, X_test)
+
+    # At this point, all you need to save is probs, y_test, and any information
+    # about the best model fit that you want (i.e. params, preprocessing steps, etc.)
+    fit_data = {
+        "model_name": Model.name(),
+        "dataset_path": dataset.dataset_path,
+        "model": M0,
+        "probs": probs,
+        "y_test": y_test,
+    } | model_data
+
+    ds.save_fit_info(fit_data, "simple_logistic_regression")
+

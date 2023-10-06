@@ -67,7 +67,7 @@ def plot_roc_curves(ax, curves, auc):
         [
             "Chance level (AUC = 0.5)",
             f"Model-under-test (AUC = {auc[0]:.2f})",
-            f"Bootstrapped models (AUC = {auc[1]:.2f} $\pm$ {auc[2]:.2f})",
+            f"Bootstrapped models (AUC = {auc[1]:.2f} $\pm$ {auc[2]:.3f})",
         ]
     )
     ax.set_title("ROC-stability curves")

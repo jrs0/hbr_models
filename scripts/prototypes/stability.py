@@ -60,6 +60,7 @@
 import numpy as np
 from sklearn.utils import resample
 import warnings
+import pandas as pd
 
 def make_bootstrapped_resamples(X0_train, y0_train, M):
     '''
@@ -110,7 +111,7 @@ def predict_bootstrapped_proba(M0, Mn, X_test):
     
     return np.column_stack(columns)
 
-def plot_instability(ax, probs):
+def plot_instability(ax, probs, y_test):
     '''
     This function plots a scatter graph of one point
     per value in the test set (row of probs), where the
@@ -132,12 +133,16 @@ def plot_instability(ax, probs):
     num_cols = probs.shape[1]
     x = []
     y = []
+    c = []
     for i in range(num_rows):    
         for j in range(1, num_cols):
             x.append(probs[i, 0])
             y.append(probs[i, j])
+            c.append(y_test[i]),
         
-    ax.scatter(x, y, alpha=0.2, marker=".")
+    plot_data = pd.DataFrame({"x": x, "y": y, "c": c}).sort_values("c")
+        
+    ax.scatter(plot_data.x, plot_data.y, c=plot_data.c, alpha=0.2, marker=".")
     ax.axline([0, 0], [1, 1])
     ax.set_title("Probability stability")
     ax.set_xlabel("Prediction from model-under-test")

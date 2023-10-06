@@ -79,6 +79,6 @@ def plot_prediction_distribution(ax, probs, n_bins):
     print(bin_centers)
 
     ax.bar(bin_centers, height=means, width=0.05, yerr=2 * sds)
-    ax.set_title("Distribution of predicted probabilities")
+    #ax.set_title("Distribution of predicted probabilities")
     ax.set_xlabel("Mean predicted probability")
     ax.set_ylabel("Count")
