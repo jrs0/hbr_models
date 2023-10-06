@@ -12,6 +12,8 @@ from stability import (
 )
 import matplotlib.pyplot as plt
 
+#plt.rcParams.update({"legend.fontsize": 4})
+
 def plot_model_validation_2page(model_name, outcome):
     """
     Plot the four model-validation plots -- probability
@@ -32,7 +34,7 @@ def plot_model_validation_2page(model_name, outcome):
     # Get the bootstrapped calibration curves
     calibration_curves = get_bootstrapped_calibration(d["probs"], d["y_test"], n_bins=10)
 
-    fig, ax = plt.subplots(2,2)
+    fig, ax = plt.subplots(2,2, figsize=(8,5))
 
     # Plot the basic instability curve
     plot_instability(ax[0][0], d["probs"], d["y_test"])

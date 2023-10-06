@@ -58,9 +58,7 @@ plot_model_validation_2page(model_name, outcome)
 ```
 
 ```{python}
-#| output: asis
-#| fig-width: 100%
-print("{{< pagebreak >}}")
+#print("{{< pagebreak >}}")
 print(f"### Logistic Regression (Dimension-Reduced Features)")
 
 model_name = "truncsvd_logistic_regression"
