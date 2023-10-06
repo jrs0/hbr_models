@@ -52,18 +52,17 @@ The basic dataset used to define the index event, the outcome variable, and a pr
 outcome = "bleeding_al_ani_outcome"
 ```
 
-{{< pagebreak >}}
-### Logistic Regression (Code Group Features)
-
 ```{python}
 model_name = "simple_logistic_regression"
 plot_model_validation_2page(model_name, outcome)
 ```
 
-{{< pagebreak >}}
-### Logistic Regression (Dimension-Reduced Features)
-
 ```{python}
+#| output: asis
+#| fig-width: 100%
+print("{{< pagebreak >}}")
+print(f"### Logistic Regression (Dimension-Reduced Features)")
+
 model_name = "truncsvd_logistic_regression"
 plot_model_validation_2page(model_name, outcome)
 ```
@@ -74,16 +73,22 @@ plot_model_validation_2page(model_name, outcome)
 outcome = "hussain_ami_stroke_outcome"
 ```
 
-{{< pagebreak >}}
-### Logistic Regression (Code Group Features)
+```{python}
+#| output: asis
+print("{{< pagebreak >}}")
+print(f"### Logistic Regression (Code Group Features)")
+```
 
 ```{python}
 model_name = "simple_logistic_regression"
 plot_model_validation_2page(model_name, outcome)
 ```
 
-{{< pagebreak >}}
-### Logistic Regression (Dimension-Reduced Features)
+```{python}
+#| output: asis
+print("{{< pagebreak >}}")
+print(f"### Logistic Regression (Dimension-Reduced Features)")
+```
 
 ```{python}
 model_name = "truncsvd_logistic_regression"
