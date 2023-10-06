@@ -76,7 +76,6 @@ def plot_prediction_distribution(ax, probs, n_bins):
     sds = np.std(freqs, axis=0)
 
     bin_centers = (bin_edges[1:] + bin_edges[:-1]) / 2
-    print(bin_centers)
 
     ax.bar(bin_centers, height=means, width=0.05, yerr=2 * sds)
     #ax.set_title("Distribution of predicted probabilities")
