@@ -24,9 +24,11 @@ import pandas as pd
 from py_hic.clinical_codes import get_codes_in_group, ClinicalCodeParser
 
 import hes
+import swd
 import mortality as mort
 import save_datasets as ds
 
+importlib.reload(swd)
 importlib.reload(hes)
 importlib.reload(mort)
 importlib.reload(codes)
@@ -38,9 +40,13 @@ import numpy as np
 # episodes data from the database. Use these variables to
 # reduce the total amount of data to something the script
 # can handle
-start_date = dt.date(2014, 1, 1)  # Before the start of the data
-end_date = dt.date(2024, 1, 1)  # After the end of the data
-from_file = True
+start_date = dt.date(1995, 1, 1)  # Before the start of the data
+end_date = dt.date(2025, 1, 1)  # After the end of the data
+from_file = False
+
+# Fetching all the attributes data 
+raw_attributes_data = swd.get_attributes_data(start_date, end_date)
+raw_attributes_data.to_pickle("datasets/raw_attributes_data.pkl")
 
 # Dataset containing one row per episode, grouped into spells by
 # spell_id, with some patient demographic information (age and gender)
