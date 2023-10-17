@@ -3,7 +3,7 @@
 # Model stability of an internally-validated model
 # refers to how well models developed on a similar internal
 # population agree with each other. The methodology for
-# assessing model stability follows Riley and Collins, 2022 
+# assessing model stability follows Riley and Collins, 2022
 # (https://arxiv.org/abs/2211.01061)
 #
 # Assessing model stability is an end-to-end test of the entire
@@ -14,13 +14,13 @@
 # in the process is to split the internal dataset into a training
 # set P0 and a test set T.
 #
-# Assuming that a training set P0 is used to develop a model M0 
-# using a model development  process D (involving steps such 
-# cross-validation and hyperparameter tuning in the training set, 
-# and validation of accuracy of model prediction in the test set), 
+# Assuming that a training set P0 is used to develop a model M0
+# using a model development  process D (involving steps such
+# cross-validation and hyperparameter tuning in the training set,
+# and validation of accuracy of model prediction in the test set),
 # the following steps are required to assess the stability of M0:
 #
-# 1. Bootstrap resample P0 with replacement M >= 200 times, creating 
+# 1. Bootstrap resample P0 with replacement M >= 200 times, creating
 #    M new datasets Pm that are all the same size as P0
 # 2. Apply D to each Pm, to obtain M new models Mn which are all
 #    comparable with M0.
@@ -44,7 +44,7 @@
 # then be called M times to generate the bootstrapped models. This
 # function is not defined in this file (see the fit.py file)
 #
-# An aggregating function will then take all the models Mn, the 
+# An aggregating function will then take all the models Mn, the
 # model-under-test M0, and the test set T, and make predictions
 # using all the models for each sample in the test set. It should
 # return all these predictions (probabilities) in a 2D array, where
@@ -62,24 +62,25 @@ from sklearn.utils import resample
 import warnings
 import pandas as pd
 
+
 def make_bootstrapped_resamples(X0_train, y0_train, M):
-    '''
+    """
     Makes M boostrapped resamples of P0 that are the same
     size as P0. M must be at least 200 (as per recommendation).
     P0 is specified by its features X0_train and its outcome
     y0_train, which must both be the same height (same number
-    of rows). 
+    of rows).
 
     Note: not yet reproducible from random_state.
 
     Testing: not yet tested.
-    '''
+    """
     num_samples = X0_train.shape[0]
     if num_samples != len(y0_train):
         raise ValueError("Number of rows in X0_train and y0_train must match")
     if M < 200:
         warnings.warn("M should be at least 200; see Riley and Collins, 2022")
-    
+
     Xn_train = []
     yn_train = []
     for _ in range(M):
@@ -89,8 +90,9 @@ def make_bootstrapped_resamples(X0_train, y0_train, M):
 
     return Xn_train, yn_train
 
+
 def predict_bootstrapped_proba(M0, Mn, X_test):
-    '''
+    """
     Aggregating function which finds the predicted probability
     from the model-under-test M0 and all the bootstrapped models
     Mn on each sample of the training set features X_test. The
@@ -103,16 +105,17 @@ def predict_bootstrapped_proba(M0, Mn, X_test):
     test set y_test.
 
     Testing: not yet tested
-    '''
+    """
     columns = []
     for m, M in enumerate([M0] + Mn):
         print(f"Predicting test-set probabilities {m}")
-        columns.append(M.model().predict_proba(X_test)[:,1])
-    
+        columns.append(M.model().predict_proba(X_test)[:, 1])
+
     return np.column_stack(columns)
 
+
 def plot_instability(ax, probs, y_test):
-    '''
+    """
     This function plots a scatter graph of one point
     per value in the test set (row of probs), where the
     x-axis is the value of the model under test (the
@@ -127,26 +130,44 @@ def plot_instability(ax, probs, y_test):
     models Mn broadly agree with the predictions made by M0.
 
     Testing: not yet tested
-    '''
-    
+    """
+
     num_rows = probs.shape[0]
     num_cols = probs.shape[1]
     x = []
     y = []
     c = []
-    for i in range(num_rows):    
+    for i in range(num_rows):
         for j in range(1, num_cols):
-            x.append(probs[i, 0])
-            y.append(probs[i, j])
-            c.append(y_test[i]),
-        
-    plot_data = pd.DataFrame({"x": x, "y": y, "c": c}).sort_values("c")
-        
-    ax.scatter(plot_data.x, plot_data.y, c=plot_data.c, alpha=0.2, marker=".")
+            x.append(probs[i, 0])  # Model-under-test
+            y.append(probs[i, j])  # Other bootstrapped models
+            c.append(y_test[i]),  # What was the actual outcome
+
+    colour_map = {0: "g", 1: "r"}
+
+    for outcome_to_plot, colour in colour_map.items():
+       x_to_plot = [x for x, outcome in zip(x, c) if outcome == outcome_to_plot]
+       y_to_plot = [y for y, outcome in zip(y, c) if outcome == outcome_to_plot]
+       ax.scatter(x_to_plot, y_to_plot, c=colour, s=1, marker=".")
+
     ax.axline([0, 0], [1, 1])
+
+    ax.set_xlim(0, 0.1)
+    ax.set_ylim(0,0.1)
+
+    ax.legend(
+        [   
+            "Did not occur (background)",
+            "Event occurred (foreground)",
+            "Bootstrap model predictions",
+            "Ideal stability",
+        ],
+        markerscale=15
+    )
     ax.set_title("Probability stability")
     ax.set_xlabel("Prediction from model-under-test")
     ax.set_ylabel("Predictions from bootstrapped models")
+
 
 def fit_model(Model, X0_train, y0_train, M):
     """
@@ -166,7 +187,7 @@ def fit_model(Model, X0_train, y0_train, M):
     # For the purpose of assessing model stability, obtain bootstrap
     # resamples (Xm_train, ym_train) from the training set (X0, y0).
     print("Creating bootstrap resamples of X0 for stability checking")
-    Xm_train, ym_train = make_bootstrapped_resamples(X0_train, y0_train, M)       
+    Xm_train, ym_train = make_bootstrapped_resamples(X0_train, y0_train, M)
 
     # Develop all the bootstrap models to compare with the model-under-test M0
     print("Fitting bootstrapped models")

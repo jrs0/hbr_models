@@ -62,7 +62,7 @@ def plot_roc_curves(ax, curves, auc):
     mut_curve = curves[0]  # model-under-test
     ax.plot(mut_curve[0], mut_curve[1], color="r")
     for curve in curves[1:]:
-        ax.plot(curve[0], curve[1], color="b", linewidth=0.3, alpha=0.1)
+        ax.plot(curve[0], curve[1], color="b", linewidth=0.3, alpha=0.4)
     ax.legend(
         [
             "Chance level (AUC = 0.5)",

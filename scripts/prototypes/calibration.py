@@ -49,7 +49,7 @@ def plot_calibration_curves(ax, curves):
         mut_curve[1]
     )
     for curve in curves[1:]:
-        ax.plot(curve[0], curve[1], color="b", linewidth=0.3, alpha=0.2)
+        ax.plot(curve[0], curve[1], color="b", linewidth=0.3, alpha=0.4)
     ax.legend(["Ideal calibration", "Model-under-test", "Bootstrapped models"])
     ax.set_title("Calibration-stability curves")
     ax.set_xlabel("Mean predicted probability")
@@ -77,7 +77,11 @@ def plot_prediction_distribution(ax, probs, n_bins):
 
     bin_centers = (bin_edges[1:] + bin_edges[:-1]) / 2
 
-    ax.bar(bin_centers, height=means, width=0.05, yerr=2 * sds)
+    # Compute the bin width to leave a gap between bars
+    # of 20%
+    bin_width = 0.80/n_bins
+
+    ax.bar(bin_centers, height=means, width=bin_width, yerr=2 * sds)
     #ax.set_title("Distribution of predicted probabilities")
     ax.set_xlabel("Mean predicted probability")
     ax.set_ylabel("Count")
