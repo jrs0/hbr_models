@@ -40,7 +40,6 @@ def get_mortality_data(start_date, end_date):
     print(f"Time to fetch mortality data: {stop - start}")
     return raw_data
 
-
 def convert_codes_to_long(df):
     """
     df is a table containing the cause of death columns from get_mortality_data(),

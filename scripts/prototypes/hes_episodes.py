@@ -31,7 +31,7 @@ import save_datasets as ds
 importlib.reload(swd)
 importlib.reload(hes)
 importlib.reload(mort)
-#importlib.reload(codes)
+# importlib.reload(codes)
 importlib.reload(ds)
 
 import numpy as np
@@ -48,21 +48,26 @@ from_file = False
 # what events are considered to follow or precede index events, what
 # exclusion is used directly before the index event to account for coding
 # time, and any exclusion directly after the index for periprocedural
-# events. 
+# events.
 #
 # Index events are only considered if they include a full max_period_before
 # before the index date and follow_up period after the index date. These are
 # calculated with respect to the left_censor_date and right_censor_date, which
 # are the first and last dates seen in the dataset, and are taken to mean the
-# start and end of the full dataset period.
-max_period_before = dt.timedelta(days=365) # Limit count to previous 12 months
+# start and end of the full dataset period. Note that this makes the assumption
+# that the first and last dates are usable as indicators for the period of
+# time when a patient might have had data recorded about them. In practice, it
+# may be more valid on the right_censor side (recent data) than the left censor
+# side (which might have spurious data back to the 1990s).
+#
+max_period_before = dt.timedelta(days=365)  # Limit count to previous 12 months
 min_period_before = dt.timedelta(days=31)  # Exclude month before index (not coded yet)
-follow_up = dt.timedelta(days=365)         # Limit "occurred" column to 12 months
-min_period_after = dt.timedelta(hours=72)   # Exclude the subsequent 72 hours after index
+follow_up = dt.timedelta(days=365)  # Limit "occurred" column to 12 months
+min_period_after = dt.timedelta(hours=72)  # Exclude the subsequent 72 hours after index
 
-# Fetching all the attributes data 
-#raw_attributes_data = swd.get_attributes_data(start_date, end_date)
-#raw_attributes_data.to_pickle("datasets/raw_attributes_data.pkl")
+# Fetching all the attributes data
+# raw_attributes_data = swd.get_attributes_data(start_date, end_date)
+# raw_attributes_data.to_pickle("datasets/raw_attributes_data.pkl")
 
 # Dataset containing one row per episode, grouped into spells by
 # spell_id, with some patient demographic information (age and gender)
@@ -83,6 +88,11 @@ code_group_counts = hes.make_code_group_counts(long_clinical_codes, raw_episodes
 right_censor_date, left_censor_date = hes.get_censor_dates(raw_episodes_data)
 
 raw_mortality_data = mort.get_mortality_data(start_date, end_date)
+# From the guidance document: "a small number of duplicates are present in the dataset - "
+# "this is the case for around 55 entries. The cause for these is unknown and is under "
+# "investigation". 
+raw_mortality_data = raw_mortality_data.groupby("patient_id").filter(lambda x: len(x) == 1)
+
 raw_mortality_data.replace("", np.nan, inplace=True)
 # Not sure why this is necessary, it doesn't seem necessary with the episodes
 raw_mortality_data["patient_id"] = raw_mortality_data["patient_id"].astype(np.int64)
@@ -105,6 +115,15 @@ long_mortality = long_mortality.loc[
 # Find the index episodes, which are the ones that contain an ACS or PCI and
 # are also the first episode of the spell.
 idx_episodes = hes.get_index_episodes(code_group_counts, raw_episodes_data)
+
+# Exclude those index events which do not have a full follow_up period after
+# the index event, and do not have a full max_period_before before the index
+# event
+idx_episodes = idx_episodes[
+    ((right_censor_date - idx_episodes.idx_date) > follow_up)
+    & ((idx_episodes.idx_date - left_censor_date)
+    > max_period_before)
+]
 
 # Get a table of index events paired up with all the patient's
 # other episodes.
