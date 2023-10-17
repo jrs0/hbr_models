@@ -237,8 +237,8 @@ class Dataset:
                 raise RuntimeError(f"Unable to load config file: {e}")
 
         # Reduce the date range
-        dataset = dataset[(dataset.idx_date > '2018-1-1') & (dataset.idx_date < '2022-1-1')]
-        print(f"Dataset number of rows: {dataset.shape[0]}")
+        #dataset = dataset[(dataset.idx_date > '2018-1-1') & (dataset.idx_date < '2022-1-1')]
+        #print(f"Dataset number of rows: {dataset.shape[0]}")
 
         # Drop columns that are in the ignore list
         dataset.drop(columns=self.config["ignore"], inplace=True)
