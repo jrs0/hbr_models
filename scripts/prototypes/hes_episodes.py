@@ -44,6 +44,16 @@ start_date = dt.date(1995, 1, 1)  # Before the start of the data
 end_date = dt.date(2025, 1, 1)  # After the end of the data
 from_file = False
 
+# These four time periods define what events are considered index events,
+# what events are considered to follow or precede index events, what
+# exclusion is used directly before the index event to account for coding
+# time, and any exclusion directly after the index for periprocedural
+# events. 
+max_period_before = dt.timedelta(days=365) # Limit count to previous 12 months
+min_period_before = dt.timedelta(days=31)  # Exclude month before index (not coded yet)
+follow_up = dt.timedelta(days=365)         # Limit "occurred" column to 12 months
+min_period_after = dt.timedelta(hours=72)   # Exclude the subsequent 72 hours after index
+
 # Fetching all the attributes data 
 #raw_attributes_data = swd.get_attributes_data(start_date, end_date)
 #raw_attributes_data.to_pickle("datasets/raw_attributes_data.pkl")
@@ -98,8 +108,6 @@ time_to_episode = hes.calculate_time_to_episode(idx_episodes, raw_episodes_data)
 # group in a period before the index event. This could be the previous
 # 12 months, excluding the month before the index event (to account for
 # lack of coding data in that period)
-max_period_before = dt.timedelta(days=365)  # Limit count to previous 12 months
-min_period_before = dt.timedelta(days=31)  # Exclude month before index (not coded yet)
 episodes_before = hes.get_episodes_before_index(
     time_to_episode, min_period_before, max_period_before
 )
@@ -136,8 +144,7 @@ feature_any_code = hes.get_all_codes_before_index(
 # outcomes or outcomes that occur in the index event itself. A follow-up
 # date is defined that becomes the "outcome_occurred" column in the
 # dataset, for classification models.
-follow_up = dt.timedelta(days=365)  # Limit "occurred" column to 12 months
-min_period_after = dt.timedelta(days=31)  # Exclude the subsequent 72 hours after index
+
 
 # Outcome column all_cause_death_outcome
 all_cause_death = mort.get_all_cause_death(idx_episodes, mortality_dates, follow_up)
