@@ -31,7 +31,7 @@ import save_datasets as ds
 importlib.reload(swd)
 importlib.reload(hes)
 importlib.reload(mort)
-importlib.reload(codes)
+#importlib.reload(codes)
 importlib.reload(ds)
 
 import numpy as np
@@ -45,8 +45,8 @@ end_date = dt.date(2025, 1, 1)  # After the end of the data
 from_file = False
 
 # Fetching all the attributes data 
-raw_attributes_data = swd.get_attributes_data(start_date, end_date)
-raw_attributes_data.to_pickle("datasets/raw_attributes_data.pkl")
+#raw_attributes_data = swd.get_attributes_data(start_date, end_date)
+#raw_attributes_data.to_pickle("datasets/raw_attributes_data.pkl")
 
 # Dataset containing one row per episode, grouped into spells by
 # spell_id, with some patient demographic information (age and gender)

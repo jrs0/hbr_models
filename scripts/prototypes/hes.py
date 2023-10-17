@@ -164,7 +164,20 @@ def convert_codes_to_long(df, record_id):
             f"Unrecognised record_id {record_id}; should be 'spell_id' or 'episode_id'"
         )
 
-    long_codes = pd.melt(df, id_vars=[record_id], value_vars=code_cols).dropna()
+    # Lower-memory pivoting by chunking from "https://stackoverflow.com/questions/
+    # "55860924/pandas-pd-melt-throwing-memory-error-on-unpivoting-3-5-gb-csv-while"
+    # "-using-500gb"
+    # Equivalent single line commented out below
+    #long_codes = pd.melt(df, id_vars=[record_id], value_vars=code_cols).dropna()
+    #
+    # The fact that this is working maybe means I should be considering 
+    # dask or something.
+    pivot_list = list()
+    chunk_size = 10000
+    for i in range(0,len(df),chunk_size):
+        row_pivot =df.iloc[i:i+chunk_size].melt(id_vars=[record_id],value_vars=code_cols).dropna()
+        pivot_list.append(row_pivot)
+    long_codes = pd.concat(pivot_list)
 
     long_codes.value = long_codes.value.apply(codes.normalise_code)
     # Prepend icd10 or opc4 to the codes to indicate which are which
