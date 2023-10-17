@@ -49,6 +49,12 @@ from_file = False
 # exclusion is used directly before the index event to account for coding
 # time, and any exclusion directly after the index for periprocedural
 # events. 
+#
+# Index events are only considered if they include a full max_period_before
+# before the index date and follow_up period after the index date. These are
+# calculated with respect to the left_censor_date and right_censor_date, which
+# are the first and last dates seen in the dataset, and are taken to mean the
+# start and end of the full dataset period.
 max_period_before = dt.timedelta(days=365) # Limit count to previous 12 months
 min_period_before = dt.timedelta(days=31)  # Exclude month before index (not coded yet)
 follow_up = dt.timedelta(days=365)         # Limit "occurred" column to 12 months
