@@ -1,6 +1,7 @@
 import sqlalchemy as sql
 import pandas as pd
 import time
+import numpy as np
 
 na_means_zero = [
     "abortion",
@@ -161,7 +162,7 @@ na_means_zero = [
     "visual_impair"
 ]
 
-def make_attributes_query(start_date, end_date):
+def make_attributes_query(start_date, end_date, patient_ids):
     '''
     - **Linking columns** the columns that will be used to link a row in the attributes to a HES row are `nhs_number` and `attribute_period`
     - **Unnecessary metadata columns** the following columns are not needed and have been excluded from the dataset
@@ -174,6 +175,7 @@ def make_attributes_query(start_date, end_date):
     to floating point (with the associated undefined equality
     comparison which comes along with it).
     '''
+    patient_id_list = ','.join([f"'{x}'" for x in patient_ids.tolist()])
     return (
         "select "
         #" ProcessID_Pseudo"
@@ -372,20 +374,29 @@ def make_attributes_query(start_date, end_date):
         ", qof_osteoporosis"
         ", qof_rheumarth"
         + " from modelling_sql_area.dbo.primary_care_attributes"
-        # Consider adding parentheses around the between .. and construction.,
+        # Consider adding parentheses around the where .. between .. and construction.,
         # Don't think it makes any difference, but would be safer probably.
         f" where attribute_period between '{start_date}' and '{end_date}'"
+        f" and nhs_number in ({patient_id_list})"
         " and nhs_number is not null"
-        # Brace yourself -- this specific NHS number is used to mean "NHS number 
+        # This specific NHS number is used to mean "NHS number 
         # is not valid".
         " and nhs_number != '9000219621'"
     )
     
-def get_attributes_data(start_date, end_date):
+def get_attributes_data(start_date, end_date, patient_ids, num_chunks = 100):
 
     con = sql.create_engine("mssql+pyodbc://xsw")
     start = time.time()
-    raw_data = pd.read_sql(make_attributes_query(start_date, end_date), con)
+    
+    raw_data_list = []
+    for chunk in np.array_split(patient_ids, num_chunks):
+        print("Doing chunk")
+        df = pd.read_sql(make_attributes_query(start_date, end_date, chunk), con)
+        raw_data_list.append(df)
+    
+    raw_data = pd.concat(raw_data_list)
+    
     stop = time.time()
     print(f"Time to fetch attributes data: {stop - start}")
     return raw_data

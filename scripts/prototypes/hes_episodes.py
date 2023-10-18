@@ -42,7 +42,7 @@ import numpy as np
 # can handle
 start_date = dt.date(1995, 1, 1)  # Before the start of the data
 end_date = dt.date(2025, 1, 1)  # After the end of the data
-from_file = False
+from_file = True
 
 # These four time periods define what events are considered index events,
 # what events are considered to follow or precede index events, what
@@ -124,6 +124,10 @@ idx_episodes = idx_episodes[
     & ((idx_episodes.idx_date - left_censor_date)
     > max_period_before)
 ]
+
+patient_ids = idx_episodes["patient_id"].unique()
+raw_attributes = swd.get_attributes_data(start_date, end_date, patient_ids, 10)
+swd.make_attributes_query(start_date, end_date, patient_ids)
 
 # Get a table of index events paired up with all the patient's
 # other episodes.
