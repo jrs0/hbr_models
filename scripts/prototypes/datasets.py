@@ -225,13 +225,13 @@ outcome_counts = hes.make_outcomes(
 manual_codes = hes.make_dataset_from_features(
     idx_episodes, feature_counts, outcome_counts, all_cause_death
 )
-ds.save_dataset(manual_codes, "manual_codes.pkl")
+ds.save_dataset(manual_codes, "manual_codes")
 
 # Make the sparse all-code features dataset
 all_codes = hes.make_dataset_from_features(
     idx_episodes, feature_any_code, outcome_counts, all_cause_death
 )
-ds.save_dataset(all_codes, "all_codes.pkl")
+ds.save_dataset(all_codes, "all_codes")
 
 # Now link the system-wide dataset attributes. An index event is included
 # if it has a row of attributes in the SWD up to a month before the heart
@@ -307,4 +307,6 @@ print(f"Removing {num_age_not_equal} rows where HES age and primary care attribu
 manual_codes_swd = manual_codes_swd[~age_not_equal]
 manual_codes_swd.drop(columns=["swd_age"], inplace=True)
 
-ds.save_dataset(manual_codes_swd, "manual_codes_swd.pkl")
+# Also drop the gender/sex duplicate column -- might help models
+
+ds.save_dataset(manual_codes_swd, "manual_codes_swd")

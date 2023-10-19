@@ -13,6 +13,8 @@ features:
     "^idx_"
   clinical_codes:
     "^(diagnosis|procedure)_"
+  primary_care_attributes:
+    "^swd_"
   code_counts_before:
     "_before"
 # Outcome columns are should match unique columns.
