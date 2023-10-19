@@ -125,10 +125,6 @@ idx_episodes = idx_episodes[
     > max_period_before)
 ]
 
-patient_ids = idx_episodes["patient_id"].unique()
-raw_attributes = swd.get_attributes_data(start_date, end_date, patient_ids, 10)
-swd.make_attributes_query(start_date, end_date, patient_ids)
-
 # Get a table of index events paired up with all the patient's
 # other episodes.
 time_to_episode = hes.calculate_time_to_episode(idx_episodes, raw_episodes_data)
@@ -207,3 +203,22 @@ hes_all_codes_dataset = hes.make_dataset_from_features(
     idx_episodes, feature_any_code, outcome_counts, all_cause_death
 )
 ds.save_dataset(hes_all_codes_dataset, "hes_all_codes_dataset")
+
+# Now link the system-wide dataset attributes. An index event is included
+# if it has a row of attributes in the SWD up to a month before the heart 
+# attack occurred.
+
+# Either load from SQL...
+patient_ids = idx_episodes["patient_id"].unique()
+raw_attributes = swd.get_attributes_data(start_date, end_date, patient_ids, 10)
+swd.make_attributes_query(start_date, end_date, patient_ids)
+raw_attributes.to_pickle("datasets/raw_attributes.pkl")
+
+# ... or read from file
+raw_attributes = pd.read_pickle("datasets/raw_attributes.pkl")
+
+# Many columns encode true/false as 1/NA. Replace with zero
+swd.replace_na_with_zero(raw_attributes)
+
+# Remove index events where the patient is not in the attributes
+swd_idx_episodes = idx_episodes[idx_episodes["patient_id"].isin(raw_attributes["patient_id"])]
