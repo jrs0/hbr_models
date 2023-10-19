@@ -296,4 +296,15 @@ manual_codes_swd = (
     .set_index("idx_episode_id")
     .drop(columns=["idx_spell_id", "patient_id", "attribute_id"])
 )
+
+# Check that the primary care attributes age agrees with the HES age
+# thoughout the dataset, then remove the SWD age columns. Allow a discrepancy
+# of up to 1 year due to rounding. There are places where the age is out by
+# one year, but in this version of the script this discrepancy is ignored.
+age_not_equal = abs(manual_codes_swd["dem_age"] - manual_codes_swd["swd_age"] > 1)
+num_age_not_equal = age_not_equal.sum()
+print(f"Removing {num_age_not_equal} rows where HES age and primary care attributes disagree by more than 1 year")
+manual_codes_swd = manual_codes_swd[~age_not_equal]
+manual_codes_swd.drop(columns=["swd_age"], inplace=True)
+
 ds.save_dataset(manual_codes_swd, "manual_codes_swd.pkl")
