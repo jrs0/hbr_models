@@ -280,6 +280,11 @@ def get_raw_attributes_data(start_date, end_date, patient_ids, from_file):
     # necessary, but the next line has a problem without it.
     raw_attributes = raw_attributes.copy()
 
+    # Add swd_ prefix to all columns except those excluded below
+    exclude = ["attribute_period", "patient_id"]
+    new_columns = ["swd_" + x if (x not in exclude) else x for x in raw_attributes.columns]
+    raw_attributes.columns = new_columns
+
     # Add an ID column to use for joining later
     raw_attributes["attribute_id"] = raw_attributes.reset_index(drop=True).index    
     

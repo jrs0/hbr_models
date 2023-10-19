@@ -1,15 +1,37 @@
-# HES episodes-only dataset
+# ACS Dataset 
 #
-# This script contains functions which convert the
-# raw data retrieved from a hospital episode statistics
-# table to a feature and outcome matrix (X,Y) which
-# contains acute coronary syndrome index events (one per
-# row of X and Y), counts of which diagnosis code groups
-# occur before the index event (columns of X), other
-# information about the patient and index event (columns
-# of X), and whether or not a bleeding event or adverse
-# cardiovascular event occurred after the index (columns
-# of Y).
+# This script creates a set of datasets for ACS index events,
+# bleeding and ischaemia outcomes, and features, from hospital
+# episode statistics (HES) and the BNSSGG primary care attributes
+# table, derived from OneCare (GP) data. After running this script,
+# the datasets are saved in the scripts/prototypes/datasets/, and
+# are named as follows:
+#
+# 1. manual_codes.pkl:
+#   index definition: ACS and PCI code groups from HES 
+#   outcomes: 2-point MACE (AMI and stroke) code groups from HES
+#   features: manually chosen code groups from HES
+#             age and gender from HES
+#
+# 2. all_codes.pkl:
+#   index definition: ACS and PCI code groups from HES 
+#   outcomes: 2-point MACE (AMI and stroke) code groups from HES
+#   features: all HES diagnosis and procedure codes as separate columns
+#             age and gender from HES
+# 
+# 3. manual_codes_swd.pkl:
+#   index definition: ACS and PCI code groups from HES 
+#   outcomes: 2-point MACE (AMI and stroke) code groups from HES
+#   features: manually chosen code groups from HES
+#             age and gender from HES
+#             patient attributes from GP data, just prior to index
+#
+# Datasets 1. and 2. have the same number of rows, and differ only in
+# the processing of the feature columns (manual code groups vs. one
+# column per clinical code). Dataset 3. has less rows due to the reduced
+# date range of the primary care attributes table. All tables have the
+# same index events (apart from the date restriction), and the same outcomes
+# for each index event.
 #
 
 import os
@@ -42,7 +64,7 @@ import numpy as np
 # can handle
 start_date = dt.date(1995, 1, 1)  # Before the start of the data
 end_date = dt.date(2025, 1, 1)  # After the end of the data
-from_file = False
+from_file = True
 
 # These four time periods define what events are considered index events,
 # what events are considered to follow or precede index events, what
@@ -200,16 +222,16 @@ outcome_counts = hes.make_outcomes(
 # Make the dataset whose feature columns are code groups defined in the
 # icd10.yaml and opcs4.yaml file, and whose outcome columns are defined
 # in the list above, along with all-cause mortality.
-hes_code_groups_dataset = hes.make_dataset_from_features(
+manual_codes = hes.make_dataset_from_features(
     idx_episodes, feature_counts, outcome_counts, all_cause_death
 )
-ds.save_dataset(hes_code_groups_dataset, "hes_code_groups_dataset")
+ds.save_dataset(manual_codes, "manual_codes.pkl")
 
 # Make the sparse all-code features dataset
-hes_all_codes_dataset = hes.make_dataset_from_features(
+all_codes = hes.make_dataset_from_features(
     idx_episodes, feature_any_code, outcome_counts, all_cause_death
 )
-ds.save_dataset(hes_all_codes_dataset, "hes_all_codes_dataset")
+ds.save_dataset(all_codes, "all_codes.pkl")
 
 # Now link the system-wide dataset attributes. An index event is included
 # if it has a row of attributes in the SWD up to a month before the heart
@@ -266,7 +288,7 @@ feature_attributes = raw_attributes.drop(columns=["patient_id", "attribute_perio
 
 # Now join on all the attributes by attribute_id, and the standard HES feature code
 # groups and outcome columns
-hes_code_groups_swd_dataset = (
+manual_codes_swd = (
     df.merge(feature_attributes, how="left", on="attribute_id")
     .merge(feature_counts, how="left", on="idx_episode_id")
     .merge(outcome_counts, how="left", on="idx_episode_id")
@@ -274,4 +296,4 @@ hes_code_groups_swd_dataset = (
     .set_index("idx_episode_id")
     .drop(columns=["idx_spell_id", "patient_id", "attribute_id"])
 )
-ds.save_dataset(hes_code_groups_swd_dataset, "hes_code_groups_swd_dataset")
+ds.save_dataset(manual_codes_swd, "manual_codes_swd.pkl")
