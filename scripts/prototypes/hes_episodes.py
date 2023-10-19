@@ -65,6 +65,12 @@ min_period_before = dt.timedelta(days=31)  # Exclude month before index (not cod
 follow_up = dt.timedelta(days=365)  # Limit "occurred" column to 12 months
 min_period_after = dt.timedelta(hours=72)  # Exclude the subsequent 72 hours after index
 
+# Define a window before the index event where SWD attributes will be considered valid.
+# 41 days is used to ensure that a full month is definitely captured. Consider
+# using 31*n + 10 to allow attributes up to n months before the index event to be used
+# (the most recent attributes will still be preferred).
+attribute_valid_window = dt.timedelta(days=41)
+
 # Fetching all the attributes data
 # raw_attributes_data = swd.get_attributes_data(start_date, end_date)
 # raw_attributes_data.to_pickle("datasets/raw_attributes_data.pkl")
@@ -90,8 +96,10 @@ right_censor_date, left_censor_date = hes.get_censor_dates(raw_episodes_data)
 raw_mortality_data = mort.get_mortality_data(start_date, end_date)
 # From the guidance document: "a small number of duplicates are present in the dataset - "
 # "this is the case for around 55 entries. The cause for these is unknown and is under "
-# "investigation". 
-raw_mortality_data = raw_mortality_data.groupby("patient_id").filter(lambda x: len(x) == 1)
+# "investigation".
+raw_mortality_data = raw_mortality_data.groupby("patient_id").filter(
+    lambda x: len(x) == 1
+)
 
 raw_mortality_data.replace("", np.nan, inplace=True)
 # Not sure why this is necessary, it doesn't seem necessary with the episodes
@@ -121,8 +129,7 @@ idx_episodes = hes.get_index_episodes(code_group_counts, raw_episodes_data)
 # event
 idx_episodes = idx_episodes[
     ((right_censor_date - idx_episodes.idx_date) > follow_up)
-    & ((idx_episodes.idx_date - left_censor_date)
-    > max_period_before)
+    & ((idx_episodes.idx_date - left_censor_date) > max_period_before)
 ]
 
 # Get a table of index events paired up with all the patient's
@@ -205,7 +212,7 @@ hes_all_codes_dataset = hes.make_dataset_from_features(
 ds.save_dataset(hes_all_codes_dataset, "hes_all_codes_dataset")
 
 # Now link the system-wide dataset attributes. An index event is included
-# if it has a row of attributes in the SWD up to a month before the heart 
+# if it has a row of attributes in the SWD up to a month before the heart
 # attack occurred.
 
 # Either load from SQL...
@@ -217,8 +224,52 @@ raw_attributes.to_pickle("datasets/raw_attributes.pkl")
 # ... or read from file
 raw_attributes = pd.read_pickle("datasets/raw_attributes.pkl")
 
+# This is necessary to defragment the frame (after the chunked SQL
+# query probably)
+raw_attributes = raw_attributes.copy()
+
 # Many columns encode true/false as 1/NA. Replace with zero
 swd.replace_na_with_zero(raw_attributes)
 
+# Convert the attribute_period column to a datetime
+raw_attributes["attribute_period"] = pd.to_datetime(raw_attributes["attribute_period"])
+
+# Add an ID column to use for joining later
+raw_attributes["attribute_id"] = raw_attributes.reset_index().index
+
 # Remove index events where the patient is not in the attributes
-swd_idx_episodes = idx_episodes[idx_episodes["patient_id"].isin(raw_attributes["patient_id"])]
+swd_idx_episodes = idx_episodes[
+    idx_episodes["patient_id"].isin(raw_attributes["patient_id"])
+]
+
+# Join the attributes onto the index episodes by patient, and then
+# only keep attributes that are before the index event, but with
+# the attribute_valid_window
+#
+# The attribute_period column of an attributes row indicates that
+# the attribute was valid at the end of the interval
+# (attribute_period, attribute_period + 1month). It is important
+# that no attribute is used in modelling that could have occurred
+# after the index event, meaning that attribute_period + 1 < idx_date
+# must hold for any attribute used as a predictor. On the other hand,
+# data substantially before the index event should not be used. The
+# valid window is controlled by imposing
+#
+# (idx_date - attribute_period) < attribute_valid_window
+#
+# Ensure that attribute_valid_window is slightly larger than a multiple
+# of months to ensure that a full month is captured.
+#
+df = swd_idx_episodes.merge(
+    raw_attributes[["patient_id", "attribute_period", "attribute_id"]],
+    how="left",
+    on="patient_id",
+).groupby("idx_episode_id").apply(
+    lambda g: g[
+        ((g["attribute_period"] + dt.timedelta(days=31)) < g["idx_date"])
+        & ((g["idx_date"] - g["attribute_period"]) < attribute_valid_window)
+    ]
+).reset_index(drop=True)
+
+# Now join on all the attributes by attribute_id
+idx_attributes = res.merge(raw_attributes, how="left", on="attribute_id")
