@@ -20,11 +20,11 @@ def make_attributes_query(start_date, end_date, patient_ids):
     return (
         "select "
         #" ProcessID_Pseudo"
-        " ProcessDate"
-        ", NHSNumberWasValid"
+        #" ProcessDate"
+        " NHSNumberWasValid"
         ", nhs_number as patient_id"
         #", Process_ID"
-        ", InsertedDate"
+        #", InsertedDate"
         #", MABATCH"
         ", attribute_period"
         ", homeless"
@@ -225,23 +225,66 @@ def make_attributes_query(start_date, end_date, patient_ids):
         " and nhs_number != '9000219621'"
     )
     
-def get_attributes_data(start_date, end_date, patient_ids, num_chunks = 100):
+def get_attributes_data(start_date, end_date, patient_ids, num_chunks = 10):
 
     con = sql.create_engine("mssql+pyodbc://xsw")
     start = time.time()
     
     raw_data_list = []
+    count = 1
     for chunk in np.array_split(patient_ids, num_chunks):
-        print("Doing chunk")
+        print(f"Fetching chunk {count} of {num_chunks}")
         df = pd.read_sql(make_attributes_query(start_date, end_date, chunk), con)
         raw_data_list.append(df)
+        count += 1
     
-    raw_data = pd.concat(raw_data_list)
+    # Reset the index to ensure that the index runs from 0..num_rows
+    raw_data = pd.concat(raw_data_list).reset_index(drop=True)
     
     stop = time.time()
     print(f"Time to fetch attributes data: {stop - start}")
     return raw_data
 
+def get_raw_attributes_data(start_date, end_date, patient_ids, from_file):
+    """
+    Fetch the patient attributes data from the primary_care_attributes table
+    (onecare). Only obtain data for patients in the patient_ids list, which 
+    corresponds to patients with index events. The start_date and end_date can
+    be used to limit the date range (based on the attribute_period column).
+    
+    If from_file = False, the data is fetched from SQL and saved to 
+    datasets/raw_attributes.pkl. If from_file = True, then all other parameters
+    are ignored and the data is read from that file
+    """
+    if not from_file:
+        print("Fetching attributes dataset from SQL")
+        raw_attributes = get_attributes_data(start_date, end_date, patient_ids, 10)
+        raw_attributes.to_pickle("datasets/raw_attributes.pkl")
+    else:
+        raw_attributes = pd.read_pickle("datasets/raw_attributes.pkl")
+        
+    # Exclude any rows where NHSNumberWasValid is not equal to 1
+    nhs_number_not_valid = raw_attributes["NHSNumberWasValid"] != 1
+    num_not_valid = np.sum(nhs_number_not_valid)
+    print(f"Removing {num_not_valid} invalid NHS numbers")
+    raw_attributes = raw_attributes[~nhs_number_not_valid]
+    raw_attributes.drop(columns=["NHSNumberWasValid"], inplace=True)
+    
+    # Many columns encode true/false as 1/NA. Replace with zero
+    replace_na_with_zero(raw_attributes)
+
+    # Convert the attribute_period column to a datetime
+    raw_attributes["attribute_period"] = pd.to_datetime(raw_attributes["attribute_period"])
+
+    # This is necessary to defragment the frame. Not sure which step makes this
+    # necessary, but the next line has a problem without it.
+    raw_attributes = raw_attributes.copy()
+
+    # Add an ID column to use for joining later
+    raw_attributes["attribute_id"] = raw_attributes.reset_index(drop=True).index    
+    
+    return raw_attributes
+    
 def replace_na_with_zero(raw_attributes):
     """
     Many column in the primary care attributes data use NA

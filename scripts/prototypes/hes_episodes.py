@@ -42,7 +42,7 @@ import numpy as np
 # can handle
 start_date = dt.date(1995, 1, 1)  # Before the start of the data
 end_date = dt.date(2025, 1, 1)  # After the end of the data
-from_file = True
+from_file = False
 
 # These four time periods define what events are considered index events,
 # what events are considered to follow or precede index events, what
@@ -215,27 +215,11 @@ ds.save_dataset(hes_all_codes_dataset, "hes_all_codes_dataset")
 # if it has a row of attributes in the SWD up to a month before the heart
 # attack occurred.
 
-# Either load from SQL...
+# Load raw attributes data
 patient_ids = idx_episodes["patient_id"].unique()
-raw_attributes = swd.get_attributes_data(start_date, end_date, patient_ids, 10)
-swd.make_attributes_query(start_date, end_date, patient_ids)
-raw_attributes.to_pickle("datasets/raw_attributes.pkl")
-
-# ... or read from file
-raw_attributes = pd.read_pickle("datasets/raw_attributes.pkl")
-
-# This is necessary to defragment the frame (after the chunked SQL
-# query probably)
-raw_attributes = raw_attributes.copy()
-
-# Many columns encode true/false as 1/NA. Replace with zero
-swd.replace_na_with_zero(raw_attributes)
-
-# Convert the attribute_period column to a datetime
-raw_attributes["attribute_period"] = pd.to_datetime(raw_attributes["attribute_period"])
-
-# Add an ID column to use for joining later
-raw_attributes["attribute_id"] = raw_attributes.reset_index().index
+raw_attributes = swd.get_raw_attributes_data(
+    start_date, end_date, patient_ids, from_file
+)
 
 # Remove index events where the patient is not in the attributes
 swd_idx_episodes = idx_episodes[
@@ -260,16 +244,34 @@ swd_idx_episodes = idx_episodes[
 # Ensure that attribute_valid_window is slightly larger than a multiple
 # of months to ensure that a full month is captured.
 #
-df = swd_idx_episodes.merge(
-    raw_attributes[["patient_id", "attribute_period", "attribute_id"]],
-    how="left",
-    on="patient_id",
-).groupby("idx_episode_id").apply(
-    lambda g: g[
-        ((g["attribute_period"] + dt.timedelta(days=31)) < g["idx_date"])
-        & ((g["idx_date"] - g["attribute_period"]) < attribute_valid_window)
-    ]
-).reset_index(drop=True)
+df = (
+    swd_idx_episodes.merge(
+        raw_attributes[["patient_id", "attribute_period", "attribute_id"]],
+        how="left",
+        on="patient_id",
+    )
+    .groupby("idx_episode_id")
+    .apply(
+        lambda g: g[
+            ((g["attribute_period"] + dt.timedelta(days=31)) < g["idx_date"])
+            & ((g["idx_date"] - g["attribute_period"]) < attribute_valid_window)
+        ]
+    )
+    .reset_index(drop=True)
+    .drop(columns=["attribute_period"])
+)
 
-# Now join on all the attributes by attribute_id
-idx_attributes = res.merge(raw_attributes, how="left", on="attribute_id")
+# Prepare the other attributes for joining as features
+feature_attributes = raw_attributes.drop(columns=["patient_id", "attribute_period"])
+
+# Now join on all the attributes by attribute_id, and the standard HES feature code
+# groups and outcome columns
+hes_code_groups_swd_dataset = (
+    df.merge(feature_attributes, how="left", on="attribute_id")
+    .merge(feature_counts, how="left", on="idx_episode_id")
+    .merge(outcome_counts, how="left", on="idx_episode_id")
+    .merge(all_cause_death, how="left", on="idx_episode_id")
+    .set_index("idx_episode_id")
+    .drop(columns=["idx_spell_id", "patient_id", "attribute_id"])
+)
+ds.save_dataset(hes_code_groups_swd_dataset, "hes_code_groups_swd_dataset")
