@@ -130,7 +130,6 @@ def get_file_list(name, directory = "datasets"):
     ]
     return recent_first
 
-
 def pick_file_interactive(name):
     """
     Print a list of the datasets in the datasets/ folder, along
@@ -162,14 +161,27 @@ def pick_file_interactive(name):
     full_path = os.path.join(datasets_dir, recent_first.loc[choice, "path"])
     return full_path
 
+def pick_most_recent_file(name):
+    """
+    Like pick_file_interactive, but automatically selects the most
+    recent file in the datasets/ folder
+    """
+    datasets_dir = "datasets"
+    recent_first = get_file_list(name)
+    full_path = os.path.join(datasets_dir, recent_first.loc[0, "path"])
+    return full_path
 
-def load_dataset_interactive(name):
+def load_dataset(name, interactive):
     """
     Load a dataset from the datasets/ folder by name,
     letting the user interactively pick between different
     timestamps and commits
     """
-    dataset_path = pick_file_interactive(name)
+    if interative:
+        dataset_path = pick_file_interactive(name)
+    else:
+        dataset_path = pick_most_recent_file(name)
+        
     print(f"Loading {dataset_path}")
     return pd.read_pickle(dataset_path)
 
@@ -216,7 +228,7 @@ def match_feature_list(feature_columns, feature_groups):
 
 
 class Dataset:
-    def __init__(self, name, config_file, sparse_features):
+    def __init__(self, name, config_file, sparse_features, interactive=True):
         """
         Contains a dataset as a feature matrix X and outcome
         vector y, along with information about the dataset
@@ -236,7 +248,10 @@ class Dataset:
         feature groups.
         """
 
-        self.dataset_path = pick_file_interactive(name)
+        if interactive:
+            self.dataset_path = pick_file_interactive(name)
+        else:
+            self.dataset_path = pick_most_recent_file(name)
         print(f"Loading {self.dataset_path}")
         dataset = pd.read_pickle(self.dataset_path)
 

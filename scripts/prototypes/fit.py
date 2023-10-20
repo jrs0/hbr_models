@@ -15,6 +15,8 @@ def fit_and_save(model_data):
         model_data["dataset_name"],
         model_data["config_file"],
         model_data["sparse_features"],
+        # Pick the most recent saved dataset
+        interactive=False
     )
 
     # Store the indices of columns which need to be dummy encoded.
