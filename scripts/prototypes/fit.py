@@ -17,11 +17,17 @@ def fit_and_save(model_data):
         model_data["sparse_features"],
     )
 
+    # Store the indices of columns which need to be dummy encoded.
+    # This is passed to the models, which do the encoding as a 
+    # preprocessing step.
+    object_column_indices = dataset.object_column_indices
+
     # Get the feature matrix X and outcome vector y
     X = dataset.get_X()
 
     # outcome = hussain_ami_stroke_outcome
     y = dataset.get_y(model_data["outcome"])
+
 
     # Split (X,y) into a testing set (X_test, y_test), which is not used for
     # any model training, and a training set (X0,y0), which is used to develop

@@ -57,7 +57,9 @@ from sklearn.tree import DecisionTreeClassifier, plot_tree
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.neural_network import MLPClassifier
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.impute import SimpleImputer
+from sklearn.compose import ColumnTransformer
 
 from imblearn.over_sampling import RandomOverSampler
 
@@ -71,8 +73,9 @@ import umap
 from sklearn.decomposition import TruncatedSVD
 from scipy.stats import uniform
 
+
 class SimpleLogisticRegression:
-    def __init__(self, X, y):
+    def __init__(self, X, y, object_column_indices):
         """
         Fit basic logistic regression with not hyperparameter
         tuning or cross-validation (because basic logistic regression
@@ -86,9 +89,21 @@ class SimpleLogisticRegression:
 
         Testing: not yet tested
         """
+        to_numeric = ColumnTransformer(
+            [("one_hot", OneHotEncoder(sparse_output=False), object_column_indices)],
+            remainder="passthrough",
+        )
+        impute = SimpleImputer()
         scaler = StandardScaler()
         logreg = LogisticRegression()
-        self._pipe = Pipeline([("scaler", scaler), ("logreg", logreg)])
+        self._pipe = Pipeline(
+            [
+                ("to_numeric", to_numeric),
+                ("impute", impute),
+                ("scaler", scaler),
+                ("logreg", logreg),
+            ]
+        )
         self._pipe.fit(X, y)
 
     def name():
@@ -112,12 +127,12 @@ class SimpleLogisticRegression:
         coefs = self._pipe["logreg"].coef_[0, :]
         model_params = pd.DataFrame(
             {
-                #"feature": feature_names,
+                # "feature": feature_names,
                 "logreg_coef": coefs,
             }
         )
         return model_params
-    
+
 
 class TruncSvdLogisticRegression:
     def __init__(self, X, y):
@@ -176,7 +191,7 @@ class TruncSvdLogisticRegression:
         coefs = self._pipe["logreg"].coef_[0, :]
         model_params = pd.DataFrame(
             {
-                #"feature": feature_names,
+                # "feature": feature_names,
                 "scaling_mean": means,
                 "scaling_variance": variances,
                 "logreg_coef": coefs,
@@ -184,7 +199,9 @@ class TruncSvdLogisticRegression:
         )
         return model_params
 
+
 ####### BELOW HERE IS ROUGH WORK
+
 
 class TruncSvdDecisionTree:
     def __init__(self, X, y):
@@ -301,6 +318,7 @@ class SimpleDecisionTree:
             fontsize=10,
             ax=ax,
         )
+
 
 class SimpleRandomForest:
     def __init__(self, X, y, preprocess):
@@ -585,5 +603,3 @@ class UmapGradientBoostedTree:
             }
         )
         return model_params
-
-
