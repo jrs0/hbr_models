@@ -149,16 +149,16 @@ class TruncSvdLogisticRegression:
             ],
             remainder="passthrough",
         )
+        impute = SimpleImputer()
         reducer = TruncatedSVD(n_iter=7)
         scaler = StandardScaler()
-        impute = SimpleImputer()
         logreg = LogisticRegression()
         self._pipe = Pipeline(
             [
                 ("to_numeric", to_numeric),
+                ("impute", impute),
                 ("reducer", reducer),
                 ("scaler", scaler),
-                ("impute", impute),
                 ("logreg", logreg),
             ]
         )
