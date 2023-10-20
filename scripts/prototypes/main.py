@@ -31,6 +31,7 @@ model_data = {
     "config_file": "config.yaml",
 }
 fit_bleeding_ischaemia_models(model_data)
+exit()
 
 # Truncated SVD, HES groups
 model_data = {

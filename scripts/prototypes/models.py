@@ -90,12 +90,12 @@ class SimpleLogisticRegression:
         Testing: not yet tested
         """
         to_numeric = ColumnTransformer(
-            [("one_hot", OneHotEncoder(sparse_output=False), object_column_indices)],
+            [("one_hot", OneHotEncoder(sparse_output=False, handle_unknown="infrequent_if_exist"), object_column_indices)],
             remainder="passthrough",
         )
         scaler = StandardScaler()
         impute = SimpleImputer()
-        logreg = LogisticRegression(verbose=2)
+        logreg = LogisticRegression(verbose=0)
         self._pipe = Pipeline(
             [
                 ("to_numeric", to_numeric),

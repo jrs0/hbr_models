@@ -32,7 +32,6 @@ X = dataset.get_X()
 # outcome = hussain_ami_stroke_outcome
 y = dataset.get_y("bleeding_al_ani_outcome")
 
-
 # Split (X,y) into a testing set (X_test, y_test), which is not used for
 # any model training, and a training set (X0,y0), which is used to develop
 # the model. Later, (X0,y0) is resampled to generate M additional training
