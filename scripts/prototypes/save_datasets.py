@@ -5,6 +5,8 @@ import yaml
 import re
 import pickle
 from scipy.sparse import csr_matrix
+import numpy as np
+
 
 def current_commit():
     """
@@ -52,8 +54,6 @@ def save_fit_info(model, name):
         pickle.dump(model, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
-
-
 def save_dataset(dataset, name):
     """
     Saves a pandas dataframe to a file in the datasets/
@@ -72,6 +72,7 @@ def save_dataset(dataset, name):
     path = os.path.join(datasets_dir, filename)
 
     dataset.to_pickle(path)
+
 
 def get_file_list(name):
     """
@@ -122,6 +123,7 @@ def get_file_list(name):
     ]
     return recent_first
 
+
 def pick_file_interactive(name):
     """
     Print a list of the datasets in the datasets/ folder, along
@@ -130,10 +132,10 @@ def pick_file_interactive(name):
     The full filename of the resulting file is returned, which can
     then be read by the user.
     """
-    
+
     # Check for missing datasets directory
     datasets_dir = "datasets"
-    
+
     recent_first = get_file_list(name)
     print(recent_first)
 
@@ -164,18 +166,20 @@ def load_dataset_interactive(name):
     print(f"Loading {dataset_path}")
     return pd.read_pickle(dataset_path)
 
+
 def load_fit_info(name):
     """
     Load the most recent version of fit info (the
     one with the latest timestamp).
     """
-    datasets_dir="datasets"
+    datasets_dir = "datasets"
     recent_first = get_file_list(name)
     full_path = os.path.join(datasets_dir, recent_first.loc[0, "path"])
 
     # Read and return the fit info dictionary
-    with open(full_path, 'rb') as handle:
+    with open(full_path, "rb") as handle:
         return pickle.load(handle)
+
 
 def match_feature_list(feature_columns, feature_groups):
     """
@@ -237,8 +241,8 @@ class Dataset:
                 raise RuntimeError(f"Unable to load config file: {e}")
 
         # Reduce the date range
-        #dataset = dataset[(dataset.idx_date > '2018-1-1') & (dataset.idx_date < '2022-1-1')]
-        #print(f"Dataset number of rows: {dataset.shape[0]}")
+        # dataset = dataset[(dataset.idx_date > '2018-1-1') & (dataset.idx_date < '2022-1-1')]
+        # print(f"Dataset number of rows: {dataset.shape[0]}")
 
         # Drop columns that are in the ignore list
         dataset.drop(columns=self.config["ignore"], inplace=True)
@@ -252,16 +256,26 @@ class Dataset:
                 "Could not find outcome column specified "
                 + f"in '{config_file}' in dataset: {e}"
             )
+
         # Convert the outcome columns to a matrix and store the indices.
         # (use get_y() to get an outcome column)
         self._outcome_to_index = {
             col: dataset_outcomes.columns.get_loc(col) for col in outcome_columns
         }
         self._Y = dataset_outcomes.to_numpy()
-        
+
         # Get the feature matrix
         dataset_features = dataset.drop(columns=outcome_columns)
         self.feature_names = dataset_features.columns
+
+        # Before converting the columns to numpy arrays, record the
+        # types of each column for preprocessing purposes
+        dtypes = dataset_features.dtypes
+        object_columns = dtypes[dtypes == np.dtype("O")].index
+        self.object_column_indices = [
+            dataset_features.columns.get_loc(col) for col in object_columns
+        ]
+
         print(dataset_features.info())
         if sparse_features:
             self._X = csr_matrix(dataset_features.to_numpy())
