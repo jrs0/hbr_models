@@ -7,6 +7,10 @@
 
 from models import SimpleLogisticRegression, TruncSvdLogisticRegression
 from fit import fit_and_save
+import time
+
+# Record the time taken to run this script
+start = time.time()
 
 # Either run all combinations of models and datasets (True),
 # or run for a specific model and dataset (False) by picking the model
@@ -77,3 +81,8 @@ else:
             else:
                 fit_spec = make_fit_spec(model, dataset_spec)
                 fit_bleeding_ischaemia_models(fit_spec)
+                
+     
+# Print the runtime           
+stop = time.time()
+print(f"Time to fit model(s): {stop - start}")
