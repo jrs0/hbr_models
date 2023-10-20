@@ -14,17 +14,15 @@ import matplotlib.pyplot as plt
 
 #plt.rcParams.update({"legend.fontsize": 4})
 
-def plot_model_validation_2page(model_name, outcome):
+def plot_model_validation_2page(dataset, model, outcome):
     """
     Plot the four model-validation plots -- probability
     stability and ROC curve, and the calibration plots.
     If called from inside quarto, this will take up two
     PDF pages. If called interactively, the plots will be
     generated one by one.
-    
-    Pass in the model name and outcome name./
     """
-    filename = model_name + "_" + outcome
+    filename = f"{dataset}_{model}_{outcome}"
     d = ds.load_fit_info(filename)
 
     # Get the bootstrapped ROC curves

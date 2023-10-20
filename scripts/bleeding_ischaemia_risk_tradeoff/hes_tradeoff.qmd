@@ -39,8 +39,8 @@ model_names = {
     "truncsvd_logistic_regression": "Truncated SVD + Logistic Regress",
 }
 outcome_names = {
-    "bleeding_al_ani_outcome": "bleeding",
-    "hussain_ami_stroke_outcome": "AMI and stroke",
+    "bleeding_al_ani_outcome": "Bleeding",
+    "hussain_ami_stroke_outcome": "AMI or Stroke",
 }
 ```
 
@@ -54,28 +54,23 @@ The basic dataset used to define the index event, the outcome variable, and a pr
 
 ## Dataset Definitions
 
-## Bleeding Models
+## Models
 
 ```{python}
 # | output: asis
-outcome = "bleeding_al_ani_outcome"
-
-for model_name in model_names:
+for dataset, dataset_title in dataset_names.items():
+  display(Markdown("{{< pagebreak >}}"))
+  display(Markdown(f"### {dataset_title}"))
+  for model, model_title in model_names.items():
     display(Markdown("{{< pagebreak >}}"))
-    display(Markdown(f"### {model_name}"))
-    plot_model_validation_2page(model_name, outcome)
-```
-
-## Ischaemia Models
-
-```{python}
-# | output: asis
-outcome = "hussain_ami_stroke_outcome"
-
-for model_name in model_names:
-    print("{{< pagebreak >}}")
-    print(f"### {model_name}")
-    plot_model_validation_2page(model_name, outcome)
+    display(Markdown(f"#### {model_title}"))
+    for outcome, outcome_title in outcome_names.items():
+      display(Markdown("{{< pagebreak >}}"))
+      display(Markdown(f"##### {outcome_title}"))
+      try:
+        plot_model_validation_2page(dataset, model, outcome)
+      except:
+        display(Markdown("Currently missing."))
 ```
 
 ## Risk Trade-off Model
