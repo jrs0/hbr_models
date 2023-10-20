@@ -19,7 +19,7 @@ importlib.reload(models)
 
 ds.get_file_list("manual_codes_swd")
 
-dataset = ds.Dataset("manual_codes", "config.yaml", False)
+dataset = ds.Dataset("manual_codes_swd", "config.yaml", False)
 
 # Store the indices of columns which need to be dummy encoded.
 # This is passed to the models, which do the encoding as a 
@@ -49,3 +49,4 @@ Model = models.SimpleLogisticRegression
 # fit M other models to M other bootstrap resamples of (X0_train, y0_train).
 M0, Mm = stability.fit_model(Model, object_column_indices, X0_train, y0_train, M=10)
 
+print(M0.get_model_parameters())

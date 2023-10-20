@@ -89,11 +89,30 @@ class SimpleLogisticRegression:
 
         Testing: not yet tested
         """
+
+        # Many columns, particular in the SWD, contain string values that
+        # correspond to a discrete set of categories. These are encoded using
+        # one-hot encoding (one column per value). The logistic regression
+        # includes ridge penalisation by default, so there is no issue with
+        # colinearity.
         to_numeric = ColumnTransformer(
-            [("one_hot", OneHotEncoder(sparse_output=False, handle_unknown="infrequent_if_exist"), object_column_indices)],
+            [
+                (
+                    "one_hot",
+                    OneHotEncoder(
+                        sparse_output=False, handle_unknown="infrequent_if_exist"
+                    ),
+                    object_column_indices,
+                )
+            ],
             remainder="passthrough",
         )
         scaler = StandardScaler()
+        # Many columns, particularly in the SWD, contain missing values. after
+        # conversion to numeric. These are imputed because the scikit-learn
+        # logistic regression implementation does not handle NaN by default.
+        # Note that these missing values are not the ones in primary_care_attributes
+        # corresponding to 0, which have already be recoded as 0.
         impute = SimpleImputer()
         logreg = LogisticRegression(verbose=0)
         self._pipe = Pipeline(
@@ -115,41 +134,33 @@ class SimpleLogisticRegression:
         """
         return self._pipe
 
-    def get_model_parameters(self, feature_names):
-        """
-        Get the fitted model parameters as a dataframe with one
-        row per feature. Two columns for the scaler contain the
-        mean and variance, and the final column contains the
-        logistic regression coefficient. You must pass the vector
-        of feature names in the same order as columns of X in the
-        constructor.
-        """
-        coefs = self._pipe["logreg"].coef_[0, :]
-        model_params = pd.DataFrame(
-            {
-                # "feature": feature_names,
-                "logreg_coef": coefs,
-            }
-        )
-        return model_params
-
 
 class TruncSvdLogisticRegression:
-    def __init__(self, X, y):
-        """
-        Model which applies dimension reduction to the features before
-        centering, scaling, and fitting logistic regression to the results.
-        The pipe comprises a StandardScaler() followed by LogisticRegression().
-        There is no hyperparameter tuning or cross-validation.
-
-        Testing: not yet tested
-        """
-
+    def __init__(self, X, y, object_column_indices):
+        to_numeric = ColumnTransformer(
+            [
+                (
+                    "one_hot",
+                    OneHotEncoder(
+                        sparse_output=False, handle_unknown="infrequent_if_exist"
+                    ),
+                    object_column_indices,
+                )
+            ],
+            remainder="passthrough",
+        )
         reducer = TruncatedSVD(n_iter=7)
         scaler = StandardScaler()
+        impute = SimpleImputer()
         logreg = LogisticRegression()
         self._pipe = Pipeline(
-            [("reducer", reducer), ("scaler", scaler), ("logreg", logreg)]
+            [
+                ("to_numeric", to_numeric),
+                ("reducer", reducer),
+                ("scaler", scaler),
+                ("impute", impute),
+                ("logreg", logreg),
+            ]
         )
         num_features = X.shape[1]
         max_components = min(num_features, 200)
@@ -176,28 +187,6 @@ class TruncSvdLogisticRegression:
         Get the fitted logistic regression model
         """
         return self._search.best_estimator_
-
-    def get_model_parameters(self, feature_names):
-        """
-        Get the fitted model parameters as a dataframe with one
-        row per feature. Two columns for the scaler contain the
-        mean and variance, and the final column contains the
-        logistic regression coefficient. You must pass the vector
-        of feature names in the same order as columns of X in the
-        constructor.
-        """
-        means = self._pipe["scaler"].mean_
-        variances = self._pipe["scaler"].var_
-        coefs = self._pipe["logreg"].coef_[0, :]
-        model_params = pd.DataFrame(
-            {
-                # "feature": feature_names,
-                "scaling_mean": means,
-                "scaling_variance": variances,
-                "logreg_coef": coefs,
-            }
-        )
-        return model_params
 
 
 ####### BELOW HERE IS ROUGH WORK
