@@ -14,19 +14,18 @@ def fit_bleeding_ischaemia_models(model_data):
     fit_and_save(model_data)
 
 # Simple logistic regression, HES + SWD
-model_data = {
-    "dataset_name": "manual_codes_swd",
-    "model": SimpleLogisticRegression,
-    "sparse_features": False,
-    "config_file": "config.yaml",
-}
-fit_bleeding_ischaemia_models(model_data)
-exit()
-
+# model_data = {
+#     "dataset_name": "manual_codes_swd",
+#     "model": SimpleLogisticRegression,
+#     "sparse_features": False,
+#     "config_file": "config.yaml",
+# }
+# fit_bleeding_ischaemia_models(model_data)
+# exit()
 
 # Simple logistic regression, HES groups,
 model_data = {
-    "dataset_name": "hes_code_groups_dataset",
+    "dataset_name": "manual_codes",
     "model": SimpleLogisticRegression,
     "sparse_features": False,
     "config_file": "config.yaml",
@@ -35,7 +34,7 @@ fit_bleeding_ischaemia_models(model_data)
 
 # Truncated SVD, HES groups
 model_data = {
-    "dataset_name": "hes_all_codes_dataset",
+    "dataset_name": "all_codes",
     "model": TruncSvdLogisticRegression,
     "sparse_features": True,
     "config_file": "config.yaml",

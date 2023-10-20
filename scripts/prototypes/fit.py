@@ -47,7 +47,7 @@ def fit_and_save(model_data):
 
     # Fit the model-under-test M0 to the training set (X0_train, y0_train), and
     # fit M other models to M other bootstrap resamples of (X0_train, y0_train).
-    M0, Mm = fit_model(Model, X0_train, y0_train, M=10)
+    M0, Mm = fit_model(Model, object_column_indices, X0_train, y0_train, M=10)
 
     # First columns is the probability of 1 in y_test from M0; other columns
     # are the same for the N bootstrapped models Mm.

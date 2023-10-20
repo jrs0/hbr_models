@@ -95,7 +95,7 @@ class SimpleLogisticRegression:
         )
         scaler = StandardScaler()
         impute = SimpleImputer()
-        logreg = LogisticRegression(fit_intercept=False)
+        logreg = LogisticRegression(verbose=2)
         self._pipe = Pipeline(
             [
                 ("to_numeric", to_numeric),
