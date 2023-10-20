@@ -177,7 +177,7 @@ def load_dataset(name, interactive):
     letting the user interactively pick between different
     timestamps and commits
     """
-    if interative:
+    if interactive:
         dataset_path = pick_file_interactive(name)
     else:
         dataset_path = pick_most_recent_file(name)
