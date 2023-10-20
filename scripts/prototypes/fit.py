@@ -63,5 +63,5 @@ def fit_and_save(model_data):
         "y_test": y_test,
     } | model_data
 
-    filename = fit_data["model_name"] + "_" + fit_data["outcome"]
+    filename = f"{fit_data['dataset_name']}_{fit_data['model_name']}_{fit_data['outcome']}"
     ds.save_fit_info(fit_data, filename)
