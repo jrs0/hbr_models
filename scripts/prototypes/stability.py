@@ -152,8 +152,9 @@ def plot_instability(ax, probs, y_test):
 
     ax.axline([0, 0], [1, 1])
 
-    ax.set_xlim(0, 0.1)
-    ax.set_ylim(0,0.1)
+    # You can restrict the axes here if you want
+    #ax.set_xlim(0, 0.1)
+    #ax.set_ylim(0,0.1)
 
     ax.legend(
         [   

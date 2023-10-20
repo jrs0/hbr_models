@@ -12,6 +12,8 @@ from stability import (
 )
 import matplotlib.pyplot as plt
 
+from IPython.display import display, Markdown
+
 #plt.rcParams.update({"legend.fontsize": 4})
 
 def plot_model_validation_2page(dataset, model, outcome):
@@ -32,29 +34,26 @@ def plot_model_validation_2page(dataset, model, outcome):
     # Get the bootstrapped calibration curves
     calibration_curves = get_bootstrapped_calibration(d["probs"], d["y_test"], n_bins=10)
 
-    #fig, ax = plt.subplots(2,2, figsize=(8,5), layout="constrained")
-
-    # Plot the basic instability curve
-    fig, ax = plt.subplots()
-    plot_instability(ax, d["probs"], d["y_test"])
-    plt.show()
+    fig, ax = plt.subplots(2,1)
     
-    fig, ax = plt.subplots()
-    plot_prediction_distribution(ax, d["probs"], n_bins=50)
+    # Plot the basic instability curve for probabilities, along with the
+    # probability distribution
+    plot_instability(ax[0], d["probs"], d["y_test"])
+    plot_prediction_distribution(ax[1], d["probs"], n_bins=50)
     plt.show()
+
+    # Output a page break
+    display(Markdown("{{< pagebreak >}}"))
 
     # Plot the ROC-stability curves
-    fig, ax = plt.subplots()
-    plot_roc_curves(ax, roc_curves, roc_auc)
-    plt.show()
-
-    # Plot the calibration-stability plots
     fig, ax = plt.subplots(2,1)
-    plot_calibration_curves(ax[0], calibration_curves)
+    plot_roc_curves(ax[0], roc_curves, roc_auc)
+    # Plot the calibration-stability plots
+    plot_calibration_curves(ax[1], calibration_curves)
     # Plot the distribution of predicted probabilities, also
     # showing distribution stability (over the bootstrapped models)
     # as error bars on each bin height
-    plot_prediction_distribution(ax[1], d["probs"], n_bins=10)
+    #plot_prediction_distribution(ax[1], d["probs"], n_bins=10)
     plt.show()
 
 def plot_risk_tradeoff(model_name, bleeding_outcome, ischaemia_outcome):

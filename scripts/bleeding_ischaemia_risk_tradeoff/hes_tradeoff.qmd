@@ -12,10 +12,17 @@ fig-format: png
 ---
 
 ```{python}
+# Some tips on using this file
+# - print() does not work for rendering markdown in code block. It will mess up
+#   the order of figures and text (e.g. headings)
+# - To make heading, using display(Markdown("Heading Name\\")). The two trailing
+#   slashes make a newline, which is important. 
+
 import os
 
 os.chdir("../prototypes")
 
+import pandas as pd
 import matplotlib.pyplot as plt
 from IPython.display import display, Markdown
 
@@ -46,31 +53,56 @@ outcome_names = {
 
 # Introduction
 
+The table below shows a summary of the performance of the models for bleeding and ischaemia across all models and datasets
+
+```{python}
+#| label: tbl-ohe_example
+#| tbl-cap: 'One-hot vectorization example'
+#| tbl-column: body
+#| output: asis
+
+print(
+    pd.DataFrame(
+        data = {
+            'Sentence': ['I like to eat apples', 'I like to eat bananas'],
+            'Tokens' : [['I', 'like', 'to', 'eat', 'apples'], ['I', 'like', 'to', 'eat', 'bananas']],
+            'Vector' : [[1, 1, 1, 1, 1, 0], [1, 1, 1, 1, 0, 1]],
+        }
+    ).to_latex(
+        index = False,
+        position = 'h',
+    )
+)
+```
+
+
 # Literature
 
-# Hospital Episode Statistics
-
-The basic dataset used to define the index event, the outcome variable, and a preliminary set of features is Hospital Episode Statistics. Rows in the raw dataset are episodes (single consultant interactions) collected into spells (single hospital visits). Each episode contains a list of up 26 diagnosis codes (ICD-10) and 26 procedure codes (OPCS-4), which define what happened in the episode.
-
-## Dataset Definitions
-
-## Models
+# Models
 
 ```{python}
 # | output: asis
+
+# Page break before the first model section
+#display(Markdown("{{< pagebreak >}}"))
+
 for dataset, dataset_title in dataset_names.items():
-  display(Markdown("{{< pagebreak >}}"))
-  display(Markdown(f"### {dataset_title}"))
-  for model, model_title in model_names.items():
-    display(Markdown("{{< pagebreak >}}"))
-    display(Markdown(f"#### {model_title}"))
+  
+  display(Markdown(f"## {dataset_title}\\"))
+
+  # This is the place to put exactly one page summarising
+  # the dataset characteristics
+  display(Markdown("Dataset description here.\\"))
+
+  num_models = len(model_names)
+  for m, (model, model_title) in enumerate(model_names.items()):
+    display(Markdown(f"## {model_title}\\"))
     for outcome, outcome_title in outcome_names.items():
-      display(Markdown("{{< pagebreak >}}"))
-      display(Markdown(f"##### {outcome_title}"))
+      display(Markdown(f"### {outcome_title}\\"))
       try:
         plot_model_validation_2page(dataset, model, outcome)
       except:
-        display(Markdown("Currently missing."))
+        display(Markdown("Currently missing.\\"))
 ```
 
 ## Risk Trade-off Model
