@@ -39,7 +39,7 @@ def save_fit_info(model, name):
     TODO: This function duplicates most of the process in
     save_dataset, and the two should be combined.
     """
-    datasets_dir = "datasets"
+    datasets_dir = "models"
 
     if not os.path.isdir(datasets_dir):
         print("Creating missing folder '{datasets_dir}' for storing dataset")
@@ -74,7 +74,7 @@ def save_dataset(dataset, name):
     dataset.to_pickle(path)
 
 
-def get_file_list(name):
+def get_file_list(name, directory = "datasets"):
     """
     Get the list of files in the datasets/ folder matching
     name. Return the result as a table of file path, commit
@@ -82,7 +82,7 @@ def get_file_list(name):
     with the most recent file first.
     """
     # Check for missing datasets directory
-    datasets_dir = "datasets"
+    datasets_dir = directory
 
     if not os.path.isdir(datasets_dir):
         raise RuntimeError(
@@ -179,9 +179,9 @@ def load_fit_info(name):
     Load the most recent version of fit info (the
     one with the latest timestamp).
     """
-    datasets_dir = "datasets"
-    recent_first = get_file_list(name)
-    full_path = os.path.join(datasets_dir, recent_first.loc[0, "path"])
+    model_dir = "models"
+    recent_first = get_file_list(name, model_dir)
+    full_path = os.path.join(model_dir, recent_first.loc[0, "path"])
 
     # Read and return the fit info dictionary
     with open(full_path, "rb") as handle:

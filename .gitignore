@@ -10,6 +10,9 @@ venv
 # a folder called datasets
 datasets
 
+# Any model will be written to a folder called models/
+models
+
 # Python-related
 __pycache__
 *.pyc
