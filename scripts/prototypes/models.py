@@ -93,14 +93,14 @@ class SimpleLogisticRegression:
             [("one_hot", OneHotEncoder(sparse_output=False), object_column_indices)],
             remainder="passthrough",
         )
-        impute = SimpleImputer()
         scaler = StandardScaler()
-        logreg = LogisticRegression()
+        impute = SimpleImputer()
+        logreg = LogisticRegression(fit_intercept=False)
         self._pipe = Pipeline(
             [
                 ("to_numeric", to_numeric),
-                ("impute", impute),
                 ("scaler", scaler),
+                ("impute", impute),
                 ("logreg", logreg),
             ]
         )
