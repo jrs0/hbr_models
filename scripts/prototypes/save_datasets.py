@@ -92,9 +92,16 @@ def get_file_list(name):
     # Read all the .pkl files in the directory
     files = pd.DataFrame({"path": os.listdir(datasets_dir)})
 
+    # Identify the file name part. The horrible regex matches the 
+    # expression _[commit_hash]_[timestamp].pkl. It is important to
+    # match this part, because "anything" can happen in the name part
+    # (including underscores and letters and numbers), so splitting on
+    # _ would not work. The name can then be removed
+    files["name"] = files["path"].str.replace(r"_([0-9]|[a-zA-Z])*_\d*\.pkl", "", regex=True)
+
     # Remove all the files whose name does not match, and drop
     # the name from the path
-    files = files[files["path"].str.contains(name)]
+    files = files[files["name"] == name]
     if files.shape[0] == 0:
         raise ValueError(
             f"There is not dataset with the name '{name}' in the datasets directory"

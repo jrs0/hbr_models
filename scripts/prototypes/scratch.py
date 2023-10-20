@@ -17,6 +17,7 @@ importlib.reload(ds)
 importlib.reload(stability)
 importlib.reload(models)
 
+ds.get_file_list("manual_codes_swd")
 
 dataset = ds.Dataset("manual_codes", "config.yaml", False)
 
