@@ -34,6 +34,56 @@ def get_bootstrapped_calibration(probs, y_test, n_bins):
         )
     return curves
 
+def get_average_calibration_error(probs, y_test, n_bins):
+    """
+    This is the weighted average discrepancy between the predicted risk and the
+    observed proportions on the calibration curve.
+    
+    See "https://towardsdatascience.com/expected-calibration-error-ece-a-step-
+    by-step-visual-explanation-with-python-code-c3e9aa12937d" for a good 
+    explanation.
+    
+    The formula for estimated calibration error (ece) is:
+    
+       ece = Sum over bins [samples_in_bin / N] * | P_observed - P_pred |,
+
+    where P_observed is the empirical proportion of positive samples in the
+    bin, and P_pred is the predicted probability for that bin. The results are
+    weighted by the number of samples in the bin (because some probabilities are
+    predicted more frequently than others).
+    
+    The result is interpreted as an absolute error: i.e. a value of 0.1 means
+    that the calibration is out on average by 10%. It may be better to modify the
+    formula to compute an average relative error.
+
+    Testing: not yet tested.
+    """
+    
+    # There is one estimated calibration error for each model (the model under
+    # test and all the bootstrap models). These will be averaged at the end
+    estimated_calibration_errors = []
+    
+    # The total number of samples is the number of rows in the probs array. This
+    # is used with the number of samples in the bins to weight the probability
+    # error
+    N = probs.shape[0]
+    
+    bin_edges = np.linspace(0, 1, n_bins + 1)
+    for n in range(probs.shape[1]):
+        count_in_bins, _ = np.histogram(probs[:, n], bins=bin_edges, density=False)
+        
+        # Remove any count_in_bins value that have no samples in -- this is also what
+        # sklearn does with calibration. Then, in the formula for error below, the two
+        # arrays will still have the same values. The result is still valid, because 
+        # count_in_bins = 0 would not contribute to the sum
+        count_in_bins = count_in_bins[count_in_bins != 0]
+        
+        prob_true, prob_pred = calibration_curve(y_test, probs[:, n], n_bins=n_bins)
+        error = np.sum(count_in_bins * np.abs(prob_true - prob_pred)) / N
+        estimated_calibration_errors.append(error)
+        
+    return np.mean(estimated_calibration_errors)
+
 
 def plot_calibration_curves(ax, curves):
     """

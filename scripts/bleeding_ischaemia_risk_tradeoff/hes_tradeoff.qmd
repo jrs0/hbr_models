@@ -33,22 +33,26 @@ from calibration import (
     plot_calibration_curves,
     plot_prediction_distribution,
 )
-from plot_model import plot_model_validation_2page
+from summarise_model import get_model_summary, plot_model_validation_2page
 from roc import get_bootstrapped_roc, get_bootstrapped_auc, plot_roc_curves
 
-dataset_names = {
+dataset_name = {
     "manual_codes": "HES (manual code groups)",
     "all_codes": "HES (all codes)",
     "manual_codes_swd": "HES (manual code groups) + SWD",
 }
 model_names = {
     "simple_logistic_regression": "Logistic Regression",
-    "truncsvd_logistic_regression": "Truncated SVD + Logistic Regress",
+    "truncsvd_logistic_regression": "Truncated SVD + Logistic Regression",
 }
 outcome_names = {
     "bleeding_al_ani_outcome": "Bleeding",
     "hussain_ami_stroke_outcome": "AMI or Stroke",
 }
+
+# The generated report relates to one dataset. Pick that dataset here.
+dataset = "manual_codes"
+dataset_title = dataset_name["manual_codes"]
 ```
 
 # Introduction
@@ -61,18 +65,32 @@ The table below shows a summary of the performance of the models for bleeding an
 #| tbl-column: body
 #| output: asis
 
-print(
-    pd.DataFrame(
-        data = {
-            'Sentence': ['I like to eat apples', 'I like to eat bananas'],
-            'Tokens' : [['I', 'like', 'to', 'eat', 'apples'], ['I', 'like', 'to', 'eat', 'bananas']],
-            'Vector' : [[1, 1, 1, 1, 1, 0], [1, 1, 1, 1, 0, 1]],
-        }
-    ).to_latex(
-        index = False,
-        position = 'h',
-    )
-)
+all_model_summary = []
+for model, model_title in model_names.items():
+  for outcome, outcome_title in outcome_names.items():
+    try:
+      df = get_model_summary(dataset, model, outcome)
+      df.insert(0, "Model", model_title)
+      df.insert(0, "Outcome", outcome_title)
+      all_model_summary.append(df)
+    except:
+      # Failed to get summary for mobel (might not exist on disk)
+      pass
+
+try:
+  summary = pd.concat(all_model_summary)
+  print(
+      summary.to_latex(
+          index = False,
+          position = 'h',
+          caption = f"{dataset_title}",
+          float_format="%.2f",
+      )
+  )
+except:
+  # This may happen if there is not table associated with the
+  # dataset (not on disk)
+  pass
 ```
 
 
@@ -86,23 +104,20 @@ print(
 # Page break before the first model section
 #display(Markdown("{{< pagebreak >}}"))
 
-for dataset, dataset_title in dataset_names.items():
   
-  display(Markdown(f"## {dataset_title}\\"))
+# This is the place to put exactly one page summarising
+# the dataset characteristics
+display(Markdown("Dataset description here.\\"))
 
-  # This is the place to put exactly one page summarising
-  # the dataset characteristics
-  display(Markdown("Dataset description here.\\"))
-
-  num_models = len(model_names)
-  for m, (model, model_title) in enumerate(model_names.items()):
-    display(Markdown(f"## {model_title}\\"))
-    for outcome, outcome_title in outcome_names.items():
-      display(Markdown(f"### {outcome_title}\\"))
-      try:
-        plot_model_validation_2page(dataset, model, outcome)
-      except:
-        display(Markdown("Currently missing.\\"))
+num_models = len(model_names)
+for m, (model, model_title) in enumerate(model_names.items()):
+  display(Markdown(f"## {model_title}\\"))
+  for outcome, outcome_title in outcome_names.items():
+    display(Markdown(f"### {outcome_title}\\"))
+    try:
+      plot_model_validation_2page(dataset, model, outcome)
+    except:
+      display(Markdown("Currently missing.\\"))
 ```
 
 ## Risk Trade-off Model

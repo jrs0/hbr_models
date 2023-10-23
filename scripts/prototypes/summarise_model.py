@@ -2,6 +2,7 @@
 
 from calibration import (
     get_bootstrapped_calibration,
+    get_average_calibration_error,
     plot_calibration_curves,
     plot_prediction_distribution,
 )
@@ -11,10 +12,30 @@ from stability import (
     plot_instability,
 )
 import matplotlib.pyplot as plt
+import pandas as pd
 
 from IPython.display import display, Markdown
 
-#plt.rcParams.update({"legend.fontsize": 4})
+def get_model_summary(dataset, model, outcome):
+    """
+    Get a summary of the model as a pandas table with a single
+    row. Contains ROC AUC, estimated calibration error (ECE),
+    and average relative instability
+    """
+    filename = f"{dataset}_{model}_{outcome}"
+    d = ds.load_fit_info(filename)
+    
+    # The first item in the array is the model-under-test AUC
+    roc_auc = get_bootstrapped_auc(d["probs"], d["y_test"])[0]
+    ece = get_average_calibration_error(d["probs"], d["y_test"], n_bins=10)
+    instability = 0
+    
+    data = {
+        "ROC AUC": [roc_auc],
+        "ECE": [ece],
+        "Average instability": [instability],
+    }
+    return pd.DataFrame(data)
 
 def plot_model_validation_2page(dataset, model, outcome):
     """
