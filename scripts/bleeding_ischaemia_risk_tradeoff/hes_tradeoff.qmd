@@ -15,8 +15,8 @@ fig-format: png
 # Some tips on using this file
 # - print() does not work for rendering markdown in code block. It will mess up
 #   the order of figures and text (e.g. headings)
-# - To make heading, using display(Markdown("Heading Name\\")). The two trailing
-#   slashes make a newline, which is important. 
+# - To make heading, using display(Markdown("\nHeading Name")). The newline is
+#   important, and I coulnd't figure out any other way other than \n to add it.
 
 import os
 
@@ -96,6 +96,7 @@ except:
 
 # Literature
 
+{{< pagebreak >}}
 # Models
 
 ```{python}
@@ -111,12 +112,15 @@ display(Markdown("Dataset description here.\\"))
 
 num_models = len(model_names)
 for m, (model, model_title) in enumerate(model_names.items()):
-  display(Markdown(f"## {model_title}\\"))
+  display(Markdown("{{< pagebreak >}}"))
+  display(Markdown(f"\n## {model_title}"))
   for outcome, outcome_title in outcome_names.items():
-    display(Markdown(f"### {outcome_title}\\"))
+    #display(Markdown("{{< pagebreak >}}"))
+    display(Markdown(f"\n### {outcome_title}"))
     try:
       plot_model_validation_2page(dataset, model, outcome)
     except:
+      #display(Markdown("{{< pagebreak >}}"))
       display(Markdown("Currently missing.\\"))
 ```
 

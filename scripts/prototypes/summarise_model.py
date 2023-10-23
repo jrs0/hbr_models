@@ -10,6 +10,7 @@ import save_datasets as ds
 from roc import get_bootstrapped_roc, get_bootstrapped_auc, plot_roc_curves
 from stability import (
     plot_instability,
+    get_average_instability
 )
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -28,7 +29,7 @@ def get_model_summary(dataset, model, outcome):
     # The first item in the array is the model-under-test AUC
     roc_auc = get_bootstrapped_auc(d["probs"], d["y_test"])[0]
     ece = get_average_calibration_error(d["probs"], d["y_test"], n_bins=10)
-    instability = 0
+    instability = get_average_instability(d["probs"])
     
     data = {
         "ROC AUC": [roc_auc],
