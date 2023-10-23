@@ -65,7 +65,7 @@ def plot_model_validation_2page(dataset, model, outcome):
     plt.show()
 
     # Output a page break
-    display(Markdown("{{< pagebreak >}}"))
+    display(Markdown("\n"))
 
     # Plot the ROC-stability curves
     fig, ax = plt.subplots(2,1)
