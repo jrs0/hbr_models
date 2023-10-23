@@ -113,6 +113,27 @@ def predict_bootstrapped_proba(M0, Mn, X_test):
 
     return np.column_stack(columns)
 
+def get_average_instability(probs):
+    """
+    Instability is the extend to which the bootstrapped models
+    give a different prediction from the model under test. The 
+    average instability is an average of the relative error between
+    the prediction of the model-under-test and the predictions of
+    all the other bootstrap models. 
+    
+    Testing: not yet tested
+    """
+    num_rows = probs.shape[0]
+    num_cols = probs.shape[1]
+    rel_errors = []
+    for i in range(num_rows):
+        for j in range(1, num_cols):
+            mut = probs[i, 0]  # Model-under-test
+            boots = probs[i, j]  # Other bootstrapped models
+            if mut != 0:
+                rel_errors.append(np.abs(boots - mut)/mut)
+
+    return np.mean(rel_errors)
 
 def plot_instability(ax, probs, y_test):
     """

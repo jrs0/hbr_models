@@ -32,8 +32,8 @@ def get_model_summary(dataset, model, outcome):
     
     data = {
         "ROC AUC": [roc_auc],
-        "ECE": [ece],
-        "Average instability": [instability],
+        "Cal. Error": [ece],
+        "Instability": [instability],
     }
     return pd.DataFrame(data)
 
