@@ -6,9 +6,17 @@ execute:
   echo: false
   warning: false
 format:
-  pdf
+  pdf:
+    keep-tex: true
 jupyter: python3
+engine: jupyter
 fig-format: png
+bibliography: references.bib
+csl: citation_style.csl
+geometry:
+  - top=30mm
+  - left=20mm
+  - heightrounded
 ---
 
 ```{python}
@@ -17,6 +25,10 @@ fig-format: png
 #   the order of figures and text (e.g. headings)
 # - To make heading, using display(Markdown("\nHeading Name")). The newline is
 #   important, and I coulnd't figure out any other way other than \n to add it.
+# - In order to use inline variables like `{python} variable`, you need at least 
+#   quarto 1.4. You can get the prerelease from here: https://quarto.org/docs/download/prerelease
+#   (it doesn't require admin rights).
+#   
 
 import os
 
@@ -55,13 +67,28 @@ dataset = "manual_codes"
 dataset_title = dataset_name["manual_codes"]
 ```
 
-# Introduction
-
-The table below shows a summary of the performance of the models for bleeding and ischaemia across all models and datasets
+# Summary
 
 ```{python}
-#| label: tbl-ohe_example
-#| tbl-cap: 'One-hot vectorization example'
+# Load any model to find which dataset was used (the script assumes that the same dataset
+# was used to fit all models)
+example_model_info = ds.load_fit_info(f"{dataset}_{list(model_names)[0]}_{list(outcome_names)[0]}")
+dataset_path = example_model_info["dataset_path"]
+dataset = pd.read_pickle(dataset_path)
+num_rows = dataset.shape[0]
+start_date = dataset.idx_date.min().date().isoformat()
+end_date = dataset.idx_date.max().date().isoformat()
+```
+
+This document contains the results of models for bleeding and ischaemia risk in heart attack patients, developed using the `{python} dataset_title` dataset. Table 1 shows a summary of the performance of the models for bleeding and ischaemia across all models and datasets. 
+
+The dataset contains `{python} num_rows` index events, defined as acute coronary syndromes (ACS) or percutaneous coronary intervention (PCI) procedures. The ACS definition has been validated to achieve at least 70% positive predictive value for identifying all myocardial infarction (MI), and distinguishing ST-segment elevation MI from non-ST-segment MI [@biobankdefinitions]. Index events span a date range from `{python} start_date` to `{python} end_date`.
+
+Models for bleeding are trained using an outcome defintion that has been verified to identify major bleeding with positive predicted value (PPV) of 88%[@al2015identifying]. Ischaemia models are trained on a 2-point major adverse cardiac (MACE) definition including acute myocardial infarction and stroke [@hussain2018association], chosen because the components have been validated in administrative databases [@juurlink2006canadian; @kokotailo2005coding].
+
+```{python}
+#| label: tbl-summary
+#| tbl-cap: 'Summary of model performance for bleeding and ischaemia'
 #| tbl-column: body
 #| output: asis
 
@@ -94,13 +121,19 @@ except:
 ```
 
 
+# Introduction
+
+
+ 
 # Literature
+
+
 
 {{< pagebreak >}}
 # Models
 
 ```{python}
-# | output: asis
+#| output: asis
 
 # Page break before the first model section
 #display(Markdown("{{< pagebreak >}}"))
