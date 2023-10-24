@@ -17,3 +17,6 @@ models
 __pycache__
 *.pyc
 *.pkl
+
+# Any figure outputs
+*.png

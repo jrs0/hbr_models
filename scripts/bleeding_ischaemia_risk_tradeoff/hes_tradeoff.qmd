@@ -6,6 +6,7 @@ execute:
   echo: false
   warning: false
 format:
+  html: default
   pdf:
     keep-tex: true
 jupyter: python3
@@ -14,8 +15,8 @@ fig-format: png
 bibliography: references.bib
 csl: citation_style.csl
 geometry:
-  - top=30mm
-  - left=20mm
+  - top=15mm
+  - left=15mm
   - heightrounded
 ---
 
@@ -64,7 +65,7 @@ outcome_names = {
 
 # The generated report relates to one dataset. Pick that dataset here.
 dataset = "manual_codes"
-dataset_title = dataset_name["manual_codes"]
+dataset_title = dataset_name[dataset]
 ```
 
 # Summary
@@ -74,10 +75,10 @@ dataset_title = dataset_name["manual_codes"]
 # was used to fit all models)
 example_model_info = ds.load_fit_info(f"{dataset}_{list(model_names)[0]}_{list(outcome_names)[0]}")
 dataset_path = example_model_info["dataset_path"]
-dataset = pd.read_pickle(dataset_path)
-num_rows = dataset.shape[0]
-start_date = dataset.idx_date.min().date().isoformat()
-end_date = dataset.idx_date.max().date().isoformat()
+data = pd.read_pickle(dataset_path)
+num_rows = data.shape[0]
+start_date = data.idx_date.min().date().isoformat()
+end_date = data.idx_date.max().date().isoformat()
 ```
 
 This document contains the results of models for bleeding and ischaemia risk in heart attack patients, developed using the `{python} dataset_title` dataset. Table 1 shows a summary of the performance of the models for bleeding and ischaemia across all models and datasets. 
