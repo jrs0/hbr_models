@@ -135,7 +135,7 @@ def get_average_instability(probs):
 
     return np.mean(rel_errors)
 
-def plot_instability(ax, probs, y_test):
+def plot_instability(ax, probs, y_test, title="Probability stability"):
     """
     This function plots a scatter graph of one point
     per value in the test set (row of probs), where the
@@ -181,11 +181,10 @@ def plot_instability(ax, probs, y_test):
         [   
             "Did not occur (background)",
             "Event occurred (foreground)",
-            "Ideal stability",
         ],
         markerscale=15
     )
-    ax.set_title("Probability stability")
+    ax.set_title(title)
     ax.set_xlabel("Prediction from model-under-test")
     ax.set_ylabel("Predictions from bootstrapped models")
 

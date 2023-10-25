@@ -69,6 +69,25 @@ def plot_roc_and_calibration_2x2(dataset, model, bleeding_outcome, ischaemia_out
     fig.tight_layout()
     
     plt.show()
+    
+def plot_instability_2x2(dataset, model, bleeding_outcome, ischaemia_outcome):
+    
+    filename = f"{dataset}_{model}_{bleeding_outcome}"
+    d_bleeding = ds.load_fit_info(filename)
+
+    filename = f"{dataset}_{model}_{ischaemia_outcome}"
+    d_ischaemia = ds.load_fit_info(filename)
+    
+    fig, ax = plt.subplots(2,2, figsize=(8,7))
+    
+    # Plot the stability curves
+    plot_instability(ax[0][0], d_bleeding["probs"], d_bleeding["y_test"], title="Bleeding Prediction Stability")
+    plot_instability(ax[0][1], d_ischaemia["probs"], d_ischaemia["y_test"], title = "Ischaemia Prediction Stability")
+    plot_prediction_distribution(ax[1][0], d_bleeding["probs"], n_bins=50) 
+    plot_prediction_distribution(ax[1][1], d_ischaemia["probs"], n_bins=50) 
+    
+    fig.tight_layout()
+    plt.show()
 
 def plot_model_validation_2page(dataset, model, outcome):
     """

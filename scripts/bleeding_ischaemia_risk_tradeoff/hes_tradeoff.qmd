@@ -46,7 +46,7 @@ from calibration import (
     plot_calibration_curves,
     plot_prediction_distribution,
 )
-from summarise_model import get_model_summary, plot_model_validation_2page, plot_roc_and_calibration_2x2
+from summarise_model import get_model_summary, plot_model_validation_2page, plot_roc_and_calibration_2x2, plot_instability_2x2
 from roc import get_bootstrapped_roc, get_bootstrapped_auc, plot_roc_curves
 
 # The dictionaries map the identifier used in filenames and in the program
@@ -158,6 +158,10 @@ for outcome, outcome_title in outcome_names.items():
 
 Include
 
+{{< pagebreak >}}
+# Method
+
+Describe test/train split. Basically everything in the stability.py file. 
 
 {{< pagebreak >}}
 # Models
@@ -180,8 +184,17 @@ for m, (model, model_title) in enumerate(model_names.items()):
   
   bleeding_outcome = list(outcome_names)[0]
   ischaemia_outcome = list(outcome_names)[1]
+
+  # Place a short summary about the model here
+
   plot_roc_and_calibration_2x2(dataset, model, bleeding_outcome, ischaemia_outcome)
 
+  # Place a longer description of how the model works and behaves here
+
+  display(Markdown("{{< pagebreak >}}"))
+  plot_instability_2x2(dataset, model, bleeding_outcome, ischaemia_outcome)
+
+  # Place a discussion of model stability here
 
   # for outcome, outcome_title in outcome_names.items():
   #   #display(Markdown("{{< pagebreak >}}"))
