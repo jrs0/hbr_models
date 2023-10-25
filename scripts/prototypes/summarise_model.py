@@ -56,7 +56,7 @@ def plot_model_validation_2page(dataset, model, outcome):
     # Get the bootstrapped calibration curves
     calibration_curves = get_bootstrapped_calibration(d["probs"], d["y_test"], n_bins=10)
 
-    fig, ax = plt.subplots(2,1, figsize=(8,7))
+    fig, ax = plt.subplots(2,1, figsize=(6,8))
     
     # Plot the basic instability curve for probabilities, along with the
     # probability distribution
@@ -68,7 +68,7 @@ def plot_model_validation_2page(dataset, model, outcome):
     display(Markdown("\n"))
 
     # Plot the ROC-stability curves
-    fig, ax = plt.subplots(2,1, figsize=(8,7))
+    fig, ax = plt.subplots(2,1, figsize=(6,8))
     plot_roc_curves(ax[0], roc_curves, roc_auc)
     # Plot the calibration-stability plots
     plot_calibration_curves(ax[1], calibration_curves)

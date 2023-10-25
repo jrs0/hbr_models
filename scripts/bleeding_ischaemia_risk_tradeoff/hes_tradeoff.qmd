@@ -144,16 +144,16 @@ for outcome, outcome_title in outcome_names.items():
 
   display(Markdown(
     f"For the prediction of {outcome_title} risk, "
-    f"{models[best_for_roc]} has the highest area under the ROC curve at {best_roc_value}, "
-    f"{models[best_for_calibration]} has the best calibration (error = {best_calibration_error}), and "
-    f"{models[best_for_stability]} has the highest stability (instability = {best_instability}).")
+    f"{models[best_for_roc]} has the highest area under the ROC curve at {best_roc_value:.3f}, "
+    f"{models[best_for_calibration]} has the best calibration (error = {best_calibration_error:.3f}), and "
+    f"{models[best_for_stability]} has the highest stability (instability = {best_instability:.3f}).")
   )
 ```
 
 # Introduction
 
 
- 
+
 # Literature
 
 Include
