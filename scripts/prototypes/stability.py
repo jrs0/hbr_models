@@ -181,7 +181,6 @@ def plot_instability(ax, probs, y_test):
         [   
             "Did not occur (background)",
             "Event occurred (foreground)",
-            "Bootstrap model predictions",
             "Ideal stability",
         ],
         markerscale=15
