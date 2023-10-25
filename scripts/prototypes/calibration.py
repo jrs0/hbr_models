@@ -85,14 +85,12 @@ def get_average_calibration_error(probs, y_test, n_bins):
     return np.mean(estimated_calibration_errors)
 
 
-def plot_calibration_curves(ax, curves):
+def plot_calibration_curves(ax, curves, title = "Calibration-stability curves"):
     """
     Plot the set of bootstrapped calibration curves (an instability plot),
     using the data in curves (a list of curves to plot). Assume that the
     first curve is the model-under-test (which is coloured differently).
     """
-    ax.axline([0, 0], [1, 1], color="k", linestyle="--")
-
     mut_curve = curves[0]  # model-under-test
     ax.plot(
         mut_curve[0],
@@ -100,8 +98,9 @@ def plot_calibration_curves(ax, curves):
     )
     for curve in curves[1:]:
         ax.plot(curve[0], curve[1], color="b", linewidth=0.3, alpha=0.4)
-    ax.legend(["Ideal calibration", "Model-under-test", "Bootstrapped models"])
-    ax.set_title("Calibration-stability curves")
+    ax.axline([0, 0], [1, 1], color="k", linestyle="--")
+    ax.legend(["Model-under-test", "Bootstrapped models"])
+    ax.set_title(title)
     ax.set_xlabel("Mean predicted probability")
     ax.set_ylabel("Fraction of positives")
 

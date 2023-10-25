@@ -43,7 +43,7 @@ def get_bootstrapped_auc(probs, y_test):
     sd_bootstrapped_auc = np.std(bootstrapped_auc)
     return [mut_auc, mean_bootstrapped_auc, sd_bootstrapped_auc]
 
-def plot_roc_curves(ax, curves, auc):
+def plot_roc_curves(ax, curves, auc, title = "ROC-stability Curves"):
     """
     Plot the set of bootstrapped ROC curves (an instability plot),
     using the data in curves (a list of curves to plot). Assume that the
@@ -57,19 +57,17 @@ def plot_roc_curves(ax, curves, auc):
 
     Testing: not yet tested
     """
-    ax.axline([0, 0], [1, 1], color="k", linestyle="--")
-
     mut_curve = curves[0]  # model-under-test
     ax.plot(mut_curve[0], mut_curve[1], color="r")
     for curve in curves[1:]:
         ax.plot(curve[0], curve[1], color="b", linewidth=0.3, alpha=0.4)
+    ax.axline([0, 0], [1, 1], color="k", linestyle="--")
     ax.legend(
         [
-            "Chance level (AUC = 0.5)",
-            f"Model-under-test (AUC = {auc[0]:.2f})",
-            f"Bootstrapped models (AUC = {auc[1]:.2f} $\pm$ {auc[2]:.3f})",
+            f"Model (AUC = {auc[0]:.2f})",
+            f"Bootstrapped models",
         ]
     )
-    ax.set_title("ROC-stability curves")
+    ax.set_title(title)
     ax.set_xlabel("False positive rate")
     ax.set_ylabel("True positive rate")

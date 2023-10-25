@@ -38,6 +38,38 @@ def get_model_summary(dataset, model, outcome):
     }
     return pd.DataFrame(data)
 
+def plot_roc_and_calibration_2x2(dataset, model, bleeding_outcome, ischaemia_outcome):
+    
+    filename = f"{dataset}_{model}_{bleeding_outcome}"
+    d_bleeding = ds.load_fit_info(filename)
+
+    filename = f"{dataset}_{model}_{ischaemia_outcome}"
+    d_ischaemia = ds.load_fit_info(filename)
+
+    # Get the bootstrapped ROC curves
+    roc_curves_bleeding = get_bootstrapped_roc(d_bleeding["probs"], d_bleeding["y_test"])
+    roc_auc_bleeding = get_bootstrapped_auc(d_bleeding["probs"], d_bleeding["y_test"])
+    roc_curves_ischaemia = get_bootstrapped_roc(d_ischaemia["probs"], d_ischaemia["y_test"])
+    roc_auc_ischaemia = get_bootstrapped_auc(d_ischaemia["probs"], d_ischaemia["y_test"])
+    
+    # Get the bootstrapped calibration curves
+    calibration_curves_bleeding = get_bootstrapped_calibration(d_bleeding["probs"], d_bleeding["y_test"], n_bins=10)
+    calibration_curves_ischaemia = get_bootstrapped_calibration(d_ischaemia["probs"], d_ischaemia["y_test"], n_bins=10)
+    
+    fig, ax = plt.subplots(2,2, figsize=(8,7))
+    
+    # Plot the ROC-stability curves
+    plot_roc_curves(ax[0][0], roc_curves_bleeding, roc_auc_bleeding, title="Bleeding ROC Curves")
+    plot_roc_curves(ax[0][1], roc_curves_ischaemia, roc_auc_ischaemia, title="Ischaemia ROC Curves")
+    
+    # Plot the calibration-stability plots
+    plot_calibration_curves(ax[1][0], calibration_curves_bleeding, title="Bleeding Calibration Curves")
+    plot_calibration_curves(ax[1][1], calibration_curves_ischaemia, title="Ischaemia Calibration Curves")
+    
+    fig.tight_layout()
+    
+    plt.show()
+
 def plot_model_validation_2page(dataset, model, outcome):
     """
     Plot the four model-validation plots -- probability
@@ -61,7 +93,7 @@ def plot_model_validation_2page(dataset, model, outcome):
     # Plot the basic instability curve for probabilities, along with the
     # probability distribution
     plot_instability(ax[0], d["probs"], d["y_test"])
-    plot_prediction_distribution(ax[1], d["probs"], n_bins=50)
+    plot_prediction_distribution(ax[1], d["probs"], n_bins=50) 
     plt.show()
 
     # Output a page break
