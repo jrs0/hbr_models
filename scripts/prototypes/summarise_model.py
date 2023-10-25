@@ -186,6 +186,6 @@ def plot_risk_tradeoff(model_name, bleeding_outcome, ischaemia_outcome):
 # If you run this script as python ./plot_model.py, then
 # plot a particular model
 if __name__ == "__main__":
-    plot_model_validation_2page("manual_codes_swd_truncsvd_logistic_regression", "hussain_ami_stroke_outcome")
+    plot_roc_and_calibration_2x2("manual_codes_swd", "simple_decision_tree", "bleeding_al_ani_outcome", "hussain_ami_stroke_outcome")
     #plot_risk_tradeoff("simple_logistic_regression", "bleeding_al_ani_outcome", "hussain_ami_stroke_outcome")
     

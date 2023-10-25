@@ -189,6 +189,56 @@ class TruncSvdLogisticRegression:
         return self._search.best_estimator_
 
 
+class SimpleDecisionTree:
+    def __init__(self, X, y, object_column_indices):
+        """
+        Simple decision tree model with no feature preprocessing.
+        """
+        to_numeric = ColumnTransformer(
+            [
+                (
+                    "one_hot",
+                    OneHotEncoder(
+                        sparse_output=False, handle_unknown="infrequent_if_exist"
+                    ),
+                    object_column_indices,
+                )
+            ],
+            remainder="passthrough",
+        )
+        impute = SimpleImputer()
+        tree = DecisionTreeClassifier()
+        self._pipe = Pipeline(
+            [("to_numeric", to_numeric), ("impute", impute), ("tree", tree)]
+        )
+
+        self._param_grid = {"tree__max_depth": range(1, 15)}
+        self._search = GridSearchCV(
+            self._pipe, self._param_grid, cv=5, verbose=3, scoring="roc_auc"
+        ).fit(X, y)
+        print(self._search.best_params_)
+
+    def name():
+        return "simple_decision_tree"
+
+    def model(self):
+        """
+        Get the best fitted model from the hyperparameter search results
+        """
+        return self._search.best_estimator_
+
+    def plot(self, ax, feature_names):
+        plot_tree(
+            self.model()["tree"],
+            feature_names=feature_names,
+            class_names=["bleed", "no_bleed"],
+            filled=True,
+            rounded=True,
+            fontsize=10,
+            ax=ax,
+        )
+
+
 ####### BELOW HERE IS ROUGH WORK
 
 
@@ -275,38 +325,6 @@ def get_nonzero_proportion(df):
     Testing: not yet tested
     """
     return df.astype(bool).mean()
-
-
-class SimpleDecisionTree:
-    def __init__(self, X, y, preprocess):
-        """
-        Simple decision tree model with no feature preprocessing.
-        """
-        tree = DecisionTreeClassifier()
-        self._pipe = Pipeline([("tree", tree)])
-
-        self._param_grid = {"tree__max_depth": range(1, 15)}
-        self._search = GridSearchCV(
-            self._pipe, self._param_grid, cv=5, verbose=3, scoring="roc_auc"
-        ).fit(X, y)
-        print(self._search.best_params_)
-
-    def model(self):
-        """
-        Get the best fitted model from the hyperparameter search results
-        """
-        return self._search.best_estimator_
-
-    def plot(self, ax, feature_names):
-        plot_tree(
-            self.model()["tree"],
-            feature_names=feature_names,
-            class_names=["bleed", "no_bleed"],
-            filled=True,
-            rounded=True,
-            fontsize=10,
-            ax=ax,
-        )
 
 
 class SimpleRandomForest:

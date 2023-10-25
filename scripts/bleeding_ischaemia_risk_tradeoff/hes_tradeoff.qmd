@@ -60,6 +60,7 @@ dataset_name = {
 model_names = {
     "simple_logistic_regression": "logistic regression",
     "truncsvd_logistic_regression": "truncated SVD + logistic regression",
+    "simple_decision_tree": "decision tree",
 }
 outcome_names = {
     "bleeding_al_ani_outcome": "bleeding",
