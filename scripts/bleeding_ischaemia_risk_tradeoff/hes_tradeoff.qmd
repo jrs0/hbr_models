@@ -49,18 +49,21 @@ from calibration import (
 from summarise_model import get_model_summary, plot_model_validation_2page
 from roc import get_bootstrapped_roc, get_bootstrapped_auc, plot_roc_curves
 
+# The dictionaries map the identifier used in filenames and in the program
+# to the string that will be printed in the document. Use .title() to convert
+# to a heading-like version.
 dataset_name = {
     "manual_codes": "HES (manual code groups)",
     "all_codes": "HES (all codes)",
     "manual_codes_swd": "HES (manual code groups) + SWD",
 }
 model_names = {
-    "simple_logistic_regression": "Logistic Regression",
-    "truncsvd_logistic_regression": "Truncated SVD + Logistic Regression",
+    "simple_logistic_regression": "logistic regression",
+    "truncsvd_logistic_regression": "truncated SVD + logistic regression",
 }
 outcome_names = {
-    "bleeding_al_ani_outcome": "Bleeding",
-    "hussain_ami_stroke_outcome": "AMI or Stroke",
+    "bleeding_al_ani_outcome": "bleeding",
+    "hussain_ami_stroke_outcome": "AMI or stroke",
 }
 
 # The generated report relates to one dataset. Pick that dataset here.
@@ -85,7 +88,7 @@ This document contains the results of models for bleeding and ischaemia risk in 
 
 The dataset contains `{python} num_rows` index events, defined as acute coronary syndromes (ACS) or percutaneous coronary intervention (PCI) procedures. The ACS definition has been validated to achieve at least 70% positive predictive value for identifying all myocardial infarction (MI), and distinguishing ST-segment elevation MI from non-ST-segment MI [@biobankdefinitions]. Index events span a date range from `{python} start_date` to `{python} end_date`.
 
-Models for bleeding are trained using an outcome defintion that has been verified to identify major bleeding with positive predicted value (PPV) of 88%[@al2015identifying]. Ischaemia models are trained on a 2-point major adverse cardiac (MACE) definition including acute myocardial infarction and stroke [@hussain2018association], chosen because the components have been validated in administrative databases [@juurlink2006canadian; @kokotailo2005coding].
+Models for bleeding are trained using an outcome defintion that has been verified to identify major bleeding with positive predicted value (PPV) of 88% [@al2015identifying]. Ischaemia models are trained on a 2-point major adverse cardiac (MACE) definition including acute myocardial infarction and stroke [@hussain2018association], chosen because the components have been validated in administrative databases [@juurlink2006canadian; @kokotailo2005coding].
 
 ```{python}
 #| label: tbl-summary
@@ -98,8 +101,8 @@ for model, model_title in model_names.items():
   for outcome, outcome_title in outcome_names.items():
     try:
       df = get_model_summary(dataset, model, outcome)
-      df.insert(0, "Model", model_title)
-      df.insert(0, "Outcome", outcome_title)
+      df.insert(0, "Model", model_title.title())
+      df.insert(0, "Outcome", outcome_title.title())
       all_model_summary.append(df)
     except:
       # Failed to get summary for mobel (might not exist on disk)
@@ -121,6 +124,31 @@ except:
   pass
 ```
 
+In addition to the area under the receiver operating characteristic curve, models are assessed according to their stability and calibration. Instability in Table 1 is the average of the relative error between the model prediction and the predictions from other models developed on bootstrapped training sets [@riley2022stability]. It corresponds to the variation in the probability-stability plots in the document. A lower value means that bootstrapped models tend to agree with each other on the risk of adverse outcome for each patient. 
+
+Calibration error is the average of the expected calibration error [@nixon2019measuring] across the model and its bootstrapped variants. It corresponds to how well the calibration-stability plots in this document lie along a straight line. A value closer to zero means that the risk predictions from the model tend to agree with the observed proportions of patients who do in fact have the adverse outcome.
+
+```{python}
+for outcome, outcome_title in outcome_names.items():
+  # Calculate the best models for each criterion. These are indexes into the models
+  # ordered by as in the model_names dictionary (not )
+  best_for_roc = summary[summary["Outcome"] == outcome_title.title()]["ROC AUC"].idxmax()
+  best_for_calibration = summary[summary["Outcome"] == outcome_title.title()]["Cal. Error"].idxmin()
+  best_for_stability = summary[summary["Outcome"] == outcome_title.title()]["Instability"].idxmin()
+
+  best_roc_value = summary.iloc[best_for_roc]["ROC AUC"]
+  best_calibration_error = summary.iloc[best_for_calibration]["Cal. Error"]
+  best_instability = summary.iloc[best_for_stability]["Instability"]
+
+  models = list(model_names.values())
+
+  display(Markdown(
+    f"For the prediction of {outcome_title} risk, "
+    f"{models[best_for_roc]} has the highest area under the ROC curve at {best_roc_value}, "
+    f"{models[best_for_calibration]} has the best calibration (error = {best_calibration_error}), and "
+    f"{models[best_for_stability]} has the highest stability (instability = {best_instability}).")
+  )
+```
 
 # Introduction
 
@@ -128,6 +156,7 @@ except:
  
 # Literature
 
+Include
 
 
 {{< pagebreak >}}
@@ -147,10 +176,10 @@ display(Markdown("Dataset description here.\\"))
 num_models = len(model_names)
 for m, (model, model_title) in enumerate(model_names.items()):
   display(Markdown("{{< pagebreak >}}"))
-  display(Markdown(f"\n## {model_title}"))
+  display(Markdown(f"\n## {model_title.title()}"))
   for outcome, outcome_title in outcome_names.items():
     #display(Markdown("{{< pagebreak >}}"))
-    display(Markdown(f"\n### {outcome_title}"))
+    display(Markdown(f"\n### {outcome_title.title()}"))
     try:
       plot_model_validation_2page(dataset, model, outcome)
     except:
