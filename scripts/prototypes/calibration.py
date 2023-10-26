@@ -70,18 +70,20 @@ def get_average_calibration_error(probs, y_test, n_bins):
     
     bin_edges = np.linspace(0, 1, n_bins + 1)
     for n in range(probs.shape[1]):
-        count_in_bins, _ = np.histogram(probs[:, n], bins=bin_edges, density=False)
-        
-        # Remove any count_in_bins value that have no samples in -- this is also what
-        # sklearn does with calibration. Then, in the formula for error below, the two
-        # arrays will still have the same values. The result is still valid, because 
-        # count_in_bins = 0 would not contribute to the sum
-        print(f"before: {count_in_bins}")
-        count_in_bins = count_in_bins[count_in_bins != 0]
-        print(count_in_bins)
+
         prob_true, prob_pred = calibration_curve(y_test, probs[:, n], n_bins=n_bins)
-        print(prob_pred)
-        print(prob_true)
+
+        # For each prob_pred, need to count the number of samples in that lie in
+        # the bin centered at prob_pred. 
+        bin_width = 1 / n_bins
+        count_in_bins = []
+        for prob in prob_pred:
+            bin_start = prob - bin_width/2
+            bin_end = prob + bin_width/2
+            count = ((bin_start <= probs[:, n]) & (probs[:, n] < bin_end)).sum()
+            count_in_bins.append(count)
+        count_in_bins = np.array(count_in_bins)
+                
         error = np.sum(count_in_bins * np.abs(prob_true - prob_pred)) / N
         estimated_calibration_errors.append(error)
         

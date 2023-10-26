@@ -188,8 +188,13 @@ def plot_risk_tradeoff(model_name, bleeding_outcome, ischaemia_outcome):
 if __name__ == "__main__":
     dataset = "manual_codes_swd"
     model = "simple_decision_tree"
-    print(get_model_summary(dataset, model, "bleeding_al_ani_outcome"))
-    print(get_model_summary(dataset, model, "hussain_ami_stroke_outcome"))
+    df1 = get_model_summary(dataset, model, "bleeding_al_ani_outcome")
+    df2 = get_model_summary(dataset, model, "hussain_ami_stroke_outcome")
+    df = pd.concat([df1, df2]).reset_index(drop=True)
+    print(df)
+    print(df["Instability"].idxmin())
+    
+
     plot_roc_and_calibration_2x2(dataset, model, "bleeding_al_ani_outcome", "hussain_ami_stroke_outcome")
     #plot_risk_tradeoff("simple_logistic_regression", "bleeding_al_ani_outcome", "hussain_ami_stroke_outcome")
     

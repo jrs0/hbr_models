@@ -113,27 +113,47 @@ def predict_bootstrapped_proba(M0, Mn, X_test):
 
     return np.column_stack(columns)
 
+def smape(A, F):
+    terms = []
+    for a, f in zip(A, F):
+        if a == f == 0:
+            terms.append(0)
+        else:
+            terms.append(2 * np.abs(f - a) / (np.abs(a) + np.abs(f)))
+    return (100/len(A)) * np.sum(terms)
+
 def get_average_instability(probs):
     """
     Instability is the extend to which the bootstrapped models
     give a different prediction from the model under test. The 
-    average instability is an average of the relative error between
+    average instability is an average of the SMAPE between
     the prediction of the model-under-test and the predictions of
-    all the other bootstrap models. 
+    each of the other bootstrap models (i.e. pairing the model-under-test)
+    with a single bootstrapped model gives one SMAPE value, and 
+    these are averaged over all the bootstrap models).
+    
+    SMAPE is preferable to mean relative error, because the latter
+    diverges when the prediction from the model-under-test is very small.
+    It may however be better still to use the log of the accuracy ratio;
+    see https://en.wikipedia.org/wiki/Symmetric_mean_absolute_percentage_error,
+    since the probabilities are all positive (or maybe there is a better 
+    thing for comparing probabilities specifically)
     
     Testing: not yet tested
     """
     num_rows = probs.shape[0]
     num_cols = probs.shape[1]
-    rel_errors = []
-    for i in range(num_rows):
-        for j in range(1, num_cols):
-            mut = probs[i, 0]  # Model-under-test
-            boots = probs[i, j]  # Other bootstrapped models
-            if mut != 0:
-                rel_errors.append(np.abs(boots - mut)/mut)
+    
+    smape_over_bootstraps = []
+    
+    # Loop over each boostrap model
+    for j in range(1, num_cols):
+        
+        # Calculate SMAPE between bootstrap model j and
+        # the model-under-test
+        smape_over_bootstraps.append(smape(probs[:,0], probs[:,j]))
 
-    return np.mean(rel_errors)
+    return np.mean(smape_over_bootstraps)
 
 def plot_instability(ax, probs, y_test, title="Probability stability"):
     """
