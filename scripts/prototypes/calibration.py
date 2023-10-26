@@ -76,9 +76,12 @@ def get_average_calibration_error(probs, y_test, n_bins):
         # sklearn does with calibration. Then, in the formula for error below, the two
         # arrays will still have the same values. The result is still valid, because 
         # count_in_bins = 0 would not contribute to the sum
+        print(f"before: {count_in_bins}")
         count_in_bins = count_in_bins[count_in_bins != 0]
-        
+        print(count_in_bins)
         prob_true, prob_pred = calibration_curve(y_test, probs[:, n], n_bins=n_bins)
+        print(prob_pred)
+        print(prob_true)
         error = np.sum(count_in_bins * np.abs(prob_true - prob_pred)) / N
         estimated_calibration_errors.append(error)
         

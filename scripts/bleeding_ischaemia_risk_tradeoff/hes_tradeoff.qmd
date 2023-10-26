@@ -68,7 +68,7 @@ outcome_names = {
 }
 
 # The generated report relates to one dataset. Pick that dataset here.
-dataset = "manual_codes"
+dataset = "manual_codes_swd"
 dataset_title = dataset_name[dataset]
 ```
 
@@ -83,6 +83,10 @@ data = pd.read_pickle(dataset_path)
 num_rows = data.shape[0]
 start_date = data.idx_date.min().date().isoformat()
 end_date = data.idx_date.max().date().isoformat()
+y_test = example_model_info["y_test"]
+num_rows_test = len(y_test)
+num_rows_train = num_rows - num_rows_test
+proportion_test = num_rows_test / num_rows
 ```
 
 This document contains the results of models for bleeding and ischaemia risk in heart attack patients, developed using the `{python} dataset_title` dataset. Table 1 shows a summary of the performance of the models for bleeding and ischaemia across all models and datasets. 
@@ -162,7 +166,9 @@ Include
 {{< pagebreak >}}
 # Method
 
-Describe test/train split. Basically everything in the stability.py file. 
+The dataset (`{python} num_rows` rows) is split into a training set (`{python} num_rows_train` rows) and a testing set (`{python} num_rows_test` rows, `{python} f"{100*proportion_test:.2f}"`% of the full dataset). All models are developed on the training set, and all graphs of model performance in this report are calculated on the testing set.
+
+Some models involve automatically tuning hyperparameters. These are optimised by fitting models for each combination of hyperparameters and assessing their performance using cross validation. In this process, the training set is split into 5 folds, each of which is successively held out as a testing set to assess the current combination of hyperparameter values. The best model is selected according to which gives the highest area under the ROC curve.
 
 {{< pagebreak >}}
 # Models
