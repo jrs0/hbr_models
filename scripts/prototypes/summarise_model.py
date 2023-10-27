@@ -17,6 +17,18 @@ import pandas as pd
 
 from IPython.display import display, Markdown
 
+def get_nonzero_proportion(df):
+    """
+    Utility function to (interactively) show the proportion
+    of each feature that is non-zero. Pass a pandas dataframe
+    df. A low result means that a column is mostly zero. Used
+    to decide it it might be helpful to remove features based
+    on high proportion of zeros.
+
+    Testing: not yet tested
+    """
+    return df.astype(bool).mean()
+
 def get_model_summary(dataset, model, outcome):
     """
     Get a summary of the model as a pandas table with a single

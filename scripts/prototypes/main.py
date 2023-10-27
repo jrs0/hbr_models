@@ -9,6 +9,7 @@ from models import (
     SimpleLogisticRegression,
     TruncSvdLogisticRegression,
     SimpleDecisionTree,
+    TruncSvdDecisionTree
 )
 from fit import fit_and_save
 import time
@@ -19,16 +20,17 @@ start = time.time()
 # Either run all combinations of models and datasets (True),
 # or run for a specific model and dataset (False) by picking the model
 # and dataset index in the lists below
-run_all_models = False
-model_choice = 1
-dataset_choice = 2
+run_all_models = True
+model_choice = 2
+dataset_choice = 1
 
 # These are the models that should be fitted on every
 # dataset
 model_list = [
-    SimpleLogisticRegression,  # 0
-    TruncSvdLogisticRegression,  # 1
-    SimpleDecisionTree,  # 2
+    TruncSvdDecisionTree, # 0
+    SimpleLogisticRegression,  # 1
+    TruncSvdLogisticRegression,  # 2
+    SimpleDecisionTree,  # 3
 ]
 
 # These are the datasets that should be inputted to
@@ -59,8 +61,8 @@ dataset_specs = [
 #
 # Dataset/model combinations are not excluded due to poor modelling performance.
 exclusions = {
-    # model_choice, dataset_choice, reason
-    (0, 1): "dataset too big for simple logistic regression",
+    # (model_choice, dataset_choice, reason)
+    (1, 1): "dataset too big for simple logistic regression",
 }
 
 
@@ -86,6 +88,7 @@ if not run_all_models:
 else:
     for model_choice, model in enumerate(model_list):
         for dataset_choice, dataset_spec in enumerate(dataset_specs):
+            print(f"Starting training for {model.name()} on {dataset_spec['dataset_name']}")
             if (model_choice, dataset_choice) in exclusions.keys():
                 print(
                     f"Skipping fit due to: {exclusions[(model_choice, dataset_choice)]}"
@@ -93,6 +96,7 @@ else:
             else:
                 fit_spec = make_fit_spec(model, dataset_spec)
                 fit_bleeding_ischaemia_models(fit_spec)
+            print(f"Finished training for {model} on {dataset}")
 
 
 # Print the runtime

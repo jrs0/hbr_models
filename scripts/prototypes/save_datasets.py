@@ -300,7 +300,10 @@ class Dataset:
 
         print(dataset_features.info())
         if sparse_features:
+            # Attempt to convert all object columns to numeric
+            dataset_features[object_columns] = dataset_features[object_columns].apply(pd.to_numeric, errors='coerce')
             self._X = csr_matrix(dataset_features.to_numpy())
+            self.object_column_indices = []
         else:
             self._X = dataset_features.to_numpy()
 

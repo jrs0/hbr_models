@@ -59,8 +59,8 @@ dataset_name = {
     "manual_codes_swd": "HES (manual code groups) + SWD",
 }
 model_names = {
-    "simple_logistic_regression": "logistic regression",
     "truncsvd_logistic_regression": "truncated SVD + logistic regression",
+    #"simple_logistic_regression": "logistic regression",
     "simple_decision_tree": "decision tree",
 }
 outcome_names = {
@@ -69,7 +69,7 @@ outcome_names = {
 }
 
 # The generated report relates to one dataset. Pick that dataset here.
-dataset = "manual_codes_swd"
+dataset = "all_codes"
 dataset_title = dataset_name[dataset]
 ```
 

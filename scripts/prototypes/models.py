@@ -153,15 +153,27 @@ class TruncSvdLogisticRegression:
         reducer = TruncatedSVD(n_iter=7)
         scaler = StandardScaler()
         logreg = LogisticRegression()
-        self._pipe = Pipeline(
-            [
-                ("to_numeric", to_numeric),
-                ("impute", impute),
-                ("reducer", reducer),
-                ("scaler", scaler),
-                ("logreg", logreg),
-            ]
-        )
+        # If there are no object columns, then omit the step
+        # which converts to numeric
+        if len(object_column_indices) == 0:
+            self._pipe = Pipeline(
+                [
+                    ("impute", impute),
+                    ("reducer", reducer),
+                    ("scaler", scaler),
+                    ("logreg", logreg),
+                ]
+            )
+        else:
+            self._pipe = Pipeline(
+                [
+                    ("to_numeric", to_numeric),
+                    ("impute", impute),
+                    ("reducer", reducer),
+                    ("scaler", scaler),
+                    ("logreg", logreg),
+                ]
+            )   
         num_features = X.shape[1]
         max_components = min(num_features, 200)
 
@@ -174,6 +186,7 @@ class TruncSvdLogisticRegression:
             cv=5,
             verbose=3,
             scoring="roc_auc",
+            error_score="raise"
         ).fit(X, y)
         print(self._search.best_params_)
 
@@ -208,9 +221,14 @@ class SimpleDecisionTree:
         )
         impute = SimpleImputer()
         tree = DecisionTreeClassifier()
-        self._pipe = Pipeline(
-            [("to_numeric", to_numeric), ("impute", impute), ("tree", tree)]
-        )
+        if len(object_column_indices) == 0:
+            self._pipe = Pipeline(
+                [("to_numeric", to_numeric), ("impute", impute), ("tree", tree)]
+            )
+        else:
+            self._pipe = Pipeline(
+                [("impute", impute), ("tree", tree)]
+            )            
 
         self._param_grid = {"tree__max_depth": range(1, 15)}
         self._search = GridSearchCV(
@@ -238,31 +256,49 @@ class SimpleDecisionTree:
             ax=ax,
         )
 
-
-####### BELOW HERE IS ROUGH WORK
-
-
 class TruncSvdDecisionTree:
-    def __init__(self, X, y):
-        """
-        Model which applies dimension reduction to the features before
-        centering, scaling, and fitting a decision tree to the results.
-        The pipe comprises a StandardScaler() followed by LogisticRegression().
-        There is no hyperparameter tuning or cross-validation.
-
-        Testing: not yet tested
-        """
-
-        # majority_zero = RemoveMajorityZero(0.1)
+    def __init__(self, X, y, object_column_indices):
+        to_numeric = ColumnTransformer(
+            [
+                (
+                    "one_hot",
+                    OneHotEncoder(
+                        sparse_output=False, handle_unknown="infrequent_if_exist"
+                    ),
+                    object_column_indices,
+                )
+            ],
+            remainder="passthrough",
+        )
+        impute = SimpleImputer()
         reducer = TruncatedSVD(n_iter=7)
         scaler = StandardScaler()
         tree = DecisionTreeClassifier()
-        self._pipe = Pipeline(
-            [("reducer", reducer), ("scaler", scaler), ("tree", tree)]
-        )
-
+        if len(object_column_indices) == 0:
+            self._pipe = Pipeline(
+                [
+                    ("to_numeric", to_numeric),
+                    ("impute", impute),
+                    ("reducer", reducer),
+                    ("scaler", scaler),
+                    ("tree", tree),
+                ]
+            )
+        else:
+            self._pipe = Pipeline(
+                [
+                    ("to_numeric", to_numeric),
+                    ("impute", impute),
+                    ("reducer", reducer),
+                    ("scaler", scaler),
+                    ("tree", tree),
+                ]
+            ) 
+        
+        num_features = X.shape[1]
+        max_components = min(num_features, num_features)
         self._param_grid = {
-            "reducer__n_components": range(1, 200),
+            "reducer__n_components": range(1, num_features),
             "tree__max_depth": range(1, 20),
         }
         self._search = RandomizedSearchCV(
@@ -273,59 +309,13 @@ class TruncSvdDecisionTree:
         self._pipe.fit(X, y)
 
     def model(self):
-        """
-        Get the fitted logistic regression model
-        """
         return self._search.best_estimator_
 
-    def get_model_parameters(self, feature_names):
-        """
-        Get the fitted model parameters as a dataframe with one
-        row per feature. Two columns for the scaler contain the
-        mean and variance, and the final column contains the
-        logistic regression coefficient. You must pass the vector
-        of feature names in the same order as columns of X in the
-        constructor.
-        """
-        means = self._pipe["scaler"].mean_
-        variances = self._pipe["scaler"].var_
-        coefs = self._pipe["logreg"].coef_[0, :]
-        model_params = pd.DataFrame(
-            {
-                "feature": feature_names,
-                "scaling_mean": means,
-                "scaling_variance": variances,
-                "logreg_coef": coefs,
-            }
-        )
-        return model_params
+    def name():
+        return "truncsvd_decision_tree"
 
 
-def get_nonzero_proportion(df):
-    """
-    Utility function to (interactively) show the proportion
-    of each feature that is non-zero. Pass a pandas dataframe
-    df. A low result means that a column is mostly zero. Used
-    to decide it it might be helpful to remove features based
-    on high proportion of zeros.
-
-    Testing: not yet tested
-    """
-    return df.astype(bool).mean()
-
-
-def get_nonzero_proportion(df):
-    """
-    Utility function to (interactively) show the proportion
-    of each feature that is non-zero. Pass a pandas dataframe
-    df. A low result means that a column is mostly zero. Used
-    to decide it it might be helpful to remove features based
-    on high proportion of zeros.
-
-    Testing: not yet tested
-    """
-    return df.astype(bool).mean()
-
+####### BELOW HERE IS ROUGH WORK
 
 class SimpleRandomForest:
     def __init__(self, X, y, preprocess):
