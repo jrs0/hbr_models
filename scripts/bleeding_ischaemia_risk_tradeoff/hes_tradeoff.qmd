@@ -47,7 +47,7 @@ from calibration import (
     plot_calibration_curves,
     plot_prediction_distribution,
 )
-from summarise_model import get_model_summary, plot_model_validation_2page, plot_roc_and_calibration_2x2, plot_instability_2x2
+from summarise_model import get_model_summary, plot_model_validation_2page, plot_roc_and_calibration_2x2, plot_instability_2x2, plot_risk_tradeoff
 from roc import get_bootstrapped_roc, get_bootstrapped_auc, plot_roc_curves
 
 # The dictionaries map the identifier used in filenames and in the program
@@ -171,21 +171,40 @@ for outcome, outcome_title in outcome_names.items():
 Include
 
 {{< pagebreak >}}
-# Method
+# Dataset and Methods
 
-The dataset (`{python} num_rows` rows) is split into a training set (`{python} num_rows_train` rows) and a testing set (`{python} num_rows_test` rows, `{python} f"{100*proportion_test:.2f}"`% of the full dataset). All models are developed on the training set, and all graphs of model performance in this report are calculated on the testing set.
+```{python}
+num_bleed = (data["bleeding_al_ani_outcome"] == True).sum()
+num_ami_stroke = (data["hussain_ami_stroke_outcome"] == True).sum()
+```
+
+In the full dataset (`{python} num_rows` rows), `{python} num_bleed` adverse bleeding events occurred (`{python} f"{100*num_bleed/num_rows:.1f}%"`), and `{python} num_ami_stroke` AMI or stroke events occurred (`{python} f"{100*num_ami_stroke/num_rows:.1f}%"`). The distribution of STEMI vs. NSTEMI presentation in the index events is shown below:
+
+```{python}
+import seaborn as sns
+df = data.rename(columns={"dem_age": "Age at index", "idx_stemi": "STEMI"})
+
+# Plot of the age distribution by stemi/nstemi
+fig, ax =  plt.subplots(figsize=(3,4))
+sns.displot(data=df, x="Age at index", hue="STEMI", bins=30, ax=ax).set(title='Proportion of STEMI and NSTEMI by age')
+plt.show()
+```
+
+
+
+The dataset is split into a training set (`{python} num_rows_train` rows) and a testing set (`{python} num_rows_test` rows, `{python} f"{100*proportion_test:.2f}"`% of the full dataset). All models are developed on the training set, and all graphs of model performance in this report are calculated on the testing set.
 
 ## Hyperparameter tuning
 
-Some models involve automatically tuning hyperparameters. These are optimised by fitting models for each combination of hyperparameters and assessing their performance using cross validation. In this process, the training set is split into 5 folds, each of which is successively held out as a testing set to assess the current combination of hyperparameter values. The best model is selected according to which gives the highest area under the ROC curve, and the model is refitted using the full training set. This model will be referred to as *the model* or *model-under-test* (in the context of stability analysis).
+Some models require choosing hyperparameters. These are optimised by fitting models for different combination of hyperparameters and assessing their performance using cross validation. In this process, the training set is split into 5 folds, each of which is successively held out as a testing set to assess the current combination of hyperparameter values. The best model is selected according to which gives the highest area under the ROC curve, and the model is refitted using the full training set. This model will be referred to as *the model* or *model-under-test* (in the context of stability analysis).
 
 ## Stability analysis
 
-Model stability of an internally-validated model refers to how well models developed on a similar internal population agree with each other. We follow the methodology outlined in [@riley2022stability] to assess the stability of the model development process, which encompasses effects due to sample size, number of predictors, and method of model fitting.
+Model stability of an internally-validated model refers to how well models developed on a similar internal population agree with each other. The intent is to estimate how well the model may generalise to external validation data. We follow the methodology outlined in [@riley2022stability] to assess the stability of the model development process, which encompasses effects due to sample size, number of predictors, and method of model fitting.
 
 Assuming that a training set $P_0$ is used to develop a model $M_0$ (the model-under-test) using a model development process $D$ (involving steps such cross-validation and hyperparameter tuning in the training set, and validation of accuracy of model prediction in the test set), the following steps are required to assess the stability of $M_0$ [@riley2022stability]:
 
-1. Bootstrap resample $P_0$ with replacement $M \ge 200$ times, creating $M$ new datasets $P_m$ that are all the same size as $P_0$. Here, we use $M = $`{python} num_bootstraps` (to be increased later)
+1. Bootstrap resample $P_0$ with replacement $M \ge 200$ times, creating $M$ new datasets $P_m$ that are all the same size as $P_0$. Here, we use $M =$ `{python} num_bootstraps` (to be increased later)
 2. Apply $D$ to each $P_m$, to obtain $M$ new models $M_n$ which are all comparable with $M_0$.
 3. Collect together the predictions from all Mn and compare them to the predictions from $M_0$ for each sample in the test set $T$.
 4. From the data in step 3, plot instability plots such as a scatter plot of $M_0$ predictions on the x-axis and all the $M_n$ predictions on the y-axis, for each sample of $T$. In addition, plot graphs of how all the model validation metrics vary as a function of the bootstrapped models $M_n$. This includes graphs of how the ROC curves vary with bootstrapped models, and (more significantly) how the model calibration depends on the resampling.
@@ -202,6 +221,8 @@ In addition, a meta-stability question relating to how well the different models
 {{< pagebreak >}}
 # Models
 
+This section contains the results for all the fitted models, including plots of the ROC curves, calibration, and probability stability.
+
 ```{python}
 #| output: asis
 
@@ -215,7 +236,6 @@ display(Markdown("Dataset description here.\\"))
 
 num_models = len(model_names)
 for m, (model, model_title) in enumerate(model_names.items()):
-  display(Markdown("{{< pagebreak >}}"))
   display(Markdown(f"\n## {model_title.title()}"))
   
   bleeding_outcome = list(outcome_names)[0]
@@ -232,18 +252,24 @@ for m, (model, model_title) in enumerate(model_names.items()):
 
   # Place a discussion of model stability here
 
-  # for outcome, outcome_title in outcome_names.items():
-  #   #display(Markdown("{{< pagebreak >}}"))
-  #   display(Markdown(f"\n### {outcome_title.title()}"))
-  #   try:
-  #     plot_model_validation_2page(dataset, model, outcome)
-  #   except:
-  #     #display(Markdown("{{< pagebreak >}}"))
-  #     display(Markdown("Currently missing.\\"))
+  display(Markdown("{{< pagebreak >}}"))
 ```
 
-## Risk Trade-off Model
+# Risk Trade-off Model
 
-# Discussion
+```{python}
+for m, (model, model_title) in enumerate(model_names.items()):
+  display(Markdown("{{< pagebreak >}}"))
+  display(Markdown(f"\n## {model_title.title()}"))
+  
+  bleeding_outcome = list(outcome_names)[0]
+  ischaemia_outcome = list(outcome_names)[1]
+
+  plot_risk_tradeoff(model_name, bleeding_outcome, ischaemia_outcome):
+```
 
 # Conclusion
+
+
+
+# Code group defitions {.appendix}

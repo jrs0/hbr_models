@@ -156,7 +156,7 @@ def plot_risk_tradeoff(model_name, bleeding_outcome, ischaemia_outcome):
     probs_ischaemia = d_ischaemia["probs"][:,0]
     y_test_ischaemia = d_ischaemia["y_test"]
     
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(3,4))
     
     num_rows = len(probs_bleeding)
     x = []

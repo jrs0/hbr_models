@@ -296,9 +296,9 @@ class TruncSvdDecisionTree:
             ) 
         
         num_features = X.shape[1]
-        max_components = min(num_features, num_features)
+        max_components = min(num_features, 200)
         self._param_grid = {
-            "reducer__n_components": range(1, num_features),
+            "reducer__n_components": range(1, max_components),
             "tree__max_depth": range(1, 20),
         }
         self._search = RandomizedSearchCV(

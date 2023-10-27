@@ -63,6 +63,7 @@ dataset_specs = [
 exclusions = {
     # (model_choice, dataset_choice, reason)
     (1, 1): "dataset too big for simple logistic regression",
+    (0, 0): "temp",
 }
 
 
@@ -96,7 +97,7 @@ else:
             else:
                 fit_spec = make_fit_spec(model, dataset_spec)
                 fit_bleeding_ischaemia_models(fit_spec)
-            print(f"Finished training for {model} on {dataset}")
+            print(f"Finished training for {model} on {dataset_spec['dataset_name']}")
 
 
 # Print the runtime
