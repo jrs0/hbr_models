@@ -277,7 +277,6 @@ class TruncSvdDecisionTree:
         if len(object_column_indices) == 0:
             self._pipe = Pipeline(
                 [
-                    ("to_numeric", to_numeric),
                     ("impute", impute),
                     ("reducer", reducer),
                     ("scaler", scaler),
@@ -314,28 +313,52 @@ class TruncSvdDecisionTree:
     def name():
         return "truncsvd_decision_tree"
 
-
-####### BELOW HERE IS ROUGH WORK
-
 class SimpleRandomForest:
-    def __init__(self, X, y, preprocess):
-        """
-        Simple decision tree model with no feature preprocessing.
-        """
+    def __init__(self, X, y, object_column_indices):
+        to_numeric = ColumnTransformer(
+            [
+                (
+                    "one_hot",
+                    OneHotEncoder(
+                        sparse_output=False, handle_unknown="infrequent_if_exist"
+                    ),
+                    object_column_indices,
+                )
+            ],
+            remainder="passthrough",
+        )
+        impute = SimpleImputer()
         tree = RandomForestClassifier()
-        self._pipe = Pipeline([("tree", tree)])
-
-        self._param_grid = {"tree__max_depth": range(1, 15)}
-        self._search = GridSearchCV(
+        if len(object_column_indices) == 0:
+            self._pipe = Pipeline(
+                [
+                    ("impute", impute),
+                    ("tree", tree),
+                ]
+            )
+        else:
+            self._pipe = Pipeline(
+                [
+                    ("to_numeric", to_numeric),
+                    ("impute", impute),
+                    ("tree", tree),
+                ]
+            ) 
+        self._param_grid = {
+            "tree__max_depth": range(1, 20),
+        }
+        self._search = RandomizedSearchCV(
             self._pipe, self._param_grid, cv=5, verbose=3, scoring="roc_auc"
         ).fit(X, y)
         print(self._search.best_params_)
 
+        self._pipe.fit(X, y)
+
     def model(self):
-        """
-        Get the best fitted model from the hyperparameter search results
-        """
         return self._search.best_estimator_
+
+    def name():
+        return "simple_random_forest"
 
 
 class SimpleGradientBoostedTree:

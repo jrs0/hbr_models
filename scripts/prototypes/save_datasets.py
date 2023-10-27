@@ -227,6 +227,13 @@ def match_feature_list(feature_columns, feature_groups):
     return feature_group_lists
 
 
+def load_config_file(config_file):
+    with open(config_file, "r") as stream:
+        try:
+            return yaml.safe_load(stream)
+        except yaml.YAMLError as e:
+            raise RuntimeError(f"Unable to load config file: {e}")
+
 class Dataset:
     def __init__(self, name, config_file, sparse_features, interactive=True):
         """
@@ -256,11 +263,7 @@ class Dataset:
         dataset = pd.read_pickle(self.dataset_path)
 
         # Load the configuration file
-        with open(config_file, "r") as stream:
-            try:
-                self.config = yaml.safe_load(stream)
-            except yaml.YAMLError as e:
-                raise RuntimeError(f"Unable to load config file: {e}")
+        self.config = load_config_file(config_file)
 
         # Reduce the date range
         # dataset = dataset[(dataset.idx_date > '2018-1-1') & (dataset.idx_date < '2022-1-1')]

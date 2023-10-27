@@ -141,13 +141,13 @@ def plot_model_validation_2page(dataset, model, outcome):
     #plot_prediction_distribution(ax[1], d["probs"], n_bins=10)
     plt.show()
 
-def plot_risk_tradeoff(model_name, bleeding_outcome, ischaemia_outcome):
-    
-    filename_bleeding = model_name + "_" + bleeding_outcome
-    d_bleeding = ds.load_fit_info(filename_bleeding)
+def plot_risk_tradeoff(dataset, model, bleeding_outcome, ischaemia_outcome):
 
-    filename_ischaemia = model_name + "_" + ischaemia_outcome
-    d_ischaemia = ds.load_fit_info(filename_ischaemia)
+    filename = f"{dataset}_{model}_{bleeding_outcome}"
+    d_bleeding = ds.load_fit_info(filename)
+
+    filename = f"{dataset}_{model}_{ischaemia_outcome}"
+    d_ischaemia = ds.load_fit_info(filename)
     
     # Get just the main model predictions
     probs_bleeding = d_bleeding["probs"][:,0]

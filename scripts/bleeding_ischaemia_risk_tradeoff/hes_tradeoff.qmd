@@ -62,6 +62,7 @@ model_names = {
     "truncsvd_logistic_regression": "truncated SVD + logistic regression",
     #"simple_logistic_regression": "logistic regression",
     "simple_decision_tree": "decision tree",
+    "truncsvd_decision_tree": "truncated SVD + decision tree",
 }
 outcome_names = {
     "bleeding_al_ani_outcome": "bleeding",
@@ -76,27 +77,43 @@ dataset_title = dataset_name[dataset]
 # Summary
 
 ```{python}
+#| output: false
+
 # Load any model to find which dataset was used (the script assumes that the same dataset
 # was used to fit all models)
 example_model_info = ds.load_fit_info(f"{dataset}_{list(model_names)[0]}_{list(outcome_names)[0]}")
 dataset_path = example_model_info["dataset_path"]
 data = pd.read_pickle(dataset_path)
+# Note the trailing semicolon to surpress printed output
+data_ds = ds.Dataset(
+  example_model_info["dataset_name"],
+  example_model_info["config_file"],
+  example_model_info["sparse_features"],
+  interactive=False
+);
+
+feature_groups = data_ds.feature_groups()
+num_features = 3
+
 num_rows = data.shape[0]
 start_date = data.idx_date.min().date().isoformat()
 end_date = data.idx_date.max().date().isoformat()
+
 y_test = example_model_info["y_test"]
 probs = example_model_info["probs"]
-num_bootstraps = probs.shape[1]-1
+
+num_bootstraps = probs.shape[1]-1 # -1 because the first column is the model-under-test
 num_rows_test = len(y_test)
 num_rows_train = num_rows - num_rows_test
 proportion_test = num_rows_test / num_rows
 ```
 
-This document contains the results of models for bleeding and ischaemia risk in heart attack patients, developed using the `{python} dataset_title` dataset. Table 1 shows a summary of the performance of the models for bleeding and ischaemia across all models and datasets. 
+This document contains the results of models for bleeding and ischaemia risk in heart attack patients, developed using the `{python} dataset_title` dataset. Table 1 shows a summary of the performance of the models for bleeding and ischaemia across all models and datasets.
 
 The dataset contains `{python} num_rows` index events, defined as acute coronary syndromes (ACS) or percutaneous coronary intervention (PCI) procedures. The ACS definition has been validated to achieve at least 70% positive predictive value for identifying all myocardial infarction (MI), and distinguishing ST-segment elevation MI from non-ST-segment MI [@biobankdefinitions]. Index events span a date range from `{python} start_date` to `{python} end_date`.
 
-Models for bleeding are trained using an outcome defintion that has been verified to identify major bleeding with positive predicted value (PPV) of 88% [@al2015identifying]. Ischaemia models are trained on a 2-point major adverse cardiac (MACE) definition including acute myocardial infarction and stroke [@hussain2018association], chosen because the components have been validated in administrative databases [@juurlink2006canadian; @kokotailo2005coding].
+Models for bleeding are trained using an outcome defintion that has been verified to identify major bleeding with positive predicted value (PPV) of 88% [@al2015identifying]. Ischaemia models are trained on a 2-point major adverse cardiac (MACE) definition including acute myocardial infarction and stroke [@hussain2018association], chosen because the components have been validated in administrative databases [@juurlink2006canadian; @kokotailo2005coding]. 
+
 
 ```{python}
 #| label: tbl-summary
@@ -164,11 +181,15 @@ for outcome, outcome_title in outcome_names.items():
 
 # Introduction
 
+Patients who undergo percutaneous coronary (PCI) intervention to treat acute coronary syndromes (ACS) are treated by implanting a stent in a coronary artery and prescribing a course of dual-antiplatelet therapy (DAPT) or triple therapy. This medication is intended to reduce the potential for formation of clots in the coronary artery (stent thrombosis; ST), and reduces the chance of further ischaemic complications (such as another heart attack, or an ischaemic stroke). However, the chance of a severe bleeding complication is increased, which may be worse than the potential ischaemic complication. Focus is shifting to the bleeding complication, in light of advances in drug-eluting stent technology that substantially reduce the chance of ST and recurrent ACS [@capodanno2023dual]
 
+Clinicians must balance the risk of these adverse outcomes in their daily practice. Models that attempt to assist in the assessment of bleeding and ischaemic risk have been developed [@urban2021assessing], but these are complicated by the heterogenous nature of bleeding risk in the ACS population, and the existence of a group at high bleeding risk (HBR). One defintion of high bleeding risk is the academic research consortium HBR criteria (ARC-HBR) [@urban2019defining]. The trade-off model cited above models the relative bleeding/ischaemia risk trade-off in the HBR group, and their model is intended for application to patients that fall into that category [@urban2021assessing].
 
-# Literature
+Although there exist a plethora of bleeding risk scores, such as none have seen widespread adoption. Clinical guidelines only provide a class IIb recommendation for the use of bleeding risk scores, citing complexity of calculation and lack of validation of the ARC-HBR score as potential barriers standing in the way of its deployment [@collet20212020]. In addition, although many current bleeding risk scores are also accompanied by a mobile application or web calculator, the lack of automation of data collection and input into the programs is a likely barrier to their use in a busy clinical setting. 
 
-Include
+To address these aspects of the problem, we consider here the development of models for bleeding and ischaemia risk based on more generic datasets of patient . Such an approach carries advantages and disadvantages. On the one hand, specific data for the identification of a particular definition of adverse outcome (such as the bleeding academic research consortium definition of major bleeding, upon which the ARC-HBR score is based) may be missing, leading to the need for an approximate outcome definition. In addition, relevant specific clinical predictors . However, the wealth of additional data present, including patient attributes derived from a primary care setting, may provide equally good predictors for bleeding and ischaemia, not considered in the typical consensus-based approach to the development of risk scores. A machine-learning approach may aid in automatically extracting these relevant features from the dataset.
+
+If the models developed by this approach are sufficiently performative, and satisfy appropriate external validation, then it may be possible to develop a tool that automatically queries the available datasets and provides a calculation of the risk of bleeding and ischaemia to the clinician at the point of DAPT prescription. Although this step requires a full assessment of the availability and timeliness of the datasets in a clinical context, a necessary first step is the demonstration of proof-of-principle internally-validated models that can be assessed using a consistent validation framework. This report contains the results of this investigation using models trained on `{python} dataset_title`.
 
 {{< pagebreak >}}
 # Dataset and Methods
@@ -185,12 +206,12 @@ import seaborn as sns
 df = data.rename(columns={"dem_age": "Age at index", "idx_stemi": "STEMI"})
 
 # Plot of the age distribution by stemi/nstemi
-fig, ax =  plt.subplots(figsize=(3,4))
-sns.displot(data=df, x="Age at index", hue="STEMI", bins=30, ax=ax).set(title='Proportion of STEMI and NSTEMI by age')
+plt.figure(figsize=(4,3))
+sns.displot(data=df, x="Age at index", hue="STEMI", bins=30).set(title='Proportion of STEMI and NSTEMI by age')
 plt.show()
 ```
 
-
+The dataset contains `{python} num_features`
 
 The dataset is split into a training set (`{python} num_rows_train` rows) and a testing set (`{python} num_rows_test` rows, `{python} f"{100*proportion_test:.2f}"`% of the full dataset). All models are developed on the training set, and all graphs of model performance in this report are calculated on the testing set.
 
@@ -204,7 +225,7 @@ Model stability of an internally-validated model refers to how well models devel
 
 Assuming that a training set $P_0$ is used to develop a model $M_0$ (the model-under-test) using a model development process $D$ (involving steps such cross-validation and hyperparameter tuning in the training set, and validation of accuracy of model prediction in the test set), the following steps are required to assess the stability of $M_0$ [@riley2022stability]:
 
-1. Bootstrap resample $P_0$ with replacement $M \ge 200$ times, creating $M$ new datasets $P_m$ that are all the same size as $P_0$. Here, we use $M =$ `{python} num_bootstraps` (to be increased later)
+1. Bootstrap resample $P_0$ with replacement $M \ge 200$ times, creating $M$ new datasets $P_m$ that are all the same size as $P_0$. Here, we use `{python} num_bootstraps` bootstraps (to be increased later)
 2. Apply $D$ to each $P_m$, to obtain $M$ new models $M_n$ which are all comparable with $M_0$.
 3. Collect together the predictions from all Mn and compare them to the predictions from $M_0$ for each sample in the test set $T$.
 4. From the data in step 3, plot instability plots such as a scatter plot of $M_0$ predictions on the x-axis and all the $M_n$ predictions on the y-axis, for each sample of $T$. In addition, plot graphs of how all the model validation metrics vary as a function of the bootstrapped models $M_n$. This includes graphs of how the ROC curves vary with bootstrapped models, and (more significantly) how the model calibration depends on the resampling.
@@ -226,14 +247,6 @@ This section contains the results for all the fitted models, including plots of 
 ```{python}
 #| output: asis
 
-# Page break before the first model section
-#display(Markdown("{{< pagebreak >}}"))
-
-  
-# This is the place to put exactly one page summarising
-# the dataset characteristics
-display(Markdown("Dataset description here.\\"))
-
 num_models = len(model_names)
 for m, (model, model_title) in enumerate(model_names.items()):
   display(Markdown(f"\n## {model_title.title()}"))
@@ -253,19 +266,12 @@ for m, (model, model_title) in enumerate(model_names.items()):
   # Place a discussion of model stability here
 
   display(Markdown("{{< pagebreak >}}"))
-```
 
-# Risk Trade-off Model
+  plot_risk_tradeoff(dataset, model, bleeding_outcome, ischaemia_outcome)
 
-```{python}
-for m, (model, model_title) in enumerate(model_names.items()):
-  display(Markdown("{{< pagebreak >}}"))
-  display(Markdown(f"\n## {model_title.title()}"))
-  
-  bleeding_outcome = list(outcome_names)[0]
-  ischaemia_outcome = list(outcome_names)[1]
+  # Place a discussion of trade-off model here
 
-  plot_risk_tradeoff(model_name, bleeding_outcome, ischaemia_outcome):
+  display(Markdown("{{< pagebreak >}}")) 
 ```
 
 # Conclusion
