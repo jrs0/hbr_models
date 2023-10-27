@@ -84,16 +84,15 @@ dataset_title = dataset_name[dataset]
 example_model_info = ds.load_fit_info(f"{dataset}_{list(model_names)[0]}_{list(outcome_names)[0]}")
 dataset_path = example_model_info["dataset_path"]
 data = pd.read_pickle(dataset_path)
-# Note the trailing semicolon to surpress printed output
+
 data_ds = ds.Dataset(
   example_model_info["dataset_name"],
   example_model_info["config_file"],
   example_model_info["sparse_features"],
   interactive=False
-);
+)
 
-feature_groups = data_ds.feature_groups()
-num_features = 3
+num_features = data_ds.get_X().shape[0]
 
 num_rows = data.shape[0]
 start_date = data.idx_date.min().date().isoformat()
@@ -154,15 +153,21 @@ In addition to the area under the receiver operating characteristic curve, model
 Calibration error is the average of the expected calibration error [@nixon2019measuring] across the model and its bootstrapped variants. It corresponds to how well the calibration-stability plots in this document lie along a straight line. A value closer to zero means that the risk predictions from the model tend to agree with the observed proportions of patients who do in fact have the adverse outcome.
 
 ```{python}
+best_model_roc = {} # map outcome to best model for ROC AUC
+best_model_calibration = {}
+best_model_instability = {}
+best_value_roc = {} # map outcome to best models's value for ROC AUC
+best_value_calibration = {}
+best_value_instability = {}
 for outcome, outcome_title in outcome_names.items():
   # Calculate the best models for each criterion. These are indexes into the models
   # ordered by as in the model_names dictionary (not )
   best_for_roc = summary[summary["Outcome"] == outcome_title.title()]["ROC AUC"].idxmax()
   best_for_calibration = summary[summary["Outcome"] == outcome_title.title()]["Cal. Error"].idxmin()
-  best_for_stability = summary[summary["Outcome"] == outcome_title.title()]["Instability"].idxmin()
-  best_roc_value = summary.iloc[best_for_roc]["ROC AUC"]
-  best_calibration_error = summary.iloc[best_for_calibration]["Cal. Error"]
-  best_instability = summary.iloc[best_for_stability]["Instability"]
+  best_for_instability = summary[summary["Outcome"] == outcome_title.title()]["Instability"].idxmin()
+  best_value_roc[outcome] = summary.iloc[best_for_roc]["ROC AUC"]
+  best_value_calibration[outcome] = summary.iloc[best_for_calibration]["Cal. Error"]
+  best_value_instability[outcome] = summary.iloc[best_for_instability]["Instability"]
 
   models = list(model_names.values())
 
@@ -173,10 +178,13 @@ for outcome, outcome_title in outcome_names.items():
   # versions
   display(Markdown(
     f"For the prediction of {outcome_title} risk, "
-    f"{models[best_for_roc//2]} has the highest area under the ROC curve at {best_roc_value:.3f}, "
-    f"{models[best_for_calibration//2]} has the best calibration (error = {best_calibration_error:.3f}), and "
-    f"{models[best_for_stability//2]} has the highest stability (instability = {best_instability:.3f}).")
+    f"{models[best_for_roc//2]} has the highest area under the ROC curve at {best_value_roc[outcome]:.3f}, "
+    f"{models[best_for_calibration//2]} has the best calibration (error = {best_value_calibration[outcome]:.3f}), and "
+    f"{models[best_for_instability//2]} has the highest stability (instability = {best_value_instability[outcome]:.3f}).")
   )
+  best_model_roc[outcome] = models[best_for_roc//2]
+  best_model_calibration[outcome] = models[best_for_calibration//2]
+  best_model_instability[outcome] = models[best_for_instability//2]
 ```
 
 # Introduction
@@ -211,9 +219,7 @@ sns.displot(data=df, x="Age at index", hue="STEMI", bins=30).set(title='Proporti
 plt.show()
 ```
 
-The dataset contains `{python} num_features`
-
-The dataset is split into a training set (`{python} num_rows_train` rows) and a testing set (`{python} num_rows_test` rows, `{python} f"{100*proportion_test:.2f}"`% of the full dataset). All models are developed on the training set, and all graphs of model performance in this report are calculated on the testing set.
+The dataset is split into a training set (`{python} num_rows_train` rows) and a testing set (`{python} num_rows_test` rows, `{python} f"{100*proportion_test:.2f}"`% of the full dataset). All models are developed on the training set, and all graphs of model performance in this report are calculated on the testing set. The dataset contains `{python} num_features` features.
 
 ## Hyperparameter tuning
 
@@ -237,7 +243,7 @@ For each model and outcome combination in this report, four figures are presente
 3. **Risk prediction stability**, which directly compares the predictions of the bootstrapped models (y-axis) with the predictions from the model-under-test (x-axis) for each patient in the testing set; ideally predictions for the same patient should agree.
 4. **Risk prediction distribution**, which shows how often different risks (probabilities) are predicted by the models. This is highly important in interpreting the other graphs, because some regions of risk are much more densely populated with points, which is not always obvious directly from the graph.
 
-In addition, a meta-stability question relating to how well the different models agree with each other is also pertinent, because ideally the predictions from all the models should converge upon some (inaccessible) "ground truth" for risk of ischaemia and bleeding for each patient, if any of the models are to be trustworthy. This question is not addressed quantitatively; however, in practice, some models may be ruled out qualitatively on this criterion if they "differ considerably" from the other models. On the other hand, different models may lend each other support if they all tend to display similar behaviour.
+In addition, a meta-stability question relating to how well the different models agree with each other is also pertinent, because ideally the predictions from all the models should converge upon some (inaccessible) "ground truth" for risk of ischaemia and bleeding for each patient, if any of the models are to be trustworthy. This question is not addressed quantitatively; however, in practice, some models may be ruled out qualitatively on this criterion if their predictions or characteristics "differ considerably" from the other models. On the other hand, different models may lend each other support if they all tend to display similar behaviour.
 
 {{< pagebreak >}}
 # Models
@@ -267,7 +273,8 @@ for m, (model, model_title) in enumerate(model_names.items()):
 
   display(Markdown("{{< pagebreak >}}"))
 
-  plot_risk_tradeoff(dataset, model, bleeding_outcome, ischaemia_outcome)
+  title = f"Bleeding/Ischaemia risk tradeoff using {model_title}"
+  plot_risk_tradeoff(dataset, model, bleeding_outcome, ischaemia_outcome, title)
 
   # Place a discussion of trade-off model here
 
@@ -276,6 +283,12 @@ for m, (model, model_title) in enumerate(model_names.items()):
 
 # Conclusion
 
+In terms of an outright discrimination between bleeding or no-bleed events, `{python} f"{best_model_roc['bleeding']}"` has the best performance with a ROC AUC of `{python} f"{best_value_roc['bleeding']:.2f}"`; likewise, `{python} f"{best_model_roc['AMI or stroke']}"` has the best performance (ROC AUC `{python} f"{best_value_roc['AMI or stroke']:.2f}"`) for identifying ischaemic events.
 
+In terms of the stability of bleeding risk predictions, which corresponds to a measure of the average uncertainty in the risk predictions themselves `{python} f"{best_model_instability['bleeding']}"` has the best performance, with an instability of `{python} f"{best_value_instability['bleeding']:.2f}"`. The most stable ischaemia model was `{python} f"{best_model_instability['AMI or stroke']}"`, with an instability of `{python} f"{best_model_instability['AMI or stroke']:.2f}"`.
 
-# Code group defitions {.appendix}
+The most accurately calibrated bleeding model was `{python} f"{best_model_calibration['bleeding']}"`, with a calibration error of `{python} f"{best_value_calibration['bleeding']:.2f}"`. For ischaemia, the highest calibration of `{python} f"{best_value_calibration['AMI or stroke']:.2f}"` was achieved by `{python} f"{best_model_calibration['AMI or stroke']}"`.
+
+In taking forward the results of this modelling to consider the development of a practical tool, the various hazardous situations that may arise from the use of the prediction tool must be enumerated, their risk evaluated, and risk control measures established to reduce the risk as much as possible [@iso14971]. Any subsequent benefit-risk analysis, which will compare the risks associated with using the models to the risks that are inherent in current clinical practice, will highly benefit from the numerical approaches to assessing model performance and robustness highlighted in this report.
+
+# Index and outcome definitions {.appendix}

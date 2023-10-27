@@ -141,7 +141,7 @@ def plot_model_validation_2page(dataset, model, outcome):
     #plot_prediction_distribution(ax[1], d["probs"], n_bins=10)
     plt.show()
 
-def plot_risk_tradeoff(dataset, model, bleeding_outcome, ischaemia_outcome):
+def plot_risk_tradeoff(dataset, model, bleeding_outcome, ischaemia_outcome, title = "Bleeding/ischaemia risk trade-off"):
 
     filename = f"{dataset}_{model}_{bleeding_outcome}"
     d_bleeding = ds.load_fit_info(filename)
@@ -156,7 +156,7 @@ def plot_risk_tradeoff(dataset, model, bleeding_outcome, ischaemia_outcome):
     probs_ischaemia = d_ischaemia["probs"][:,0]
     y_test_ischaemia = d_ischaemia["y_test"]
     
-    fig, ax = plt.subplots(figsize=(3,4))
+    fig, ax = plt.subplots(figsize=(8,6))
     
     num_rows = len(probs_bleeding)
     x = []
@@ -175,7 +175,7 @@ def plot_risk_tradeoff(dataset, model, bleeding_outcome, ischaemia_outcome):
        y_to_plot = [y for y, outcome in zip(y, c) if outcome == outcome_to_plot]
        ax.scatter(x_to_plot, y_to_plot, c=colour, s=1, marker=".")
     
-    ax.set_title("Bleeding/ischaemia risk trade-off")
+    ax.set_title(title)
         
     ax.legend(
     [   
