@@ -175,7 +175,7 @@ class TruncSvdLogisticRegression:
                     ("scaler", scaler),
                     ("logreg", logreg),
                 ]
-            )   
+            )
         num_features = X.shape[1]
         max_components = min(num_features, 200)
 
@@ -188,7 +188,7 @@ class TruncSvdLogisticRegression:
             cv=5,
             verbose=3,
             scoring="roc_auc",
-            error_score="raise"
+            error_score="raise",
         ).fit(X, y)
         print(self._search.best_params_)
 
@@ -228,9 +228,7 @@ class SimpleDecisionTree:
                 [("to_numeric", to_numeric), ("impute", impute), ("tree", tree)]
             )
         else:
-            self._pipe = Pipeline(
-                [("impute", impute), ("tree", tree)]
-            )            
+            self._pipe = Pipeline([("impute", impute), ("tree", tree)])
 
         self._param_grid = {"tree__max_depth": range(1, 15)}
         self._search = GridSearchCV(
@@ -257,6 +255,7 @@ class SimpleDecisionTree:
             fontsize=10,
             ax=ax,
         )
+
 
 class TruncSvdDecisionTree:
     def __init__(self, X, y, object_column_indices):
@@ -294,8 +293,8 @@ class TruncSvdDecisionTree:
                     ("scaler", scaler),
                     ("tree", tree),
                 ]
-            ) 
-        
+            )
+
         num_features = X.shape[1]
         max_components = min(num_features, 200)
         self._param_grid = {
@@ -314,6 +313,7 @@ class TruncSvdDecisionTree:
 
     def name():
         return "truncsvd_decision_tree"
+
 
 class SimpleRandomForest:
     def __init__(self, X, y, object_column_indices):
@@ -345,7 +345,7 @@ class SimpleRandomForest:
                     ("impute", impute),
                     ("tree", tree),
                 ]
-            ) 
+            )
         self._param_grid = {
             "tree__max_depth": range(1, 20),
         }
@@ -397,6 +397,7 @@ class SimpleLinearSvc:
     def model(self):
         return self._pipe
 
+
 class SimpleNaiveBayes:
     def __init__(self, X, y, object_column_indices):
         to_numeric = ColumnTransformer(
@@ -430,6 +431,7 @@ class SimpleNaiveBayes:
     def model(self):
         return self._pipe
 
+
 class SimpleGradientBoostedTree:
     def __init__(self, X, y, object_column_indices):
         to_numeric = ColumnTransformer(
@@ -460,7 +462,7 @@ class SimpleGradientBoostedTree:
                     ("impute", impute),
                     ("tree", tree),
                 ]
-            ) 
+            )
         self._param_grid = {
             "tree__max_depth": range(1, 20),
         }
@@ -478,8 +480,61 @@ class SimpleGradientBoostedTree:
         return "simple_gradient_boosted_tree"
 
 
+class SimpleNeuralNetwork:
+    def __init__(self, X, y, object_column_indices):
+        to_numeric = ColumnTransformer(
+            [
+                (
+                    "one_hot",
+                    OneHotEncoder(
+                        sparse_output=False, handle_unknown="infrequent_if_exist"
+                    ),
+                    object_column_indices,
+                )
+            ],
+            remainder="passthrough",
+        )
+        impute = SimpleImputer()
+        nn = MLPClassifier(
+            solver="lbfgs",
+            alpha=1e-5,
+        )
+        if len(object_column_indices) == 0:
+            self._pipe = Pipeline(
+                [
+                    ("impute", impute),
+                    ("tree", tree),
+                ]
+            )
+        else:
+            self._pipe = Pipeline(
+                [
+                    ("to_numeric", to_numeric),
+                    ("impute", impute),
+                    ("nn", nn),
+                ]
+            )
+        num_features = X.shape[1]
+        max_neurons = min(num_features, 200)
+        self._param_grid = {
+            "nn__hidden_layer_sizes": range(5, max_neurons),
+        }
+        self._search = RandomizedSearchCV(
+            self._pipe, self._param_grid, cv=5, verbose=3, scoring="roc_auc"
+        ).fit(X, y)
+        print(self._search.best_params_)
+
+        self._pipe.fit(X, y)
+
+    def model(self):
+        return self._search.best_estimator_
+
+    def name():
+        return "simple_neural_network"
+
 
 ####
+
 
 class UmapLogisticRegression:
     def __init__(self, X, y):

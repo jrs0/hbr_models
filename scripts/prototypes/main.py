@@ -31,13 +31,14 @@ dataset_choice = 1
 # These are the models that should be fitted on every
 # dataset
 model_list = [
-    SimpleGradientBoostedTree, # 0
-    SimpleNaiveBayes, # 1
-    SimpleRandomForest, # 2
-    TruncSvdDecisionTree, # 3
-    SimpleLogisticRegression,  # 4
-    TruncSvdLogisticRegression,  # 5
-    SimpleDecisionTree,  # 6
+    SimpleNeuralNetworkm # 0
+    SimpleGradientBoostedTree, # 1
+    SimpleNaiveBayes, # 2
+    SimpleRandomForest, # 3
+    TruncSvdDecisionTree, # 4
+    SimpleLogisticRegression,  # 5
+    TruncSvdLogisticRegression,  # 6
+    SimpleDecisionTree,  # 7
     #SimpleLinearSvc, # 0
 ]
 
@@ -70,7 +71,7 @@ dataset_specs = [
 # Dataset/model combinations are not excluded due to poor modelling performance.
 exclusions = {
     # (model_choice, dataset_choice, reason)
-    (4, 2): "dataset too big for simple logistic regression",
+    (5, 2): "dataset too big for simple logistic regression",
 }
 
 
