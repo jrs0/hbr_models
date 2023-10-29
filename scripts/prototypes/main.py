@@ -11,6 +11,8 @@ from models import (
     SimpleDecisionTree,
     TruncSvdDecisionTree,
     SimpleRandomForest,
+    SimpleLinearSvc,
+    SimpleNaiveBayes,
 )
 from fit import fit_and_save
 import time
@@ -28,11 +30,13 @@ dataset_choice = 1
 # These are the models that should be fitted on every
 # dataset
 model_list = [
-    SimpleRandomForest, # 0
-    TruncSvdDecisionTree, # 1
-    SimpleLogisticRegression,  # 2
-    TruncSvdLogisticRegression,  # 3
-    SimpleDecisionTree,  # 4
+    SimpleNaiveBayes, # 0
+    #SimpleLinearSvc, # 0
+    SimpleRandomForest, # 1
+    TruncSvdDecisionTree, # 2
+    SimpleLogisticRegression,  # 3
+    TruncSvdLogisticRegression,  # 4
+    SimpleDecisionTree,  # 5
 ]
 
 # These are the datasets that should be inputted to
@@ -64,7 +68,7 @@ dataset_specs = [
 # Dataset/model combinations are not excluded due to poor modelling performance.
 exclusions = {
     # (model_choice, dataset_choice, reason)
-    (2, 2): "dataset too big for simple logistic regression",
+    (3, 2): "dataset too big for simple logistic regression",
 }
 
 

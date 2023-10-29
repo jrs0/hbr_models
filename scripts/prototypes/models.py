@@ -53,6 +53,8 @@
 #
 
 from sklearn.linear_model import LogisticRegression
+from sklearn.svm import LinearSVC
+from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier, plot_tree
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import GradientBoostingClassifier
@@ -360,6 +362,75 @@ class SimpleRandomForest:
     def name():
         return "simple_random_forest"
 
+
+# No predict_proba function
+class SimpleLinearSvc:
+    def __init__(self, X, y, object_column_indices):
+        to_numeric = ColumnTransformer(
+            [
+                (
+                    "one_hot",
+                    OneHotEncoder(
+                        sparse_output=False, handle_unknown="infrequent_if_exist"
+                    ),
+                    object_column_indices,
+                )
+            ],
+            remainder="passthrough",
+        )
+        scaler = StandardScaler()
+        impute = SimpleImputer()
+        svc = LinearSVC(verbose=0)
+        self._pipe = Pipeline(
+            [
+                ("to_numeric", to_numeric),
+                ("scaler", scaler),
+                ("impute", impute),
+                ("svc", svc),
+            ]
+        )
+        self._pipe.fit(X, y)
+
+    def name():
+        return "simple_linear_svc"
+
+    def model(self):
+        return self._pipe
+
+class SimpleNaiveBayes:
+    def __init__(self, X, y, object_column_indices):
+        to_numeric = ColumnTransformer(
+            [
+                (
+                    "one_hot",
+                    OneHotEncoder(
+                        sparse_output=False, handle_unknown="infrequent_if_exist"
+                    ),
+                    object_column_indices,
+                )
+            ],
+            remainder="passthrough",
+        )
+        scaler = StandardScaler()
+        impute = SimpleImputer()
+        nb = GaussianNB()
+        self._pipe = Pipeline(
+            [
+                ("to_numeric", to_numeric),
+                ("scaler", scaler),
+                ("impute", impute),
+                ("nb", nb),
+            ]
+        )
+        self._pipe.fit(X, y)
+
+    def name():
+        return "simple_naive_bayes"
+
+    def model(self):
+        return self._pipe
+
+####
 
 class SimpleGradientBoostedTree:
     def __init__(self, X, y):
