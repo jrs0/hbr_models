@@ -494,16 +494,21 @@ class SimpleNeuralNetwork:
             ],
             remainder="passthrough",
         )
+        scaler = StandardScaler()
         impute = SimpleImputer()
         nn = MLPClassifier(
-            solver="lbfgs",
-            alpha=1e-5,
+            solver="sgd",
+            #alpha=1e-5,
+            learning_rate="adaptive",
+            verbose=False,
+            max_iter=300,
         )
         if len(object_column_indices) == 0:
             self._pipe = Pipeline(
                 [
                     ("impute", impute),
-                    ("tree", tree),
+                    ("scaler", scaler),
+                    ("nn", nn),
                 ]
             )
         else:
@@ -511,6 +516,7 @@ class SimpleNeuralNetwork:
                 [
                     ("to_numeric", to_numeric),
                     ("impute", impute),
+                    ("scaler", scaler),
                     ("nn", nn),
                 ]
             )

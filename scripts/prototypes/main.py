@@ -14,6 +14,7 @@ from models import (
     SimpleLinearSvc,
     SimpleNaiveBayes,
     SimpleGradientBoostedTree,
+    SimpleNeuralNetwork,
 )
 from fit import fit_and_save
 import time
@@ -31,7 +32,7 @@ dataset_choice = 1
 # These are the models that should be fitted on every
 # dataset
 model_list = [
-    SimpleNeuralNetworkm # 0
+    SimpleNeuralNetwork, # 0
     SimpleGradientBoostedTree, # 1
     SimpleNaiveBayes, # 2
     SimpleRandomForest, # 3
