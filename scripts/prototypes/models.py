@@ -430,62 +430,56 @@ class SimpleNaiveBayes:
     def model(self):
         return self._pipe
 
-####
-
 class SimpleGradientBoostedTree:
-    def __init__(self, X, y):
-        """
-        The pipe comprises a StandardScaler() followed by
-        GradientBoostingClassifier().
-
-        Notes:
-
-        Testing: not yet tested
-        """
-
-        # majority_zero = RemoveMajorityZero(0.1)
-        scaler = StandardScaler()
-        gbdt = GradientBoostingClassifier(max_depth=8)
-        self._pipe = Pipeline([("scaler", scaler), ("gbdt", gbdt)])
+    def __init__(self, X, y, object_column_indices):
+        to_numeric = ColumnTransformer(
+            [
+                (
+                    "one_hot",
+                    OneHotEncoder(
+                        sparse_output=False, handle_unknown="infrequent_if_exist"
+                    ),
+                    object_column_indices,
+                )
+            ],
+            remainder="passthrough",
+        )
+        impute = SimpleImputer()
+        tree = GradientBoostingClassifier()
+        if len(object_column_indices) == 0:
+            self._pipe = Pipeline(
+                [
+                    ("impute", impute),
+                    ("tree", tree),
+                ]
+            )
+        else:
+            self._pipe = Pipeline(
+                [
+                    ("to_numeric", to_numeric),
+                    ("impute", impute),
+                    ("tree", tree),
+                ]
+            ) 
         self._param_grid = {
-            "gbdt__max_depth": range(1, 50),
+            "tree__max_depth": range(1, 20),
         }
         self._search = RandomizedSearchCV(
-            self._pipe,
-            self._param_grid,
-            cv=5,
-            verbose=3,
-            scoring="roc_auc",
+            self._pipe, self._param_grid, cv=5, verbose=3, scoring="roc_auc"
         ).fit(X, y)
+        print(self._search.best_params_)
+
+        self._pipe.fit(X, y)
 
     def model(self):
-        """
-        Get the fitted logistic regression model
-        """
         return self._search.best_estimator_
 
-    def get_model_parameters(self, feature_names):
-        """
-        Get the fitted model parameters as a dataframe with one
-        row per feature. Two columns for the scaler contain the
-        mean and variance, and the final column contains the
-        logistic regression coefficient. You must pass the vector
-        of feature names in the same order as columns of X in the
-        constructor.
-        """
-        means = self._pipe["scaler"].mean_
-        variances = self._pipe["scaler"].var_
-        coefs = self._pipe["logreg"].coef_[0, :]
-        model_params = pd.DataFrame(
-            {
-                "feature": feature_names,
-                "scaling_mean": means,
-                "scaling_variance": variances,
-                "logreg_coef": coefs,
-            }
-        )
-        return model_params
+    def name():
+        return "simple_gradient_boosted_tree"
 
+
+
+####
 
 class UmapLogisticRegression:
     def __init__(self, X, y):
