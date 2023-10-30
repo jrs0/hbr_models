@@ -1,5 +1,9 @@
 ---
 title: "Bleeding/Ischaemia Risk Trade-off Models"
+subtitle: "Using HES (all diagnosis/procedure codes)"
+date: now
+date-format: short
+author: John Scott
 project:
   output-dir: _output
 execute:
@@ -59,10 +63,33 @@ dataset_name = {
     "manual_codes_swd": "HES (manual code groups) + SWD",
 }
 model_names = {
-    "truncsvd_logistic_regression": "truncated SVD + logistic regression",
+    ### HES (manual_codes) models ###
+    # "simple_logistic_regression": "logistic regression",
+    # "truncsvd_logistic_regression": "truncated SVD + logistic regression",
+    # #"simple_decision_tree": "decision tree",
+    # "truncsvd_decision_tree": "truncated SVD + decision tree",
+    # "simple_gradient_boosted_tree": "gradient boosted decision tree",
+    # "simple_random_forest": "random forest",
+    # "simple_naive_bayes": "naive bayes",
+    # "simple_neural_network": "single-layer neural network",
+    ### HES + SWD models ###
+    # "simple_logistic_regression": "logistic regression",
+    # "truncsvd_logistic_regression": "truncated SVD + logistic regression",
+    # "simple_decision_tree": "decision tree",
+    # "truncsvd_decision_tree": "truncated SVD + decision tree",
+    # "simple_gradient_boosted_tree": "gradient boosted decision tree",
+    # "simple_random_forest": "random forest",
+    # "simple_naive_bayes": "naive bayes",
+    # #"simple_neural_network": "single-layer neural network",
+    ### HES + SWD models ###  
     #"simple_logistic_regression": "logistic regression",
+    "truncsvd_logistic_regression": "truncated SVD + logistic regression",
     "simple_decision_tree": "decision tree",
     "truncsvd_decision_tree": "truncated SVD + decision tree",
+    #"simple_gradient_boosted_tree": "gradient boosted decision tree",
+    #"simple_random_forest": "random forest",
+    #"simple_naive_bayes": "naive bayes",
+    #"simple_neural_network": "single-layer neural network",    
 }
 outcome_names = {
     "bleeding_al_ani_outcome": "bleeding",
@@ -165,9 +192,9 @@ for outcome, outcome_title in outcome_names.items():
   best_for_roc = summary[summary["Outcome"] == outcome_title.title()]["ROC AUC"].idxmax()
   best_for_calibration = summary[summary["Outcome"] == outcome_title.title()]["Cal. Error"].idxmin()
   best_for_instability = summary[summary["Outcome"] == outcome_title.title()]["Instability"].idxmin()
-  best_value_roc[outcome] = summary.iloc[best_for_roc]["ROC AUC"]
-  best_value_calibration[outcome] = summary.iloc[best_for_calibration]["Cal. Error"]
-  best_value_instability[outcome] = summary.iloc[best_for_instability]["Instability"]
+  best_value_roc[outcome_title] = summary.iloc[best_for_roc]["ROC AUC"]
+  best_value_calibration[outcome_title] = summary.iloc[best_for_calibration]["Cal. Error"]
+  best_value_instability[outcome_title] = summary.iloc[best_for_instability]["Instability"]
 
   models = list(model_names.values())
 
@@ -178,13 +205,14 @@ for outcome, outcome_title in outcome_names.items():
   # versions
   display(Markdown(
     f"For the prediction of {outcome_title} risk, "
-    f"{models[best_for_roc//2]} has the highest area under the ROC curve at {best_value_roc[outcome]:.3f}, "
-    f"{models[best_for_calibration//2]} has the best calibration (error = {best_value_calibration[outcome]:.3f}), and "
-    f"{models[best_for_instability//2]} has the highest stability (instability = {best_value_instability[outcome]:.3f}).")
+    f"{models[best_for_roc//2]} has the highest area under the ROC curve at {best_value_roc[outcome_title]:.2f}, "
+    f"{models[best_for_calibration//2]} has the best calibration (error = {best_value_calibration[outcome_title]:.2f}), and "
+    f"{models[best_for_instability//2]} has the highest stability (instability = {best_value_instability[outcome_title]:.2f}).")
   )
-  best_model_roc[outcome] = models[best_for_roc//2]
-  best_model_calibration[outcome] = models[best_for_calibration//2]
-  best_model_instability[outcome] = models[best_for_instability//2]
+  best_model_roc[outcome_title] = models[best_for_roc//2]
+  best_model_calibration[outcome_title] = models[best_for_calibration//2]
+  best_model_instability[outcome_title] = models[best_for_instability//2]
+
 ```
 
 # Introduction
@@ -193,7 +221,7 @@ Patients who undergo percutaneous coronary (PCI) intervention to treat acute cor
 
 Clinicians must balance the risk of these adverse outcomes in their daily practice. Models that attempt to assist in the assessment of bleeding and ischaemic risk have been developed [@urban2021assessing], but these are complicated by the heterogenous nature of bleeding risk in the ACS population, and the existence of a group at high bleeding risk (HBR). One defintion of high bleeding risk is the academic research consortium HBR criteria (ARC-HBR) [@urban2019defining]. The trade-off model cited above models the relative bleeding/ischaemia risk trade-off in the HBR group, and their model is intended for application to patients that fall into that category [@urban2021assessing].
 
-Although there exist a plethora of bleeding risk scores, such as none have seen widespread adoption. Clinical guidelines only provide a class IIb recommendation for the use of bleeding risk scores, citing complexity of calculation and lack of validation of the ARC-HBR score as potential barriers standing in the way of its deployment [@collet20212020]. In addition, although many current bleeding risk scores are also accompanied by a mobile application or web calculator, the lack of automation of data collection and input into the programs is a likely barrier to their use in a busy clinical setting. 
+Although there exist a plethora of bleeding risk scores, none have seen widespread adoption. Clinical guidelines only provide a class IIb recommendation for the use of bleeding risk scores, citing as an example the complexity of calculation and lack of validation of the ARC-HBR score as potential barriers standing in the way of its deployment [@collet20212020]. In addition, although many current bleeding risk scores are also accompanied by a mobile application or web calculator, the lack of automation of data collection and input into the programs is a likely barrier to their use in a busy clinical setting. 
 
 To address these aspects of the problem, we consider here the development of models for bleeding and ischaemia risk based on more generic datasets of patient . Such an approach carries advantages and disadvantages. On the one hand, specific data for the identification of a particular definition of adverse outcome (such as the bleeding academic research consortium definition of major bleeding, upon which the ARC-HBR score is based) may be missing, leading to the need for an approximate outcome definition. In addition, relevant specific clinical predictors . However, the wealth of additional data present, including patient attributes derived from a primary care setting, may provide equally good predictors for bleeding and ischaemia, not considered in the typical consensus-based approach to the development of risk scores. A machine-learning approach may aid in automatically extracting these relevant features from the dataset.
 
@@ -261,15 +289,18 @@ for m, (model, model_title) in enumerate(model_names.items()):
   ischaemia_outcome = list(outcome_names)[1]
 
   # Place a short summary about the model here
+  display(Markdown("TODO short description of model here.\n"))
 
   plot_roc_and_calibration_2x2(dataset, model, bleeding_outcome, ischaemia_outcome)
 
   # Place a longer description of how the model works and behaves here
+  display(Markdown("TODO summary of model performance, info about best parameters, other notes.\n"))
 
   display(Markdown("{{< pagebreak >}}"))
   plot_instability_2x2(dataset, model, bleeding_outcome, ischaemia_outcome)
 
   # Place a discussion of model stability here
+  display(Markdown("TODO summary of model stability.\n"))
 
   display(Markdown("{{< pagebreak >}}"))
 
@@ -277,6 +308,7 @@ for m, (model, model_title) in enumerate(model_names.items()):
   plot_risk_tradeoff(dataset, model, bleeding_outcome, ischaemia_outcome, title)
 
   # Place a discussion of trade-off model here
+  display(Markdown("TODO any notes about the tradeoff model here, other general notes.\n"))
 
   display(Markdown("{{< pagebreak >}}")) 
 ```
@@ -285,10 +317,17 @@ for m, (model, model_title) in enumerate(model_names.items()):
 
 In terms of an outright discrimination between bleeding or no-bleed events, `{python} f"{best_model_roc['bleeding']}"` has the best performance with a ROC AUC of `{python} f"{best_value_roc['bleeding']:.2f}"`; likewise, `{python} f"{best_model_roc['AMI or stroke']}"` has the best performance (ROC AUC `{python} f"{best_value_roc['AMI or stroke']:.2f}"`) for identifying ischaemic events.
 
-In terms of the stability of bleeding risk predictions, which corresponds to a measure of the average uncertainty in the risk predictions themselves `{python} f"{best_model_instability['bleeding']}"` has the best performance, with an instability of `{python} f"{best_value_instability['bleeding']:.2f}"`. The most stable ischaemia model was `{python} f"{best_model_instability['AMI or stroke']}"`, with an instability of `{python} f"{best_model_instability['AMI or stroke']:.2f}"`.
+In terms of the stability of bleeding risk predictions, which corresponds to a measure of the average uncertainty in the risk predictions themselves `{python} f"{best_model_instability['bleeding']}"` has the best performance, with an instability of `{python} f"{best_value_instability['bleeding']:.2f}"`. The most stable ischaemia model was `{python} f"{best_model_instability['AMI or stroke']}"`, with an instability of `{python} f"{best_value_instability['AMI or stroke']:.2f}"`.
 
 The most accurately calibrated bleeding model was `{python} f"{best_model_calibration['bleeding']}"`, with a calibration error of `{python} f"{best_value_calibration['bleeding']:.2f}"`. For ischaemia, the highest calibration of `{python} f"{best_value_calibration['AMI or stroke']:.2f}"` was achieved by `{python} f"{best_model_calibration['AMI or stroke']}"`.
 
-In taking forward the results of this modelling to consider the development of a practical tool, the various hazardous situations that may arise from the use of the prediction tool must be enumerated, their risk evaluated, and risk control measures established to reduce the risk as much as possible [@iso14971]. Any subsequent benefit-risk analysis, which will compare the risks associated with using the models to the risks that are inherent in current clinical practice, will highly benefit from the numerical approaches to assessing model performance and robustness highlighted in this report.
+The model performance and validation results contained in this report can feed into any benefit-risk analysis [@iso14971] carried out as part of the development of a practical tool for bleeding and ischaemia risk trade-off prediction.
 
 # Index and outcome definitions {.appendix}
+
+TODO code groups used, criteria for index event, etc.
+
+# References
+
+::: {#refs}
+:::
