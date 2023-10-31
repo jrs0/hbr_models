@@ -1,6 +1,6 @@
 ---
 title: "Bleeding/Ischaemia Risk Trade-off Models"
-subtitle: "Using HES (all diagnosis/procedure codes)"
+subtitle: "Using HES data"
 date: now
 date-format: short
 author: John Scott
@@ -45,7 +45,7 @@ import matplotlib.pyplot as plt
 from IPython.display import display, Markdown
 
 import save_datasets as ds
-from stability import plot_instability
+from stability import plot_instability, draw_experiment_plan
 from calibration import (
     get_bootstrapped_calibration,
     plot_calibration_curves,
@@ -64,14 +64,14 @@ dataset_name = {
 }
 model_names = {
     ### HES (manual_codes) models ###
-    # "simple_logistic_regression": "logistic regression",
-    # "truncsvd_logistic_regression": "truncated SVD + logistic regression",
-    # #"simple_decision_tree": "decision tree",
-    # "truncsvd_decision_tree": "truncated SVD + decision tree",
-    # "simple_gradient_boosted_tree": "gradient boosted decision tree",
-    # "simple_random_forest": "random forest",
-    # "simple_naive_bayes": "naive bayes",
-    # "simple_neural_network": "single-layer neural network",
+    "simple_logistic_regression": "logistic regression",
+    "truncsvd_logistic_regression": "truncated SVD + logistic regression",
+    #"simple_decision_tree": "decision tree",
+    "truncsvd_decision_tree": "truncated SVD + decision tree",
+    "simple_gradient_boosted_tree": "gradient boosted decision tree",
+    "simple_random_forest": "random forest",
+    "simple_naive_bayes": "naive bayes",
+    "simple_neural_network": "single-layer neural network",
     ### HES + SWD models ###
     # "simple_logistic_regression": "logistic regression",
     # "truncsvd_logistic_regression": "truncated SVD + logistic regression",
@@ -82,14 +82,14 @@ model_names = {
     # "simple_naive_bayes": "naive bayes",
     # #"simple_neural_network": "single-layer neural network",
     ### HES + SWD models ###  
-    #"simple_logistic_regression": "logistic regression",
-    "truncsvd_logistic_regression": "truncated SVD + logistic regression",
-    "simple_decision_tree": "decision tree",
-    "truncsvd_decision_tree": "truncated SVD + decision tree",
-    #"simple_gradient_boosted_tree": "gradient boosted decision tree",
-    #"simple_random_forest": "random forest",
-    #"simple_naive_bayes": "naive bayes",
-    #"simple_neural_network": "single-layer neural network",    
+    # #"simple_logistic_regression": "logistic regression",
+    # "truncsvd_logistic_regression": "truncated SVD + logistic regression",
+    # "simple_decision_tree": "decision tree",
+    # "truncsvd_decision_tree": "truncated SVD + decision tree",
+    # #"simple_gradient_boosted_tree": "gradient boosted decision tree",
+    # #"simple_random_forest": "random forest",
+    # #"simple_naive_bayes": "naive bayes",
+    # #"simple_neural_network": "single-layer neural network",    
 }
 outcome_names = {
     "bleeding_al_ani_outcome": "bleeding",
@@ -97,7 +97,7 @@ outcome_names = {
 }
 
 # The generated report relates to one dataset. Pick that dataset here.
-dataset = "all_codes"
+dataset = "manual_codes"
 dataset_title = dataset_name[dataset]
 ```
 
@@ -254,6 +254,12 @@ The dataset is split into a training set (`{python} num_rows_train` rows) and a 
 Some models require choosing hyperparameters. These are optimised by fitting models for different combination of hyperparameters and assessing their performance using cross validation. In this process, the training set is split into 5 folds, each of which is successively held out as a testing set to assess the current combination of hyperparameter values. The best model is selected according to which gives the highest area under the ROC curve, and the model is refitted using the full training set. This model will be referred to as *the model* or *model-under-test* (in the context of stability analysis).
 
 ## Stability analysis
+
+```{python}
+# TODO: get number of folds from fitted object
+num_folds = 5
+draw_experiment_plan(num_rows, num_rows_train, num_rows_test, num_folds, num_bootstraps)
+```
 
 Model stability of an internally-validated model refers to how well models developed on a similar internal population agree with each other. The intent is to estimate how well the model may generalise to external validation data. We follow the methodology outlined in [@riley2022stability] to assess the stability of the model development process, which encompasses effects due to sample size, number of predictors, and method of model fitting.
 

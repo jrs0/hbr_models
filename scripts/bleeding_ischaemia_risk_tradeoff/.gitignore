@@ -6,3 +6,6 @@ _output
 *.tex
 *.log
 *.aux
+
+# Ignore generated html
+*.html

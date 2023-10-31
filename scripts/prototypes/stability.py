@@ -234,3 +234,50 @@ def fit_model(Model, object_column_indices, X0_train, y0_train, M):
     Mm = [Model(X, y, object_column_indices) for (X, y) in zip(Xm_train, ym_train)]
 
     return (M0, Mm)
+
+
+import schemdraw
+from schemdraw import flow
+import schemdraw.elements as elm
+import matplotlib.pyplot as plt
+
+def draw_experiment_plan(num_rows, num_train, num_test, num_folds, num_bootstraps):
+    pad = 0.5
+    main_height = 3.5
+    main_width = 3*main_height
+    arrow_size = 0.7
+
+    with schemdraw.Drawing() as d:
+        d.config(fontsize=10, unit=0.75*main_width)
+        d += (d1 := flow.Box(w=main_width, h=main_height, E='YES', S='NO').anchor("S").label(f"Initial dataset\nN = {num_rows}"))
+        d += flow.Arrow(headwidth=arrow_size,headlength=arrow_size).down(d.unit/2)
+        d += (d2 := flow.Box(w=main_width, h=main_height, E='YES', S='NO').label(f"Training set $P_0$\nN = {num_train}"))
+        d += flow.Arrow(headwidth=arrow_size,headlength=arrow_size).length(d.unit/2)
+        d += (d3 := flow.Box(w=main_width, h=main_height, E='YES', S='NO').label(f"Fit process $D$"))
+        d += flow.Arrow(headwidth=arrow_size,headlength=arrow_size).at(d3.S).down(d.unit).label("Model $M_0$", ofst=(0,-1))
+
+        # d += flow.Arrow(headwidth=arrow_size,headlength=arrow_size).length(d.unit/2)
+        # d += (d7 := flow.Box(w=main_width, h=main_height, E='YES', S='NO').label(f"ROC Curves"))   
+        
+        d.here = (-2.2*d.unit, 0)
+        d += (a1 := flow.Arrow(headwidth=arrow_size,headlength=arrow_size).length(d.unit/2))
+        d += (d4 := flow.Box(w=1.5*main_width, h=1.5*main_height, E='YES', S='NO').label(f"Tune hyperparameters\n({num_folds}-fold cross-validation\noptimising ROC AUC)"))
+        d += flow.Arrow(headwidth=arrow_size,headlength=arrow_size).length(d.unit/2)
+        d += (d5 := flow.Box(w=1.5*main_width, h=main_height, E='YES', S='NO').label(f"Fit model with\nbest parameters"))
+        d += (a2 := flow.Arrow(headwidth=arrow_size,headlength=arrow_size).length(d.unit/2))
+        d += (parallel := elm.EncircleBox([a1, d4, d5, a2], padx=pad, pady=pad).linestyle('--').linewidth(1).color('red').label("Model fitting process $D$"))
+        
+        #d.here = d2.E
+        d += (a1 := flow.Arrow(headwidth=arrow_size,headlength=arrow_size).at(d2.E).right(0.8*d.unit))
+        d += (d9 := flow.Box(w=main_width, h=main_height, E='YES', S='NO').label(f"Resample with\nreplacement"))   
+        d += flow.Arrow(headwidth=arrow_size,headlength=arrow_size).at(d9.S).down(d.unit/2)
+        d += (d10 := flow.Box(w=main_width, h=main_height, E='YES', S='NO').label(f"Fit process $D$"))  
+        d += (parallel := elm.EncircleBox([d9, d10], padx=pad, pady=pad).linestyle('--').linewidth(1).color('blue').label(f"Repeat\n{num_bootstraps} times", "E"))
+        d += flow.Arrow(headwidth=arrow_size,headlength=arrow_size).length(1*d.unit).label("Models $M_n$", ofst=(0,-1))
+        d += (d6 := flow.Box(w=4*main_width, h=2*main_height, E='YES', S='NO').label(f"ROC curves: $M_0$ bold, $M_n$ faint\nRisk stability: risk from $M_n$ vs. risk from $M_0$\nCalibration: $M_0$ bold, $M_n$ faint"))   
+    
+        d += flow.Arrow(headwidth=arrow_size,headlength=arrow_size).right(d.unit*3).at(d1.E)
+        d += (d8 := flow.Box(w=main_width, h=main_height).anchor('W').label(f'Testing set $T$\nN = {num_test}'))
+        d += flow.Arrow(headwidth=arrow_size,headlength=arrow_size).at(d8.S).down(2*d.unit + 2*main_height)
+        
+    plt.show()

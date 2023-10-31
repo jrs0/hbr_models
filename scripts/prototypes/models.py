@@ -76,6 +76,11 @@ from sklearn.decomposition import TruncatedSVD
 from scipy.stats import uniform
 
 
+# This should go inside each class, but for now it is just a dictionary to
+# record the descriptions of each model in a way that can be incorporated in
+# the report
+model_description = {}
+
 class SimpleLogisticRegression:
     def __init__(self, X, y, object_column_indices):
         """
@@ -135,6 +140,8 @@ class SimpleLogisticRegression:
         Get the fitted logistic regression model
         """
         return self._pipe
+
+mode_description[SimpleLogisticRegression.name()] = "The model is fitted by centering and scaling "
 
 
 class TruncSvdLogisticRegression:
