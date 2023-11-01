@@ -227,8 +227,17 @@ To address these aspects of the problem, we consider here the development of mod
 
 If the models developed by this approach are sufficiently performative, and satisfy appropriate external validation, then it may be possible to develop a tool that automatically queries the available datasets and provides a calculation of the risk of bleeding and ischaemia to the clinician at the point of DAPT prescription. Although this step requires a full assessment of the availability and timeliness of the datasets in a clinical context, a necessary first step is the demonstration of proof-of-principle internally-validated models that can be assessed using a consistent validation framework. This report contains the results of this investigation using models trained on `{python} dataset_title`.
 
+# Other Risk Prediction Tools
+
+Bleeding and ischaemia in patients with ACS is a well studied problem, and a large number of risk scores exist, some of which are available as web application or mobile phone applications [@chan2020risk]. One such risk score is the DAPT-score, which is designed to assess bleeding and ischaemia risk for the purpose of deciding duration of DAPT therapy [@yeh2016development]. The DAPT bleeding endpoint definition was moderate or severe GUSTO bleeding, meaning intracerebral haemorrhage, or bleeding requiring blood transfusion or resulting in substantial haemodynamic compromise requiring treatment [@gusto1993international]. The ischaemic endpoint was defined as MI or and ARC definition of definite/probable ST [@cutlip2007clinical]. Models developed to predict occurance of these events between 12 and 30 months after the index procedure both achieved a ROC AUC of 0.64 in the validation group. The difference in bleeding and ischaemia prediction depending on the assumption of continuation vs. discontinuation of therapy (an input to the model) was used to assess the trade-off between bleeding and ischaemia risk. The DAPT score is available as a web calculator [@dapt2023website].
+
+Another bleeding risk score is PreciseDAPT [@costa2017derivation], which predicts the risk of out-of-hospital TIMI (thrombolysis in myocardial infarction) major/minor bleeding [@mehran2011standardized].The bleeding model achieved ROC AUCs of 0.70 and 0.66 in two external validation cohorts, and is available as a web calculator [@precisedapt2023website], which presents the risk of bleeding and ischaemia depending on DAPT duration (3-6 months vs. 12-24 months).
+
+Machine learning algorithms have been shown to perform very well in predicting MI diagnosis during index hospitalisation (ROC AUC of 0.96 [@than2019machine]) and . Similarly, prediction of in-hospital BARC 3-5 bleeding in PCI patients has achieved a ROC AUC of 0.837 [@zhao2023machine].
+
+
 {{< pagebreak >}}
-# Dataset and Methods
+# Dataset
 
 ```{python}
 num_bleed = (data["bleeding_al_ani_outcome"] == True).sum()
