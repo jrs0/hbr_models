@@ -21,3 +21,4 @@ __pycache__
 # Any figure outputs
 *.png
 *.svg
+*.pdf

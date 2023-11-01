@@ -141,7 +141,7 @@ class SimpleLogisticRegression:
         """
         return self._pipe
 
-mode_description[SimpleLogisticRegression.name()] = "The model is fitted by centering and scaling "
+model_description[SimpleLogisticRegression.name()] = "The model is fitted by centering and scaling "
 
 
 class TruncSvdLogisticRegression:

@@ -241,14 +241,25 @@ from schemdraw import flow
 import schemdraw.elements as elm
 import matplotlib.pyplot as plt
 
-def draw_experiment_plan(num_rows, num_train, num_test, num_folds, num_bootstraps):
+def draw_experiment_plan(num_rows, num_train, num_test, num_folds, num_bootstraps, fontsize=11):
+    """
+    To run this function from inside quarto, you need the rsvg-convert binary 
+    installed. On Windows, download it from "https://sourceforge.net/projects/tumagcc/
+    files/rsvg-convert-2.40.20.7z/download", unzip it, and copy it to
+    ~/users/your.name/rsvg-convert-2.40.20. Add that directory to the PATH in settings.json:
+    
+    "terminal.integrated.env.windows": {
+        "PATH": "C:\\Users\\your.name\\rsvg-convert-2.40.20;${env:PATH}"
+    }
+    """
     pad = 0.5
     main_height = 3.5
     main_width = 3*main_height
     arrow_size = 0.7
+    
 
     with schemdraw.Drawing() as d:
-        d.config(fontsize=10, unit=0.75*main_width)
+        d.config(fontsize=fontsize, unit=0.75*main_width)
         d += (d1 := flow.Box(w=main_width, h=main_height, E='YES', S='NO').anchor("S").label(f"Initial dataset\nN = {num_rows}"))
         d += flow.Arrow(headwidth=arrow_size,headlength=arrow_size).down(d.unit/2)
         d += (d2 := flow.Box(w=main_width, h=main_height, E='YES', S='NO').label(f"Training set $P_0$\nN = {num_train}"))

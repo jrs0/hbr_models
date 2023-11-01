@@ -258,7 +258,7 @@ Some models require choosing hyperparameters. These are optimised by fitting mod
 ```{python}
 # TODO: get number of folds from fitted object
 num_folds = 5
-draw_experiment_plan(num_rows, num_rows_train, num_rows_test, num_folds, num_bootstraps)
+draw_experiment_plan(num_rows, num_rows_train, num_rows_test, num_folds, num_bootstraps, fontsize=50)
 ```
 
 Model stability of an internally-validated model refers to how well models developed on a similar internal population agree with each other. The intent is to estimate how well the model may generalise to external validation data. We follow the methodology outlined in [@riley2022stability] to assess the stability of the model development process, which encompasses effects due to sample size, number of predictors, and method of model fitting.
