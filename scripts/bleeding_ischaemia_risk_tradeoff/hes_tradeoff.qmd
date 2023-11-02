@@ -251,6 +251,8 @@ Identification of ischaemic outcomes was based on a definition of major adverse 
 
 Confirming the accuracy of the code groups is outside the scope of this report, especially including the nuances that can arise from differences in locality, coding standards, and use of diagnosis positions (all diagnosis positions were used uniformly here). The resulting models should be considered a proof-of-principle of the approach, rather than a fully-validated prediction of bleeding and ischaemia risk.
 
+Full lists of code group definitions are included at the end of the report.
+
 {{< pagebreak >}}
 # Dataset
 
