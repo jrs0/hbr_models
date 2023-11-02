@@ -206,7 +206,7 @@ def plot_instability(ax, probs, y_test, title="Probability stability"):
     )
     ax.set_title(title)
     ax.set_xlabel("Prediction from model-under-test")
-    ax.set_ylabel("Predictions from bootstrapped models")
+    ax.set_ylabel("Bootstrap model predictions")
 
 
 def fit_model(Model, object_column_indices, X0_train, y0_train, M):

@@ -81,6 +81,12 @@ from scipy.stats import uniform
 # the report
 model_description = {}
 
+def get_model_description(model_name):
+    try:
+        return model_description[model_name]
+    except:
+        return "No description yet"
+
 class SimpleLogisticRegression:
     def __init__(self, X, y, object_column_indices):
         """
@@ -141,7 +147,13 @@ class SimpleLogisticRegression:
         """
         return self._pipe
 
-model_description[SimpleLogisticRegression.name()] = "The model is fitted by centering and scaling "
+
+model_description[SimpleLogisticRegression.name()] = (
+    "The model is fitted by one-hot encoding catagorical features, "
+    "centering and scaling predictors, and imputing missing values "
+    "using the training set mean. No hyperparameters are tuned when "
+    "fitting logistic regression. "
+)
 
 
 class TruncSvdLogisticRegression:
@@ -210,6 +222,13 @@ class TruncSvdLogisticRegression:
         """
         return self._search.best_estimator_
 
+model_description[TruncSvdLogisticRegression.name()] = (
+    "The model is fitted by one-hot encoding catagorical features, "
+    "centering and scaling predictors, and imputing missing values "
+    "using the training set mean. Dimensionality reduction using truncated "
+    "singular value decomposition is performed, using the resulting number of "
+    "features as a hyperparameter, before fitting logistic regression."
+)
 
 class SimpleDecisionTree:
     def __init__(self, X, y, object_column_indices):
@@ -263,6 +282,12 @@ class SimpleDecisionTree:
             ax=ax,
         )
 
+model_description[SimpleDecisionTree.name()] = (
+    "The model is fitted by one-hot encoding catagorical features, "
+    "centering and scaling predictors, and imputing missing values "
+    "using the training set mean. A decision tree is fitted using "
+    "the maximum tree depth as a tuned hyperparameter."
+)
 
 class TruncSvdDecisionTree:
     def __init__(self, X, y, object_column_indices):
@@ -321,6 +346,15 @@ class TruncSvdDecisionTree:
     def name():
         return "truncsvd_decision_tree"
 
+
+model_description[TruncSvdDecisionTree.name()] = (
+    "The model is fitted by one-hot encoding catagorical features, "
+    "centering and scaling predictors, and imputing missing values "
+    "using the training set mean. Dimensionality reduction using truncated "
+    "singular value decomposition is performed, before fitting a decision "
+    "tree. The number of output features of the dimensionality reduction and "
+    "the maximum tree depth are tuned hyperparameters."
+)
 
 class SimpleRandomForest:
     def __init__(self, X, y, object_column_indices):
@@ -505,7 +539,7 @@ class SimpleNeuralNetwork:
         impute = SimpleImputer()
         nn = MLPClassifier(
             solver="sgd",
-            #alpha=1e-5,
+            # alpha=1e-5,
             learning_rate="adaptive",
             verbose=False,
             max_iter=300,

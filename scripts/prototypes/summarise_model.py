@@ -90,7 +90,7 @@ def plot_instability_2x2(dataset, model, bleeding_outcome, ischaemia_outcome):
     filename = f"{dataset}_{model}_{ischaemia_outcome}"
     d_ischaemia = ds.load_fit_info(filename)
     
-    fig, ax = plt.subplots(2,2, figsize=(8,7))
+    fig, ax = plt.subplots(2,2, figsize=(8,5.5))
     
     # Plot the stability curves
     plot_instability(ax[0][0], d_bleeding["probs"], d_bleeding["y_test"], title="Bleeding Prediction Stability")
@@ -156,15 +156,15 @@ def plot_risk_tradeoff(dataset, model, bleeding_outcome, ischaemia_outcome, titl
     probs_ischaemia = d_ischaemia["probs"][:,0]
     y_test_ischaemia = d_ischaemia["y_test"]
     
-    fig, ax = plt.subplots(figsize=(8,6))
+    fig, ax = plt.subplots(figsize=(8,4.5))
     
     num_rows = len(probs_bleeding)
     x = []
     y = []
     c = [] # 0 = nothing, 1 = bleeding, 2 = ischaemia, 3 = bleeding and ischaemia
     for i in range(num_rows):
-        x.append(probs_bleeding[i])
-        y.append(probs_ischaemia[i])
+        x.append(100*probs_bleeding[i])
+        y.append(100*probs_ischaemia[i])
         # Create number by concatenating bleeding and ischaemia bits (binary)
         c.append(y_test_ischaemia[i] + 2*y_test_bleeding[i])
     
@@ -188,10 +188,13 @@ def plot_risk_tradeoff(dataset, model, bleeding_outcome, ischaemia_outcome, titl
 )
     
     ax.set_xscale("log")
-    ax.set_xlabel("Bleeding risk")
+    ax.set_xlim(1, 110)
+    ax.set_xlabel("Bleeding risk (%)")
     
     ax.set_yscale("log")
-    ax.set_ylabel("Ischaemia risk")
+    ax.set_ylim(1, 110)
+    ax.set_ylabel("Ischaemia risk (%)")
+    
     plt.show()
     
 
