@@ -61,6 +61,9 @@ from summarise_model import (
 )
 from roc import get_bootstrapped_roc, get_bootstrapped_auc, plot_roc_curves
 
+from tabulate import tabulate
+import code_group_counts as codes
+
 # The dictionaries map the identifier used in filenames and in the program
 # to the string that will be printed in the document. Use .title() to convert
 # to a heading-like version.
@@ -145,46 +148,36 @@ num_rows_train = num_rows - num_rows_test
 proportion_test = num_rows_test / num_rows
 ```
 
-This document contains the results of models for bleeding and ischaemia risk in heart attack patients, developed using the `{python} dataset_title` dataset. Table 1 shows a summary of the performance of the models for bleeding and ischaemia across all models and datasets.
-
-The dataset contains `{python} num_rows` index events, defined as acute coronary syndromes (ACS) or percutaneous coronary intervention (PCI) procedures. The ACS definition based on code groups has been validated to achieve 84% positive predictive value (PPV) for identifying patients with acute coronary syndromes [@bezin2015choice]. Index events span a date range from `{python} start_date` to `{python} end_date`.
-
-Models for bleeding are trained using an outcome defintion that has been verified to identify major bleeding with PPV of 88% [@al2015identifying]. Ischaemia models are trained on a 2-point major adverse cardiac (MACE) definition including acute myocardial infarction and stroke [@hussain2018association], chosen because the components have been validated in administrative databases [@juurlink2006canadian; @kokotailo2005coding]. 
-
+This document contains the results of models for bleeding and ischaemia risk in heart attack patients, developed using the `{python} dataset_title` dataset. @tbl-summary shows a summary of the performance of the models for bleeding and ischaemia across all models and datasets.
 
 ```{python}
 # | label: tbl-summary
 # | tbl-cap: 'Summary of model performance for bleeding and ischaemia'
-# | tbl-column: body
-# | output: asis
 
 all_model_summary = []
 for model, model_title in model_names.items():
-    for outcome, outcome_title in outcome_names.items():
-        try:
-            df = get_model_summary(dataset, model, outcome)
-            df.insert(0, "Model", model_title.title())
-            df.insert(0, "Outcome", outcome_title.title())
-            all_model_summary.append(df)
-        except:
-            # Failed to get summary for mobel (might not exist on disk)
-            pass
+  for outcome, outcome_title in outcome_names.items():
+      try:
+          df = get_model_summary(dataset, model, outcome)
+          df.insert(0, "Model", model_title.title())
+          df.insert(0, "Outcome", outcome_title.title())
+          all_model_summary.append(df)
+      except:
+          # Failed to get summary for mobel (might not exist on disk)
+          pass
 
-try:
-    summary = pd.concat(all_model_summary).reset_index(drop=True)
-    print(
-        summary.to_latex(
-            index=False,
-            position="h",
-            caption=f"{dataset_title}",
-            float_format="%.2f",
-        )
-    )
-except:
-    # This may happen if there is not table associated with the
-    # dataset (not on disk)
-    pass
+  #try:
+summary = pd.concat(all_model_summary).reset_index(drop=True)
+Markdown(tabulate(summary, headers='keys', showindex=False, floatfmt=".2f"))
+  #except:
+  # This may happen if there is not table associated with the
+  # dataset (not on disk)
+  #    pass
 ```
+
+The dataset contains `{python} num_rows` index events, defined as acute coronary syndromes (ACS) or percutaneous coronary intervention (PCI) procedures. The ACS definition based on code groups has been validated to achieve 84% positive predictive value (PPV) for identifying patients with acute coronary syndromes [@bezin2015choice]. Index events span a date range from `{python} start_date` to `{python} end_date`.
+
+Models for bleeding are trained using an outcome defintion that has been verified to identify major bleeding with PPV of 88% [@al2015identifying]. Ischaemia models are trained on a 2-point major adverse cardiac (MACE) definition including acute myocardial infarction and stroke [@hussain2018association], chosen because the components have been validated in administrative databases [@juurlink2006canadian; @kokotailo2005coding].
 
 In addition to the area under the receiver operating characteristic curve, models are assessed according to their stability and calibration. Instability in Table 1 is the average of the relative error between the model prediction and the predictions from other models developed on bootstrapped training sets [@riley2022stability]. It corresponds to the variation in the probability-stability plots in the document. A lower value means that bootstrapped models tend to agree with each other on the risk of adverse outcome for each patient. 
 
@@ -402,13 +395,11 @@ The model performance and validation results contained in this report can feed i
 
 # Code Group Definitions {.appendix}
 
-Index events are defined as having an ICD-10 code in the first episode of the spell in any primary or secondary position from the following groups of ICD-10 and OPCS-4 codes.
+Index events are defined as having a code in the first episode of the spell in any primary or secondary position from the groups of ICD-10 and OPCS-4 codes in @tbl-index-acs-codes and @tbl-index-pci-codes.
 
 ```{python}
 # | label: tbl-index-acs-codes
 # | tbl-cap: Index ACS diagnosis codes
-from tabulate import tabulate
-import code_group_counts as codes
 
 code_groups = codes.get_code_groups(
     "../codes_files/icd10.yaml", "../codes_files/opcs4.yaml"
@@ -421,6 +412,7 @@ Markdown(tabulate(index_acs, headers='keys', showindex=False))
 
 ```{python}
 # | label: tbl-index-pci-codes
+# | tbl-colwidths: [15, 85]
 # | tbl-cap: Index PCI procedure codes
 index_pci = code_groups[code_groups.group == "pci"].drop(columns=["group"])[["name","docs"]].rename(columns={"name": "OPCS-4 Code", "docs": "Description"})
 index_pci["OPCS-4 Code"] = index_pci['OPCS-4 Code'].map(lambda x: str(x).title())
@@ -447,13 +439,15 @@ The AMI or stroke outcome group is defined by the following group of diagnosis c
 
 ```{python}
 # | label: tbl-outcome-ami-stroke-codes
+# | tbl-colwidths: [15, 85]
 # | tbl-cap: AMI or stroke outcome diagnosis codes
 ami_stroke = code_groups[code_groups.group == "hussain_ami_stroke"].drop(columns=["group"])[["name","docs"]].rename(columns={"name": "ICD-10 Code", "docs": "Description"})
 ami_stroke["ICD-10 Code"] = ami_stroke['ICD-10 Code'].map(lambda x: str(x).title())
 Markdown(tabulate(ami_stroke, headers='keys', showindex=False))
 ```
 
-# References
+{{< pagebreak >}}
+# References {.appendix}
 
 ::: {#refs}
 :::
