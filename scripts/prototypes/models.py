@@ -403,6 +403,12 @@ class SimpleRandomForest:
     def name():
         return "simple_random_forest"
 
+model_description[SimpleRandomForest.name()] = (
+    "The model is fitted by one-hot encoding catagorical features, "
+    "centering and scaling predictors, and imputing missing values "
+    "using the training set mean. A random forest is fitted using "
+    "the maximum tree depth as a tuned hyperparameter."
+)
 
 # No predict_proba function
 class SimpleLinearSvc:
@@ -472,6 +478,12 @@ class SimpleNaiveBayes:
     def model(self):
         return self._pipe
 
+model_description[SimpleNaiveBayes.name()] = (
+    "The model is fitted by one-hot encoding catagorical features, "
+    "centering and scaling predictors, and imputing missing values "
+    "using the training set mean. No hyperparameters are tuned when "
+    "fitting naive bayes "
+)
 
 class SimpleGradientBoostedTree:
     def __init__(self, X, y, object_column_indices):
@@ -520,6 +532,12 @@ class SimpleGradientBoostedTree:
     def name():
         return "simple_gradient_boosted_tree"
 
+model_description[SimpleGradientBoostedTree.name()] = (
+    "The model is fitted by one-hot encoding catagorical features, "
+    "centering and scaling predictors, and imputing missing values "
+    "using the training set mean. A gradient boosted tree is fitted using "
+    "the maximum tree depth as a tuned hyperparameter."
+)
 
 class SimpleNeuralNetwork:
     def __init__(self, X, y, object_column_indices):
@@ -579,6 +597,12 @@ class SimpleNeuralNetwork:
     def name():
         return "simple_neural_network"
 
+model_description[SimpleNeuralNetwork.name()] = (
+    "The model is fitted by one-hot encoding catagorical features, "
+    "centering and scaling predictors, and imputing missing values "
+    "using the training set mean. A single-layer neural network is "
+    "fitted with a number of internal neurons tuned as a hyperparameter."
+)
 
 ####
 

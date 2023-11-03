@@ -31,10 +31,10 @@ geometry:
 #   the order of figures and text (e.g. headings)
 # - To make heading, using display(Markdown("\nHeading Name")). The newline is
 #   important, and I coulnd't figure out any other way other than \n to add it.
-# - In order to use inline variables like `{python} variable`, you need at least 
+# - In order to use inline variables like `{python} variable`, you need at least
 #   quarto 1.4. You can get the prerelease from here: https://quarto.org/docs/download/prerelease
 #   (it doesn't require admin rights).
-#   
+#
 
 import os
 
@@ -52,7 +52,13 @@ from calibration import (
     plot_prediction_distribution,
 )
 from models import get_model_description
-from summarise_model import get_model_summary, plot_model_validation_2page, plot_roc_and_calibration_2x2, plot_instability_2x2, plot_risk_tradeoff
+from summarise_model import (
+    get_model_summary,
+    plot_model_validation_2page,
+    plot_roc_and_calibration_2x2,
+    plot_instability_2x2,
+    plot_risk_tradeoff,
+)
 from roc import get_bootstrapped_roc, get_bootstrapped_auc, plot_roc_curves
 
 # The dictionaries map the identifier used in filenames and in the program
@@ -67,7 +73,7 @@ model_names = {
     ### HES (manual_codes) models ###
     "simple_logistic_regression": "logistic regression",
     "truncsvd_logistic_regression": "truncated SVD + logistic regression",
-    #"simple_decision_tree": "decision tree",
+    # "simple_decision_tree": "decision tree",
     "truncsvd_decision_tree": "truncated SVD + decision tree",
     "simple_gradient_boosted_tree": "gradient boosted decision tree",
     "simple_random_forest": "random forest",
@@ -82,7 +88,7 @@ model_names = {
     # "simple_random_forest": "random forest",
     # "simple_naive_bayes": "naive bayes",
     # #"simple_neural_network": "single-layer neural network",
-    ### HES + SWD models ###  
+    ### HES + SWD models ###
     # #"simple_logistic_regression": "logistic regression",
     # "truncsvd_logistic_regression": "truncated SVD + logistic regression",
     # "simple_decision_tree": "decision tree",
@@ -90,7 +96,7 @@ model_names = {
     # #"simple_gradient_boosted_tree": "gradient boosted decision tree",
     # #"simple_random_forest": "random forest",
     # #"simple_naive_bayes": "naive bayes",
-    # #"simple_neural_network": "single-layer neural network",    
+    # #"simple_neural_network": "single-layer neural network",
 }
 outcome_names = {
     "bleeding_al_ani_outcome": "bleeding",
@@ -105,19 +111,21 @@ dataset_title = dataset_name[dataset]
 # Summary
 
 ```{python}
-#| output: false
+# | output: false
 
 # Load any model to find which dataset was used (the script assumes that the same dataset
 # was used to fit all models)
-example_model_info = ds.load_fit_info(f"{dataset}_{list(model_names)[0]}_{list(outcome_names)[0]}")
+example_model_info = ds.load_fit_info(
+    f"{dataset}_{list(model_names)[0]}_{list(outcome_names)[0]}"
+)
 dataset_path = example_model_info["dataset_path"]
 data = pd.read_pickle(dataset_path)
 
 data_ds = ds.Dataset(
-  example_model_info["dataset_name"],
-  example_model_info["config_file"],
-  example_model_info["sparse_features"],
-  interactive=False
+    example_model_info["dataset_name"],
+    example_model_info["config_file"],
+    example_model_info["sparse_features"],
+    interactive=False,
 )
 
 num_features = data_ds.get_X().shape[0]
@@ -129,7 +137,9 @@ end_date = data.idx_date.max().date().isoformat()
 y_test = example_model_info["y_test"]
 probs = example_model_info["probs"]
 
-num_bootstraps = probs.shape[1]-1 # -1 because the first column is the model-under-test
+num_bootstraps = (
+    probs.shape[1] - 1
+)  # -1 because the first column is the model-under-test
 num_rows_test = len(y_test)
 num_rows_train = num_rows - num_rows_test
 proportion_test = num_rows_test / num_rows
@@ -143,37 +153,37 @@ Models for bleeding are trained using an outcome defintion that has been verifie
 
 
 ```{python}
-#| label: tbl-summary
-#| tbl-cap: 'Summary of model performance for bleeding and ischaemia'
-#| tbl-column: body
-#| output: asis
+# | label: tbl-summary
+# | tbl-cap: 'Summary of model performance for bleeding and ischaemia'
+# | tbl-column: body
+# | output: asis
 
 all_model_summary = []
 for model, model_title in model_names.items():
-  for outcome, outcome_title in outcome_names.items():
-    try:
-      df = get_model_summary(dataset, model, outcome)
-      df.insert(0, "Model", model_title.title())
-      df.insert(0, "Outcome", outcome_title.title())
-      all_model_summary.append(df)
-    except:
-      # Failed to get summary for mobel (might not exist on disk)
-      pass
+    for outcome, outcome_title in outcome_names.items():
+        try:
+            df = get_model_summary(dataset, model, outcome)
+            df.insert(0, "Model", model_title.title())
+            df.insert(0, "Outcome", outcome_title.title())
+            all_model_summary.append(df)
+        except:
+            # Failed to get summary for mobel (might not exist on disk)
+            pass
 
 try:
-  summary = pd.concat(all_model_summary).reset_index(drop=True)
-  print(
-      summary.to_latex(
-          index = False,
-          position = 'h',
-          caption = f"{dataset_title}",
-          float_format="%.2f",
-      )
-  )
+    summary = pd.concat(all_model_summary).reset_index(drop=True)
+    print(
+        summary.to_latex(
+            index=False,
+            position="h",
+            caption=f"{dataset_title}",
+            float_format="%.2f",
+        )
+    )
 except:
-  # This may happen if there is not table associated with the
-  # dataset (not on disk)
-  pass
+    # This may happen if there is not table associated with the
+    # dataset (not on disk)
+    pass
 ```
 
 In addition to the area under the receiver operating characteristic curve, models are assessed according to their stability and calibration. Instability in Table 1 is the average of the relative error between the model prediction and the predictions from other models developed on bootstrapped training sets [@riley2022stability]. It corresponds to the variation in the probability-stability plots in the document. A lower value means that bootstrapped models tend to agree with each other on the risk of adverse outcome for each patient. 
@@ -181,38 +191,50 @@ In addition to the area under the receiver operating characteristic curve, model
 Calibration error is the average of the expected calibration error [@nixon2019measuring] across the model and its bootstrapped variants. It corresponds to how well the calibration-stability plots in this document lie along a straight line. A value closer to zero means that the risk predictions from the model tend to agree with the observed proportions of patients who do in fact have the adverse outcome.
 
 ```{python}
-best_model_roc = {} # map outcome to best model for ROC AUC
+best_model_roc = {}  # map outcome to best model for ROC AUC
 best_model_calibration = {}
 best_model_instability = {}
-best_value_roc = {} # map outcome to best models's value for ROC AUC
+best_value_roc = {}  # map outcome to best models's value for ROC AUC
 best_value_calibration = {}
 best_value_instability = {}
 for outcome, outcome_title in outcome_names.items():
-  # Calculate the best models for each criterion. These are indexes into the models
-  # ordered by as in the model_names dictionary (not )
-  best_for_roc = summary[summary["Outcome"] == outcome_title.title()]["ROC AUC"].idxmax()
-  best_for_calibration = summary[summary["Outcome"] == outcome_title.title()]["Cal. Error"].idxmin()
-  best_for_instability = summary[summary["Outcome"] == outcome_title.title()]["Instability"].idxmin()
-  best_value_roc[outcome_title] = summary.iloc[best_for_roc]["ROC AUC"]
-  best_value_calibration[outcome_title] = summary.iloc[best_for_calibration]["Cal. Error"]
-  best_value_instability[outcome_title] = summary.iloc[best_for_instability]["Instability"]
+    # Calculate the best models for each criterion. These are indexes into the models
+    # ordered by as in the model_names dictionary (not )
+    best_for_roc = summary[summary["Outcome"] == outcome_title.title()][
+        "ROC AUC"
+    ].idxmax()
+    best_for_calibration = summary[summary["Outcome"] == outcome_title.title()][
+        "Cal. Error"
+    ].idxmin()
+    best_for_instability = summary[summary["Outcome"] == outcome_title.title()][
+        "Instability"
+    ].idxmin()
+    best_value_roc[outcome_title] = summary.iloc[best_for_roc]["ROC AUC"]
+    best_value_calibration[outcome_title] = summary.iloc[best_for_calibration][
+        "Cal. Error"
+    ]
+    best_value_instability[outcome_title] = summary.iloc[best_for_instability][
+        "Instability"
+    ]
 
-  models = list(model_names.values())
+    models = list(model_names.values())
 
-  # The integer division by two is a hack (using the fact that the table alternates outcomes).
-  # The issue is that somehow you need the lower case version of the model names, but the table
-  # only has upper case versions. Really this needs a refactor of the whole stucture of this file,
-  # to store references to models everywhere along with functions to obtain upper and lowercase
-  # versions
-  display(Markdown(
-    f"For the prediction of {outcome_title} risk, "
-    f"{models[best_for_roc//2]} has the highest area under the ROC curve at {best_value_roc[outcome_title]:.2f}, "
-    f"{models[best_for_calibration//2]} has the best calibration (error = {best_value_calibration[outcome_title]:.2f}), and "
-    f"{models[best_for_instability//2]} has the highest stability (instability = {best_value_instability[outcome_title]:.2f}).")
-  )
-  best_model_roc[outcome_title] = models[best_for_roc//2]
-  best_model_calibration[outcome_title] = models[best_for_calibration//2]
-  best_model_instability[outcome_title] = models[best_for_instability//2]
+    # The integer division by two is a hack (using the fact that the table alternates outcomes).
+    # The issue is that somehow you need the lower case version of the model names, but the table
+    # only has upper case versions. Really this needs a refactor of the whole stucture of this file,
+    # to store references to models everywhere along with functions to obtain upper and lowercase
+    # versions
+    display(
+        Markdown(
+            f"For the prediction of {outcome_title} risk, "
+            f"{models[best_for_roc//2]} has the highest area under the ROC curve at {best_value_roc[outcome_title]:.2f}, "
+            f"{models[best_for_calibration//2]} has the best calibration (error = {best_value_calibration[outcome_title]:.2f}), and "
+            f"{models[best_for_instability//2]} has the highest stability (instability = {best_value_instability[outcome_title]:.2f})."
+        )
+    )
+    best_model_roc[outcome_title] = models[best_for_roc // 2]
+    best_model_calibration[outcome_title] = models[best_for_calibration // 2]
+    best_model_instability[outcome_title] = models[best_for_instability // 2]
 
 ```
 
@@ -242,7 +264,7 @@ Machine learning algorithms have been shown to perform very well in predicting M
 
 The basis for the index event and outcome definition is the diagnosis (ICD-10) and procedure (OPCS-4) codes in Hospital Episode Statistics (HES). Unlike in the ARC-HBR risk trade-off model [@urban2021assessing], modelling is not restricted to patients who are at high bleeding risk. This is because identifying patients at high bleeding risk itself requires a model, or a valid calculation of the ARC-HBR score, which is not possible because the information is not present in source datasets. A model that applies uniformly across all patients would also be more helpful because there would be less need to ensure that a patient is eligible before applying it. 
 
-Index events are defined as spells whose first episode begins with an ACS diagnosis or PCI procedure in any primary or secondary position. A great many choices exist when defining code groups to capture patient groups in administrative databases [@bosco2021major]. Due to the use of clinical coding for financial and administrative purposes, ICD-10 code definitions do not necessarily line up with clinically relevant patient groups, or contain diagnosis misclassification errors [@gavrielov2014use]. It is therfore important that the accuracy of the code group in identifying patients of interest is quantified and incorporated into the uncertainty of the modelling results. We have selected code groups from the literature that have been validated in administrative databases (although not necessarily in the UK), and we present the positive predictive value (PPV) of the code group in identifying the desired patient group. (The PPV is the chance that a patient identified by clinical code is in fact part of the target patient group.)
+Index events are defined as spells whose first episode begins with an ACS diagnosis or PCI procedure in any primary or secondary position. A great many choices exist when defining code groups to capture patient groups in administrative databases [@bosco2021major]. Due to the use of clinical coding for financial and administrative purposes, ICD-10 code definitions do not necessarily line up with clinically relevant patient groups, or contain other errors [@gavrielov2014use]. It is therfore important that the accuracy of the code group in identifying patients of interest is quantified and incorporated into the uncertainty of the modelling results. We have selected code groups from the literature that have been validated in administrative databases (although not necessarily in the UK), and we present the positive predictive value (PPV) of the code group in identifying the desired patient group. (The PPV is the chance that a patient identified by clinical code is in fact part of the target patient group.)
 
 A UK Biobank report identifies a validated group of codes for identification of MI (both STEMI and NSTEMI) based on HES data, with PPV greater than 70% for each group [@biobankdefinitions]. However, the codes contain I25.2 (old myocardial infarction), which would capture patients in index events who do not necessarily have ACS. This issue was addressed in a study validating ACS code groups in a French administrative database [@bezin2015choice]. Of the different code groups they present, the I20.0, I21.* and I24.* was identified as a good compromise between validated ACS and PPV (84%).
 
@@ -254,7 +276,6 @@ Confirming the accuracy of the code groups is outside the scope of this report, 
 
 Full lists of code group definitions are included at the end of the report.
 
-{{< pagebreak >}}
 # Dataset
 
 ```{python}
@@ -265,12 +286,18 @@ num_ami_stroke = (data["hussain_ami_stroke_outcome"] == True).sum()
 In the full dataset (`{python} num_rows` rows), `{python} num_bleed` adverse bleeding events occurred (`{python} f"{100*num_bleed/num_rows:.1f}%"`), and `{python} num_ami_stroke` AMI or stroke events occurred (`{python} f"{100*num_ami_stroke/num_rows:.1f}%"`). The distribution of STEMI vs. NSTEMI presentation in the index events is shown below:
 
 ```{python}
-import seaborn as sns
-df = data.rename(columns={"dem_age": "Age at index", "idx_stemi": "STEMI"})
-
+#| label: fig-charts
+#| fig-cap: Distribution of age at index by STEMI vs. NSTEMI presentation
+ 
 # Plot of the age distribution by stemi/nstemi
-plt.figure(figsize=(4,3))
-sns.displot(data=df, x="Age at index", hue="STEMI", bins=30).set(title='Proportion of STEMI and NSTEMI by age')
+fig, ax = plt.subplots(figsize=(5, 4.5))
+df_age_stemi = data[data["idx_stemi"] == True]["dem_age"]
+df_age_nstemi = data[data["idx_stemi"] == False]["dem_age"]
+ax.hist(df_age_stemi, 30, alpha=0.5, label="STEMI")
+ax.hist(df_age_nstemi, 30, alpha=0.5, label="NSTEMI")
+ax.legend(loc="upper left")
+ax.set_xlabel("Age at index")
+ax.set_ylabel("Count in age range")
 plt.show()
 ```
 
@@ -285,10 +312,12 @@ Some models require choosing hyperparameters. These are optimised by fitting mod
 ```{python}
 # TODO: get number of folds from fitted object
 num_folds = 5
-draw_experiment_plan(num_rows, num_rows_train, num_rows_test, num_folds, num_bootstraps, fontsize=50)
+draw_experiment_plan(
+    num_rows, num_rows_train, num_rows_test, num_folds, num_bootstraps, fontsize=50
+)
 ```
 
-Model stability of an internally-validated model refers to how well models developed on a similar internal population agree with each other. The intent is to estimate how well the model may generalise to external validation data. We follow the methodology outlined in [@riley2022stability] to assess the stability of the model development process, which encompasses effects due to sample size, number of predictors, and method of model fitting.
+We follow the methodology outlined in [@riley2022stability] to assess the stability of the model development process, which encompasses effects due to sample size, number of predictors, and method of model fitting.
 
 Assuming that a training set $P_0$ is used to develop a model $M_0$ (the model-under-test) using a model development process $D$ (involving steps such cross-validation and hyperparameter tuning in the training set, and validation of accuracy of model prediction in the test set), the following steps are required to assess the stability of $M_0$ [@riley2022stability]:
 
@@ -312,49 +341,53 @@ In addition, a meta-stability question relating to how well the different models
 This section contains the results for all the fitted models, including plots of the ROC curves, calibration, and probability stability.
 
 ```{python}
-#| output: asis
+# | output: asis
 
 num_models = len(model_names)
 for m, (model, model_title) in enumerate(model_names.items()):
-  display(Markdown(f"\n## {model_title.title()}"))
-  
-  bleeding_outcome = list(outcome_names)[0]
-  ischaemia_outcome = list(outcome_names)[1]
+    display(Markdown(f"\n## {model_title.title()}"))
 
-  plot_roc_and_calibration_2x2(dataset, model, bleeding_outcome, ischaemia_outcome)
+    bleeding_outcome = list(outcome_names)[0]
+    ischaemia_outcome = list(outcome_names)[1]
 
-  # Place a short summary about the model here
-  display(Markdown(get_model_description(model) + "\n"))
+    plot_roc_and_calibration_2x2(dataset, model, bleeding_outcome, ischaemia_outcome)
 
-  # Place a discussion of model stability here
-  model_summary = summary[summary["Model"] == model_title.title()]
-  bleeding_summary = model_summary[model_summary["Outcome"] == outcome_names[bleeding_outcome].title()]
-  ischaemia_summary = model_summary[model_summary["Outcome"] == outcome_names[ischaemia_outcome].title()]
+    # Place a short summary about the model here
+    display(Markdown(get_model_description(model) + "\n"))
 
-  bleeding_roc_auc = bleeding_summary.iloc[0]["ROC AUC"]
-  bleeding_calibration = bleeding_summary.iloc[0]["Cal. Error"]
-  bleeding_instability = bleeding_summary.iloc[0]["Instability"]
+    # Place a discussion of model stability here
+    model_summary = summary[summary["Model"] == model_title.title()]
+    bleeding_summary = model_summary[
+        model_summary["Outcome"] == outcome_names[bleeding_outcome].title()
+    ]
+    ischaemia_summary = model_summary[
+        model_summary["Outcome"] == outcome_names[ischaemia_outcome].title()
+    ]
 
-  ischaemia_roc_auc = ischaemia_summary.iloc[0]["ROC AUC"]
-  ischaemia_calibration = ischaemia_summary.iloc[0]["Cal. Error"]
-  ischaemia_instability = ischaemia_summary.iloc[0]["Instability"]
+    bleeding_roc_auc = bleeding_summary.iloc[0]["ROC AUC"]
+    bleeding_calibration = bleeding_summary.iloc[0]["Cal. Error"]
+    bleeding_instability = bleeding_summary.iloc[0]["Instability"]
 
-  text = (
-    f"For prediction of bleeding, the model achieved s ROC AUC of {bleeding_roc_auc:.2f}, "
-    f"a calibration error of {bleeding_calibration:.2f}, and an instability of {bleeding_instability:.2f}. "
-    f"For prediction of ischaemia, the model achieved a ROC AUC of {ischaemia_roc_auc:.2f}, "
-    f"a calibration error of {ischaemia_calibration:.2f}, and an instability of {ischaemia_instability:.2f}. "
-  )
+    ischaemia_roc_auc = ischaemia_summary.iloc[0]["ROC AUC"]
+    ischaemia_calibration = ischaemia_summary.iloc[0]["Cal. Error"]
+    ischaemia_instability = ischaemia_summary.iloc[0]["Instability"]
 
-  display(Markdown(text+"\n"))
+    text = (
+        f"For prediction of bleeding, the model achieved s ROC AUC of {bleeding_roc_auc:.2f}, "
+        f"a calibration error of {bleeding_calibration:.2f}, and an instability of {bleeding_instability:.2f}. "
+        f"For prediction of ischaemia, the model achieved a ROC AUC of {ischaemia_roc_auc:.2f}, "
+        f"a calibration error of {ischaemia_calibration:.2f}, and an instability of {ischaemia_instability:.2f}. "
+    )
 
-  display(Markdown("{{< pagebreak >}}"))
-  plot_instability_2x2(dataset, model, bleeding_outcome, ischaemia_outcome)
+    display(Markdown(text + "\n"))
 
-  title = f"Bleeding/Ischaemia risk tradeoff using {model_title}"
-  plot_risk_tradeoff(dataset, model, bleeding_outcome, ischaemia_outcome, title)
+    display(Markdown("{{< pagebreak >}}"))
+    plot_instability_2x2(dataset, model, bleeding_outcome, ischaemia_outcome)
 
-  display(Markdown("{{< pagebreak >}}")) 
+    title = f"Bleeding/Ischaemia risk tradeoff using {model_title}"
+    plot_risk_tradeoff(dataset, model, bleeding_outcome, ischaemia_outcome, title)
+
+    display(Markdown("{{< pagebreak >}}"))
 ```
 
 # Conclusion
@@ -367,9 +400,58 @@ The most accurately calibrated bleeding model was `{python} f"{best_model_calibr
 
 The model performance and validation results contained in this report can feed into any benefit-risk analysis [@iso14971] carried out as part of the development of a practical tool for bleeding and ischaemia risk trade-off prediction.
 
-# Index and outcome definitions {.appendix}
+# Code Group Definitions {.appendix}
 
-TODO code groups used, criteria for index event, etc.
+Index events are defined as having an ICD-10 code in the first episode of the spell in any primary or secondary position from the following groups of ICD-10 and OPCS-4 codes.
+
+```{python}
+# | label: tbl-index-acs-codes
+# | tbl-cap: Index ACS diagnosis codes
+from tabulate import tabulate
+import code_group_counts as codes
+
+code_groups = codes.get_code_groups(
+    "../codes_files/icd10.yaml", "../codes_files/opcs4.yaml"
+)
+
+index_acs = code_groups[code_groups.group == "acs_bezin"].drop(columns=["group"])[["name","docs"]].rename(columns={"name": "ICD-10 Code", "docs": "Description"})
+index_acs["ICD-10 Code"] = index_acs['ICD-10 Code'].map(lambda x: str(x).title())
+Markdown(tabulate(index_acs, headers='keys', showindex=False))
+```
+
+```{python}
+# | label: tbl-index-pci-codes
+# | tbl-cap: Index PCI procedure codes
+index_pci = code_groups[code_groups.group == "pci"].drop(columns=["group"])[["name","docs"]].rename(columns={"name": "OPCS-4 Code", "docs": "Description"})
+index_pci["OPCS-4 Code"] = index_pci['OPCS-4 Code'].map(lambda x: str(x).title())
+Markdown(tabulate(index_pci, headers='keys', showindex=False))
+```
+
+The bleeding outcome group is defined by the following group of diagnosis codes in any primary or secondary position.
+
+```{python}
+# | label: tbl-outcome-bleeding-codes-1
+# | tbl-cap: Bleeding outcome diagnosis codes
+bleeding = code_groups[code_groups.group == "bleeding_al_ani"].drop(columns=["group"])[["name","docs"]].rename(columns={"name": "ICD-10 Code", "docs": "Description"})
+bleeding["ICD-10 Code"] = bleeding['ICD-10 Code'].map(lambda x: str(x).title())
+Markdown(tabulate(bleeding.iloc[:40], headers='keys', showindex=False))
+```
+
+```{python}
+# | label: tbl-outcome-bleeding-codes-2
+# | tbl-cap: Bleeding outcome diagnosis codes (continued)
+Markdown(tabulate(bleeding.iloc[40:], headers='keys', showindex=False))
+```
+
+The AMI or stroke outcome group is defined by the following group of diagnosis codes in any primary or secondary position.
+
+```{python}
+# | label: tbl-outcome-ami-stroke-codes
+# | tbl-cap: AMI or stroke outcome diagnosis codes
+ami_stroke = code_groups[code_groups.group == "hussain_ami_stroke"].drop(columns=["group"])[["name","docs"]].rename(columns={"name": "ICD-10 Code", "docs": "Description"})
+ami_stroke["ICD-10 Code"] = ami_stroke['ICD-10 Code'].map(lambda x: str(x).title())
+Markdown(tabulate(ami_stroke, headers='keys', showindex=False))
+```
 
 # References
 

@@ -23,12 +23,25 @@ df.rename(columns={"dem_age": "Age at index", "idx_stemi": "STEMI"}, inplace=Tru
 sns.displot(data=df, x="Age at index", hue="STEMI", bins=30).set(title='Proportion of STEMI and NSTEMI by age')
 plt.show()
 
+# Plot of the age distribution by stemi/nstemi
+fig, ax = plt.subplots(figsize=(5,4.5))
+df_age_stemi = df[df["idx_stemi"] == True]["dem_age"]
+df_age_nstemi = df[df["idx_stemi"] == False]["dem_age"]
+ax.hist(df_age_stemi, 30, alpha=0.5, label='STEMI')
+ax.hist(df_age_nstemi, 30, alpha=0.5, label='NSTEMI')
+ax.legend(loc='upper left')
+ax.set_xlabel("Age at index")
+ax.set_ylabel("Count in age range")
+plt.show()
+
+pyplot.hist(y, bins, alpha=0.5, label='NSTEMI')
+
 # Plot of the correlations between outcome columns
-outcomes = df.filter(regex="outcome")
+outcomes = df.filter()
 outcomes.columns = outcomes.columns.str.replace("_outcome", "")
-corr = outcomes.corr()
-sns.heatmap(corr,xticklabels=True, yticklabels=True)
-plt.tight_layout()
+corr = df.corr()
+
+plt.matshow(corr)
 plt.show()
 
 # Show correlations between index features (i.e. not prior code counts)
