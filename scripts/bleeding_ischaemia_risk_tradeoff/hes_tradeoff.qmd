@@ -1,6 +1,6 @@
 ---
 title: "Bleeding/Ischaemia Risk Trade-off Models"
-subtitle: "Using HES data"
+subtitle: "Using HES data (all clinical codes)"
 date: now
 date-format: short
 author: John Scott
@@ -74,14 +74,14 @@ dataset_name = {
 }
 model_names = {
     ### HES (manual_codes) models ###
-    "simple_logistic_regression": "logistic regression",
-    "truncsvd_logistic_regression": "truncated SVD + logistic regression",
-    # "simple_decision_tree": "decision tree",
-    "truncsvd_decision_tree": "truncated SVD + decision tree",
-    "simple_gradient_boosted_tree": "gradient boosted decision tree",
-    "simple_random_forest": "random forest",
-    "simple_naive_bayes": "naive bayes",
-    "simple_neural_network": "single-layer neural network",
+    # "simple_logistic_regression": "logistic regression",
+    # "truncsvd_logistic_regression": "truncated SVD + logistic regression",
+    # # "simple_decision_tree": "decision tree",
+    # "truncsvd_decision_tree": "truncated SVD + decision tree",
+    # "simple_gradient_boosted_tree": "gradient boosted decision tree",
+    # "simple_random_forest": "random forest",
+    # "simple_naive_bayes": "naive bayes",
+    # "simple_neural_network": "single-layer neural network",
     ### HES + SWD models ###
     # "simple_logistic_regression": "logistic regression",
     # "truncsvd_logistic_regression": "truncated SVD + logistic regression",
@@ -92,14 +92,14 @@ model_names = {
     # "simple_naive_bayes": "naive bayes",
     # #"simple_neural_network": "single-layer neural network",
     ### HES + SWD models ###
-    # #"simple_logistic_regression": "logistic regression",
-    # "truncsvd_logistic_regression": "truncated SVD + logistic regression",
-    # "simple_decision_tree": "decision tree",
-    # "truncsvd_decision_tree": "truncated SVD + decision tree",
-    # #"simple_gradient_boosted_tree": "gradient boosted decision tree",
-    # #"simple_random_forest": "random forest",
-    # #"simple_naive_bayes": "naive bayes",
-    # #"simple_neural_network": "single-layer neural network",
+    #"simple_logistic_regression": "logistic regression",
+    "truncsvd_logistic_regression": "truncated SVD + logistic regression",
+    "simple_decision_tree": "decision tree",
+    "truncsvd_decision_tree": "truncated SVD + decision tree",
+    #"simple_gradient_boosted_tree": "gradient boosted decision tree",
+    #"simple_random_forest": "random forest",
+    #"simple_naive_bayes": "naive bayes",
+    #"simple_neural_network": "single-layer neural network",
 }
 outcome_names = {
     "bleeding_al_ani_outcome": "bleeding",
@@ -107,7 +107,7 @@ outcome_names = {
 }
 
 # The generated report relates to one dataset. Pick that dataset here.
-dataset = "manual_codes"
+dataset = "all_codes"
 dataset_title = dataset_name[dataset]
 ```
 
@@ -148,7 +148,7 @@ num_rows_train = num_rows - num_rows_test
 proportion_test = num_rows_test / num_rows
 ```
 
-This document contains the results of models for bleeding and ischaemia risk in heart attack patients, developed using the `{python} dataset_title` dataset. @tbl-summary shows a summary of the performance of the models for bleeding and ischaemia across all models and datasets.
+This document contains the results of models for bleeding and ischaemia risk in heart attack patients, developed using the `{python} dataset_title` dataset. @tbl-summary shows a summary of the performance of the models for bleeding and ischaemia across all models.
 
 ```{python}
 # | label: tbl-summary
@@ -179,9 +179,9 @@ The dataset contains `{python} num_rows` index events, defined as acute coronary
 
 Models for bleeding are trained using an outcome defintion that has been verified to identify major bleeding with PPV of 88% [@al2015identifying]. Ischaemia models are trained on a 2-point major adverse cardiac (MACE) definition including acute myocardial infarction and stroke [@hussain2018association], chosen because the components have been validated in administrative databases [@juurlink2006canadian; @kokotailo2005coding].
 
-In addition to the area under the receiver operating characteristic curve, models are assessed according to their stability and calibration. Instability in Table 1 is the average of the relative error between the model prediction and the predictions from other models developed on bootstrapped training sets [@riley2022stability]. It corresponds to the variation in the probability-stability plots in the document. A lower value means that bootstrapped models tend to agree with each other on the risk of adverse outcome for each patient. 
+In addition to the area under the receiver operating characteristic curve (ROC AUC), models are assessed according to their stability and calibration. Instability in @tbl-summary is the average of the symmetric mean absolute percentage error (SMAPE) between the model prediction and the predictions from other models developed on bootstrapped training sets [@riley2022stability]. It corresponds to the variation in each stability plot in the document. A lower value means that bootstrapped models tend to agree with each other on the risk of adverse outcome for each patient. 
 
-Calibration error is the average of the expected calibration error [@nixon2019measuring] across the model and its bootstrapped variants. It corresponds to how well the calibration-stability plots in this document lie along a straight line. A value closer to zero means that the risk predictions from the model tend to agree with the observed proportions of patients who do in fact have the adverse outcome.
+Calibration error is the average of the expected calibration error [@nixon2019measuring] across the model and its bootstrapped variants. It corresponds to how well the calibration plots in this document lie along a straight line. A value closer to zero means that the risk predictions from the model tend to agree with the observed proportions of patients who do in fact have the adverse outcome in each risk group.
 
 ```{python}
 best_model_roc = {}  # map outcome to best model for ROC AUC
@@ -233,37 +233,39 @@ for outcome, outcome_title in outcome_names.items():
 
 # Introduction
 
-Patients who undergo percutaneous coronary (PCI) intervention to treat acute coronary syndromes (ACS) are treated by implanting a stent in a coronary artery and prescribing a course of dual-antiplatelet therapy (DAPT) or triple therapy. This medication is intended to reduce the potential for formation of clots in the coronary artery (stent thrombosis; ST), and reduces the chance of further ischaemic complications (such as another heart attack, or an ischaemic stroke). However, the chance of a severe bleeding complication is increased, which may be worse than the potential ischaemic complication. Focus is shifting to the bleeding complication, in light of advances in drug-eluting stent technology that substantially reduce the chance of ST and recurrent ACS [@capodanno2023dual]
+Patients who undergo percutaneous coronary (PCI) intervention to treat acute coronary syndromes (ACS) are treated by implanting a stent in a coronary artery and prescribing a course of dual-antiplatelet therapy (DAPT). This medication is intended to reduce the potential for formation of clots in coronary arteries (stent thrombosis; ST), and reduces the chance of further ischaemic complications (such as another heart attack, or an ischaemic stroke). However, the chance of a severe bleeding complication is increased; focus is shifting to the bleeding complication, in light of advances in drug-eluting stent technology that substantially reduce the chance of ST and recurrent ACS [@capodanno2023dual]
 
-Clinicians must balance the risk of these adverse outcomes in their daily practice. Models that attempt to assist in the assessment of bleeding and ischaemic risk have been developed [@urban2021assessing], but these are complicated by the heterogenous nature of bleeding risk in the ACS population, and the existence of a group at high bleeding risk (HBR). One defintion of high bleeding risk is the academic research consortium HBR criteria (ARC-HBR) [@urban2019defining]. The trade-off model cited above models the relative bleeding/ischaemia risk trade-off in the HBR group, and their model is intended for application to patients that fall into that category [@urban2021assessing].
+Clinicians must balance the risk of these adverse outcomes in their daily practice. This assessment is complicated by the heterogenous nature of bleeding risk in the ACS population, and the existence of a group at high bleeding risk (HBR). One defintion of high bleeding risk is the academic research consortium HBR criteria (ARC-HBR) [@urban2019defining]. The ARC-HBR bleeding/ischaemia risk trade-off model [@urban2021assessing] estimates the relative risk of each adverse outcome in the HBR group, and their model is intended for application to patients that fall into that category. However, that requires clinicians to source the information required to determine who is at high bleeding risk. Other scores, such as the DAPT score [@yeh2016development], assess bleeding/ischaemia risk without focussing on the HBR group (although it does exclude those prescribed long-term oral anti-coagulation (OAC)).
 
-Although there exist a plethora of bleeding risk scores, none have seen widespread adoption. Clinical guidelines only provide a class IIb recommendation for the use of bleeding risk scores, citing as an example the complexity of calculation and lack of validation of the ARC-HBR score as potential barriers standing in the way of its deployment [@collet20212020]. In addition, although many current bleeding risk scores are also accompanied by a mobile application or web calculator, the lack of automation of data collection and input into the programs is a likely barrier to their use in a busy clinical setting. 
+Although there exist a plethora of bleeding risk scores, none have seen widespread adoption. Clinical guidelines only provide a class IIb recommendation for the use of bleeding risk scores, citing the ARC-HBR score as a pragmatic approach, but which may be too complex to calculate and currently lacks sufficient validation [@collet20212020]. In addition, although many current bleeding risk scores are also accompanied by a mobile application or web calculator, the lack of automation of data collection and input into the programs is a likely barrier to their use in a busy clinical setting. 
 
-To address these aspects of the problem, we consider here the development of models for bleeding and ischaemia risk based on more generic datasets of patient . Such an approach carries advantages and disadvantages. On the one hand, specific data for the identification of a particular definition of adverse outcome (such as the bleeding academic research consortium definition of major bleeding, upon which the ARC-HBR score is based) may be missing, leading to the need for an approximate outcome definition. In addition, relevant specific clinical predictors . However, the wealth of additional data present, including patient attributes derived from a primary care setting, may provide equally good predictors for bleeding and ischaemia, not considered in the typical consensus-based approach to the development of risk scores. A machine-learning approach may aid in automatically extracting these relevant features from the dataset.
+A more usable tool would have general applicability to all patients (i.e. not just the HBR group, and not excluding those on OAC), and would provide an automated calculation of risk, removing the burden to collect the input data from the clinician. National datasets of clinical coding data such as hospital episode statistics (HES), or regional databases of primary care information may be accessible to automated data collection for use in the tool, in addition to any specific data sources inside the hospital from any electronic patient record systems that are present. 
+
+To begin to develop general models, we use clinical coding data to define bleeding and ischaemia endpoint definitions. Although specific data for the identification of a particular definition of adverse outcome (such as the BARC 3 or 5 bleeding definition [@mehran2011standardized], upon which the ARC-HBR score is based) may be missing, the general availability of the data may lead to a tool that is more easily trained and deployed as new data becomes available (i.e. not requiring detailed chart analysis to define endpoints). On the other hand, validation is certainly necessary to ensure that the outcome definitions corresponds to clinically relevant adverse events. For the proof-of-principle models in this report, we use groups of clinical codes that have validated positive predictive values for identifying relevant clinical outcomes.
 
 If the models developed by this approach are sufficiently performative, and satisfy appropriate external validation, then it may be possible to develop a tool that automatically queries the available datasets and provides a calculation of the risk of bleeding and ischaemia to the clinician at the point of DAPT prescription. Although this step requires a full assessment of the availability and timeliness of the datasets in a clinical context, a necessary first step is the demonstration of proof-of-principle internally-validated models that can be assessed using a consistent validation framework. This report contains the results of this investigation using models trained on `{python} dataset_title`.
 
 # Other Risk Prediction Tools
 
-Bleeding and ischaemia in patients with ACS is a well studied problem, and a large number of risk scores exist, some of which are available as web application or mobile phone applications [@chan2020risk]. One such risk score is the DAPT-score, which is designed to assess bleeding and ischaemia risk for the purpose of deciding duration of DAPT therapy [@yeh2016development]. The DAPT bleeding endpoint definition was moderate or severe GUSTO bleeding, meaning intracerebral haemorrhage, or bleeding requiring blood transfusion or resulting in substantial haemodynamic compromise requiring treatment [@gusto1993international]. The ischaemic endpoint was defined as MI or and ARC definition of definite/probable ST [@cutlip2007clinical]. Models developed to predict occurance of these events between 12 and 30 months after the index procedure both achieved a ROC AUC of 0.64 in the validation group. The difference in bleeding and ischaemia prediction depending on the assumption of continuation vs. discontinuation of therapy (an input to the model) was used to assess the trade-off between bleeding and ischaemia risk. The DAPT score is available as a web calculator [@dapt2023website].
+Bleeding and ischaemia in patients with ACS is a well studied problem, and a large number of risk scores exist, some of which are available as web application or mobile phone applications [@chan2020risk]. One such risk score is the DAPT-score, which is designed to assess bleeding and ischaemia risk for the purpose of deciding duration of DAPT therapy [@yeh2016development]. The DAPT bleeding endpoint definition is moderate or severe GUSTO bleeding, meaning intracerebral haemorrhage, or bleeding requiring blood transfusion or resulting in substantial haemodynamic compromise requiring treatment [@gusto1993international]. The ischaemic endpoint was defined as MI or and ARC definition of definite/probable ST [@cutlip2007clinical]. Models developed to predict occurance of these events between 12 and 30 months after the index procedure both achieved a ROC AUC of 0.64 in the validation group. The difference in bleeding and ischaemia prediction depending on the assumption of continuation vs. discontinuation of therapy (an input to the model) was used to assess the trade-off between bleeding and ischaemia risk. The DAPT score is available as a web calculator [@dapt2023website].
 
 Another bleeding risk score is PreciseDAPT [@costa2017derivation], which predicts the risk of out-of-hospital TIMI (thrombolysis in myocardial infarction) major/minor bleeding [@mehran2011standardized].The bleeding model achieved ROC AUCs of 0.70 and 0.66 in two external validation cohorts, and is available as a web calculator [@precisedapt2023website], which presents the risk of bleeding and ischaemia depending on DAPT duration (3-6 months vs. 12-24 months).
 
 The ARC-HBR trade-off model is designed specifically for use in patients who statisfy the ARC-HBR criteria [@urban2021assessing]. The ischaemia endpoint definition was a composite of ARC definite or probable ST, and MI occurring >48 hours after the index event. The MI definition differed according to the underlying study data used: 5 studies used the third universal definition [@thygesen2012task], one used the ARC MI definition [@cutlip2007clinical], and one used an ad-hoc definition [@valgimigli2015zotarolimus]. Bleeding is defined as BARC 3 or 5 [@mehran2011standardized]. DAPT therapy is not an input to the model, and it is explicitly stated that no conclusions can be drawn about associations between DAPT duration or type and the bleeding and ischaemia risks presented [@urban2021assessing]. The ARC-HBR risk trade-off calculation is available as a mobile application, which is used first to assess if a patient is at high bleeding risk, and then if so, provides their relative bleeding and ischaemia risk levels [@archbrtradeoff2023website].
 
-Machine learning algorithms have been shown to perform very well in predicting MI diagnosis during index hospitalisation (ROC AUC of 0.96 [@than2019machine]) and . Similarly, prediction of in-hospital BARC 3-5 bleeding in PCI patients has achieved a ROC AUC of 0.837 [@zhao2023machine].
+Machine learning algorithms have been shown to perform very well in predicting MI diagnosis during index hospitalisation (ROC AUC of 0.96 [@than2019machine]). Similarly, prediction of in-hospital BARC 3-5 bleeding in PCI patients has achieved a ROC AUC of 0.837 [@zhao2023machine]. This provides some evidence that machine learning methods could form the basis for risk prediction tools.
 
 # Cohort and endpoint definitions
 
-The basis for the index event and outcome definition is the diagnosis (ICD-10) and procedure (OPCS-4) codes in Hospital Episode Statistics (HES). Unlike in the ARC-HBR risk trade-off model [@urban2021assessing], modelling is not restricted to patients who are at high bleeding risk. This is because identifying patients at high bleeding risk itself requires a model, or a valid calculation of the ARC-HBR score, which is not possible because the information is not present in source datasets. A model that applies uniformly across all patients would also be more helpful because there would be less need to ensure that a patient is eligible before applying it. 
+The basis for the index event and outcome definition is the diagnosis (ICD-10) and procedure (OPCS-4) codes in Hospital Episode Statistics (HES). Unlike in the ARC-HBR risk trade-off model [@urban2021assessing], modelling is not restricted to patients who are at high bleeding risk. This is because identifying patients at high bleeding risk itself requires a model, or a valid calculation of the ARC-HBR score, which is not possible because the information is not present in source datasets. As discussed above, a model that applies uniformly across all patients would also be more helpful because there would be less need to ensure that a patient is eligible before applying the model. 
 
 Index events are defined as spells whose first episode begins with an ACS diagnosis or PCI procedure in any primary or secondary position. A great many choices exist when defining code groups to capture patient groups in administrative databases [@bosco2021major]. Due to the use of clinical coding for financial and administrative purposes, ICD-10 code definitions do not necessarily line up with clinically relevant patient groups, or contain other errors [@gavrielov2014use]. It is therfore important that the accuracy of the code group in identifying patients of interest is quantified and incorporated into the uncertainty of the modelling results. We have selected code groups from the literature that have been validated in administrative databases (although not necessarily in the UK), and we present the positive predictive value (PPV) of the code group in identifying the desired patient group. (The PPV is the chance that a patient identified by clinical code is in fact part of the target patient group.)
 
-A UK Biobank report identifies a validated group of codes for identification of MI (both STEMI and NSTEMI) based on HES data, with PPV greater than 70% for each group [@biobankdefinitions]. However, the codes contain I25.2 (old myocardial infarction), which would capture patients in index events who do not necessarily have ACS. This issue was addressed in a study validating ACS code groups in a French administrative database [@bezin2015choice]. Of the different code groups they present, the I20.0, I21.* and I24.* was identified as a good compromise between validated ACS and PPV (84%).
+A UK Biobank report identifies a validated group of codes for identification of MI (both STEMI and NSTEMI) based on HES data, with PPV greater than 70% for each group [@biobankdefinitions]. However, the codes contain I25.2 (old myocardial infarction), which would capture patients in index events who do not necessarily have ACS at that time. This issue was addressed in a study validating ACS code groups in a French administrative database [@bezin2015choice]. Of the different code groups they present, the I20.0, I21.* and I24.* was identified as a good compromise between validated ACS and PPV (84%).
 
-Identifying significant bleeding using ICD-10 codes is a complicated problem due to the heterogeneous nature of bleeding conditions. Ideally a group of bleeding codes should be selected which aligns with the definitions generally agreed upon by other bleeding risk prediction tools [@yeh2016development; @costa2017derivation; @urban2021assessing]; for example, BARC 3-5 bleeding, moderate or severe GUSTO bleeding, or TIMI major/minor bleeding. One UK study contains a group of bleeding codes for identifying BARC 2-5 bleeding [@pufulete2019comprehensive]. However, due to the desire to focus the models on major bleeding, a group of codes validated to achieve a PPV of 88% [@al2015identifying] was selected as the basis for the bleeding outcome code group.
+Identifying significant bleeding using ICD-10 codes is a complicated problem due to the heterogeneous nature of bleeding conditions. Ideally, a group of bleeding codes should be selected which aligns with the definitions generally agreed upon by other bleeding risk prediction tools [@yeh2016development; @costa2017derivation; @urban2021assessing]; for example, BARC 3 or 5 bleeding, moderate or severe GUSTO bleeding, or TIMI major/minor bleeding. One UK study contains a group of bleeding codes for identifying BARC 2-5 bleeding [@pufulete2019comprehensive]. However, due to the desire to focus the models on major bleeding, a group of codes validated to achieve a PPV of 88% [@al2015identifying] was selected as the basis for the bleeding outcome code group.
 
-Identification of ischaemic outcomes was based on a definition of major adverse cardiac event (MACE), a type of composite endpoint typically utilised in clinical trials. The definition utilised for the models is a simple definition involving subsequent AMI or stroke [@hussain2018association] (omitting the all-cause mortality component so as not to conflate with fatal bleeding). It was selected from a number of different potential definitions based on ICD-9 and ICD-10 codes [@bosco2021major], chosen because the components have been validated in administrative databases [@juurlink2006canadian; @kokotailo2005coding]. 
+Identification of ischaemic outcomes was based on a definition of major adverse cardiac event (MACE), a type of composite endpoint typically utilised in clinical trials. The definition utilised for the models is a simple definition involving subsequent AMI or stroke [@hussain2018association] (omitting the all-cause mortality component so as not to conflate with fatal bleeding). It was selected from a number of different potential definitions based on ICD-10 codes [@bosco2021major], chosen because the components have been validated in administrative databases [@juurlink2006canadian; @kokotailo2005coding]. 
 
 Confirming the accuracy of the code groups is outside the scope of this report, especially including the nuances that can arise from differences in locality, coding standards, and use of diagnosis positions (all diagnosis positions were used uniformly here). The resulting models should be considered a proof-of-principle of the approach, rather than a fully-validated prediction of bleeding and ischaemia risk.
 
@@ -294,11 +296,11 @@ ax.set_ylabel("Count in age range")
 plt.show()
 ```
 
-The dataset is split into a training set (`{python} num_rows_train` rows) and a testing set (`{python} num_rows_test` rows, `{python} f"{100*proportion_test:.2f}"`% of the full dataset). All models are developed on the training set, and all graphs of model performance in this report are calculated on the testing set. The dataset contains `{python} num_features` features.
+The dataset is split into a training set (`{python} num_rows_train` rows) and a testing set (`{python} num_rows_test` rows, `{python} f"{100*proportion_test:.2f}"`% of the full dataset). All models are developed on the training set, and all graphs of model performance in this report are calculated on the testing set.
 
 ## Hyperparameter tuning
 
-Some models require choosing hyperparameters. These are optimised by fitting models for different combination of hyperparameters and assessing their performance using cross validation. In this process, the training set is split into 5 folds, each of which is successively held out as a testing set to assess the current combination of hyperparameter values. The best model is selected according to which gives the highest area under the ROC curve, and the model is refitted using the full training set. This model will be referred to as *the model* or *model-under-test* (in the context of stability analysis).
+Some models require choosing hyperparameters. These are optimised by fitting models for different combinations of hyperparameters and assessing their performance using cross validation. In this process, the training set is split into five folds, each of which is successively held out as a testing set to assess the current combination of hyperparameter values, and model performance is averaged across the five repeats. The best model is selected according to which combination of hyperparameters gives the highest area under the ROC curve, and the model is refitted using the full training set. This model will be referred to as *the model* or *model-under-test* (in the context of stability analysis).
 
 ## Stability analysis
 
@@ -312,12 +314,12 @@ draw_experiment_plan(
 
 We follow the methodology outlined in [@riley2022stability] to assess the stability of the model development process, which encompasses effects due to sample size, number of predictors, and method of model fitting.
 
-Assuming that a training set $P_0$ is used to develop a model $M_0$ (the model-under-test) using a model development process $D$ (involving steps such cross-validation and hyperparameter tuning in the training set, and validation of accuracy of model prediction in the test set), the following steps are required to assess the stability of $M_0$ [@riley2022stability]:
+Assuming that a training set $P_0$ is used to develop a model $M_0$ (the model-under-test) using a model development process $D$ (involving steps such cross validation and hyperparameter tuning in the training set, and validation of accuracy of model prediction in the test set), the following steps are required to assess the stability of $M_0$ [@riley2022stability]:
 
-1. Bootstrap resample $P_0$ with replacement $M \ge 200$ times, creating $M$ new datasets $P_m$ that are all the same size as $P_0$. Here, we use `{python} num_bootstraps` bootstraps (to be increased later)
+1. Bootstrap resample $P_0$ with replacement $M$ times, creating $M$ new datasets $P_m$ that are all the same size as $P_0$. Here, we use `{python} num_bootstraps` bootstraps (to be increased later)
 2. Apply $D$ to each $P_m$, to obtain $M$ new models $M_n$ which are all comparable with $M_0$.
-3. Collect together the predictions from all Mn and compare them to the predictions from $M_0$ for each sample in the test set $T$.
-4. From the data in step 3, plot instability plots such as a scatter plot of $M_0$ predictions on the x-axis and all the $M_n$ predictions on the y-axis, for each sample of $T$. In addition, plot graphs of how all the model validation metrics vary as a function of the bootstrapped models $M_n$. This includes graphs of how the ROC curves vary with bootstrapped models, and (more significantly) how the model calibration depends on the resampling.
+3. Collect together the predictions from all $M_n$ and compare them to the predictions from $M_0$ for each sample in the test set $T$.
+4. From the data in step 3, plot stability using a scatter plot of $M_0$ predictions on the x-axis and all the $M_n$ predictions on the y-axis, for each sample of $T$. In addition, plot graphs of how all the model validation metrics vary as a function of the bootstrapped models $M_n$. This includes graphs of how the ROC curves vary with bootstrapped models, and (more significantly) how the model calibration depends on the resampling.
 
 For each model and outcome combination in this report, four figures are presented, all of which display information for the model-under-test, and also the resampled models. These are:
 
@@ -326,7 +328,7 @@ For each model and outcome combination in this report, four figures are presente
 3. **Risk prediction stability**, which directly compares the predictions of the bootstrapped models (y-axis) with the predictions from the model-under-test (x-axis) for each patient in the testing set; ideally predictions for the same patient should agree.
 4. **Risk prediction distribution**, which shows how often different risks (probabilities) are predicted by the models. This is highly important in interpreting the other graphs, because some regions of risk are much more densely populated with points, which is not always obvious directly from the graph.
 
-In addition, a meta-stability question relating to how well the different models agree with each other is also pertinent, because ideally the predictions from all the models should converge upon some (inaccessible) "ground truth" for risk of ischaemia and bleeding for each patient, if any of the models are to be trustworthy. This question is not addressed quantitatively; however, in practice, some models may be ruled out qualitatively on this criterion if their predictions or characteristics "differ considerably" from the other models. On the other hand, different models may lend each other support if they all tend to display similar behaviour.
+In addition, a meta-stability question relating to how well the different models agree with each other is also pertinent, because ideally the predictions from all the models should converge upon some (inaccessible) "ground truth" for risk of ischaemia and bleeding for each patient, if any of the models are to be considered trustworthy. This question is not addressed quantitatively; however, in practice, some models may be ruled out qualitatively on this criterion if their predictions or characteristics "differ considerably" from the other models. On the other hand, different models may lend each other support if they all tend to display similar behaviour.
 
 {{< pagebreak >}}
 # Models
