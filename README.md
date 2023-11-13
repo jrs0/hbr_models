@@ -80,4 +80,5 @@ Once the installation is complete, you can check the `rust_hbr` library builds b
 ```bash
 cd rust_hbr
 cargo build
+# Finished dev [unoptimized + debuginfo] target(s) in ...
 ```
