@@ -34,7 +34,7 @@ check-revoke = false
 
 ### Tips for Windows Development
 
-If the rust part of the library needs recompilation, it seems faster to do it directly using `cargo build` from the `src/rust/` directory than calling `rextendr::document()` from an R console (at least on my computer). This recompilation is needed after calling `cargo update` from `src/rust`, which is required when the `rust_hic` crate changes 
+If the rust part of the library needs recompilation, it seems faster to do it directly using `cargo build` from the `src/rust/` directory than calling `rextendr::document()` from an R console (at least on my computer). This recompilation is needed after calling `cargo update` from `src/rust`, which is required when the `rust_hbr` crate changes 
 
 
 

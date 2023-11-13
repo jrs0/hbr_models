@@ -1,4 +1,4 @@
-use rust_hic::{
+use rust_hbr::{
     clinical_code::ClinicalCodeStore,
     clinical_code_tree::ClinicalCodeTree, seeded_rng::make_rng,
     printcode

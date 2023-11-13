@@ -10,6 +10,6 @@ crate-type = ["cdylib"]
 
 [dependencies]
 pyo3 = "0.19.0"
-rust_hic = { git = "https://github.com/jrs0/hic_arc_hbr" }
+rust_hbr = { git = "https://github.com/jrs0/hbr_models" }
 rand = "0.8.5"
 rand_chacha = "0.3.1"

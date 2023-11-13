@@ -1,4 +1,4 @@
-## The main (user-level) interface to the rust_hic library is defined
+## The main (user-level) interface to the rust_hbr library is defined
 ## in this file.
 ##
 

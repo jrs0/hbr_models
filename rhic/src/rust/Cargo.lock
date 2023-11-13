@@ -3912,7 +3912,7 @@ name = "rhic"
 version = "0.1.0"
 dependencies = [
  "extendr-api",
- "rust_hic",
+ "rust_hbr",
 ]
 
 [[package]]
@@ -3978,7 +3978,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "rust_hic"
+name = "rust_hbr"
 version = "0.1.0"
 source = "git+https://github.com/jrs0/hic_arc_hbr#ea1ba6590748ad580b38dac14b5ba5104c80b7b6"
 dependencies = [

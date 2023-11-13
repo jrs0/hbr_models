@@ -1,5 +1,5 @@
 use datafusion::prelude::*;
-use rust_hic::{load_record_batch, save_record_batch, make_pathology_blood};
+use rust_hbr::{load_record_batch, save_record_batch, make_pathology_blood};
 use polars::prelude::*;
 
 

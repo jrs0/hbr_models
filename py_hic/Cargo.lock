@@ -3294,7 +3294,7 @@ dependencies = [
  "pyo3",
  "rand 0.8.5",
  "rand_chacha 0.3.1",
- "rust_hic",
+ "rust_hbr",
 ]
 
 [[package]]
@@ -3625,7 +3625,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "rust_hic"
+name = "rust_hbr"
 version = "0.1.0"
 source = "git+https://github.com/jrs0/hic_arc_hbr#f76484c8a49d50bd2f940aa0bc8f892f8206bb06"
 dependencies = [

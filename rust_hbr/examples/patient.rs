@@ -3,7 +3,7 @@
 use std::collections::HashMap;
 
 use polars::prelude::*;
-use rust_hic::{
+use rust_hbr::{
     make_pathology_blood, patient::Patient, preprocess::measurement_from_pathology_blood,
 };
 

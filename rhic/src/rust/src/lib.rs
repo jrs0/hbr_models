@@ -1,4 +1,4 @@
-//! The main Rust-language interface layer between rust_hic (the Rust crate)
+//! The main Rust-language interface layer between rust_hbr (the Rust crate)
 //! and rhic (the R package).
 //! 
 //! Data is typically returned to R in a base-R format like a raw list or
@@ -9,7 +9,7 @@
 //! 
 
 use extendr_api::prelude::*;
-use rust_hic::{clinical_code::ClinicalCodeStore, clinical_code_tree::ClinicalCodeTree};
+use rust_hbr::{clinical_code::ClinicalCodeStore, clinical_code_tree::ClinicalCodeTree};
 
 /// Get the clinical codes in a particular code group defined
 /// in a codes file.
