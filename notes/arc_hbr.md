@@ -1,5 +1,7 @@
 # Academic Research Consortium High Bleeding Risk (ARC HBR)
 
+
+
 A primary purpose of this repository is attempting to calculate (or approximate) the ARC-HBR risk score[^1]. It is likely not possible to exactly calculate the exact score due to deficiencies in the data. However, having the approximate score may be useful because:
 * An automated calculation of the score (accompanied by a concise expression of the underlying data, in order to allow for clinical judgement) may be a clinically useful decision-support tool in its own right while prescribing blood-thinning medication following acute coronary syndromes.
 * The approximate calculation of the ARC-HBR score may be useful as a prognostic model for predicting bleeding risk, provided that it can be validated using appropriate bleeding data
