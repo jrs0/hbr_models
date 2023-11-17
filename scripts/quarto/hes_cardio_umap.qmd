@@ -22,7 +22,7 @@ import umap
 import umap.plot
 import re
 import scipy
-from py_hic.clinical_codes import get_codes_in_group
+from py_hbr.clinical_codes import get_codes_in_group
 
 import hes
 

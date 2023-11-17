@@ -16,8 +16,8 @@ import umap
 import umap.plot
 import re
 import scipy
-import py_hic
-from py_hic.clinical_codes import get_codes_in_group, ClinicalCodeParser
+import py_hbr
+from py_hbr.clinical_codes import get_codes_in_group, ClinicalCodeParser
 import code_group_counts as codes
 import datetime as dt
 import sparse_encode as spe
@@ -26,7 +26,7 @@ import hes
 
 importlib.reload(hes)
 importlib.reload(codes)
-importlib.reload(py_hic)
+importlib.reload(py_hbr)
 importlib.reload(spe)
 
 # Get raw data

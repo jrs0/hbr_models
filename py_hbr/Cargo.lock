@@ -3288,7 +3288,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "py_hic"
+name = "py_hbr"
 version = "0.1.0"
 dependencies = [
  "pyo3",

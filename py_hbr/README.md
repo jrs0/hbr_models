@@ -10,7 +10,7 @@ Install [Python 3.9 or later](https://www.python.org/downloads/release/python-39
 
 Install the [maturin](https://github.com/PyO3/maturin) development tools using `pip install maturin`. 
 
-To build the python package for development purposes, change to the `py_hic` folder (this one) and run:
+To build the python package for development purposes, change to the `py_hbr` folder (this one) and run:
 
 ```powershell
 maturin develop
@@ -21,7 +21,7 @@ If you find that you get Rust build errors after changing Python environment (or
 Once you have run `maturin develop`, a temporary copy of the library is installed in the current virtual environment, meaning that it can be loaded from a script as if it were an installed library. To use the library, run (for example):
 
 ```python
-from py_hic.clinical_codes import get_codes_in_group
+from py_hbr.clinical_codes import get_codes_in_group
 ```
 
 ## Installation on Windows
@@ -33,10 +33,10 @@ To install the library in a virtual environment in VS Code, activate the environ
 maturin build --release -i python
 ```
 
-This will create a wheel with a name like `target\wheels\py_hic-0.1.0-cp39-none-win_amd64.whl`. To install it, run
+This will create a wheel with a name like `target\wheels\py_hbr-0.1.0-cp39-none-win_amd64.whl`. To install it, run
 
 ```powershell
-pip install target\wheels\py_hic-0.1.0-cp39-none-win_amd64.whl
+pip install target\wheels\py_hbr-0.1.0-cp39-none-win_amd64.whl
 ```
 
 
@@ -55,6 +55,6 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
-Install maturin using `pip install maturin[patchelf]` (the `patchelf` feature prevents warnings about setting `rpath`). For developing, run `maturin develop` in the `py_hic` folder.
+Install maturin using `pip install maturin[patchelf]` (the `patchelf` feature prevents warnings about setting `rpath`). For developing, run `maturin develop` in the `py_hbr` folder.
 
 

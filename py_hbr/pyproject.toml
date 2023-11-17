@@ -3,7 +3,7 @@ requires = ["maturin>=1.1,<2.0"]
 build-backend = "maturin"
 
 [project]
-name = "py_hic"
+name = "py_hbr"
 requires-python = ">=3.7"
 classifiers = [
     "Programming Language :: Rust",
@@ -17,4 +17,4 @@ dependencies = [
 [tool.maturin]
 features = ["pyo3/extension-module"]
 python-source = "python"
-module-name = "py_hic._lib_name"
+module-name = "py_hbr._lib_name"
