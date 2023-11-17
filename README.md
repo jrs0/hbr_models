@@ -55,7 +55,7 @@ Install the following dependencies:
 ```bash
 # Prefix sudo if using a regular user (if not using docker)
 apt update
-apt install git curl python3 python3-venv
+apt install git curl python3 python3-venv gcc pkg-config libssl-dev
 ```
 
 Clone this git repository using
@@ -85,7 +85,7 @@ cargo build
 
 ### Python Installation
 
-Python should be installed as per the dependencies above. It is recommended to work within a virtual environment. Create it by running (from the top level of this repository):
+Python should be installed already as per the dependencies above (the `apt` command). It is recommended to work within a virtual environment. Create it by running (from the top level of this repository):
 
 ```bash
 # This line only needs to be run once to create the environment
@@ -100,7 +100,8 @@ All subsequent commands assume the virtual environment has been activated.
 To build and install the `py_hbr` library, first install `maturin` (the build system):
 
 ```bash
-pip install maturin
+# the `patchelf` feature prevents warnings about setting `rpath` later
+pip install maturin[patchelf]
 ```
 
 Ensure that the Rust toolchain is installed as per the steps above. To build the python package for development purposes, run:
@@ -109,3 +110,30 @@ Ensure that the Rust toolchain is installed as per the steps above. To build the
 cd py_hbr
 maturin develop
 ```
+
+This should install `py_hbr` into the current virtual environment. You can check it worked by running
+
+```bash
+python
+# Now inside the python shell
+>>> from py_hbr.clinical_codes import get_codes_in_group
+```
+
+If that works, then the library has been successfully built and installed for development purposes, and scripts that rely on `py_hbr` should run correctly. 
+
+You can also build and install a release version of the library, which will compile the Rust code with optimisations turned on. This may be helpful if you need to call the code in a way where performance might be a problem. Be aware that the Rust code has not be profiled and optimised, so substantial performance improvements are likely possible.
+
+To build in release mode, run the following command:
+
+```bash
+maturin build --release
+```
+
+This will create a wheel with a name like `target/wheels/py_hbr-0.1.0-cp310-cp310-manylinux_2_34_x86_64.whl`. To install it into the current virtual environment, run
+
+```bash
+# You may need to add --force-reinstall onto the end if you previously ran `maturin develop`
+pip install target/wheels/py_hbr-0.1.0-cp310-cp310-manylinux_2_34_x86_64.whl
+```
+
+See the [Maturin documentation](https://github.com/PyO3/maturin) for more information about how to build and install the library.
