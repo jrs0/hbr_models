@@ -1,5 +1,5 @@
 //! The main Rust-language interface layer between rust_hbr (the Rust crate)
-//! and rhic (the R package).
+//! and rhbr (the R package).
 //! 
 //! Data is typically returned to R in a base-R format like a raw list or
 //! vector. You don't want to call the functions here (anything starting with
@@ -69,7 +69,7 @@ fn rust_get_groups_in_codes_file(codes_file_path: &str) -> Vec<String> {
 // This ensures exported functions are registered with R.
 // See corresponding C code in `entrypoint.c`.
 extendr_module! {
-    mod rhic;
+    mod rhbr;
     fn rust_get_codes_in_group;
     fn rust_get_groups_in_codes_file;
 }

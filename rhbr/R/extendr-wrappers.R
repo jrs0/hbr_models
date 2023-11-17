@@ -4,11 +4,11 @@
 
 #
 # This file was created with the following call:
-#   .Call("wrap__make_rhic_wrappers", use_symbols = TRUE, package_name = "rhic")
+#   .Call("wrap__make_rhbr_wrappers", use_symbols = TRUE, package_name = "rhbr")
 
 #' @docType package
 #' @usage NULL
-#' @useDynLib rhic, .registration = TRUE
+#' @useDynLib rhbr, .registration = TRUE
 NULL
 
 #' Get the clinical codes in a particular code group defined

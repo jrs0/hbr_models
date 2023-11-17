@@ -53,7 +53,7 @@ sudo apt install libcurl4-openssl-dev libfontconfig1-dev libharfbuzz-dev libfrib
 sudo apt install unixodbc-dev
 ```
 
-To install the development version of the package, clone this repository, navigate to this directory (`rhic`), and run R. Then install the package as follows:
+To install the development version of the package, clone this repository, navigate to this directory (`rhbr`), and run R. Then install the package as follows:
 
 ```r
 # Install devtools if not already installed
