@@ -55,7 +55,7 @@ Install the following dependencies:
 ```bash
 # Prefix sudo if using a regular user (if not using docker)
 apt update
-apt install git curl python3 python3-venv gcc pkg-config libssl-dev
+apt install git curl python3 python3-venv gcc clang pkg-config libssl-dev libkrb5-dev
 ```
 
 Clone this git repository using
@@ -83,7 +83,7 @@ cargo build
 # Finished dev [unoptimized + debuginfo] target(s) in ...
 ```
 
-### Python Installation
+### Python Library Installation
 
 Python should be installed already as per the dependencies above (the `apt` command). It is recommended to work within a virtual environment. Create it by running (from the top level of this repository):
 
@@ -137,3 +137,36 @@ pip install target/wheels/py_hbr-0.1.0-cp310-cp310-manylinux_2_34_x86_64.whl
 ```
 
 See the [Maturin documentation](https://github.com/PyO3/maturin) for more information about how to build and install the library.
+
+### R Library Installation
+
+These instructions were tested on the Ubuntu docker image above and Linux Mint 21.1. Install R and other package dependencies as follows (omit `sudo` if using a docker container):
+
+```bash
+# Install R
+apt install r-base-core
+
+# Install dependencies for the devtools package
+apt install libcurl4-openssl-dev libfontconfig1-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev libxml2-dev 
+
+# Install dependencies for the Rust library
+apt install unixodbc-dev
+```
+
+To install the development version of the `rhbr` package, clone this repository, navigate to the `rhbr` directory, and run `R`. Then install the package as follows:
+
+```r
+# Install devtools if not already installed
+install.packages("devtools")
+
+# Required to generate R wrappers for rust functions
+devtools::document()
+
+# Develop (import all functions into current R session)
+devtools::load_all()
+
+# Install the package locally
+devtools::install()
+```
+
+You can check that the library installed correctly by trying to load it using `library(rhbr)`.
