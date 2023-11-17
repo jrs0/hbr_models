@@ -3627,7 +3627,7 @@ dependencies = [
 [[package]]
 name = "rust_hbr"
 version = "0.1.0"
-source = "git+https://github.com/jrs0/hic_arc_hbr#f76484c8a49d50bd2f940aa0bc8f892f8206bb06"
+source = "git+https://github.com/jrs0/hbr_models#6db4f9a093dd851a163e5796605b86b625f81b46"
 dependencies = [
  "anyhow",
  "bimap",
