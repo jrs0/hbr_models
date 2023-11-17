@@ -13,7 +13,7 @@ This section describes how to set up all the necessary prerequisites for develop
 
 This repository was developed using Visual Studio Code; using it will probably give you the highest chance of successfully getting things working. Download and install VS Code from [here](https://code.visualstudio.com/). You don't need administrative rights. Let it choose the default location, and leave all installation options on defaults.
 
-You want a number of extensions. Install:
+You might want a number of extensions:
 - Python (tested v2023.20.0), which contains multiple python linting and other tools
 -  
 
@@ -25,7 +25,7 @@ Navigate to [this page](https://www.python.org/downloads/release/python-3100/), 
 
 ### Rust Installation
 
-The Rust toolchain is required to build the parts of the library written in Rust. Before installing the toolchain on Windows, you will need some build prerequisites. As described [here](https://learn.microsoft.com/en-us/windows/dev-environment/rust/setup), they can be obtained by installing Visual Studio Community, or by installing [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) (which is simpler). When you run the installer, ensure you tick the option to install the C++ tools for desktop app development. If you do find the installation didn't work, you will get a message in the rustup installation (next step) that the C++ build tools are missing. If you get that error, go back and ensure teh C++ build tools are installed correctly.
+The Rust toolchain is required to build the parts of the library written in Rust. Before installing the toolchain on Windows, you will need some build prerequisites. As described [here](https://learn.microsoft.com/en-us/windows/dev-environment/rust/setup), they can be obtained by installing Visual Studio Community, or by installing [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) (which is simpler). When you run the installer, ensure you tick the option to install the C++ tools for desktop app development. If you do find the installation didn't work, you will get a message in the rustup installation (next step) that the C++ build tools are missing. If you get that error, go back and ensure the C++ build tools are installed correctly.
 
 Next, download the toolchain (the `rustup` tool, which installs the toolchain) from [here](https://www.rust-lang.org/tools/install). 
 
@@ -41,7 +41,7 @@ docker run -it --name test_container ubuntu
 docker start test_container
 docker exec -it test_container /bin/bash
 # Now in the docker container...
-cat /etc/lsb-release # to confirm
+cat /etc/lsb-release # to confirm Ubuntu version, output below:
 # DISTRIB_ID=Ubuntu
 # DISTRIB_RELEASE=22.04
 # DISTRIB_CODENAME=jammy
@@ -81,4 +81,31 @@ Once the installation is complete, you can check the `rust_hbr` library builds b
 cd rust_hbr
 cargo build
 # Finished dev [unoptimized + debuginfo] target(s) in ...
+```
+
+### Python Installation
+
+Python should be installed as per the dependencies above. It is recommended to work within a virtual environment. Create it by running (from the top level of this repository):
+
+```bash
+# This line only needs to be run once to create the environment
+python3 -m venv venv
+
+# This line should be run every time you want to start the environment in a console
+source venv/bin/activate
+```
+
+All subsequent commands assume the virtual environment has been activated.
+
+To build and install the `py_hbr` library, first install `maturin` (the build system):
+
+```bash
+pip install maturin
+```
+
+Ensure that the Rust toolchain is installed as per the steps above. To build the python package for development purposes, run:
+
+```bash
+cd py_hbr
+maturin develop
 ```
