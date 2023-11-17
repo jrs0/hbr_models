@@ -2,7 +2,7 @@
 ## in this file.
 ##
 
-from py_hic import _lib_name
+from py_hbr import _lib_name
 import os
 import pandas
 

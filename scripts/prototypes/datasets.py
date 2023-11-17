@@ -43,7 +43,7 @@ import datetime as dt
 
 import pandas as pd
 
-from py_hic.clinical_codes import get_codes_in_group, ClinicalCodeParser
+from py_hbr.clinical_codes import get_codes_in_group, ClinicalCodeParser
 
 import hes
 import swd

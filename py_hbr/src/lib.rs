@@ -1,5 +1,5 @@
 //! The main Rust-language interface layer between rust_hbr (the Rust crate)
-//! and py_hic (the Python package).
+//! and py_hbr (the Python package).
 
 use pyo3::{exceptions::PyValueError, prelude::*};
 use rust_hbr::{clinical_code::ClinicalCodeStore, clinical_code_tree::ClinicalCodeTree};
