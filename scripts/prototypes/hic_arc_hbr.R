@@ -12,11 +12,11 @@ source("save_datasets.R")
 source("hic.R")
 source("code_group_counts.R")
 
-# Either load rhic using rextendr::document() (from the rhic/ directory)
-# or install rhic and use library(rhic). Pick one of the options from
+# Either load rhbr using rextendr::document() (from the rhbr/ directory)
+# or install rhbr and use library(rhbr). Pick one of the options from
 # below
-# library(rhic)
-rextendr::document(pkg = "../../rhic")
+# library(rhbr)
+rextendr::document(pkg = "../../rhbr")
 
 ####### DATE RANGE FOR DATA COLLECTION #######
 

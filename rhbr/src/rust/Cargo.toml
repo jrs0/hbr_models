@@ -1,12 +1,12 @@
 [package]
-name = 'rhic'
+name = 'rhbr'
 version = '0.1.0'
 edition = '2021'
 
 [lib]
 crate-type = [ 'staticlib' ]
-name = 'rhic'
+name = 'rhbr'
 
 [dependencies]
 extendr-api = '*'
-rust_hbr = { git = "https://github.com/jrs0/hic_arc_hbr" }
+rust_hbr = { git = "https://github.com/jrs0/hbr_models" }

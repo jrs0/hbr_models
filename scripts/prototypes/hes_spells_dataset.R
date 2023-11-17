@@ -65,11 +65,11 @@ library(tidyverse)
 source("preprocessing.R")
 source("save_datasets.R")
 
-# Either load rhic using rextendr::document() (from the rhic/ directory)
-# or install rhic and use library(rhic). Pick one of the options from
+# Either load rhbr using rextendr::document() (from the rhbr/ directory)
+# or install rhbr and use library(rhbr). Pick one of the options from
 # below
-# library(rhic)
-rextendr::document(pkg = "../../rhic")
+# library(rhbr)
+rextendr::document(pkg = "../../rhbr")
 
 con <- DBI::dbConnect(odbc::odbc(), "xsw", bigint = "character")
 id <- dbplyr::in_catalog("abi", "dbo", "vw_apc_sem_spell_001")
