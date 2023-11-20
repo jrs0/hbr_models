@@ -16,7 +16,7 @@ jobs:
     runs-on: ${{ matrix.platform }}
     defaults:
         run:
-          working-directory: ./app
+          working-directory: ./codes_editor
     steps:
       - uses: actions/checkout@v3
       - name: setup node
