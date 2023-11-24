@@ -1,7 +1,7 @@
 # Bleeding/Ischaemia models for High Bleeding Risk
 
 This repository contains prototype tools and scripts for creating models for bleeding and ischaemia outcomes in patients with ACS, based on the BNSSG HES data and SWD. Specifically, it contains
-- a tool for creating groups of ICD-10 and OPCD-4 codes which can directly interface to the dataset generating scripts
+- a tool for creating groups of ICD-10 and OPCD-4 codes in a format that can directly interface to the dataset generating scripts
 - a set of scripts for obtaining datasets for modelling bleeding and ischaemia outcomes, and fitting models
 - a quarto document which presents a comparison of the models for each dataset
 

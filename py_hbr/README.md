@@ -57,4 +57,23 @@ source venv/bin/activate
 
 Install maturin using `pip install maturin[patchelf]` (the `patchelf` feature prevents warnings about setting `rpath`). For developing, run `maturin develop` in the `py_hbr` folder.
 
+## Notes
 
+Package dependencies were checked using [deptry](https://github.com/fpgmaas/deptry):
+
+```bash
+# Install
+pip install deptry
+# Check the package
+cd py_hbr
+deptry .
+```
+
+Only dependency is currently `pandas` (ignoring false-positive warning for `py_hbr`).
+
+Created the base [Github action](https://github.com/PyO3/maturin-action) configuration by running:
+
+```bash
+cd py_hbr
+maturin generate-ci github > ../.github/workflows/py_hbr_package.yml
+```
