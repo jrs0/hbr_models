@@ -5,6 +5,23 @@ This repository contains prototype tools and scripts for creating models for ble
 - a set of scripts for obtaining datasets for modelling bleeding and ischaemia outcomes, and fitting models
 - a quarto document which presents a comparison of the models for each dataset
 
+## Installation
+
+The Python package `py_hbr` (used in some of the scripts) can either be installed from a release, or built from source. If you are using Windows (32- of 64-bit), and one of Python 3.7 - 3.12, you can download the wheel for the package from [here](todo...). First, create a python virtual environment in VS Code (`Ctrl-Shift-P`, `Python: Create Environment...`, then `Venv`). Once it is activated (look for `(.venv)` at the left hand side of your powershell terminal in VS Code), run the following:
+
+```bash
+# This example is for 64-bit windows and Python 3.9
+cd c:/directory/containing/wheel
+pip install py_hbr-0.1.0-cp39-none-win_amd64.whl
+```
+
+Use the following wheels depending on your operating system (make sure the number `**` following `cp` matches your Python version):
+* Windows 64-bit: `py_hbr-0.1.0-cp**-none-win_amd64.whl`
+* Windows 32-bit: `py_hbr-0.1.0-cp**-none-win32.whl`
+* Mac (64-bit, x86_64, Python 3.11): `py_hbr-0.1.0-cp311-cp311-macosx_10_7_x86_64.whl`
+
+If you see an error like `<wheel> is not a supported wheel on this platform`, double check that the wheel version matches your operating system, architecture, and Python version.
+
 ## Set up using Windows
 
 This section describes how to set up all the necessary prerequisites for development using Windows.
