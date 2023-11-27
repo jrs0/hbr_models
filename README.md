@@ -7,6 +7,8 @@ This repository contains prototype tools and scripts for creating models for ble
 
 ## Installation
 
+**Note: the "releases" are primarily for ease-of-installation for testing, rather than because the packages in this repository are fully tested and ready for general use.**
+
 The Python package `py_hbr` (used in some of the scripts) can either be installed from a release, or built from source. If you are using Windows (32- of 64-bit), and one of Python 3.7 - 3.12, you can download the wheel for the package from [here](todo...). First, create a python virtual environment in VS Code (`Ctrl-Shift-P`, `Python: Create Environment...`, then `Venv`). Once it is activated (look for `(.venv)` at the left hand side of your powershell terminal in VS Code), run the following:
 
 ```bash
