@@ -1,6 +1,6 @@
 ---
 title: "Bleeding/Ischaemia Risk Trade-off Models"
-subtitle: "Using HES data (all clinical codes)"
+subtitle: "Using HES + SWD data"
 date: now
 date-format: short
 author: John Scott
@@ -92,13 +92,13 @@ model_names = {
     # "simple_naive_bayes": "naive bayes",
     # #"simple_neural_network": "single-layer neural network",
     ### HES + SWD models ###
-    #"simple_logistic_regression": "logistic regression",
+    "simple_logistic_regression": "logistic regression",
     "truncsvd_logistic_regression": "truncated SVD + logistic regression",
     "simple_decision_tree": "decision tree",
     "truncsvd_decision_tree": "truncated SVD + decision tree",
-    #"simple_gradient_boosted_tree": "gradient boosted decision tree",
-    #"simple_random_forest": "random forest",
-    #"simple_naive_bayes": "naive bayes",
+    "simple_gradient_boosted_tree": "gradient boosted decision tree",
+    "simple_random_forest": "random forest",
+    "simple_naive_bayes": "naive bayes",
     #"simple_neural_network": "single-layer neural network",
 }
 outcome_names = {
@@ -107,7 +107,7 @@ outcome_names = {
 }
 
 # The generated report relates to one dataset. Pick that dataset here.
-dataset = "all_codes"
+dataset = "manual_codes_swd"
 dataset_title = dataset_name[dataset]
 ```
 

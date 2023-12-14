@@ -25,8 +25,8 @@ start = time.time()
 # Either run all combinations of models and datasets (True),
 # or run for a specific model and dataset (False) by picking the model
 # and dataset index in the lists below
-run_all_models = True
-model_choice = 2
+run_all_models = False
+model_choice = 3
 dataset_choice = 1
 
 # These are the models that should be fitted on every

@@ -388,9 +388,14 @@ class SimpleRandomForest:
                 ]
             )
         self._param_grid = {
-            "tree__max_depth": range(1, 20),
+            # Increasing the tree depth beyond 20 ish does not appear
+            # to improve performance.
+            "tree__max_depth": range(1, 21),
+            # Leaving the default min samples per leaf as 1 appears to
+            # give the best results
+            #"tree__min_samples_leaf": range(1, 3),
         }
-        self._search = RandomizedSearchCV(
+        self._search = GridSearchCV(
             self._pipe, self._param_grid, cv=5, verbose=3, scoring="roc_auc"
         ).fit(X, y)
         print(self._search.best_params_)
