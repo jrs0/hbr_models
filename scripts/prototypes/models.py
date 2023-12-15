@@ -196,6 +196,10 @@ class TruncSvdLogisticRegression:
                 ]
             )
         num_features = X.shape[1]
+        
+        # Using more components does not improve the performance
+        # on the validation set when GridSearchCV is used, likely
+        # due to overfitting. 
         max_components = min(num_features, 200)
 
         self._param_grid = {
