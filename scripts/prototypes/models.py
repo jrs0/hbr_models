@@ -528,7 +528,7 @@ class SimpleGradientBoostedTree:
         self._param_grid = {
             "tree__max_depth": range(1, 20),
         }
-        self._search = RandomizedSearchCV(
+        self._search = GridSearchCV(
             self._pipe, self._param_grid, cv=5, verbose=3, scoring="roc_auc"
         ).fit(X, y)
         print(self._search.best_params_)

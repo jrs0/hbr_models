@@ -202,7 +202,7 @@ def plot_risk_tradeoff(dataset, model, bleeding_outcome, ischaemia_outcome, titl
 # plot a particular model
 if __name__ == "__main__":
     dataset = "manual_codes_swd"
-    model = "truncsvd_logistic_regression"
+    model = "simple_logistic_regression"
     df1 = get_model_summary(dataset, model, "bleeding_al_ani_outcome")
     df2 = get_model_summary(dataset, model, "hussain_ami_stroke_outcome")
     df = pd.concat([df1, df2]).reset_index(drop=True)
