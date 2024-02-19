@@ -441,7 +441,7 @@ X1_test = data_umap.loc[X0_test.index]
 # procedure columns, then manually apply this to the training set.
 cols_to_reduce = X1_train.filter(regex=("diag|proc"))
 
-mapper = umap.UMAP(metric="hamming", n_components=2, random_state=rng, verbose=True)
+mapper = umap.UMAP(metric="hamming", n_components=16, random_state=rng, verbose=True)
 
 # Fit UMAP to the training set
 umap_fit = mapper.fit(cols_to_reduce)
@@ -460,22 +460,31 @@ def row_contains_group(group, code_groups, X1_train):
     # Flag all the codes in a group
     groups = code_groups[code_groups["group"] == group]["name"]
     group_regex = "|".join(groups.to_list())
-    return X1_train.filter(regex=group_regex).sum(axis=1)
+    return X1_train.filter(regex=group_regex).sum(axis=1).astype('category')
 
 # Apply the fit to the training data to get the embedding
 emb = umap_fit.transform(cols_to_reduce)
+
+# Plot a particular code group
+group_name = ""
+display_name = "Bleeding"
 X1_train_embedding = pd.DataFrame(emb).set_index(X1_train.index)
-group_name = "ckd"
-display_name = "CKD"
 col_name = f"Prior {display_name}"
 X1_train_embedding[col_name] = row_contains_group(group_name,code_groups_df, X1_train)
 X1_train_embedding.columns = ["Feature 1", "Feature 2", col_name]
-
-palette = sns.color_palette("rocket", as_cmap=True)
-
+palette = sns.color_palette("rocket")
 sns.set(font_scale=1.2)
 sns.relplot(data=X1_train_embedding, x="Feature 1", y='Feature 2', hue=col_name, palette=palette, s=5)
 plt.title(f"Distribution of {col_name}")
+plt.show()
+
+# Plot age on the graph
+X1_train_embedding = pd.DataFrame(emb).set_index(X1_train.index)
+X1_train_embedding["Age"] = X1_train["dem_age"]
+X1_train_embedding.columns = ["Feature 1", "Feature 2", "Age"]
+palette = sns.color_palette("rocket", as_cmap=True)
+sns.relplot(data=X1_train_embedding, x="Feature 1", y='Feature 2', hue="Age", palette=palette, s=5)
+plt.title(f"Distribution of Age")
 plt.show()
 
 # End of plotting ==================
