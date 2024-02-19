@@ -322,6 +322,10 @@ import os
 os.chdir("scripts/prototypes")
 
 from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+from sklearn.metrics import roc_curve, roc_auc_score
 import numpy as np
 import save_datasets as ds
 
@@ -359,7 +363,7 @@ data_umap = ds.load_dataset("data_umap", True)
 # 1. Get a set of index events
 
 # The index events are ACS/PCI patients. This table is the
-# manual_codes dataframe above, which also contains the manual
+# data_manual dataframe above, which also contains the manual
 # diagnosis/procedure group columns as predictors.
 #
 # Split this data into a test and a training set -- the idea
@@ -372,26 +376,39 @@ data_umap = ds.load_dataset("data_umap", True)
 # manual and UMAP models. Just interested in whether bleeding
 # occurred (not number of occurrences) for this experiment
 outcome_name = "bleeding_al_ani_outcome"
-y = manual_codes[manual_codes[outcome_name] > 0][outcome_name]
+y = data_manual[outcome_name]
 
 # Get the set of manual code predictors (X0) to use for the
 # first logistic regression model (all the columns with names
 # ending in "_before").
-X0 = manual_codes.filter(regex="_before")
+X0 = data_manual.drop(columns=[outcome_name])
 
-# Make a random test/train split. It is important to make this
-# reproducible in order to use the same split for the UMAP
-# model later
-train_test_split_rng = np.random.RandomState(0)
+rng = np.random.RandomState(0)
+
+# Make a random test/train split.
 test_set_proportion = 0.25
 X0_train, X0_test, y_train, y_test = train_test_split(
-    X0, y, test_size=test_set_proportion, random_state=train_test_split_rng
+    X0, y, test_size=test_set_proportion, random_state=rng
 )
 
 # 2. Fit logistic regression in the training set using code groups
 
 # This is the simple case, where the full training set is used
-# to make the model, and the predictors are already determined.abs
+# to make the model, and the predictors are already determined.
+
+logreg = LogisticRegression(verbose=0, random_state=rng)
+scaler = StandardScaler()
+
+pipe = Pipeline(
+    [
+        ("scaler", scaler),
+        ("logreg", logreg),
+    ]
+)
+feature_regex="(age|before|gender)"
+fit = pipe.fit(X0_train.filter(regex=feature_regex), y_train)
+
+
 
 # 3. Dimension-reduce the diagnosis/procedures using UMAP
 
@@ -419,3 +436,6 @@ X0_train, X0_test, y_train, y_test = train_test_split(
 # step, want to do some stability analysis for this whole
 # process.
 #
+
+probs0 = fit.predict_proba(X0_test.filter(regex=feature_regex))[:, 1]
+auc0 = roc_auc_score(y_test, probs0)
