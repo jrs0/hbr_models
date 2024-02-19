@@ -331,6 +331,10 @@ import save_datasets as ds
 import matplotlib.pyplot as plt
 import umap
 import umap.plot
+import pandas as pd
+import seaborn as sns
+sns.set(style='ticks')
+
 
 # The purpose of this experiment is to test whether dimension
 # reduction of HES diagnosis/procedure codes can produce good
@@ -437,18 +441,57 @@ X1_test = data_umap.loc[X0_test.index]
 # procedure columns, then manually apply this to the training set.
 cols_to_reduce = X1_train.filter(regex=("diag|proc"))
 
-mapper = umap.UMAP(metric="hamming", random_state=1, verbose=True)
+mapper = umap.UMAP(metric="hamming", n_components=2, random_state=rng, verbose=True)
 
-# For plotting
-mapper = umap.UMAP().fit(cols_to_reduce)
-ages = X1_train[["dem_age"]].to_numpy()
-umap.plot.points(mapper, values=ages)
+# Fit UMAP to the training set
+umap_fit = mapper.fit(cols_to_reduce)
+
+# For Plotting 2D =====================
+
+# To use this bit, ensure that the the ncomponents is set to
+# 2 (to be able to plot it).
+
+import code_group_counts as cgc
+code_groups_df = cgc.get_code_groups(
+    "../codes_files/icd10.yaml", "../codes_files/opcs4.yaml"
+)
+
+def row_contains_group(group, code_groups, X1_train):
+    # Flag all the codes in a group
+    groups = code_groups[code_groups["group"] == group]["name"]
+    group_regex = "|".join(groups.to_list())
+    return X1_train.filter(regex=group_regex).sum(axis=1)
+
+# Apply the fit to the training data to get the embedding
+emb = umap_fit.transform(cols_to_reduce)
+X1_train_embedding = pd.DataFrame(emb).set_index(X1_train.index)
+group_name = "ckd"
+display_name = "CKD"
+col_name = f"Prior {display_name}"
+X1_train_embedding[col_name] = row_contains_group(group_name,code_groups_df, X1_train)
+X1_train_embedding.columns = ["Feature 1", "Feature 2", col_name]
+
+palette = sns.color_palette("rocket", as_cmap=True)
+
+sns.set(font_scale=1.2)
+sns.relplot(data=X1_train_embedding, x="Feature 1", y='Feature 2', hue=col_name, palette=palette, s=5)
+plt.title(f"Distribution of {col_name}")
 plt.show()
 
-# For the real fit
-#embedding = mapper.fit_transform(dummy_data_to_reduce)
+# End of plotting ==================
+
+# Apply the fitted model to the training data to reduce it
+# to 16 columns
+emb = umap_fit.transform(cols_to_reduce)
+
+# Insert these columns back into the X1_train data frame in
+# place of the original diagnosis/procedure code columns.
+# The result is the input data for fitting logistic regression
+
+X1_train_reduced = X1_train[[]]
 
 # 4. Fit a log. reg. on the UMAP-predictor table
+
 
 # 5. Test both models on the test set
 
