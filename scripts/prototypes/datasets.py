@@ -329,6 +329,8 @@ from sklearn.metrics import roc_curve, roc_auc_score
 import numpy as np
 import save_datasets as ds
 import matplotlib.pyplot as plt
+import umap
+import umap.plot
 
 # The purpose of this experiment is to test whether dimension
 # reduction of HES diagnosis/procedure codes can produce good
@@ -406,10 +408,7 @@ pipe = Pipeline(
         ("logreg", logreg),
     ]
 )
-feature_regex="(age|before|gender)"
-fit = pipe.fit(X0_train.filter(regex=feature_regex), y_train)
-
-
+fit = pipe.fit(X0_train, y_train)
 
 # 3. Dimension-reduce the diagnosis/procedures using UMAP
 
@@ -429,6 +428,26 @@ fit = pipe.fit(X0_train.filter(regex=feature_regex), y_train)
 # predictors)
 #
 
+# First, extract the test/train sets from the UMAP data based on
+# the index of the training set for the manual codes
+X1_train = data_umap.loc[X0_train.index]
+X1_test = data_umap.loc[X0_test.index]
+
+# We will train a UMAP reduction on the X1_train table diagnosis/
+# procedure columns, then manually apply this to the training set.
+cols_to_reduce = X1_train.filter(regex=("diag|proc"))
+
+mapper = umap.UMAP(metric="hamming", random_state=1, verbose=True)
+
+# For plotting
+mapper = umap.UMAP().fit(cols_to_reduce)
+ages = X1_train[["dem_age"]].to_numpy()
+umap.plot.points(mapper, values=ages)
+plt.show()
+
+# For the real fit
+#embedding = mapper.fit_transform(dummy_data_to_reduce)
+
 # 4. Fit a log. reg. on the UMAP-predictor table
 
 # 5. Test both models on the test set
@@ -438,7 +457,7 @@ fit = pipe.fit(X0_train.filter(regex=feature_regex), y_train)
 # process.
 #
 
-probs0 = fit.predict_proba(X0_test.filter(regex=feature_regex))[:, 1]
+probs0 = fit.predict_proba(X0_test)[:, 1]
 auc0 = roc_auc_score(y_test, probs0)
 fpr0, tpr0, _ = roc_curve(y_test, probs0)
 plt.scatter(fpr0, tpr0)
