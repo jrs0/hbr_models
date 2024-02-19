@@ -64,7 +64,7 @@ import numpy as np
 # can handle
 start_date = dt.date(2010, 1, 1)
 end_date = dt.date(2025, 1, 1)  # After the end of the data
-from_file = False
+from_file = True
 
 # These four time periods define what events are considered index events,
 # what events are considered to follow or precede index events, what
@@ -100,7 +100,7 @@ attribute_valid_window = dt.timedelta(days=41)
 # Dataset containing one row per episode, grouped into spells by
 # spell_id, with some patient demographic information (age and gender)
 # and (predominantly) diagnosis and procedure columns
-raw_episodes_data = hes.get_raw_episodes_data(start_date, end_date, from_file)
+raw_episodes_data_2 = hes.get_raw_episodes_data(start_date, end_date, from_file)
 
 # Get all the clinical codes in long format, with a column to indicate
 # whether it is a diagnosis or a procedure code. Note that this is
@@ -313,6 +313,8 @@ ds.save_dataset(manual_codes_swd, "manual_codes_swd")
 
 
 # ======= UMAP EXPERIMENT =======
+from sklearn.model_selection import train_test_split
+import numpy as np
 
 # The purpose of this experiment is to test whether dimension
 # reduction of HES diagnosis/procedure codes can produce good
@@ -329,6 +331,27 @@ ds.save_dataset(manual_codes_swd, "manual_codes_swd")
 # is that no data from the set used to test the models leaks
 # into the data used to fit the UMAP reduction (or the model
 # fits either).
+
+# First, get the outcomes (y) from the dataframe. This is the
+# source of test/train outcome data, and is used for both the
+# manual and UMAP models. Just interested in whether bleeding
+# occurred (not number of occurrences) for this experiment
+outcome_name = "bleeding_al_ani_outcome"
+y = manual_codes[manual_codes[outcome_name] > 0][outcome_name]
+
+# Get the set of manual code predictors (X0) to use for the
+# first logistic regression model (all the columns with names
+# ending in "_before").
+X0 = manual_codes.filter(regex="_before")
+
+# Make a random test/train split. It is important to make this
+# reproducible in order to use the same split for the UMAP
+# model later
+train_test_split_rng = np.random.RandomState(0)
+test_set_proportion = 0.25
+X0_train, X0_test, y_train, y_test = train_test_split(
+    X0, y, test_size=test_set_proportion, random_state=train_test_split_rng
+)
 
 # 2. Fit logistic regression in the training set using code groups
 

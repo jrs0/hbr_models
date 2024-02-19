@@ -268,7 +268,9 @@ def get_raw_episodes_data(start_date, end_date, from_file):
     # in ICB. Fetching the full dataset takes 1185 s (measured at home),
     # and returns about 10.8m rows. However, excluding rows according to
     # documented exclusions results in about 6.7m rows, and takes about
-    # 434 s to fetch (from home)
+    # 434 s to fetch (from home).
+    #
+    # Now (Feb 2024) it took 1752 s to fetch 5.4m rows.
     if not from_file:
         print("Fetching episodes dataset from SQL")
         raw_episodes_data = get_hes_data(start_date, end_date, "episodes")
