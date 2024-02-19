@@ -318,8 +318,12 @@ ds.save_dataset(manual_codes_swd, "manual_codes_swd")
 
 
 # ======= UMAP EXPERIMENT =======
+import os
+os.chdir("scripts/prototypes")
+
 from sklearn.model_selection import train_test_split
 import numpy as np
+import save_datasets as ds
 
 # The purpose of this experiment is to test whether dimension
 # reduction of HES diagnosis/procedure codes can produce good
@@ -336,22 +340,20 @@ import numpy as np
 # - age, gender, stemi, nstemi, pci predictors
 # - outcome: bleeding_al_ani_outcome
 # - index: idx_episode_id
-data_manual = manual_codes.filter(regex=("(before|age|gender|stemi|pci|bleeding_al_ani_outcome)"))
-ds.save_dataset(data_manual, "data_manual")
-
+#data_manual = manual_codes.filter(regex=("(before|age|gender|stemi|pci|bleeding_al_ani_outcome)"))
+#ds.save_dataset(data_manual, "data_manual")
 data_manual = ds.load_dataset("data_manual", True)
 
 # Create/save/load the UMAP all-codes dataset
-base_info = idx_episodes.filter(regex="(episode_id|age|gender|stemi|pci)")
-base_info.set_index("idx_episode_id", inplace=True)
-feature_any_code.set_index("idx_episode_id", inplace=True)
-predictors = pd.merge(base_info, feature_any_code, on="idx_episode_id")
-del feature_any_code # If you are short on memory
-outcomes = outcome_counts[["idx_episode_id","bleeding_al_ani_outcome"]].set_index("idx_episode_id")
-data_umap = pd.merge(predictors, outcomes, on="idx_episode_id")
-del predictors
-ds.save_dataset(data_umap, "data_umap")
-
+#base_info = idx_episodes.filter(regex="(episode_id|age|gender|stemi|pci)")
+#base_info.set_index("idx_episode_id", inplace=True)
+#feature_any_code.set_index("idx_episode_id", inplace=True)
+#predictors = pd.merge(base_info, feature_any_code, on="idx_episode_id")
+#del feature_any_code # If you are short on memory
+#outcomes = outcome_counts[["idx_episode_id","bleeding_al_ani_outcome"]].set_index("idx_episode_id")
+#data_umap = pd.merge(predictors, outcomes, on="idx_episode_id")
+#del predictors
+#ds.save_dataset(data_umap, "data_umap")
 data_umap = ds.load_dataset("data_umap", True)
 
 # 1. Get a set of index events
