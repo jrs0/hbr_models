@@ -328,6 +328,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.metrics import roc_curve, roc_auc_score
 import numpy as np
 import save_datasets as ds
+import matplotlib.pyplot as plt
 
 # The purpose of this experiment is to test whether dimension
 # reduction of HES diagnosis/procedure codes can produce good
@@ -439,3 +440,6 @@ fit = pipe.fit(X0_train.filter(regex=feature_regex), y_train)
 
 probs0 = fit.predict_proba(X0_test.filter(regex=feature_regex))[:, 1]
 auc0 = roc_auc_score(y_test, probs0)
+fpr0, tpr0, _ = roc_curve(y_test, probs0)
+plt.scatter(fpr0, tpr0)
+plt.show()
