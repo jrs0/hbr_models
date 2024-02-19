@@ -33,7 +33,7 @@ def make_mortality_query(start_date, end_date):
 
 def get_mortality_data(start_date, end_date):
 
-    con = sql.create_engine("mssql+pyodbc://xsw")
+    con = sql.create_engine("mssql+pyodbc://dsn")
     start = time.time()
     raw_data = pd.read_sql(make_mortality_query(start_date, end_date), con)
     stop = time.time()

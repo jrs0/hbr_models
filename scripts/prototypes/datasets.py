@@ -100,7 +100,7 @@ attribute_valid_window = dt.timedelta(days=41)
 # Dataset containing one row per episode, grouped into spells by
 # spell_id, with some patient demographic information (age and gender)
 # and (predominantly) diagnosis and procedure columns
-raw_episodes_data_2 = hes.get_raw_episodes_data(start_date, end_date, from_file)
+raw_episodes_data = hes.get_raw_episodes_data(start_date, end_date, from_file)
 
 # Get all the clinical codes in long format, with a column to indicate
 # whether it is a diagnosis or a procedure code. Note that this is
@@ -110,6 +110,12 @@ long_clinical_codes = hes.convert_codes_to_long(raw_episodes_data, "episode_id")
 
 # Convert the diagnosis and procedure columns into
 code_group_counts = hes.make_code_group_counts(long_clinical_codes, raw_episodes_data)
+
+# To view included code groups
+import code_group_counts as cgc
+code_groups_df = cgc.get_code_groups(
+    "../codes_files/icd10.yaml", "../codes_files/opcs4.yaml"
+)
 
 # Get the latest (right censor) and earliest (left censor) dates seen
 # in the data set
@@ -181,16 +187,16 @@ feature_any_code = hes.get_all_codes_before_index(
 # Plot the distribution of codes over the index episodes. The envelope on the
 # right follows from assigning column indices in order of code-first-seen, which
 # naturally biases in favour of more common codes.
-# import seaborn as sns
-# import matplotlib.pyplot as plt
+import seaborn as sns
+import matplotlib.pyplot as plt
 
-# s = sns.heatmap(any_code_before)
-# s = s.set(
-#     xlabel="Diagnosis/Procedure Codes",
-#     ylabel="Index Episode ID",
-#     title="Distribution of Diagnosis/Procedure Codes",
-# )
-# plt.show()
+s = sns.heatmap(feature_any_code.iloc[range(1000)])
+s = s.set(
+    xlabel="Diagnosis/Procedure Codes",
+    ylabel="Index Episode ID",
+    title="Distribution of Diagnosis/Procedure Codes",
+)
+plt.show()
 
 # This table contains the total number of each diagnosis and procedure
 # group in a period after the index event. A fixed window immediately
@@ -198,7 +204,6 @@ feature_any_code = hes.get_all_codes_before_index(
 # outcomes or outcomes that occur in the index event itself. A follow-up
 # date is defined that becomes the "outcome_occurred" column in the
 # dataset, for classification models.
-
 
 # Outcome column all_cause_death_outcome
 all_cause_death = mort.get_all_cause_death(idx_episodes, mortality_dates, follow_up)
@@ -320,6 +325,34 @@ import numpy as np
 # reduction of HES diagnosis/procedure codes can produce good
 # bleeding risk predictions, compared to using manually-chose
 # code groups.
+
+# 0. Prepare the datasets
+
+# Use the manual_codes table above to create a new table
+# dropping unneeded columns
+
+# Create/save/load the manual code groups dataset
+# - 16 code group predictors (manually chosen groups)
+# - age, gender, stemi, nstemi, pci predictors
+# - outcome: bleeding_al_ani_outcome
+# - index: idx_episode_id
+data_manual = manual_codes.filter(regex=("(before|age|gender|stemi|pci|bleeding_al_ani_outcome)"))
+ds.save_dataset(data_manual, "data_manual")
+
+data_manual = ds.load_dataset("data_manual", True)
+
+# Create/save/load the UMAP all-codes dataset
+base_info = idx_episodes.filter(regex="(episode_id|age|gender|stemi|pci)")
+base_info.set_index("idx_episode_id", inplace=True)
+feature_any_code.set_index("idx_episode_id", inplace=True)
+predictors = pd.merge(base_info, feature_any_code, on="idx_episode_id")
+del feature_any_code # If you are short on memory
+outcomes = outcome_counts[["idx_episode_id","bleeding_al_ani_outcome"]].set_index("idx_episode_id")
+data_umap = pd.merge(predictors, outcomes, on="idx_episode_id")
+del predictors
+ds.save_dataset(data_umap, "data_umap")
+
+data_umap = ds.load_dataset("data_umap", True)
 
 # 1. Get a set of index events
 
