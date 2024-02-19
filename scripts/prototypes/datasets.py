@@ -403,16 +403,16 @@ X0_train, X0_test, y_train, y_test = train_test_split(
 # This is the simple case, where the full training set is used
 # to make the model, and the predictors are already determined.
 
-logreg = LogisticRegression(verbose=0, random_state=rng)
-scaler = StandardScaler()
+logreg0 = LogisticRegression(verbose=0, random_state=rng)
+scaler0 = StandardScaler()
 
-pipe = Pipeline(
+pipe0 = Pipeline(
     [
-        ("scaler", scaler),
-        ("logreg", logreg),
+        ("scaler", scaler0),
+        ("logreg", logreg0),
     ]
 )
-fit = pipe.fit(X0_train, y_train)
+fit0 = pipe0.fit(X0_train, y_train)
 
 # 3. Dimension-reduce the diagnosis/procedures using UMAP
 
@@ -496,11 +496,23 @@ emb = umap_fit.transform(cols_to_reduce)
 # Insert these columns back into the X1_train data frame in
 # place of the original diagnosis/procedure code columns.
 # The result is the input data for fitting logistic regression
-
-X1_train_reduced = X1_train[[]]
+reduced_dims = pd.DataFrame(emb)
+reduced_dims.columns = [f"f{n}" for n in range(reduced_dims.shape[1])]
+reduced_dims.index = X1_train.index
+X1_train_reduced = pd.merge(X1_train.filter(regex="age|gender|idx"), reduced_dims, on="idx_episode_id")
 
 # 4. Fit a log. reg. on the UMAP-predictor table
 
+logreg1 = LogisticRegression(verbose=0, random_state=rng)
+scaler1 = StandardScaler()
+
+pipe1 = Pipeline(
+    [
+        ("scaler", scaler),
+        ("logreg", logreg),
+    ]
+)
+fit1 = pipe1.fit(X1_train_reduced, y_train)
 
 # 5. Test both models on the test set
 
@@ -509,8 +521,32 @@ X1_train_reduced = X1_train[[]]
 # process.
 #
 
-probs0 = fit.predict_proba(X0_test)[:, 1]
+probs0 = fit0.predict_proba(X0_test)[:, 1]
 auc0 = roc_auc_score(y_test, probs0)
 fpr0, tpr0, _ = roc_curve(y_test, probs0)
-plt.scatter(fpr0, tpr0)
+roc = pd.DataFrame({"False positive rate": fpr0, "True positive rate": tpr0})
+sns.lineplot(data=roc, x="False positive rate", y = "True positive rate")
+plt.title(f"ROC Curve for Manual-Groups Model (AUC = {auc0:0.2f})")
+plt.plot([0, 1], [0, 1])
 plt.show()
+
+# To predict probabilities for the UMAP logistic
+# regression, it is first necessary to reduce the
+# test set using the fitted UMAP
+cols_to_reduce = X1_test.filter(regex=("diag|proc"))
+emb = umap_fit.transform(cols_to_reduce)
+reduced_dims = pd.DataFrame(emb)
+reduced_dims.columns = [f"f{n}" for n in range(reduced_dims.shape[1])]
+reduced_dims.index = X1_test.index
+X1_test_reduced = pd.merge(X1_test.filter(regex="age|gender|idx"), reduced_dims, on="idx_episode_id")
+
+probs1 = fit1.predict_proba(X1_test_reduced)[:, 1]
+auc1 = roc_auc_score(y_test, probs1)
+fpr1, tpr1, _ = roc_curve(y_test, probs1)
+roc = pd.DataFrame({"False positive rate": fpr1, "True positive rate": tpr1})
+sns.lineplot(data=roc, x="False positive rate", y = "True positive rate")
+plt.title(f"ROC Curve for UMAP Model (AUC = {auc1:.2f})")
+plt.plot([0, 1], [0, 1])
+plt.show()
+
+roc
