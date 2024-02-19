@@ -62,9 +62,9 @@ import numpy as np
 # episodes data from the database. Use these variables to
 # reduce the total amount of data to something the script
 # can handle
-start_date = dt.date(1995, 1, 1)  # Before the start of the data
+start_date = dt.date(2010, 1, 1)
 end_date = dt.date(2025, 1, 1)  # After the end of the data
-from_file = True
+from_file = False
 
 # These four time periods define what events are considered index events,
 # what events are considered to follow or precede index events, what
@@ -310,3 +310,54 @@ manual_codes_swd.drop(columns=["swd_age"], inplace=True)
 # Also drop the gender/sex duplicate column -- might help models
 
 ds.save_dataset(manual_codes_swd, "manual_codes_swd")
+
+
+# ======= UMAP EXPERIMENT =======
+
+# The purpose of this experiment is to test whether dimension
+# reduction of HES diagnosis/procedure codes can produce good
+# bleeding risk predictions, compared to using manually-chose
+# code groups.
+
+# 1. Get a set of index events
+
+# The index events are ACS/PCI patients. This table is the
+# manual_codes dataframe above, which also contains the manual
+# diagnosis/procedure group columns as predictors.
+#
+# Split this data into a test and a training set -- the idea
+# is that no data from the set used to test the models leaks
+# into the data used to fit the UMAP reduction (or the model
+# fits either).
+
+# 2. Fit logistic regression in the training set using code groups
+
+# This is the simple case, where the full training set is used
+# to make the model, and the predictors are already determined.abs
+
+# 3. Dimension-reduce the diagnosis/procedures using UMAP
+
+# In this step, take all the patients in the training set, and
+# find all the diagnosis/procedure codes tha appeared in the
+# year before index (give one bool column-per-code -- could count
+# the number of codes, but don't want to bias it in case the
+# count is actually irrelevant (e.g. a common code might not be
+# an important one).
+#
+# That gives a table with one row per index event, and lots of
+# columns (one per code)
+#
+# Perform UMAP to reduce this to a table with the same number
+# of predictor columns as there were manual code groups (to see
+# if UMAP does a better job at picking the same number of 
+# predictors)
+#
+
+# 4. Fit a log. reg. on the UMAP-predictor table
+
+# 5. Test both models on the test set
+
+# Want to plot the ROC curve and get the ROC AUC. In a next
+# step, want to do some stability analysis for this whole
+# process.
+#

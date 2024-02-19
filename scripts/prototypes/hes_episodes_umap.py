@@ -32,7 +32,7 @@ importlib.reload(spe)
 # Get raw data
 start_date = dt.date(2023,1,1)
 end_date = dt.date(2023,2,1)
-raw_data = hes.get_spells_hes_pandas(start_date, end_date)
+raw_data = hes.get_hes_data(start_date, end_date, "spells")
 
 # Reduce the data to a size UMAP can handle.
 # Copy in order to not modify raw_data (to use
@@ -52,10 +52,10 @@ reduced.replace("", np.nan, inplace=True)
 age_and_gender = reduced[["spell_id", "age", "gender"]].copy()
 
 # Convert the wide codes to long format in place
-reduced = hes.convert_codes_to_long(reduced)
+reduced = hes.convert_codes_to_long(reduced, "spell_id")
 
 # The same spell can have the same diagnosis or procedure code in
-# multiple positions. Keep onlt the highest priority code (the one
+# multiple positions. Keep only the highest priority code (the one
 # with the lowest code position). This might arise due to aggregating
 # the spells from underlying episodes, depending on the method that
 # was used.

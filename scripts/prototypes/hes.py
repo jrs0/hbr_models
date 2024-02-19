@@ -118,7 +118,7 @@ def get_hes_data(start_date, end_date, spells_or_episodes):
         raise ValueError(
             f"spells_or_episodes argument must be 'spells' or 'episodes', not {spells_or_episodes}"
         )
-    con = sql.create_engine("mssql+pyodbc://xsw")
+    con = sql.create_engine("mssql+pyodbc://dsn")
     start = time.time()
     if spells_or_episodes == "episodes":
         raw_data = pd.read_sql(make_episodes_query(start_date, end_date), con)
