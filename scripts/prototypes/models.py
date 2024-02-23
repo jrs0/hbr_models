@@ -108,7 +108,7 @@ class SimpleLogisticRegression:
         # one-hot encoding (one column per value). The logistic regression
         # includes ridge penalisation by default, so there is no issue with
         # colinearity.
-        to_numeric = ColumnTransformer(
+        to_numeric = nsformer(
             [
                 (
                     "one_hot",

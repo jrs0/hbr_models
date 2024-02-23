@@ -9,6 +9,7 @@ import os
 
 os.chdir("scripts/prototypes")
 
+from sklearn.compose import ColumnTransformer
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
@@ -85,17 +86,114 @@ X0_train, X0_test, y_train, y_test = train_test_split(
 
 # 2. Fit logistic regression in the training set using code groups
 
-# This is the simple case, where the full training set is used
-# to make the model, and the predictors are already determined.
 
-#logreg0 = LogisticRegression(verbose=0, random_state=rng)
-model0 = RandomForestClassifier(verbose=3, n_estimators=100, max_depth=10, random_state=rng)
+def make_reducer_wrapper(reducer, cols_to_reduce: list[str]) -> ColumnTransformer:
+    """Make a wrapper that applies dimension reduction.
 
-scaler0 = StandardScaler()
+    Args:
+        reducer: The dimension reduction model to use for reduction
+        cols_to_reduce: The list of column names to reduce
+
+    Returns:
+        The column transformer that applies the dimension reducer
+            to the columns listed.
+    """
+    return ColumnTransformer(
+        [("reducer", umapper, reduce_cols)],
+        remainder="passthrough",
+        verbose_feature_names_out=True,
+    )
+
+
+def make_logistic_regression(random_state) -> list:
+    """Make a new logistic regression model
+
+    The model involves scaling all predictors and then
+    applying a logistic regression model.
+
+    Returns:
+        A list of tuples suitable for passing to the
+            scikit learn Pipeline.
+    """
+
+    scaler = StandardScaler()
+    logreg = LogisticRegression(verbose=3, random_state=random_state)
+    model = [("scaler", scaler), ("model", logreg)]
+    return model
+
+
+def make_pipe(model: list, reducer: ColumnTransformer = None) -> Pipeline:
+    """Make a model pipeline from the model part and dimension reduction
+
+    This function can be used to make the pipeline with no dimension
+    (pass None to reducer). Otherwise, pass the reducer which will reduce
+    a subset of the columns before fitting the model.
+
+    Args:
+        model: A list of model fitting steps that should be applied
+            after the (optional) dimension reduction.
+        reducer: If non-None, this reduction (which applies only to the
+            subset of columns listed in the ColumnTransformer -- other
+            columns are passed-through)
+
+    Returns:
+        A scikit-learn pipeline that can be fitted to training data.
+    """
+    if reducer is not None:
+        reducer_part = [("reducer", reducer)]
+        pipe = Pipeline(reducer_part + model)
+    else:
+        pipe = Pipeline(model)
+    return pipe
+
+
+# The pipe used to assess the model performance using
+# manually chosen code groups
+baseline_pipe = make_pipe(make_logistic_regression(rng))
+
+# Fit the baseline pipe (manual code groups)
+baseline_fit = baseline_pipe.fit(X0_train, y_train)
+
+# Test the baseline performance on the test set and
+# get ROC AUC
+baseline_probs = baseline_fit.predict_proba(X0_test.filter(regex=".*"))[:, 1]
+baseline_auc = roc_auc_score(y_test, baseline_probs)
+baseline_auc
+
+# 3. Fit the dimension reduced model
+
+# Dimension reduce model and columns to reduce
+umapper = umap.UMAP(metric="hamming", n_components=3, random_state=rng, verbose=True)
+cols_to_reduce = [c for c in X1_train.columns if ("diag" in c) or ("proc" in c)]
+
+# The pipe used to perform dimension reduction the fit the model
+reducer_wrapper = make_reducer_wrapper(umapper, cols_to_reduce)
+reduce_pipe = make_pipe(make_logistic_regression(rng), reducer_wrapper)
+
+# Fit the dimension reduction pipe
+reduce_fit = reduce_pipe.fit(X1_train, y_train)
+
+# Test the performance including dimension reduction and get the
+# ROC AUC
+reduce_probs = reduce_fit.predict_proba(X1_test.filter(regex=".*"))[:, 1]
+reduce_auc = roc_auc_score(y_test, reduce_probs)
+reduce_auc
+
+
+
+
+
+
+
+
+model0 = RandomForestClassifier(
+    verbose=3, n_estimators=100, max_depth=10, random_state=rng
+)
+
 
 pipe0 = Pipeline(
     [
-        #("scaler", scaler0),
+        # ("scaler", scaler0),
         ("model", model0),
     ]
 )
@@ -103,8 +201,8 @@ fit0 = pipe0.fit(X0_train.filter(regex=".*"), y_train)
 
 # Get variable importance for random forest
 var_importance0 = pd.DataFrame(
-     {"Var": X0_train.columns, "Coeff": fit0["model"].feature_importances_.tolist()}
- ).sort_values("Coeff")
+    {"Var": X0_train.columns, "Coeff": fit0["model"].feature_importances_.tolist()}
+).sort_values("Coeff")
 
 # Get the top predictors for logistic regression
 # var_importance0 = pd.DataFrame(
@@ -112,9 +210,6 @@ var_importance0 = pd.DataFrame(
 # ).sort_values("Coeff")
 
 # Fit to the test set and look at ROC AUC
-probs0 = fit0.predict_proba(X0_test.filter(regex=".*"))[:, 1]
-auc0 = roc_auc_score(y_test, probs0)
-auc0
 
 
 # 3. Dimension-reduce the diagnosis/procedures using UMAP
@@ -263,13 +358,15 @@ plt.show()
 
 # 4. Fit a log. reg. on the UMAP-predictor table
 
-#model1 = LogisticRegression(verbose=0, random_state=rng)
-model1 = RandomForestClassifier(verbose=3, n_estimators=100, max_depth=5, random_state=rng)
+# model1 = LogisticRegression(verbose=0, random_state=rng)
+model1 = RandomForestClassifier(
+    verbose=3, n_estimators=100, max_depth=5, random_state=rng
+)
 scaler1 = StandardScaler()
 
 pipe1 = Pipeline(
     [
-        #("scaler", scaler1),
+        # ("scaler", scaler1),
         ("model", model1),
     ]
 )
@@ -277,13 +374,16 @@ fit1 = pipe1.fit(X1_train_reduced, y_train)
 
 # Get variable importance for random forest
 var_importance1 = pd.DataFrame(
-     {"Var": X1_train_reduced.columns, "Coeff": fit1["model"].feature_importances_.tolist()}
- ).sort_values("Coeff")
+    {
+        "Var": X1_train_reduced.columns,
+        "Coeff": fit1["model"].feature_importances_.tolist(),
+    }
+).sort_values("Coeff")
 
 # Get the top predictors for this model
-#var_importance1 = pd.DataFrame(
+# var_importance1 = pd.DataFrame(
 #    {"Var": X1_train_reduced.columns, "Coeff": fit1["logreg"].coef_.tolist()[0]}
-#).sort_values("Coeff")
+# ).sort_values("Coeff")
 
 # Run the model on the test set
 
@@ -319,7 +419,6 @@ roc0 = pd.DataFrame(
         "Model": f"Manual Groups (AUC = {auc0:0.2f})",
     }
 )
-
 
 
 fpr1, tpr1, _ = roc_curve(y_test, probs1)
