@@ -1,4 +1,4 @@
-# ACS Dataset 
+# ACS Dataset
 #
 # This script creates a set of datasets for ACS index events,
 # bleeding and ischaemia outcomes, and features, from hospital
@@ -8,19 +8,19 @@
 # are named as follows:
 #
 # 1. manual_codes.pkl:
-#   index definition: ACS and PCI code groups from HES 
+#   index definition: ACS and PCI code groups from HES
 #   outcomes: 2-point MACE (AMI and stroke) code groups from HES
 #   features: manually chosen code groups from HES
 #             age and gender from HES
 #
 # 2. all_codes.pkl:
-#   index definition: ACS and PCI code groups from HES 
+#   index definition: ACS and PCI code groups from HES
 #   outcomes: 2-point MACE (AMI and stroke) code groups from HES
 #   features: all HES diagnosis and procedure codes as separate columns
 #             age and gender from HES
-# 
+#
 # 3. manual_codes_swd.pkl:
-#   index definition: ACS and PCI code groups from HES 
+#   index definition: ACS and PCI code groups from HES
 #   outcomes: 2-point MACE (AMI and stroke) code groups from HES
 #   features: manually chosen code groups from HES
 #             age and gender from HES
@@ -113,6 +113,7 @@ code_group_counts = hes.make_code_group_counts(long_clinical_codes, raw_episodes
 
 # To view included code groups
 import code_group_counts as cgc
+
 code_groups_df = cgc.get_code_groups(
     "../codes_files/icd10.yaml", "../codes_files/opcs4.yaml"
 )
@@ -308,7 +309,9 @@ manual_codes_swd = (
 # one year, but in this version of the script this discrepancy is ignored.
 age_not_equal = abs(manual_codes_swd["dem_age"] - manual_codes_swd["swd_age"] > 1)
 num_age_not_equal = age_not_equal.sum()
-print(f"Removing {num_age_not_equal} rows where HES age and primary care attributes disagree by more than 1 year")
+print(
+    f"Removing {num_age_not_equal} rows where HES age and primary care attributes disagree by more than 1 year"
+)
 manual_codes_swd = manual_codes_swd[~age_not_equal]
 manual_codes_swd.drop(columns=["swd_age"], inplace=True)
 
@@ -319,10 +322,12 @@ ds.save_dataset(manual_codes_swd, "manual_codes_swd")
 
 # ======= UMAP EXPERIMENT =======
 import os
+
 os.chdir("scripts/prototypes")
 
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import roc_curve, roc_auc_score
@@ -333,7 +338,9 @@ import umap
 import umap.plot
 import pandas as pd
 import seaborn as sns
-sns.set(style='ticks')
+
+sns.set(style="ticks")
+from functools import reduce
 
 
 # The purpose of this experiment is to test whether dimension
@@ -351,20 +358,20 @@ sns.set(style='ticks')
 # - age, gender, stemi, nstemi, pci predictors
 # - outcome: bleeding_al_ani_outcome
 # - index: idx_episode_id
-#data_manual = manual_codes.filter(regex=("(before|age|gender|stemi|pci|bleeding_al_ani_outcome)"))
-#ds.save_dataset(data_manual, "data_manual")
+# data_manual = manual_codes.filter(regex=("(before|age|gender|stemi|pci|bleeding_al_ani_outcome)"))
+# ds.save_dataset(data_manual, "data_manual")
 data_manual = ds.load_dataset("data_manual", True)
 
 # Create/save/load the UMAP all-codes dataset
-#base_info = idx_episodes.filter(regex="(episode_id|age|gender|stemi|pci)")
-#base_info.set_index("idx_episode_id", inplace=True)
-#feature_any_code.set_index("idx_episode_id", inplace=True)
-#predictors = pd.merge(base_info, feature_any_code, on="idx_episode_id")
-#del feature_any_code # If you are short on memory
-#outcomes = outcome_counts[["idx_episode_id","bleeding_al_ani_outcome"]].set_index("idx_episode_id")
-#data_umap = pd.merge(predictors, outcomes, on="idx_episode_id")
-#del predictors
-#ds.save_dataset(data_umap, "data_umap")
+# base_info = idx_episodes.filter(regex="(episode_id|age|gender|stemi|pci)")
+# base_info.set_index("idx_episode_id", inplace=True)
+# feature_any_code.set_index("idx_episode_id", inplace=True)
+# predictors = pd.merge(base_info, feature_any_code, on="idx_episode_id")
+# del feature_any_code # If you are short on memory
+# outcomes = outcome_counts[["idx_episode_id","bleeding_al_ani_outcome"]].set_index("idx_episode_id")
+# data_umap = pd.merge(predictors, outcomes, on="idx_episode_id")
+# del predictors
+# ds.save_dataset(data_umap, "data_umap")
 data_umap = ds.load_dataset("data_umap", True)
 
 # 1. Get a set of index events
@@ -403,16 +410,34 @@ X0_train, X0_test, y_train, y_test = train_test_split(
 # This is the simple case, where the full training set is used
 # to make the model, and the predictors are already determined.
 
-logreg0 = LogisticRegression(verbose=0, random_state=rng)
+#logreg0 = LogisticRegression(verbose=0, random_state=rng)
+model0 = RandomForestClassifier(verbose=3, n_estimators=100, max_depth=10, random_state=rng)
+
 scaler0 = StandardScaler()
 
 pipe0 = Pipeline(
     [
-        ("scaler", scaler0),
-        ("logreg", logreg0),
+        #("scaler", scaler0),
+        ("model", model0),
     ]
 )
-fit0 = pipe0.fit(X0_train, y_train)
+fit0 = pipe0.fit(X0_train.filter(regex=".*"), y_train)
+
+# Get variable importance for random forest
+var_importance0 = pd.DataFrame(
+     {"Var": X0_train.columns, "Coeff": fit0["model"].feature_importances_.tolist()}
+ ).sort_values("Coeff")
+
+# Get the top predictors for logistic regression
+# var_importance0 = pd.DataFrame(
+#     {"Var": X0_train.columns, "Coeff": fit0["logreg"].coef_.tolist()[0]}
+# ).sort_values("Coeff")
+
+# Fit to the test set and look at ROC AUC
+probs0 = fit0.predict_proba(X0_test.filter(regex=".*"))[:, 1]
+auc0 = roc_auc_score(y_test, probs0)
+auc0
+
 
 # 3. Dimension-reduce the diagnosis/procedures using UMAP
 
@@ -428,7 +453,7 @@ fit0 = pipe0.fit(X0_train, y_train)
 #
 # Perform UMAP to reduce this to a table with the same number
 # of predictor columns as there were manual code groups (to see
-# if UMAP does a better job at picking the same number of 
+# if UMAP does a better job at picking the same number of
 # predictors)
 #
 
@@ -439,80 +464,167 @@ X1_test = data_umap.loc[X0_test.index]
 
 # We will train a UMAP reduction on the X1_train table diagnosis/
 # procedure columns, then manually apply this to the training set.
-cols_to_reduce = X1_train.filter(regex=("diag|proc"))
+code_cols_train = X1_train.filter(regex=("diag|proc"))
 
-mapper = umap.UMAP(metric="hamming", n_components=16, random_state=rng, verbose=True)
+mapper = umap.UMAP(metric="hamming", n_components=4, random_state=rng, verbose=True)
 
-# Fit UMAP to the training set
-umap_fit = mapper.fit(cols_to_reduce)
+# Fit UMAP to the training set -- this fit is then also used
+# to perform the same step on the test set later (so cannot use
+# fit_transform)
+umap_fit = mapper.fit(code_cols_train)
 
-# For Plotting 2D =====================
+# Apply the fit to the training data to get the embedding
+emb_train = umap_fit.transform(code_cols_train)
+
+# Insert these columns back into the X1_train data frame in
+# place of the original diagnosis/procedure code columns.
+# The result is the input data for fitting logistic regression
+reduced_dims = pd.DataFrame(emb_train)
+reduced_dims.columns = [f"f{n}" for n in range(reduced_dims.shape[1])]
+reduced_dims.index = X1_train.index
+X1_train_reduced = pd.merge(
+    X1_train.filter(regex="age|gender|idx"), reduced_dims, on="idx_episode_id"
+)
+
+# ==================== For Plotting 2D =====================
 
 # To use this bit, ensure that the the ncomponents is set to
 # 2 (to be able to plot it).
 
 import code_group_counts as cgc
+
 code_groups_df = cgc.get_code_groups(
     "../codes_files/icd10.yaml", "../codes_files/opcs4.yaml"
 )
 
-def row_contains_group(group, code_groups, X1_train):
+
+def code_counts_in_row(group, group_name, code_groups, X1_train):
     # Flag all the codes in a group
     groups = code_groups[code_groups["group"] == group]["name"]
     group_regex = "|".join(groups.to_list())
-    return X1_train.filter(regex=group_regex).sum(axis=1).astype('category')
+    code_counts = X1_train.filter(regex=group_regex).sum(axis=1)
+    code_counts.name = group_name
+    return code_counts
 
-# Apply the fit to the training data to get the embedding
-emb = umap_fit.transform(cols_to_reduce)
+
+groups_map = {
+    "bleeding_al_ani": "Prior Bleeding",
+    "acs_bezin": "Prior ACS",
+    "pci": "Prior PCI",
+    "ckd": "CKD",
+    "cancer": "Cancer",
+    "diabetes": "Diabetes",
+}
+
+
+def get_most_common_group(groups_map, code_groups, X1_train):
+    dfs = [
+        code_counts_in_row(g, n, code_groups, X1_train) for g, n in groups_map.items()
+    ]
+    full = reduce(lambda left, right: pd.merge(left, right, on="idx_episode_id"), dfs)
+    full["None"] = 0.1  # trick to make idxmax identify where row has no code
+    return full.astype(float).idxmax(axis=1)
+
 
 # Plot a particular code group
-group_name = ""
-display_name = "Bleeding"
-X1_train_embedding = pd.DataFrame(emb).set_index(X1_train.index)
-col_name = f"Prior {display_name}"
-X1_train_embedding[col_name] = row_contains_group(group_name,code_groups_df, X1_train)
-X1_train_embedding.columns = ["Feature 1", "Feature 2", col_name]
-palette = sns.color_palette("rocket")
+X1_train_embedding = pd.DataFrame(emb_train).set_index(X1_train.index)
+X1_train_embedding["Group"] = get_most_common_group(
+    groups_map, code_groups_df, X1_train
+)
+X1_train_embedding.columns = ["Feature 1", "Feature 2", "Group"]
+# palette = sns.color_palette("rocket")
 sns.set(font_scale=1.2)
-sns.relplot(data=X1_train_embedding, x="Feature 1", y='Feature 2', hue=col_name, palette=palette, s=5)
-plt.title(f"Distribution of {col_name}")
+plt.rcParams["legend.markerscale"] = 5
+sns.set_theme(style="white", palette=None)
+sns.relplot(
+    data=X1_train_embedding, x="Feature 1", y="Feature 2", hue="Group", marker=".", s=15
+)
+plt.title(f"Distribution of Code Groups")
 plt.show()
 
 # Plot age on the graph
-X1_train_embedding = pd.DataFrame(emb).set_index(X1_train.index)
+X1_train_embedding = pd.DataFrame(emb_train).set_index(X1_train.index)
 X1_train_embedding["Age"] = X1_train["dem_age"]
 X1_train_embedding.columns = ["Feature 1", "Feature 2", "Age"]
-palette = sns.color_palette("rocket", as_cmap=True)
-sns.relplot(data=X1_train_embedding, x="Feature 1", y='Feature 2', hue="Age", palette=palette, s=5)
+sns.relplot(data=X1_train_embedding, x="Feature 1", y="Feature 2", hue="Age", s=15)
 plt.title(f"Distribution of Age")
 plt.show()
 
-# End of plotting ==================
+# ================ For Plotting 3D ==================
 
-# Apply the fitted model to the training data to reduce it
-# to 16 columns
-emb = umap_fit.transform(cols_to_reduce)
+# Plot a particular code group
+X1_train_embedding = pd.DataFrame(emb_train).set_index(X1_train.index)
+X1_train_embedding["Group"] = get_most_common_group(
+    groups_map, code_groups_df, X1_train
+)
+X1_train_embedding.columns = ["Feature 1", "Feature 2", "Feature 3", "Group"]
 
-# Insert these columns back into the X1_train data frame in
-# place of the original diagnosis/procedure code columns.
-# The result is the input data for fitting logistic regression
-reduced_dims = pd.DataFrame(emb)
-reduced_dims.columns = [f"f{n}" for n in range(reduced_dims.shape[1])]
-reduced_dims.index = X1_train.index
-X1_train_reduced = pd.merge(X1_train.filter(regex="age|gender|idx"), reduced_dims, on="idx_episode_id")
+fig = plt.figure()
+ax = fig.add_subplot(111, projection="3d")
+
+# Rename for simplicity
+df = X1_train_embedding
+for s in df.Group.unique():
+    ax.scatter(
+        df["Feature 1"][df["Group"] == s],
+        df["Feature 2"][df["Group"] == s],
+        df["Feature 3"][df["Group"] == s],
+        label=s,
+        marker=".",
+        s=1,
+    )
+
+ax.set_xlabel("Feature 1")
+ax.set_ylabel("Feature 2")
+ax.set_zlabel("Feature 3")
+ax.legend()
+plt.show()
+
+# ================ End of plotting ==================
+
 
 # 4. Fit a log. reg. on the UMAP-predictor table
 
-logreg1 = LogisticRegression(verbose=0, random_state=rng)
+#model1 = LogisticRegression(verbose=0, random_state=rng)
+model1 = RandomForestClassifier(verbose=3, n_estimators=100, max_depth=10, random_state=rng)
 scaler1 = StandardScaler()
 
 pipe1 = Pipeline(
     [
-        ("scaler", scaler),
-        ("logreg", logreg),
+        #("scaler", scaler1),
+        ("model", model1),
     ]
 )
 fit1 = pipe1.fit(X1_train_reduced, y_train)
+
+# Get variable importance for random forest
+var_importance1 = pd.DataFrame(
+     {"Var": X1_train_reduced.columns, "Coeff": fit1["model"].feature_importances_.tolist()}
+ ).sort_values("Coeff")
+
+# Get the top predictors for this model
+#var_importance1 = pd.DataFrame(
+#    {"Var": X1_train_reduced.columns, "Coeff": fit1["logreg"].coef_.tolist()[0]}
+#).sort_values("Coeff")
+
+# Run the model on the test set
+
+# To predict probabilities for the UMAP logistic
+# regression, it is first necessary to reduce the
+# test set using the fitted UMAP
+code_cols_test = X1_test.filter(regex=("diag|proc"))
+emb_test = umap_fit.transform(code_cols_test)
+reduced_dims = pd.DataFrame(emb_test)
+reduced_dims.columns = [f"f{n}" for n in range(reduced_dims.shape[1])]
+reduced_dims.index = X1_test.index
+X1_test_reduced = pd.merge(
+    X1_test.filter(regex="age|gender|idx"), reduced_dims, on="idx_episode_id"
+)
+
+# Predict probabilities for UMAP model
+probs1 = fit1.predict_proba(X1_test_reduced)[:, 1]
+auc1 = roc_auc_score(y_test, probs1)
+auc1
 
 # 5. Test both models on the test set
 
@@ -521,32 +633,37 @@ fit1 = pipe1.fit(X1_train_reduced, y_train)
 # process.
 #
 
-probs0 = fit0.predict_proba(X0_test)[:, 1]
-auc0 = roc_auc_score(y_test, probs0)
 fpr0, tpr0, _ = roc_curve(y_test, probs0)
-roc = pd.DataFrame({"False positive rate": fpr0, "True positive rate": tpr0})
-sns.lineplot(data=roc, x="False positive rate", y = "True positive rate")
-plt.title(f"ROC Curve for Manual-Groups Model (AUC = {auc0:0.2f})")
-plt.plot([0, 1], [0, 1])
-plt.show()
+roc0 = pd.DataFrame(
+    {
+        "False positive rate": fpr0,
+        "True positive rate": tpr0,
+        "Model": f"Manual Groups (AUC = {auc0:0.2f})",
+    }
+)
 
-# To predict probabilities for the UMAP logistic
-# regression, it is first necessary to reduce the
-# test set using the fitted UMAP
-cols_to_reduce = X1_test.filter(regex=("diag|proc"))
-emb = umap_fit.transform(cols_to_reduce)
-reduced_dims = pd.DataFrame(emb)
-reduced_dims.columns = [f"f{n}" for n in range(reduced_dims.shape[1])]
-reduced_dims.index = X1_test.index
-X1_test_reduced = pd.merge(X1_test.filter(regex="age|gender|idx"), reduced_dims, on="idx_episode_id")
 
-probs1 = fit1.predict_proba(X1_test_reduced)[:, 1]
-auc1 = roc_auc_score(y_test, probs1)
+
 fpr1, tpr1, _ = roc_curve(y_test, probs1)
-roc = pd.DataFrame({"False positive rate": fpr1, "True positive rate": tpr1})
-sns.lineplot(data=roc, x="False positive rate", y = "True positive rate")
-plt.title(f"ROC Curve for UMAP Model (AUC = {auc1:.2f})")
+roc1 = pd.DataFrame(
+    {
+        "False positive rate": fpr1,
+        "True positive rate": tpr1,
+        "Model": f"UMAP (AUC = {auc1:0.2f})",
+    }
+)
+
+
+# Plot the ROC curves for both models
+roc = pd.concat([roc0, roc1])
+g = sns.lineplot(
+    data=roc,
+    x="False positive rate",
+    y="True positive rate",
+    hue="Model",
+    errorbar=None,
+)
+sns.move_legend(g, "lower right")
+plt.title(f"ROC Curve for Each Model")
 plt.plot([0, 1], [0, 1])
 plt.show()
-
-roc

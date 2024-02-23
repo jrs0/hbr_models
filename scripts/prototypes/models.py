@@ -351,6 +351,7 @@ class TruncSvdDecisionTree:
         return "truncsvd_decision_tree"
 
 
+
 model_description[TruncSvdDecisionTree.name()] = (
     "The model is fitted by one-hot encoding catagorical features, "
     "centering and scaling predictors, and imputing missing values "
