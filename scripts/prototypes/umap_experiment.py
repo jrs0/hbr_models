@@ -26,6 +26,8 @@ import seaborn as sns
 
 sns.set(style="ticks")
 from functools import reduce
+from typing import Callable
+from pandas import DataFrame
 
 # 0. Prepare the datasets
 
@@ -84,11 +86,17 @@ X0_train, X0_test, y_train, y_test = train_test_split(
     X0, y, test_size=test_set_proportion, random_state=rng
 )
 
+# Extract the test/train sets from the UMAP data based on
+# the index of the training set for the manual codes
+X1 = data_umap.drop(columns=[outcome_name])
+X1_train = X1.loc[X0_train.index]
+X1_test = X1.loc[X0_test.index]
+
 # 2. Fit logistic regression in the training set using code groups
 
 
-def make_reducer_wrapper(reducer, cols_to_reduce: list[str]) -> ColumnTransformer:
-    """Make a wrapper that applies dimension reduction.
+def make_column_transformer(reducer, cols_to_reduce: list[str]) -> ColumnTransformer:
+    """Make a wrapper that applies dimension reduction to a subset of columns.
 
     Args:
         reducer: The dimension reduction model to use for reduction
@@ -99,7 +107,7 @@ def make_reducer_wrapper(reducer, cols_to_reduce: list[str]) -> ColumnTransforme
             to the columns listed.
     """
     return ColumnTransformer(
-        [("reducer", umapper, reduce_cols)],
+        [("reducer", reducer, cols_to_reduce)],
         remainder="passthrough",
         verbose_feature_names_out=True,
     )
@@ -122,7 +130,7 @@ def make_logistic_regression(random_state) -> list:
     return model
 
 
-def make_pipe(model: list, reducer: ColumnTransformer = None) -> Pipeline:
+def make_pipe(model: list, column_transformer: ColumnTransformer = None) -> Pipeline:
     """Make a model pipeline from the model part and dimension reduction
 
     This function can be used to make the pipeline with no dimension
@@ -132,20 +140,82 @@ def make_pipe(model: list, reducer: ColumnTransformer = None) -> Pipeline:
     Args:
         model: A list of model fitting steps that should be applied
             after the (optional) dimension reduction.
-        reducer: If non-None, this reduction (which applies only to the
+        column_transformer: If non-None, this reduction (which applies only to the
             subset of columns listed in the ColumnTransformer -- other
             columns are passed-through)
 
     Returns:
         A scikit-learn pipeline that can be fitted to training data.
     """
-    if reducer is not None:
-        reducer_part = [("reducer", reducer)]
+    if column_transformer is not None:
+        reducer_part = [("column_transformer", column_transformer)]
         pipe = Pipeline(reducer_part + model)
     else:
         pipe = Pipeline(model)
     return pipe
 
+def logistic_regression_coefficients(fitted_model: LogisticRegression) -> list[float]:
+    """Return the list of logistic regression variable coefficients.
+
+    Used to make an assessment of which features have the biggest influence
+    on the output class.
+    
+    Note: Using logistic regression coefficients for feature importance is not
+    necessarily the right thing to do. Consider replacing this function with another
+    in the call to baseline_feature_importance.
+
+    Args:
+        fitted_model: The logistic regression model after it has been fitted
+            to the training data
+    """
+    return fitted_model.coef_.tolist()[0]
+
+
+def baseline_feature_importance(
+    fitted_pipe: Pipeline, importance_calc: Callable
+) -> DataFrame:
+    """Get a table of the feature importances in the baseline model
+
+    This function takes a pipeline which assumes that all variables are used in the final
+    model (and the column order is not changed), and a function that calculates
+    the feature importances from the final step in the pipeline (assumed to be called
+    "model").
+
+    Args:
+        fitted_pipe: Fitted pipeline which does not reduce columns and maintains the order
+           of features. Used to get feature names.
+        importance_calc: A function to convert fitted_pipe["model"] (the final step) into a
+           list of feature importances, which will be paired with the column names.
+
+    Returns:
+        The feature importances of each column input in the baseline model (no dimension reduction)
+    """
+    fitted_model = fitted_pipe["model"]
+    var_importances = importance_calc(fitted_model)
+    var_names = fitted_pipe.feature_names_in_
+    df = pd.DataFrame(
+        {
+            "Feature": var_names,
+            "Importance": var_importances,
+        }
+    ).sort_values("Importance") # Replace with order by magnitude
+    return df
+
+def reduce_feature_importance(
+    fitted_pipe: Pipeline, importance_calc: Callable
+) -> DataFrame:
+    """Get a table of the feature importances in the dim-reduce model
+    """
+    fitted_model = fitted_pipe["model"]
+    var_importances = importance_calc(fitted_model)
+    var_names = post_reduce_features(fitted_pipe)
+    df = pd.DataFrame(
+        {
+            "Feature": var_names,
+            "Importance": var_importances,
+        }
+    ).sort_values("Importance") # Replace with order by magnitude
+    return df
 
 # The pipe used to assess the model performance using
 # manually chosen code groups
@@ -160,6 +230,8 @@ baseline_probs = baseline_fit.predict_proba(X0_test.filter(regex=".*"))[:, 1]
 baseline_auc = roc_auc_score(y_test, baseline_probs)
 baseline_auc
 
+baseline_importance = baseline_feature_importance(baseline_fit, logistic_regression_coefficients)
+
 # 3. Fit the dimension reduced model
 
 # Dimension reduce model and columns to reduce
@@ -167,7 +239,7 @@ umapper = umap.UMAP(metric="hamming", n_components=3, random_state=rng, verbose=
 cols_to_reduce = [c for c in X1_train.columns if ("diag" in c) or ("proc" in c)]
 
 # The pipe used to perform dimension reduction the fit the model
-reducer_wrapper = make_reducer_wrapper(umapper, cols_to_reduce)
+reducer_wrapper = make_column_transformer(umapper, cols_to_reduce)
 reduce_pipe = make_pipe(make_logistic_regression(rng), reducer_wrapper)
 
 # Fit the dimension reduction pipe
@@ -179,12 +251,52 @@ reduce_probs = reduce_fit.predict_proba(X1_test.filter(regex=".*"))[:, 1]
 reduce_auc = roc_auc_score(y_test, reduce_probs)
 reduce_auc
 
+def post_reduce_features(fitted_pipe: Pipeline) -> list[str]:
+    """Get the list of variables after dimension reduction.
+    
+    This function accounts for the re-ordering of variables that is performed
+    by the column transformer (reduced dimensions are placed at the front).
+
+    Args:
+        fitted_pipe: The fitted pipeline object, containing a ColumnTransformer
+            called "column_transformer" as the first step, which contains a 
+            "reducer" that processes cols_to_reduce (other columns are passed
+            through).
+
+    Returns:
+        The feature names in the final training set, after dimension reduction and
+            before modelling.
+    """
+    
+    # Get the column transformer and reducer
+    column_transformer = fitted_pipe["column_transformer"]
+    reducer = column_transformer.named_transformers_["reducer"]
+    
+    # Get the columns being reduced from the ColumnTransformer
+    for transformer in column_transformer.transformers:
+        if transformer[0] == "reducer":
+            # Extract the list of columns to process from the tuple
+            cols_to_reduce = transformer[2]
+            break
+
+    # Get all input features (before reduction)
+    input_vars = reduce_fit["column_transformer"].feature_names_in_
+    
+    # Make the lsit of variables which are not processed
+    remainder_vars = [col for col in input_vars if col not in cols_to_reduce]
+
+    # Reducer is processed first, so the reduced columns come at the front
+    # of the dataframe
+    reduce_vars = reduce_fit["column_transformer"].named_transformers_["reducer"].get_feature_names_out()
+
+    # Append the remainder vars to get all the variables in the final dataframe
+    all_vars = reduce_vars + remainder_vars
+
+    return all_vars
 
 
-
-
-
-
+reduce_feature_importance(reduce_fit, logistic_regression_coefficients)
+                    
 
 model0 = RandomForestClassifier(
     verbose=3, n_estimators=100, max_depth=10, random_state=rng
@@ -211,6 +323,7 @@ var_importance0 = pd.DataFrame(
 
 # Fit to the test set and look at ROC AUC
 
+reduce_feature_importance()
 
 # 3. Dimension-reduce the diagnosis/procedures using UMAP
 
