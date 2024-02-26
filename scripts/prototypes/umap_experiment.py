@@ -10,6 +10,8 @@ import os
 os.chdir("scripts/prototypes")
 
 from sklearn.compose import ColumnTransformer
+from sklearn.decomposition import TruncatedSVD
+from sklearn.random_projection import GaussianRandomProjection
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
@@ -28,71 +30,8 @@ sns.set(style="ticks")
 from functools import reduce
 from typing import Callable
 from pandas import DataFrame
-
-# 0. Prepare the datasets
-
-# Use the manual_codes table above to create a new table
-# dropping unneeded columns
-
-# Create/save/load the manual code groups dataset
-# - 16 code group predictors (manually chosen groups)
-# - age, gender, stemi, nstemi, pci predictors
-# - outcome: bleeding_al_ani_outcome
-# - index: idx_episode_id
-# data_manual = manual_codes.filter(regex=("(before|age|gender|stemi|pci|bleeding_al_ani_outcome)"))
-# ds.save_dataset(data_manual, "data_manual")
-data_manual = ds.load_dataset("data_manual", True)
-
-# Create/save/load the UMAP all-codes dataset
-# base_info = idx_episodes.filter(regex="(episode_id|age|gender|stemi|pci)")
-# base_info.set_index("idx_episode_id", inplace=True)
-# feature_any_code.set_index("idx_episode_id", inplace=True)
-# predictors = pd.merge(base_info, feature_any_code, on="idx_episode_id")
-# del feature_any_code # If you are short on memory
-# outcomes = outcome_counts[["idx_episode_id","bleeding_al_ani_outcome"]].set_index("idx_episode_id")
-# data_umap = pd.merge(predictors, outcomes, on="idx_episode_id")
-# del predictors
-# ds.save_dataset(data_umap, "data_umap")
-data_umap = ds.load_dataset("data_umap", True)
-
-# 1. Get a set of index events
-
-# The index events are ACS/PCI patients. This table is the
-# data_manual dataframe above, which also contains the manual
-# diagnosis/procedure group columns as predictors.
-#
-# Split this data into a test and a training set -- the idea
-# is that no data from the set used to test the models leaks
-# into the data used to fit the UMAP reduction (or the model
-# fits either).
-
-# First, get the outcomes (y) from the dataframe. This is the
-# source of test/train outcome data, and is used for both the
-# manual and UMAP models. Just interested in whether bleeding
-# occurred (not number of occurrences) for this experiment
-outcome_name = "bleeding_al_ani_outcome"
-y = data_manual[outcome_name]
-
-# Get the set of manual code predictors (X0) to use for the
-# first logistic regression model (all the columns with names
-# ending in "_before").
-X0 = data_manual.drop(columns=[outcome_name])
-
-rng = np.random.RandomState(0)
-
-# Make a random test/train split.
-test_set_proportion = 0.25
-X0_train, X0_test, y_train, y_test = train_test_split(
-    X0, y, test_size=test_set_proportion, random_state=rng
-)
-
-# Extract the test/train sets from the UMAP data based on
-# the index of the training set for the manual codes
-X1 = data_umap.drop(columns=[outcome_name])
-X1_train = X1.loc[X0_train.index]
-X1_test = X1.loc[X0_test.index]
-
-# 2. Fit logistic regression in the training set using code groups
+from numpy.random import RandomState
+from numpy import ndarray
 
 
 def make_column_transformer(reducer, cols_to_reduce: list[str]) -> ColumnTransformer:
@@ -111,24 +50,6 @@ def make_column_transformer(reducer, cols_to_reduce: list[str]) -> ColumnTransfo
         remainder="passthrough",
         verbose_feature_names_out=True,
     )
-
-
-def make_logistic_regression(random_state) -> list:
-    """Make a new logistic regression model
-
-    The model involves scaling all predictors and then
-    applying a logistic regression model.
-
-    Returns:
-        A list of tuples suitable for passing to the
-            scikit learn Pipeline.
-    """
-
-    scaler = StandardScaler()
-    logreg = LogisticRegression(verbose=3, random_state=random_state)
-    model = [("scaler", scaler), ("model", logreg)]
-    return model
-
 
 def make_pipe(model: list, column_transformer: ColumnTransformer = None) -> Pipeline:
     """Make a model pipeline from the model part and dimension reduction
@@ -154,12 +75,13 @@ def make_pipe(model: list, column_transformer: ColumnTransformer = None) -> Pipe
         pipe = Pipeline(model)
     return pipe
 
+
 def logistic_regression_coefficients(fitted_model: LogisticRegression) -> list[float]:
     """Return the list of logistic regression variable coefficients.
 
     Used to make an assessment of which features have the biggest influence
     on the output class.
-    
+
     Note: Using logistic regression coefficients for feature importance is not
     necessarily the right thing to do. Consider replacing this function with another
     in the call to baseline_feature_importance.
@@ -198,14 +120,16 @@ def baseline_feature_importance(
             "Feature": var_names,
             "Importance": var_importances,
         }
-    ).sort_values("Importance") # Replace with order by magnitude
+    ).sort_values(
+        "Importance"
+    )  # Replace with order by magnitude
     return df
+
 
 def reduce_feature_importance(
     fitted_pipe: Pipeline, importance_calc: Callable
 ) -> DataFrame:
-    """Get a table of the feature importances in the dim-reduce model
-    """
+    """Get a table of the feature importances in the dim-reduce model"""
     fitted_model = fitted_pipe["model"]
     var_importances = importance_calc(fitted_model)
     var_names = post_reduce_features(fitted_pipe)
@@ -214,33 +138,304 @@ def reduce_feature_importance(
             "Feature": var_names,
             "Importance": var_importances,
         }
-    ).sort_values("Importance") # Replace with order by magnitude
+    ).sort_values(
+        "Importance"
+    )  # Replace with order by magnitude
     return df
 
-# The pipe used to assess the model performance using
-# manually chosen code groups
-baseline_pipe = make_pipe(make_logistic_regression(rng))
 
-# Fit the baseline pipe (manual code groups)
-baseline_fit = baseline_pipe.fit(X0_train, y_train)
+def post_reduce_features(fitted_pipe: Pipeline) -> list[str]:
+    """Get the list of variables after dimension reduction.
 
-# Test the baseline performance on the test set and
-# get ROC AUC
-baseline_probs = baseline_fit.predict_proba(X0_test.filter(regex=".*"))[:, 1]
-baseline_auc = roc_auc_score(y_test, baseline_probs)
-baseline_auc
+    This function accounts for the re-ordering of variables that is performed
+    by the column transformer (reduced dimensions are placed at the front).
 
-baseline_importance = baseline_feature_importance(baseline_fit, logistic_regression_coefficients)
+    Args:
+        fitted_pipe: The fitted pipeline object, containing a ColumnTransformer
+            called "column_transformer" as the first step, which contains a
+            "reducer" that processes cols_to_reduce (other columns are passed
+            through).
+
+    Returns:
+        The feature names in the final training set, after dimension reduction and
+            before modelling.
+    """
+
+    # Get the column transformer and reducer
+    column_transformer = fitted_pipe["column_transformer"]
+    reducer = column_transformer.named_transformers_["reducer"]
+
+    # Get the columns being reduced from the ColumnTransformer
+    for transformer in column_transformer.transformers:
+        if transformer[0] == "reducer":
+            # Extract the list of columns to process from the tuple
+            cols_to_reduce = transformer[2]
+            break
+
+    # Get all input features (before reduction)
+    input_vars = reduce_fit["column_transformer"].feature_names_in_
+
+    # Make the lsit of variables which are not processed
+    remainder_vars = [col for col in input_vars if col not in cols_to_reduce]
+
+    # Reducer is processed first, so the reduced columns come at the front
+    # of the dataframe
+    reduce_vars = (
+        reduce_fit["column_transformer"]
+        .named_transformers_["reducer"]
+        .get_feature_names_out()
+    )
+
+    # Append the remainder vars to get all the variables in the final dataframe
+    all_vars = reduce_vars + remainder_vars
+
+    return all_vars
+
+
+def prepare_test_train(
+    data_manual: DataFrame, data_reduce: DataFrame, rng: RandomState
+) -> (DataFrame, DataFrame, DataFrame, DataFrame):
+    """Make the test/train datasets for manually-chosen groups and high-dimensional data
+
+    Args:
+        data_manual: The dataset with manually-chosen code groups
+        data_reduce: The high-dimensional dataset
+        rng: The random state to pick the test/train split
+
+    Returns:
+        A tuple (y_train, y_test, X0_train, X0_test, X1_train, X1_test),
+            where the index 0 refers to the manual code groups data and
+            1 refers to the high-dimensional data.
+    """
+
+    # Check number of rows match
+    if data_manual.shape[0] != data_reduce.shape[0]:
+        raise RuntimeError(
+            "The number of rows in data_manual and data_reduce do not match."
+        )
+
+    # First, get the outcomes (y) from the dataframe. This is the
+    # source of test/train outcome data, and is used for both the
+    # manual and UMAP models. Just interested in whether bleeding
+    # occurred (not number of occurrences) for this experiment
+    outcome_name = "bleeding_al_ani_outcome"
+    y = data_manual[outcome_name]
+
+    # Get the set of manual code predictors (X0) to use for the
+    # first logistic regression model (all the columns with names
+    # ending in "_before").
+    X0 = data_manual.drop(columns=[outcome_name])
+
+    # Make a random test/train split.
+    test_set_proportion = 0.25
+    X0_train, X0_test, y_train, y_test = train_test_split(
+        X0, y, test_size=test_set_proportion, random_state=rng
+    )
+
+    # Extract the test/train sets from the UMAP data based on
+    # the index of the training set for the manual codes
+    X1 = data_reduce.drop(columns=[outcome_name])
+    X1_train = X1.loc[X0_train.index]
+    X1_test = X1.loc[X0_test.index]
+
+    return y_train, y_test, X0_train, X0_test, X1_train, X1_test
+
+
+def predict_probabilities(fitted_pipe: Pipeline, X_test: DataFrame) -> ndarray:
+    """Predict probabilities of a positive outcome for each row of the test set
+
+    Args:
+        fitted_pipe: The fit returned from fit_model()
+        X_test: The test dataset on which to make the predictions
+
+    Returns:
+        An array of probabilities
+
+    """
+    return fitted_pipe.predict_proba(X_test)[:, 1]
+
+
+def fit_model(
+    random_state: RandomState,
+    y_train: DataFrame,
+    X_train: DataFrame,
+    model_maker: Callable,
+    reducer_maker: Callable | None = None,
+) -> Pipeline:
+    """Create and fit a model, optionally with dimension reduction first
+
+    Args:
+        random_state: The random state to use for functions that require randomness
+        model_maker: Function to create the model to use after (optional) dimension reduction
+        reducer_maker: Function to use to make the dimension reducer. If None is passed, no
+           dimension reduction will be performed
+
+    Returns:
+        The fitted pipeline after applying dimension reduction (if reducer_maker not None)
+    """
+    reducer_wrapper = None
+    if reducer_maker is not None:
+        # The columns that need dimension reduction are those starting diagnosis_
+        # or procedure_
+        cols_to_reduce = [c for c in X_train.columns if ("diag" in c) or ("proc" in c)]
+        reducer = reducer_maker(random_state)
+        reducer_wrapper = make_column_transformer(reducer, cols_to_reduce)
+
+    # The pipe used to assess the model performance using
+    # manually chosen code groups
+    pipe = make_pipe(model_maker(random_state), reducer_wrapper)
+
+    # Fit the baseline pipe (manual code groups)
+    return pipe.fit(X_train, y_train)
+
+# 0. Prepare the datasets
+
+# Load both datasets
+data_manual = ds.load_dataset("data_manual", True)
+data_reduce = ds.load_dataset("data_umap", True)
+
+# 1. Test/train split
+
+random_state = None  # RandomState(0)
+
+# Make the test/train split for both datasets
+y_train, y_test, X0_train, X0_test, X1_train, X1_test = prepare_test_train(
+    data_manual, data_reduce, random_state
+)
+
+# 2. Fit logistic regression in the training set using code groups
+
+
+def single_fit(
+    random_state: RandomState,
+    y_train: DataFrame,
+    y_test: DataFrame,
+    X0_train: DataFrame,
+    X1_train: DataFrame,
+    X0_test: DataFrame,
+    X1_test: DataFrame,
+    model_maker: Callable,
+    reducer_maker: Callable,
+):
+    """Fit a single baseline and dimension-reduced model.
+
+    This function does not include any stability analysis/bootstrapped fitting.
+
+    Args:
+        random_state: Source of randomness
+        y_train: Outcome training data
+        y_test: Outcome test data
+        X0_train: Training features for the baseline (manual-codes) model
+        X1_train: Training features for the dimension reduction model
+        X0_test: Test features for the baseline (manual-codes) model
+        X1_test: Test features for the dimension reduction model
+        model_maker: Function to make the model
+        reducer_maker: Function to make the dimension reducer
+
+    Returns:
+        A tuple of the baseline model fit object, the dimension-reducted fit
+            object, the baseline probabilities on the test set, the dimension
+            reduced probabilities on the test set, and the ROC AUC for the
+            baseline and dimension reduced test sets.
+    """
+
+    # Fit the baseline model and the version using dimension reduction
+    baseline_fit = fit_model(random_state, y_train, X0_train, model_maker, None)
+    reduce_fit = fit_model(random_state, y_train, X1_train, model_maker, reducer_maker)
+
+    # Test the baseline performance on the test set and
+    # get ROC AUC
+    baseline_probs = predict_probabilities(baseline_fit, X0_test)
+    baseline_auc = roc_auc_score(y_test, baseline_probs)
+
+    # Test set for reduced model
+    reduce_probs = predict_probabilities(reduce_fit, X1_test)
+    reduce_auc = roc_auc_score(y_test, reduce_probs)
+
+    print("Finished fitting and testing:")
+    print(f"- Baseline AUC: {baseline_auc}")
+    print(f"- Reduce AUC: {reduce_auc}")
+
+    return (
+        baseline_fit,
+        reduce_fit,
+        baseline_probs,
+        reduce_probs,
+        baseline_auc,
+        reduce_auc,
+    )
+    
+def make_logistic_regression(random_state: RandomState) -> list:
+    """Make a new logistic regression model
+
+    The model involves scaling all predictors and then
+    applying a logistic regression model.
+
+    Returns:
+        A list of tuples suitable for passing to the
+            scikit learn Pipeline.
+    """
+
+    scaler = StandardScaler()
+    logreg = LogisticRegression(verbose=3, random_state=random_state)
+    model = [("scaler", scaler), ("model", logreg)]
+    return model
+
+
+def make_random_forest(random_state: RandomState) -> list:
+    """Make a new random forest model
+
+    Returns:
+        A list of tuples suitable for passing to the
+            scikit learn Pipeline.
+    """
+    random_forest = RandomForestClassifier(
+        verbose=3, n_estimators=100, max_depth=10, random_state=random_state
+    )
+    model = [("model", random_forest)]
+    return model
+
+def make_umap_reducer(random_state: RandomState) -> umap.UMAP:
+    """Make a UMAP reducer for use as dimension reduction.
+
+    Args:
+        random_state: Source of randomness
+
+    Returns:
+        umap.UMAP: The reducer object
+    """
+    # Dimension reduce model and columns to reduce
+    return umap.UMAP(
+        metric="hamming", n_components=3, random_state=random_state, verbose=True
+    )
+
+def make_tsvd_reducer(random_state: RandomState) -> TruncatedSVD:
+    return TruncatedSVD(random_state=random_state, n_components=100)
+
+def make_grp_reducer(random_state: RandomState) -> GaussianRandomProjection:
+    return GaussianRandomProjection(random_state=random_state, n_components=300)
+
+baseline_fit, reduce_fit, baseline_probs, reduce_probs, baseline_auc, reduce_auc = (
+    single_fit(
+        random_state,
+        y_train,
+        y_test,
+        X0_train,
+        X1_train,
+        X0_test,
+        X1_test,
+        make_random_forest,
+        make_grp_reducer,
+    )
+)
+
+
+baseline_importance = baseline_feature_importance(
+    baseline_fit, logistic_regression_coefficients
+)
 
 # 3. Fit the dimension reduced model
 
-# Dimension reduce model and columns to reduce
-umapper = umap.UMAP(metric="hamming", n_components=3, random_state=rng, verbose=True)
-cols_to_reduce = [c for c in X1_train.columns if ("diag" in c) or ("proc" in c)]
-
-# The pipe used to perform dimension reduction the fit the model
-reducer_wrapper = make_column_transformer(umapper, cols_to_reduce)
-reduce_pipe = make_pipe(make_logistic_regression(rng), reducer_wrapper)
 
 # Fit the dimension reduction pipe
 reduce_fit = reduce_pipe.fit(X1_train, y_train)
@@ -251,56 +446,8 @@ reduce_probs = reduce_fit.predict_proba(X1_test.filter(regex=".*"))[:, 1]
 reduce_auc = roc_auc_score(y_test, reduce_probs)
 reduce_auc
 
-def post_reduce_features(fitted_pipe: Pipeline) -> list[str]:
-    """Get the list of variables after dimension reduction.
-    
-    This function accounts for the re-ordering of variables that is performed
-    by the column transformer (reduced dimensions are placed at the front).
-
-    Args:
-        fitted_pipe: The fitted pipeline object, containing a ColumnTransformer
-            called "column_transformer" as the first step, which contains a 
-            "reducer" that processes cols_to_reduce (other columns are passed
-            through).
-
-    Returns:
-        The feature names in the final training set, after dimension reduction and
-            before modelling.
-    """
-    
-    # Get the column transformer and reducer
-    column_transformer = fitted_pipe["column_transformer"]
-    reducer = column_transformer.named_transformers_["reducer"]
-    
-    # Get the columns being reduced from the ColumnTransformer
-    for transformer in column_transformer.transformers:
-        if transformer[0] == "reducer":
-            # Extract the list of columns to process from the tuple
-            cols_to_reduce = transformer[2]
-            break
-
-    # Get all input features (before reduction)
-    input_vars = reduce_fit["column_transformer"].feature_names_in_
-    
-    # Make the lsit of variables which are not processed
-    remainder_vars = [col for col in input_vars if col not in cols_to_reduce]
-
-    # Reducer is processed first, so the reduced columns come at the front
-    # of the dataframe
-    reduce_vars = reduce_fit["column_transformer"].named_transformers_["reducer"].get_feature_names_out()
-
-    # Append the remainder vars to get all the variables in the final dataframe
-    all_vars = reduce_vars + remainder_vars
-
-    return all_vars
-
 
 reduce_feature_importance(reduce_fit, logistic_regression_coefficients)
-                    
-
-model0 = RandomForestClassifier(
-    verbose=3, n_estimators=100, max_depth=10, random_state=rng
-)
 
 
 pipe0 = Pipeline(
@@ -417,6 +564,7 @@ X1_train_embedding = pd.DataFrame(emb_train).set_index(X1_train.index)
 X1_train_embedding["Group"] = get_most_common_group(
     groups_map, code_groups_df, X1_train
 )
+
 X1_train_embedding.columns = ["Feature 1", "Feature 2", "Group"]
 # palette = sns.color_palette("rocket")
 sns.set(font_scale=1.2)
