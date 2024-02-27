@@ -392,7 +392,7 @@ y = data_manual[outcome_name]
 # ending in "_before").
 X0 = data_manual.drop(columns=[outcome_name])
 
-rng = np.random.RandomState(0)
+rng = None#np.random.RandomState(0)
 
 # Make a random test/train split.
 test_set_proportion = 0.25
@@ -436,6 +436,8 @@ fit0 = pipe0.fit(X0_train, y_train)
 
 # First, extract the test/train sets from the UMAP data based on
 # the index of the training set for the manual codes
+# NOTE: still contains the outcome -- not a problem as removed
+# below
 X1_train = data_umap.loc[X0_train.index]
 X1_test = data_umap.loc[X0_test.index]
 
@@ -443,7 +445,7 @@ X1_test = data_umap.loc[X0_test.index]
 # procedure columns, then manually apply this to the training set.
 cols_to_reduce = X1_train.filter(regex=("diag|proc"))
 
-mapper = umap.UMAP(metric="hamming", n_components=16, random_state=rng, verbose=True)
+mapper = umap.UMAP(metric="hamming", n_components=3, random_state=rng, verbose=True)
 
 # Fit UMAP to the training set
 umap_fit = mapper.fit(cols_to_reduce)
@@ -468,7 +470,7 @@ def row_contains_group(group, code_groups, X1_train):
 emb = umap_fit.transform(cols_to_reduce)
 
 # Plot a particular code group
-group_name = ""
+group_name = "bleeding_al_ani"
 display_name = "Bleeding"
 X1_train_embedding = pd.DataFrame(emb).set_index(X1_train.index)
 col_name = f"Prior {display_name}"
@@ -510,8 +512,8 @@ scaler1 = StandardScaler()
 
 pipe1 = Pipeline(
     [
-        ("scaler", scaler),
-        ("logreg", logreg),
+        ("scaler", scaler1),
+        ("logreg", logreg1),
     ]
 )
 fit1 = pipe1.fit(X1_train_reduced, y_train)

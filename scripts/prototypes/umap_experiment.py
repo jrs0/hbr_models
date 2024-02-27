@@ -90,7 +90,7 @@ def logistic_regression_coefficients(fitted_model: LogisticRegression) -> list[f
         fitted_model: The logistic regression model after it has been fitted
             to the training data
     """
-    return fitted_model.coef_.tolist()[0]
+    return fitted_model.coef_[0]
 
 
 def baseline_feature_importance(
