@@ -319,4 +319,236 @@ manual_codes_swd.drop(columns=["swd_age"], inplace=True)
 
 ds.save_dataset(manual_codes_swd, "manual_codes_swd")
 
+# ======= UMAP EXPERIMENT =======
+import os
+os.chdir("scripts/prototypes")
 
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+from sklearn.metrics import roc_curve, roc_auc_score
+import numpy as np
+import save_datasets as ds
+import matplotlib.pyplot as plt
+import umap
+import umap.plot
+import pandas as pd
+import seaborn as sns
+sns.set(style='ticks')
+
+
+# The purpose of this experiment is to test whether dimension
+# reduction of HES diagnosis/procedure codes can produce good
+# bleeding risk predictions, compared to using manually-chose
+# code groups.
+
+# 0. Prepare the datasets
+
+# Use the manual_codes table above to create a new table
+# dropping unneeded columns
+
+# Create/save/load the manual code groups dataset
+# - 16 code group predictors (manually chosen groups)
+# - age, gender, stemi, nstemi, pci predictors
+# - outcome: bleeding_al_ani_outcome
+# - index: idx_episode_id
+#data_manual = manual_codes.filter(regex=("(before|age|gender|stemi|pci|bleeding_al_ani_outcome)"))
+#ds.save_dataset(data_manual, "data_manual")
+data_manual = ds.load_dataset("data_manual", True)
+
+# Create/save/load the UMAP all-codes dataset
+#base_info = idx_episodes.filter(regex="(episode_id|age|gender|stemi|pci)")
+#base_info.set_index("idx_episode_id", inplace=True)
+#feature_any_code.set_index("idx_episode_id", inplace=True)
+#predictors = pd.merge(base_info, feature_any_code, on="idx_episode_id")
+#del feature_any_code # If you are short on memory
+#outcomes = outcome_counts[["idx_episode_id","bleeding_al_ani_outcome"]].set_index("idx_episode_id")
+#data_umap = pd.merge(predictors, outcomes, on="idx_episode_id")
+#del predictors
+#ds.save_dataset(data_umap, "data_umap")
+data_umap = ds.load_dataset("data_umap", True)
+
+# 1. Get a set of index events
+
+# The index events are ACS/PCI patients. This table is the
+# data_manual dataframe above, which also contains the manual
+# diagnosis/procedure group columns as predictors.
+#
+# Split this data into a test and a training set -- the idea
+# is that no data from the set used to test the models leaks
+# into the data used to fit the UMAP reduction (or the model
+# fits either).
+
+# First, get the outcomes (y) from the dataframe. This is the
+# source of test/train outcome data, and is used for both the
+# manual and UMAP models. Just interested in whether bleeding
+# occurred (not number of occurrences) for this experiment
+outcome_name = "bleeding_al_ani_outcome"
+y = data_manual[outcome_name]
+
+# Get the set of manual code predictors (X0) to use for the
+# first logistic regression model (all the columns with names
+# ending in "_before").
+X0 = data_manual.drop(columns=[outcome_name])
+
+rng = np.random.RandomState(0)
+
+# Make a random test/train split.
+test_set_proportion = 0.25
+X0_train, X0_test, y_train, y_test = train_test_split(
+    X0, y, test_size=test_set_proportion, random_state=rng
+)
+
+# 2. Fit logistic regression in the training set using code groups
+
+# This is the simple case, where the full training set is used
+# to make the model, and the predictors are already determined.
+
+logreg0 = LogisticRegression(verbose=0, random_state=rng)
+scaler0 = StandardScaler()
+
+pipe0 = Pipeline(
+    [
+        ("scaler", scaler0),
+        ("logreg", logreg0),
+    ]
+)
+fit0 = pipe0.fit(X0_train, y_train)
+
+# 3. Dimension-reduce the diagnosis/procedures using UMAP
+
+# In this step, take all the patients in the training set, and
+# find all the diagnosis/procedure codes tha appeared in the
+# year before index (give one bool column-per-code -- could count
+# the number of codes, but don't want to bias it in case the
+# count is actually irrelevant (e.g. a common code might not be
+# an important one).
+#
+# That gives a table with one row per index event, and lots of
+# columns (one per code)
+#
+# Perform UMAP to reduce this to a table with the same number
+# of predictor columns as there were manual code groups (to see
+# if UMAP does a better job at picking the same number of 
+# predictors)
+#
+
+# First, extract the test/train sets from the UMAP data based on
+# the index of the training set for the manual codes
+X1_train = data_umap.loc[X0_train.index]
+X1_test = data_umap.loc[X0_test.index]
+
+# We will train a UMAP reduction on the X1_train table diagnosis/
+# procedure columns, then manually apply this to the training set.
+cols_to_reduce = X1_train.filter(regex=("diag|proc"))
+
+mapper = umap.UMAP(metric="hamming", n_components=16, random_state=rng, verbose=True)
+
+# Fit UMAP to the training set
+umap_fit = mapper.fit(cols_to_reduce)
+
+# For Plotting 2D =====================
+
+# To use this bit, ensure that the the ncomponents is set to
+# 2 (to be able to plot it).
+
+import code_group_counts as cgc
+code_groups_df = cgc.get_code_groups(
+    "../codes_files/icd10.yaml", "../codes_files/opcs4.yaml"
+)
+
+def row_contains_group(group, code_groups, X1_train):
+    # Flag all the codes in a group
+    groups = code_groups[code_groups["group"] == group]["name"]
+    group_regex = "|".join(groups.to_list())
+    return X1_train.filter(regex=group_regex).sum(axis=1).astype('category')
+
+# Apply the fit to the training data to get the embedding
+emb = umap_fit.transform(cols_to_reduce)
+
+# Plot a particular code group
+group_name = ""
+display_name = "Bleeding"
+X1_train_embedding = pd.DataFrame(emb).set_index(X1_train.index)
+col_name = f"Prior {display_name}"
+X1_train_embedding[col_name] = row_contains_group(group_name,code_groups_df, X1_train)
+X1_train_embedding.columns = ["Feature 1", "Feature 2", col_name]
+palette = sns.color_palette("rocket")
+sns.set(font_scale=1.2)
+sns.relplot(data=X1_train_embedding, x="Feature 1", y='Feature 2', hue=col_name, palette=palette, s=5)
+plt.title(f"Distribution of {col_name}")
+plt.show()
+
+# Plot age on the graph
+X1_train_embedding = pd.DataFrame(emb).set_index(X1_train.index)
+X1_train_embedding["Age"] = X1_train["dem_age"]
+X1_train_embedding.columns = ["Feature 1", "Feature 2", "Age"]
+palette = sns.color_palette("rocket", as_cmap=True)
+sns.relplot(data=X1_train_embedding, x="Feature 1", y='Feature 2', hue="Age", palette=palette, s=5)
+plt.title(f"Distribution of Age")
+plt.show()
+
+# End of plotting ==================
+
+# Apply the fitted model to the training data to reduce it
+# to 16 columns
+emb = umap_fit.transform(cols_to_reduce)
+
+# Insert these columns back into the X1_train data frame in
+# place of the original diagnosis/procedure code columns.
+# The result is the input data for fitting logistic regression
+reduced_dims = pd.DataFrame(emb)
+reduced_dims.columns = [f"f{n}" for n in range(reduced_dims.shape[1])]
+reduced_dims.index = X1_train.index
+X1_train_reduced = pd.merge(X1_train.filter(regex="age|gender|idx"), reduced_dims, on="idx_episode_id")
+
+# 4. Fit a log. reg. on the UMAP-predictor table
+
+logreg1 = LogisticRegression(verbose=0, random_state=rng)
+scaler1 = StandardScaler()
+
+pipe1 = Pipeline(
+    [
+        ("scaler", scaler),
+        ("logreg", logreg),
+    ]
+)
+fit1 = pipe1.fit(X1_train_reduced, y_train)
+
+# 5. Test both models on the test set
+
+# Want to plot the ROC curve and get the ROC AUC. In a next
+# step, want to do some stability analysis for this whole
+# process.
+#
+
+probs0 = fit0.predict_proba(X0_test)[:, 1]
+auc0 = roc_auc_score(y_test, probs0)
+fpr0, tpr0, _ = roc_curve(y_test, probs0)
+roc = pd.DataFrame({"False positive rate": fpr0, "True positive rate": tpr0})
+sns.lineplot(data=roc, x="False positive rate", y = "True positive rate")
+plt.title(f"ROC Curve for Manual-Groups Model (AUC = {auc0:0.2f})")
+plt.plot([0, 1], [0, 1])
+plt.show()
+
+# To predict probabilities for the UMAP logistic
+# regression, it is first necessary to reduce the
+# test set using the fitted UMAP
+cols_to_reduce = X1_test.filter(regex=("diag|proc"))
+emb = umap_fit.transform(cols_to_reduce)
+reduced_dims = pd.DataFrame(emb)
+reduced_dims.columns = [f"f{n}" for n in range(reduced_dims.shape[1])]
+reduced_dims.index = X1_test.index
+X1_test_reduced = pd.merge(X1_test.filter(regex="age|gender|idx"), reduced_dims, on="idx_episode_id")
+
+probs1 = fit1.predict_proba(X1_test_reduced)[:, 1]
+auc1 = roc_auc_score(y_test, probs1)
+fpr1, tpr1, _ = roc_curve(y_test, probs1)
+roc = pd.DataFrame({"False positive rate": fpr1, "True positive rate": tpr1})
+sns.lineplot(data=roc, x="False positive rate", y = "True positive rate")
+plt.title(f"ROC Curve for UMAP Model (AUC = {auc1:.2f})")
+plt.plot([0, 1], [0, 1])
+plt.show()
+
+roc
