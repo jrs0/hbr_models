@@ -33,6 +33,9 @@ from pandas import DataFrame
 from numpy.random import RandomState
 from numpy import ndarray
 
+from code_group_counts import get_code_groups
+from pandas import Series
+
 
 def make_column_transformer(reducer, cols_to_reduce: list[str]) -> ColumnTransformer:
     """Make a wrapper that applies dimension reduction to a subset of columns.
@@ -50,6 +53,7 @@ def make_column_transformer(reducer, cols_to_reduce: list[str]) -> ColumnTransfo
         remainder="passthrough",
         verbose_feature_names_out=True,
     )
+
 
 def make_pipe(model: list, column_transformer: ColumnTransformer = None) -> Pipeline:
     """Make a model pipeline from the model part and dimension reduction
@@ -180,7 +184,7 @@ def post_reduce_features(fitted_pipe: Pipeline) -> list[str]:
 
     # Reducer is processed first, so the reduced columns come at the front
     # of the dataframe
-    reduce_vars = (
+    reduce_vars = list(
         reduce_fit["column_transformer"]
         .named_transformers_["reducer"]
         .get_feature_names_out()
@@ -288,6 +292,7 @@ def fit_model(
     # Fit the baseline pipe (manual code groups)
     return pipe.fit(X_train, y_train)
 
+
 # 0. Prepare the datasets
 
 # Load both datasets
@@ -364,7 +369,8 @@ def single_fit(
         baseline_auc,
         reduce_auc,
     )
-    
+
+
 def make_logistic_regression(random_state: RandomState) -> list:
     """Make a new logistic regression model
 
@@ -395,6 +401,7 @@ def make_random_forest(random_state: RandomState) -> list:
     model = [("model", random_forest)]
     return model
 
+
 def make_umap_reducer(random_state: RandomState) -> umap.UMAP:
     """Make a UMAP reducer for use as dimension reduction.
 
@@ -409,11 +416,14 @@ def make_umap_reducer(random_state: RandomState) -> umap.UMAP:
         metric="hamming", n_components=3, random_state=random_state, verbose=True
     )
 
+
 def make_tsvd_reducer(random_state: RandomState) -> TruncatedSVD:
-    return TruncatedSVD(random_state=random_state, n_components=100)
+    return TruncatedSVD(random_state=random_state, n_components=3)
+
 
 def make_grp_reducer(random_state: RandomState) -> GaussianRandomProjection:
     return GaussianRandomProjection(random_state=random_state, n_components=300)
+
 
 baseline_fit, reduce_fit, baseline_probs, reduce_probs, baseline_auc, reduce_auc = (
     single_fit(
@@ -424,10 +434,171 @@ baseline_fit, reduce_fit, baseline_probs, reduce_probs, baseline_auc, reduce_auc
         X1_train,
         X0_test,
         X1_test,
-        make_random_forest,
-        make_grp_reducer,
+        make_logistic_regression,
+        make_tsvd_reducer,
     )
 )
+
+
+def reduce_dimensions(fitted_pipe: Pipeline, data: DataFrame) -> DataFrame:
+    """Apply a fitted model to the training set to get the intermediate dimension-reduced data
+
+    Use this function to get the intermediate result after applying dimension reduction
+    to the training data. The result is what is passed to the modelling step and can be
+    used to assess how the dimension reduction behaved.
+
+    Args:
+        fitted_pipe: The fitted pipe containing the dimension reduction and model
+        data: The (high-dimensional) training or test set which should be diemnsion-reduced
+
+    Returns:
+        The result of applying the dimension reduction to the data. Preserves all the
+            non-reduced columns (which end up at the end)
+    """
+    raw_array = fitted_pipe["column_transformer"].transform(data)
+    after_reduce = pd.DataFrame(raw_array)
+    after_reduce.columns = post_reduce_features(fitted_pipe)
+    after_reduce.index = data.index
+    return after_reduce
+
+
+code_groups = get_code_groups("../codes_files/icd10.yaml", "../codes_files/opcs4.yaml")
+
+
+def code_counts_in_rows(group: str, code_groups: DataFrame, data: DataFrame) -> Series:
+    """Reduce rows to a count of a particular code group in each row
+
+    Args:
+        group: The name of the code group to count
+        code_groups: DataFrame mapping column `group` to a column called `name` which
+            stores all the codes in that group
+        data: Data containing many columns each corresponding to a single code (containing
+            the `name` from the code_groups table as part of the column name).
+
+    Returns:
+        The result of adding up all the columns for codes in the code group specified.
+    """
+    groups = code_groups[code_groups["group"] == group]["name"]
+    group_regex = "|".join(groups.to_list())
+    code_counts = data.filter(regex=group_regex).sum(axis=1)
+    return code_counts
+
+
+def get_most_common_group(
+    groups_map: dict, code_groups: DataFrame, data: DataFrame
+) -> Series:
+    """Identify which code group occurred most often in each row
+
+    Args:
+        groups_map: A map from the group name to the desired column name in the output data
+            for that group.
+        code_groups: A table mapping the group name in the `group` column to the clinical codes
+            in that group (in the `name` column)
+        data: A table with one column for each clinical code, where each column name contains
+            the `name` in the code_groups table.
+
+    Returns:
+        A table with one column showing which was the most common code group in the row,
+            or None if none of the code groups appeared in the row.
+    """
+    dfs = []
+    for group, group_name in groups_map.items():
+        code_counts = code_counts_in_row(group, code_groups, data)
+        code_counts.name = group_name
+        dfs.append(code_counts)
+
+    full = reduce(lambda left, right: pd.merge(left, right, on="idx_episode_id"), dfs)
+    full["None"] = 0.1  # trick to make idxmax identify where a row has no code
+    most_common = full.astype(float).idxmax(axis=1)
+    return most_common
+
+
+groups_map = {
+    "bleeding_al_ani": "Prior Bleeding",
+    "acs_bezin": "Prior ACS",
+    "pci": "Prior PCI",
+    "ckd": "CKD",
+    "cancer": "Cancer",
+    "diabetes": "Diabetes",
+}
+
+
+def get_reduced_columns_only(after_reduce: DataFrame) -> DataFrame:
+    """Keep only the dimension reduced columns of the reduced data.
+
+    This removes age, gender, and index characteristics, and leaves
+    only the columns that arise from dimension reducing the clinical
+    code columns.
+
+    Args:
+        data: The data after dimension reduction
+
+    Returns:
+        Only the dimension-reduced columns of the data
+    """
+    return after_reduce.loc[
+        :, ~after_reduce.columns.str.contains("age|gender|idx")
+    ].copy()
+
+
+def plot_reduced_components(
+    before_reduce: DataFrame, after_reduce: DataFrame, groups_map: dict
+):
+    """Plot a 2D or 3D graph of the reduced dimensions, coloured by clinical code group
+
+    Args:
+        before_reduce: The high-dimensional data including all the clinical code columns. This
+            is required to count the occurrences of code groups
+        after_reduce: The state of the data after applying the dimension reduction
+            algorithm.
+        groups_map: A map from group name to a readable name that should appear on the plot.
+    """
+
+    if before_reduce.shape[0] != after_reduce.shape[0]:
+        raise RuntimeError(
+            "Datasets before/after dimension reduction must have the same number of rows"
+        )
+
+    # Drop the columns which are not part of the dimension reduction
+    reduced_columns = get_reduced_columns_only(after_reduce)
+
+    # Add the most common group for each row
+    reduced_columns["Group"] = get_most_common_group(
+        groups_map, code_groups, before_reduce
+    )
+
+    # Rename the reduced columns for plotting
+    num_components = reduced_columns.shape[1] - 1
+    new_component_names = [f"Feature {n+1}" for n in range(num_components)]
+    reduced_columns.columns = new_component_names + ["Group"]
+
+    plt.rcParams["legend.markerscale"] = 5
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection="3d")
+
+    # Rename for simplicity (subsample for speed)
+    df = reduced_columns#.sample(frac=0.05)
+    
+    for s in df.Group.unique():
+        ax.scatter(
+            df["Feature 1"][df["Group"] == s],
+            df["Feature 2"][df["Group"] == s],
+            df["Feature 3"][df["Group"] == s],
+            label=s,
+            marker=".",
+            s=1,
+        )
+
+    ax.set_xlabel("Feature 1")
+    ax.set_ylabel("Feature 2")
+    ax.set_zlabel("Feature 3")
+    ax.legend()
+    plt.show()
+
+
+after_reduce = reduce_dimensions(reduce_fit, X1_train)
+
+plot_reduced_components(X1_train, after_reduce, groups_map)
 
 baseline_importance = baseline_feature_importance(
     baseline_fit, logistic_regression_coefficients
@@ -441,7 +612,7 @@ reduce_fit = reduce_pipe.fit(X1_train, y_train)
 
 # Test the performance including dimension reduction and get the
 # ROC AUC
-reduce_probs = reduce_fit.predict_proba(X1_test.filter(regex=".*"))[:, 1]
+reduce_probs = reduce_fit.predict_proba(X1_test)[:, 1]
 reduce_auc = roc_auc_score(y_test, reduce_probs)
 reduce_auc
 
